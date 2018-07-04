@@ -8,7 +8,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(configName: '', transfers: [sshTransfer(excludes: '', execCommand: 'screen -X -S \'test-bot\' kill; screen -dmS \'test-bot\' bash -c \'/home/ubuntu/test-bot/main.py\'', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/ubuntu/test-bot', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'main.py')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'winfieldchen.me', transfers: [sshTransfer(excludes: '', execCommand: 'screen -X -S \'test-bot\' kill; screen -dmS \'test-bot\' bash -c \'/home/ubuntu/test-bot/main.py\'', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/test-bot', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'main.py')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
     }
