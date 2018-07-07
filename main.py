@@ -69,6 +69,12 @@ async def whois(ctx, roleToCheck):
         return
     for members in membersOfRole:
         memberString += members.name + "\n"
-    await ctx.send("```" + "Members belonging to role '" + roleToCheck + "':\n" + memberString + "```")
+    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
+
+@bot.command()
+async def poll(ctx, question):
+    post = await ctx.send("Poll:\n" + "```" + question + "```")
+    await post.add_reaction(u"\U0001F44D")
+    await post.add_reaction(u"\U0001F44E")
 
 bot.run(TOKEN)
