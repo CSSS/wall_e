@@ -6,6 +6,17 @@ This repo will hold all the scripts for the upcoming bot that will operate on th
   
 It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
 
+## Current Commands
+
+* `.ping` - returns `pong!`
+* `.echo <arg>` - returns `<arg>`
+* `.newrole <arg>` - creates role `<arg>`
+* `.iam <arg>` - adds you to role `<arg>`
+* `.iamn <arg>` - removes you from role `<arg>`
+* `.whois <arg>` - returns everyone who has role `<arg>`
+* `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
+* `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
+
 ## Local Setup
 
 Follow these steps to run the bot and do development on your local machine.
