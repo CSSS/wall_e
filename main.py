@@ -32,7 +32,8 @@ async def newrole(ctx, roleToAdd):
         if role.name == roleToAdd:
             await ctx.send("```" + "Role '" + roleToAdd + "' exists. Calling .iam " + roleToAdd +" will add you to it." + "```")
             return
-    await guild.create_role(name=roleToAdd)
+    role = await guild.create_role(name=roleToAdd)
+    await role.edit(mentionable=True)
     await ctx.send("```" + "You have successfully created role '" + roleToAdd + "'. Calling .iam " + roleToAdd + " will add you to it." + "```")
     
 @bot.command()
