@@ -18,8 +18,10 @@ pipeline {
                 branch 'master'
             }
             steps {
-                withCredentials([string(credentialsId: 'BOT_USER_TOKEN', variable: 'BOT_USER_TOKEN')]) {
-                    sh 'sed -i -e "s/YOUR_TOKEN_HERE/$BOT_USER_TOKEN/g" main.py'
+                withCredentials([
+                        string(credentialsId: 'BOT_USER_TOKEN', variable: 'BOT_USER_TOKEN'),
+                        string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: 'TEST_BOT_USER_TOKEN')]) {
+                    sh 'sed -i -e "s/$TEST_BOT_USER_TOKEN/$BOT_USER_TOKEN/g" main.py'
                 }
             }
         }
