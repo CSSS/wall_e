@@ -72,9 +72,30 @@ async def whois(ctx, roleToCheck):
     await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
 @bot.command()
-async def poll(ctx, question):
-    post = await ctx.send("Poll:\n" + "```" + question + "```")
-    await post.add_reaction(u"\U0001F44D")
-    await post.add_reaction(u"\U0001F44E")
+async def poll(ctx, *questions):
+    if len(questions) > 12:
+        await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
+        return
+    elif len(questions) == 1:
+        post = await ctx.send("Poll:\n" + "```" + questions[0] + "```")
+        await post.add_reaction(u"\U0001F44D")
+        await post.add_reaction(u"\U0001F44E")
+        return
+    if len(questions) == 2:
+        await ctx.send("Poll Error:\n```Please submit at least 2 options for a multi-option question.```")
+        return
+    else:
+        questions = list(questions)
+        optionString = "\n"
+        numbersEmoji = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:", ":keycap_ten:"]
+        numbersUnicode = [u"0\u20e3", u"1\u20e3", u"2\u20e3", u"3\u20e3", u"4\u20e3", u"5\u20e3", u"6\u20e3", u"7\u20e3", u"8\u20e3", u"9\u20e3", u"\U0001F51F"]
+        question = questions.pop(0)
+        options = 0
+        for m, n in zip(numbersEmoji, questions):
+            optionString += m + ": " + n +"\n"
+            options += 1
+        pollPost = await ctx.send("Poll:\n```" + question + "```" + optionString)
+        for i in range(0, options):
+            await pollPost.add_reaction(numbersUnicode[i])
 
 bot.run(TOKEN)
