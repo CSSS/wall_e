@@ -1,2 +1,1 @@
-wolframalpha==3.0.1
-discord.py==0.16.12
+discord-rewrite==1.0.0
