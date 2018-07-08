@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-TOKEN = 'YOUR_TOKEN_HERE'
+TOKEN = 'NDY0NTE4MjE4NjQwMjYxMTIw.DiKJ_A.I-U8UunBm6-u8If_Z40PjRZ3s9c'
 
 bot = commands.Bot(command_prefix='.')
 
@@ -22,6 +22,7 @@ async def echo(ctx, arg):
     
 @bot.command()
 async def newrole(ctx, roleToAdd):
+    roleToAdd = roleToAdd.lower()
     guild = ctx.guild
     for role in guild.roles:
         if role.name == roleToAdd:
@@ -33,6 +34,7 @@ async def newrole(ctx, roleToAdd):
     
 @bot.command()
 async def iam(ctx, roleToAdd):
+    roleToAdd = roleToAdd.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
     if role == None:
         await ctx.send("```" + "Role '" + roleToAdd + "' does not exist. Calling .newrole " + roleToAdd +" will create it." + "```")
@@ -43,6 +45,7 @@ async def iam(ctx, roleToAdd):
     
 @bot.command()
 async def iamn(ctx, roleToAdd):
+    roleToAdd = roleToAdd.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
     if role == None:
         await ctx.send("```" + "Role '" + roleToAdd + "' does not exist." + "```")
