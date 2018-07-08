@@ -70,11 +70,6 @@ async def whois(ctx, roleToCheck):
         memberString += members.name + "\n"
     await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
-@whois.error
-async def whois_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('```Usage: whois <role>```')
-
 @bot.command()
 async def poll(ctx, *questions):
     if len(questions) > 12:
@@ -101,5 +96,11 @@ async def poll(ctx, *questions):
         pollPost = await ctx.send("Poll:\n```" + question + "```" + optionString)
         for i in range(0, options):
             await pollPost.add_reaction(numbersUnicode[i])
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        fmt = 'Missing argument: {0}'
+        await ctx.send(fmt.format(error.param))
 
 bot.run(TOKEN)
