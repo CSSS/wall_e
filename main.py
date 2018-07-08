@@ -1,10 +1,20 @@
 import os
+import asyncio
+import queue
+import json
+import redis
+import parsedatetime
 import discord
 from discord.ext import commands
+from time import mktime
 
 TOKEN = os.environ['TOKEN']
 
 bot = commands.Bot(command_prefix='.')
+
+r = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+message_queue = queue.Queue()
 
 @bot.event
 async def on_ready():
@@ -100,10 +110,43 @@ async def poll(ctx, *questions):
         for i in range(0, options):
             await pollPost.add_reaction(numbersUnicode[i])
 
+@bot.command()
+async def remindme(ctx, time, message):
+    time_struct, parse_status = parsedatetime.Calendar().parse(time)
+    if parse_status == 0:
+        await ctx.send('```Could not parse time!```')
+        return
+    expire_seconds = int(mktime(time_struct) - time.time())
+    json_string = json.dumps(ctx)
+    r.set(json_string, '', expire_seconds)
+    fmt = '```Reminder set for {0} seconds from now```'
+    await ctx.send(fmt.format(expire_seconds))
+
+def expire_handler(message):
+    if message.type == 'message':
+        ctx = json.loads(message.data)
+        message_queue.put_nowait(ctx)
+
+async def get_messages():
+    await bot.wait_until_ready()
+    while not bot.is_closed:
+        if not message_queue.empty():
+            ctx = message_queue.get_nowait()
+            fmt = '<@{0}> ```{1}```'
+            await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+            await asyncio.sleep(1)
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         fmt = '```Missing argument: {0}```'
         await ctx.send(fmt.format(error.param))
 
+message_subscriber = r.pubsub(ignore_subscribe_messages=True)
+message_subscriber.subscribe(**{'__keyevent@0__:expired': expire_handler})
+thread = message_subscriber.run_in_thread(sleep_time=0.5)
+
+bot.loop.create_task(get_messages())
+
 bot.run(TOKEN)
+thread.stop()
