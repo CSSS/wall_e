@@ -19,11 +19,6 @@ async def ping(ctx):
 @bot.command()
 async def echo(ctx, arg):
     await ctx.send(arg)
-
-@bot.command()
-async def roles(ctx):
-    roles = ctx.guild.roles
-    await ctx.send(roles)
     
 @bot.command()
 async def newrole(ctx, roleToAdd):
