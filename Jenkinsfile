@@ -16,7 +16,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
                         sh "docker stop ${testContainerName} || true"
                         sh "docker rm ${testContainerName} || true"
-                        sh "docker run -d -e ${tokenEnv} --name ${testContainerName} wall-e:${env.BUILD_ID}"
+                        sh "docker run -d -e ${tokenEnv} --net=host --name ${testContainerName} wall-e:${env.BUILD_ID}"
                     }
                 }
             }
@@ -32,7 +32,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
                         sh "docker stop ${productionContainerName} || true"
                         sh "docker rm ${productionContainerName} || true"
-                        sh "docker run -d -e ${tokenEnv} --name ${productionContainerName} wall-e:${env.BUILD_ID}"
+                        sh "docker run -d -e ${tokenEnv} --net=host --name ${productionContainerName} wall-e:${env.BUILD_ID}"
                     }
                 }
             }

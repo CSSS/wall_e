@@ -1,4 +1,6 @@
 import os
+import sys
+import traceback
 import asyncio
 import queue
 import json
@@ -141,6 +143,9 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         fmt = '```Missing argument: {0}```'
         await ctx.send(fmt.format(error.param))
+    else:
+        print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 message_subscriber = r.pubsub(ignore_subscribe_messages=True)
 message_subscriber.subscribe(**{'__keyevent@0__:expired': expire_handler})
