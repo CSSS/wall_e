@@ -15,7 +15,7 @@ async def on_ready():
 
 @bot.command()
 async def ping(ctx):
-    await ctx.send('pong!')
+    await ctx.send('```pong!```')
 	
 @bot.command()
 async def echo(ctx, arg):
@@ -83,6 +83,9 @@ async def poll(ctx, *questions):
     if len(questions) == 2:
         await ctx.send("Poll Error:\n```Please submit at least 2 options for a multi-option question.```")
         return
+    elif len(questions) == 0:
+        await ctx.send('```Usage: .poll <Question> [Option A] [Option B] ...```')
+        return
     else:
         questions = list(questions)
         optionString = "\n"
@@ -96,5 +99,11 @@ async def poll(ctx, *questions):
         pollPost = await ctx.send("Poll:\n```" + question + "```" + optionString)
         for i in range(0, options):
             await pollPost.add_reaction(numbersUnicode[i])
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        fmt = '```Missing argument: {0}```'
+        await ctx.send(fmt.format(error.param))
 
 bot.run(TOKEN)
