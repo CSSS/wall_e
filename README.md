@@ -41,5 +41,5 @@ Pre-requisites: `git`, `python3`, and `pip3`.
 
 1. Run `git clone https://github.com/CSSS/wall_e.git && cd wall_e`
 1. Run `pip3 install -r requirements.txt`
-1. Edit `main.py` and replace `'YOUR_TOKEN_HERE'` with the token you previously obtained (within quotations)
+1. Run `TOKEN=` the token you previously obtained
 1. Run `python3 main.py`
