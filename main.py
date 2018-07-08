@@ -1,7 +1,8 @@
+import os
 import discord
 from discord.ext import commands
 
-TOKEN = 'YOUR_TOKEN_HERE'
+TOKEN = os.environ['TOKEN']
 
 bot = commands.Bot(command_prefix='.')
 
