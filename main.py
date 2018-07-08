@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-TOKEN = 'NDY0NTE4MjE4NjQwMjYxMTIw.DiKJ_A.I-U8UunBm6-u8If_Z40PjRZ3s9c'
+TOKEN = 'YOUR_TOKEN_HERE'
 
 bot = commands.Bot(command_prefix='.')
 
