@@ -100,7 +100,7 @@ async def poll(ctx, *questions):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        fmt = 'Missing argument: {0}'
+        fmt = '```Missing argument: {0}```'
         await ctx.send(fmt.format(error.param))
 
 bot.run(TOKEN)
