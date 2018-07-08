@@ -3,7 +3,9 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                docker.build("wall-e:${env.BUILD_ID}")
+                script {
+                    docker.build("wall-e:${env.BUILD_ID}")
+                }
             }
         }
         stage('Test') {
