@@ -83,6 +83,9 @@ async def poll(ctx, *questions):
     if len(questions) == 2:
         await ctx.send("Poll Error:\n```Please submit at least 2 options for a multi-option question.```")
         return
+    elif len(questions) == 0:
+        await ctx.send('```Usage: .poll <Question> [Option A] [Option B] ...```')
+        return
     else:
         questions = list(questions)
         optionString = "\n"
