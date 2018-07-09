@@ -3,7 +3,6 @@ import sys
 import time
 import traceback
 import asyncio
-import queue
 import json
 import redis
 import parsedatetime
@@ -16,8 +15,8 @@ TOKEN = os.environ['TOKEN']
 bot = commands.Bot(command_prefix='.')
 
 r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
-
-message_queue = queue.Queue()
+message_subscriber = r.pubsub(ignore_subscribe_messages=True)
+message_subscriber.subscribe('__keyevent@0__:expired')
 
 @bot.event
 async def on_ready():
@@ -125,24 +124,19 @@ async def remindme(ctx, timeUntil, message):
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
 
-def expire_handler(message):
-    if message['type'] == 'message':
-        cid_mid_dct = json.loads(message['data'])
-        message_queue.put_nowait(cid_mid_dct)
-
 async def get_messages():
     await bot.wait_until_ready()
-    while not bot.is_closed:
-        if not message_queue.empty():
-            cid_mid_dct = message_queue.get_nowait()
+    while True:
+        message = message_subscriber.get_message()
+        if message is not None:
+            cid_mid_dct = json.loads(message['data'])
             chan = bot.get_channel(cid_mid_dct['cid'])
             msg = await chan.get_message(cid_mid_dct['mid'])
             ctx = await bot.get_context(msg)
-            print(ctx.message.content)
             if ctx.valid:
                 fmt = '<@{0}> ```{1}```'
                 await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
-                await asyncio.sleep(2)
+        await asyncio.sleep(2)
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -153,11 +147,8 @@ async def on_command_error(ctx, error):
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
-message_subscriber = r.pubsub(ignore_subscribe_messages=True)
-message_subscriber.subscribe(**{'__keyevent@0__:expired': expire_handler})
-thread = message_subscriber.run_in_thread(sleep_time=1)
-
-bot.loop.create_task(get_messages())
+@bot.event
+async def on_ready():
+    bot.loop.create_task(get_messages())
 
 bot.run(TOKEN)
-thread.stop()
