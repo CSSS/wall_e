@@ -57,13 +57,13 @@ the above script was adapted from the commandline history gleamed from the comma
 #### Redis setup
  1. Compare the `/etc/redis/redis.conf` file on the machine vs the [redis.conf](files_for_machine_setup/redis.conf) file included in this repo to see if the server copy needs any changes.  
  2. Misc. Commands that may be useful for this step  
-   1. `sudo service redis-server restart`  
-   2. `redis-cli --csv subscribe '__keyevent@0__:expired'`  
-   3. `docker ps`  
-   4. `docker stop wall-e-test`  
-   5. `docker logs -f wall-e-test`  
-   6. `docker start wall-e-test`  
-   7. `docker rm wall-e-test `  
+         1. `sudo service redis-server restart`  
+         2. `redis-cli --csv subscribe '__keyevent@0__:expired'`  
+         3. `docker ps`  
+         4. `docker stop wall-e-test`  
+         5. `docker logs -f wall-e-test`  
+         6. `docker start wall-e-test`  
+         7. `docker rm wall-e-test `  
 
 ### Part 2: Authentication
 
