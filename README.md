@@ -10,8 +10,8 @@ It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
  - [Current Commands](#current-commands)  
  - [Local Setup](#local-setup)  
        - [Current-Setup Info](#current-setup-info)  
-    - [Part 1: Authentication](#part-2-authentication)  
-    - [Part 2: Running the bot](#part-3-running-the-bot)  
+    - [Part 1: Authentication](#part-1-authentication)  
+    - [Part 2: Running the bot](#part-2-running-the-bot)  
   
 ## Current Commands
 
@@ -31,7 +31,7 @@ Server IP: 178.128.184.141
 For access to the jenkins, notify someone on the following list:  
  * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
 
-Follow steps outlined in the [README for system setup](files_for_machine_setup) steps to prepare the machine to support CI/CD
+Follow steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the machine to support CI/CD
   
 Follow these steps to run the bot and do development on your local machine.  
   
