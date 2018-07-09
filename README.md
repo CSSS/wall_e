@@ -46,8 +46,8 @@ Follow these steps to run the bot and do development on your local machine.
 the above script was adapted from the commandline history gleamed from the commands used by the person who set up the server. If you encounter issues with the script, feel free to look at the command history instead at [command history.txt](files_for_machine_setup/command_history.txt)  
   
  3. docker container should end up being set up with  
-   1. `Python 3.5.5`  
-   2. `pip 10.0.1 from /usr/local/lib/python3.5/site-packages/pip (python 3.5)`  
+          1. `Python 3.5.5`  
+          2. `pip 10.0.1 from /usr/local/lib/python3.5/site-packages/pip (python 3.5)`  
 
 #### Nginx Set-up
  1. Compare the `/etc/nginx/sites-enabled/default` file on the machine vs the [default](files_for_machine_setup/default) file included in this repo to see if the server copy needs any changes.  
