@@ -138,6 +138,7 @@ async def get_messages():
             chan = bot.get_channel(cid_mid_dct['cid'])
             msg = await chan.get_message(cid_mid_dct['mid'])
             ctx = await bot.get_context(msg)
+            print(ctx.message.content)
             if ctx.valid:
                 fmt = '<@{0}> ```{1}```'
                 await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
