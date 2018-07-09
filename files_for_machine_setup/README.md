@@ -1,5 +1,10 @@
 # Part 1: Server Setup  
   
+## Table of Contents
+ - [Jenkins Setup on Docker](#jenkins-setup-on-docker)  
+ - [Nginx Setup](#nginx-setup)  
+ - [Redis setup](#redis-setup)  
+
 ## Jenkins Setup on Docker
  1. Spin-up a linux server [This documentation was made with an Ubuntu 16.04.4 server]  
  2. run the following command  
@@ -12,7 +17,7 @@ the above script was adapted from the commandline history gleamed from the comma
           1. `Python 3.5.5`  
           2. `pip 10.0.1 from /usr/local/lib/python3.5/site-packages/pip (python 3.5)`  
 
-## Nginx Set-up
+## Nginx Setup
  1. Compare the `/etc/nginx/sites-enabled/default` file on the machine vs the [default](default) file included in this repo to see if the server copy needs any changes.  
  1. Run `nginx -t` to test the configuration file.  
  1. If tests pass, run `sudo service nginx restart `  
