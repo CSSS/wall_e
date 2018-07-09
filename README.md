@@ -9,7 +9,7 @@ It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
 ## Table of Contents
  - [Current Commands](#current-commands)  
  - [Local Setup](#local-setup)  
-       - [Current-Setup Info](#current-setup-info)  
+    - [Current-Setup Info](#current-setup-info)  
     - [Part 1: Authentication](#part-1-authentication)  
     - [Part 2: Running the bot](#part-2-running-the-bot)  
   
