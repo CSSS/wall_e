@@ -1,10 +1,22 @@
 import os
+import sys
+import time
+import traceback
+import asyncio
+import json
+import redis
+import parsedatetime
 import discord
 from discord.ext import commands
+from time import mktime
 
 TOKEN = os.environ['TOKEN']
 
 bot = commands.Bot(command_prefix='.')
+
+r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+message_subscriber = r.pubsub(ignore_subscribe_messages=True)
+message_subscriber.subscribe('__keyevent@0__:expired')
 
 @bot.event
 async def on_ready():
@@ -100,10 +112,43 @@ async def poll(ctx, *questions):
         for i in range(0, options):
             await pollPost.add_reaction(numbersUnicode[i])
 
+@bot.command()
+async def remindme(ctx, timeUntil, message):
+    time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
+    if parse_status == 0:
+        await ctx.send('```Could not parse time!```')
+        return
+    expire_seconds = int(mktime(time_struct) - time.time())
+    json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
+    r.set(json_string, '', expire_seconds)
+    fmt = '```Reminder set for {0} seconds from now```'
+    await ctx.send(fmt.format(expire_seconds))
+
+async def get_messages():
+    await bot.wait_until_ready()
+    while True:
+        message = message_subscriber.get_message()
+        if message is not None:
+            cid_mid_dct = json.loads(message['data'])
+            chan = bot.get_channel(cid_mid_dct['cid'])
+            msg = await chan.get_message(cid_mid_dct['mid'])
+            ctx = await bot.get_context(msg)
+            if ctx.valid:
+                fmt = '<@{0}> ```{1}```'
+                await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+        await asyncio.sleep(2)
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         fmt = '```Missing argument: {0}```'
         await ctx.send(fmt.format(error.param))
+    else:
+        print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
+@bot.event
+async def on_ready():
+    bot.loop.create_task(get_messages())
 
 bot.run(TOKEN)
