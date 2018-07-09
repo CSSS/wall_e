@@ -128,14 +128,18 @@ async def get_messages():
     await bot.wait_until_ready()
     while True:
         message = message_subscriber.get_message()
-        if message is not None:
-            cid_mid_dct = json.loads(message['data'])
-            chan = bot.get_channel(cid_mid_dct['cid'])
-            msg = await chan.get_message(cid_mid_dct['mid'])
-            ctx = await bot.get_context(msg)
-            if ctx.valid:
-                fmt = '<@{0}> ```{1}```'
-                await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+        if message is not None and message['type'] == 'message':
+            try:
+                cid_mid_dct = json.loads(message['data'])
+                chan = bot.get_channel(cid_mid_dct['cid'])
+                msg = await chan.get_message(cid_mid_dct['mid'])
+                ctx = await bot.get_context(msg)
+                if ctx.valid:
+                    fmt = '<@{0}> ```{1}```'
+                    await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+            except Exception as error:
+                print('Ignoring exception when generating reminder:', file=sys.stderr)
+                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
         await asyncio.sleep(2)
 
 @bot.event
