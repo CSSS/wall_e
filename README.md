@@ -43,7 +43,7 @@ Follow these steps to run the bot and do development on your local machine.
 ```shell
 ./setup_environment_for_wall_e.sh
 ```
-the above script was adapted from the commandline history gleamed from the commands used by the person who set up the server. If you encounter issues with the script, feel free to look at the command history instead at [`command history.txt`](wall_e/files_for_machine_setup/command history.txt)
+the above script was adapted from the commandline history gleamed from the commands used by the person who set up the server. If you encounter issues with the script, feel free to look at the command history instead at [command history.txt](wall_e/files_for_machine_setup/command history.txt)
  3. docker container should end up being set up with  
    1. `Python 3.5.5`  
    2. `pip 10.0.1 from /usr/local/lib/python3.5/site-packages/pip (python 3.5)`  
