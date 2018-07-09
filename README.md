@@ -5,7 +5,14 @@
 This repo will hold all the scripts for the upcoming bot that will operate on the CSSS discord, located [here](https://discord.gg/Pf5Ncq3). This bot is owned by the CSSS and will be maintained for the most part by the current CSSS appointed Discord representative and the current bot development team.
   
 It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
-
+  
+## Table of Contents
+ - [Current Commands](#current-commands)
+ - [Local Setup](#local-setup)
+    - [Part 1: Server Setup](#part-1-server-setup)
+    - [Part 2: Authentication](#part-2-authentication)
+    - [Part 3: Running the bot](#part-3-running-the-bot)  
+  
 ## Current Commands
 
 * `.ping` - returns `pong!`
@@ -19,9 +26,17 @@ It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
 
 ## Local Setup
 
+### Part 1: Server Setup
+Server IP: 178.128.184.141  
+Server Specs: Ubuntu 16.04.4  
+Python version: 3.5.2
+For access to the jenkins, notify someone on the following list:  
+ * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
+  
+  
 Follow these steps to run the bot and do development on your local machine.
 
-### Part 1: Authentication
+### Part 2: Authentication
 
 Pre-requisites: A Discord account.
 
@@ -35,7 +50,7 @@ Pre-requisites: A Discord account.
 1. Naviate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0` and replace `YOUR_CLIENT_ID_HERE` with the client ID of your bot
 1. Select the server you created and click `Authorize`
 
-### Part 2: Running the Bot
+### Part 3: Running the Bot
 
 Pre-requisites: `git`, `python3`, and `pip3`.
 
