@@ -1,4 +1,4 @@
-# Part 1: Server Setup  
+# Machine Setup  
   
 ## Table of Contents
  - [Jenkins Setup on Docker](#jenkins-setup-on-docker)  
