@@ -120,21 +120,21 @@ async def remindme(ctx, timeUntil, message):
         await ctx.send('```Could not parse time!```')
         return
     expire_seconds = int(mktime(time_struct) - time.time())
-    pickle_bytes = pickle.dumps(ctx)
+    pickle_bytes = pickle.dumps(ctx.message)
     r.set(pickle_bytes, '', expire_seconds)
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
 
 def expire_handler(message):
     if message['type'] == 'message':
-        ctx = pickle.loads(message.data)
-        message_queue.put_nowait(ctx)
+        ctx_message = pickle.loads(message.data)
+        message_queue.put_nowait(ctx_message)
 
 async def get_messages():
     await bot.wait_until_ready()
     while not bot.is_closed:
         if not message_queue.empty():
-            ctx = message_queue.get_nowait()
+            ctx = await bot.get_context(message_queue.get_nowait())
             fmt = '<@{0}> ```{1}```'
             await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
             await asyncio.sleep(1)
