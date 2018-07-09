@@ -25,16 +25,42 @@ It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
 
 ## Local Setup
-
-### Part 1: Server Setup
-Server IP: 178.128.184.141  
-Server Specs: Ubuntu 16.04.4  
-Python version: 3.5.2
+  
+#### Current-Setup Info  
+Server IP: 178.128.184.141    
 For access to the jenkins, notify someone on the following list:  
  * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
+
+Follow these steps to run the bot and do development on your local machine.  
   
+### Part 1: Server Setup  
   
-Follow these steps to run the bot and do development on your local machine.
+#### Jenkins Setup on Docker
+ 1. Spin-up a linux server [This documentation was made with an Ubuntu 16.04.4 server]
+ 1. run the following command
+```shell
+./setup_environment_for_wall_e.sh
+```
+the above script was adapted from the commandline history gleamed from the commands used by the person who set up the server. If you encounter issues with the script, feel free to look at the command history insead at `command history.txt`
+ 1. docker container should end up being set up with  
+   1. `Python 3.5.5`  
+   1. `pip 10.0.1 from /usr/local/lib/python3.5/site-packages/pip (python 3.5)`  
+
+#### Nginx Set-up
+ 1. Compare the `/etc/nginx/sites-enabled/default` file on the machine vs the default file included in this repo to see if the server copy needs any changes.
+ 1. Run `nginx -t` to test the configuration file.
+ 1. If tests pass, run `sudo service nginx restart `
+  
+#### Redis setup
+ 1. Compare the `/etc/redis/redis.conf` file on the machine vs the redis.conf file included in this repo to see if the server copy needs any changes.
+Misc. Commands that may be useful for this step
+ 1. `sudo service redis-server restart`
+ 1. `redis-cli --csv subscribe '__keyevent@0__:expired'`
+ 1. `docker ps`
+ 1. `docker stop wall-e-test`
+ 1. `docker logs -f wall-e-test`
+ 1. `docker start wall-e-test`
+ 1. `docker rm wall-e-test `
 
 ### Part 2: Authentication
 
