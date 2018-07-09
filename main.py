@@ -4,7 +4,7 @@ import time
 import traceback
 import asyncio
 import queue
-import pickle
+import json
 import redis
 import parsedatetime
 import discord
@@ -120,24 +120,28 @@ async def remindme(ctx, timeUntil, message):
         await ctx.send('```Could not parse time!```')
         return
     expire_seconds = int(mktime(time_struct) - time.time())
-    pickle_bytes = pickle.dumps(ctx.message)
-    r.set(pickle_bytes, '', expire_seconds)
+    json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
+    r.set(json_string, '', expire_seconds)
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
 
 def expire_handler(message):
     if message['type'] == 'message':
-        ctx_message = pickle.loads(message.data)
-        message_queue.put_nowait(ctx_message)
+        cid_mid_dct = json.loads(message.data)
+        message_queue.put_nowait(cid_mid_dct)
 
 async def get_messages():
     await bot.wait_until_ready()
     while not bot.is_closed:
         if not message_queue.empty():
-            ctx = await bot.get_context(message_queue.get_nowait())
-            fmt = '<@{0}> ```{1}```'
-            await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
-            await asyncio.sleep(1)
+            cid_mid_dct = message_queue.get_nowait()
+            chan = bot.get_channel(cid_mid_dct['cid'])
+            msg = await chan.get_message(cid_mid_dct['mid'])
+            ctx = await bot.get_context(msg)
+            if ctx.valid:
+                fmt = '<@{0}> ```{1}```'
+                await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+                await asyncio.sleep(2)
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -150,7 +154,7 @@ async def on_command_error(ctx, error):
 
 message_subscriber = r.pubsub(ignore_subscribe_messages=True)
 message_subscriber.subscribe(**{'__keyevent@0__:expired': expire_handler})
-thread = message_subscriber.run_in_thread(sleep_time=0.5)
+thread = message_subscriber.run_in_thread(sleep_time=1)
 
 bot.loop.create_task(get_messages())
 
