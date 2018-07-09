@@ -4,7 +4,7 @@ import time
 import traceback
 import asyncio
 import queue
-import json
+import pickle
 import redis
 import parsedatetime
 import discord
@@ -120,17 +120,14 @@ async def remindme(ctx, timeUntil, message):
         await ctx.send('```Could not parse time!```')
         return
     expire_seconds = int(mktime(time_struct) - time.time())
-    json_string = json.dumps(ctx.__dict__)
-    r.set(json_string, '', expire_seconds)
+    pickle_bytes = pickle.dumps(ctx)
+    r.set(pickle_bytes, '', expire_seconds)
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
 
-def serialize_message(dct):
-    return commands.Context(dct)
-
 def expire_handler(message):
     if message['type'] == 'message':
-        ctx = json.loads(message.data, object_hook=serialize_message)
+        ctx = pickle.loads(message.data)
         message_queue.put_nowait(ctx)
 
 async def get_messages():
