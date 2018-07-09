@@ -7,13 +7,11 @@ This repo will hold all the scripts for the upcoming bot that will operate on th
 It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
   
 ## Table of Contents
- - [Current Commands](#current-commands)
- - [Local Setup](#local-setup)
-       - [Current-Setup Info](#current-setup-info)
-    - [Part 1: Server Setup](#part-1-server-setup)
-       - [Jenkins Setup on Docker](#jenkins-setup-on-docker)
-    - [Part 2: Authentication](#part-2-authentication)
-    - [Part 3: Running the bot](#part-3-running-the-bot)  
+ - [Current Commands](#current-commands)  
+ - [Local Setup](#local-setup)  
+       - [Current-Setup Info](#current-setup-info)  
+    - [Part 1: Authentication](#part-2-authentication)  
+    - [Part 2: Running the bot](#part-3-running-the-bot)  
   
 ## Current Commands
 
@@ -33,9 +31,11 @@ Server IP: 178.128.184.141
 For access to the jenkins, notify someone on the following list:  
  * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
 
-Follow steps outlined in the [README for system setup](files_for_computer_setup/README.md) steps to run the bot and do development on your local machine.  
-
-### Part 2: Authentication
+Follow steps outlined in the [README for system setup](files_for_computer_setup/README.md) steps to prepare the machine to support CI/CD
+  
+Follow these steps to run the bot and do development on your local machine.  
+  
+### Part 1: Authentication
 
 Pre-requisites: A Discord account.
 
@@ -49,7 +49,7 @@ Pre-requisites: A Discord account.
 1. Naviate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0` and replace `YOUR_CLIENT_ID_HERE` with the client ID of your bot
 1. Select the server you created and click `Authorize`
 
-### Part 3: Running the Bot
+### Part 2: Running the Bot
 
 Pre-requisites: `git`, `python3`, and `pip3`.
 
