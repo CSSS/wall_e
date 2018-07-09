@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import traceback
 import asyncio
 import queue
@@ -113,8 +114,8 @@ async def poll(ctx, *questions):
             await pollPost.add_reaction(numbersUnicode[i])
 
 @bot.command()
-async def remindme(ctx, time, message):
-    time_struct, parse_status = parsedatetime.Calendar().parse(time)
+async def remindme(ctx, timeUntil, message):
+    time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
     if parse_status == 0:
         await ctx.send('```Could not parse time!```')
         return
@@ -125,7 +126,7 @@ async def remindme(ctx, time, message):
     await ctx.send(fmt.format(expire_seconds))
 
 def expire_handler(message):
-    if message.type == 'message':
+    if message['type'] == 'message':
         ctx = json.loads(message.data)
         message_queue.put_nowait(ctx)
 
