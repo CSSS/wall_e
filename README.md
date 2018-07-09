@@ -31,7 +31,7 @@ Server IP: 178.128.184.141
 For access to the jenkins, notify someone on the following list:  
  * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
 
-Follow steps outlined in the [README for system setup](files_for_computer_setup/README.md) steps to prepare the machine to support CI/CD
+Follow steps outlined in the [README for system setup](files_for_machine_setup) steps to prepare the machine to support CI/CD
   
 Follow these steps to run the bot and do development on your local machine.  
   
