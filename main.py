@@ -127,7 +127,7 @@ async def remindme(ctx, timeUntil, message):
 
 def expire_handler(message):
     if message['type'] == 'message':
-        cid_mid_dct = json.loads(message.data)
+        cid_mid_dct = json.loads(message['data'])
         message_queue.put_nowait(cid_mid_dct)
 
 async def get_messages():
