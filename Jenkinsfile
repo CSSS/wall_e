@@ -25,7 +25,7 @@ pipeline {
             when {
                 branch 'master'
             }
-            steps {
+            steps 
                 script {
                     String tokenEnv = 'TOKEN'
                     String productionContainerName = 'wall-e'
