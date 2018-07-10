@@ -57,11 +57,11 @@ async def iam(ctx, roleToAdd):
     await ctx.send("```" + "You have successfully been added to role '" + roleToAdd + "'." + "```")
     
 @bot.command()
-async def iamn(ctx, roleToAdd):
-    roleToAdd = roleToAdd.lower()
-    role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
+async def iamn(ctx, roleToRemove):
+    roleToRemove = roleToRemove.lower()
+    role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
     if role == None:
-        await ctx.send("```" + "Role '" + roleToAdd + "' does not exist." + "```")
+        await ctx.send("```" + "Role '" + roleToRemove + "' does not exist." + "```")
         return
     user = ctx.message.author
     await user.remove_roles(role)
