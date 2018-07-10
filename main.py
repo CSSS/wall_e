@@ -31,7 +31,8 @@ async def ping(ctx):
 	
 @bot.command()
 async def echo(ctx, arg):
-    await ctx.send(arg)
+    user = ctx.author.nick
+    await ctx.send(user + " says: " + arg)
     
 @bot.command()
 async def newrole(ctx, roleToAdd):
@@ -154,5 +155,21 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     bot.loop.create_task(get_messages())
+
+@bot.command()
+async def urban(ctx, queryString):
+    url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
+    res = await urllib.request.urlopen(url)
+    data = await json.loads(res.read())
+
+    data = data['list']
+
+    if not data: 
+        #you printed something stupid
+        await ctx.send("```lul 404.\nYou seached something stupid didnt you?")
+        return
+    else: 
+        str = data[0]['defintion']
+        await ctx.send("```" + str + "```")
 
 bot.run(TOKEN)
