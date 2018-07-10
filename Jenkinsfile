@@ -1,27 +1,23 @@
 pipeline {
     agent any
     stages {
-        stage('Test Build') {
+        stage('Build') {
             steps {
-                withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: 'TEST_BOT_USER_TOKEN')]) {
-                    sh 'sed -i -e "s/YOUR_TOKEN_HERE/$TEST_BOT_USER_TOKEN/g" main.py'
+                script {
+                    docker.build("wall-e:${env.BUILD_ID}")
                 }
             }
         }
-        stage('Test Deploy') {
+        stage('Test') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(configName: '159.89.134.71-test', transfers: [sshTransfer(excludes: '', execCommand: 'pip3 install -r /home/wall-e-test/requirements.txt; screen -X -S \'wall-e-test\' kill; chmod +x /home/wall-e-test/main.py; screen -dmS \'wall-e-test\' bash -c \'python3 /home/wall-e-test/main.py; exec bash\'', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.py,requirements.txt')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
-            }
-        }
-        stage('Build') {
-            when {
-                branch 'master'
-            }
-            steps {
-                withCredentials([
-                        string(credentialsId: 'BOT_USER_TOKEN', variable: 'BOT_USER_TOKEN'),
-                        string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: 'TEST_BOT_USER_TOKEN')]) {
-                    sh 'sed -i -e "s/$TEST_BOT_USER_TOKEN/$BOT_USER_TOKEN/g" main.py'
+                script {
+                    String tokenEnv = 'TOKEN'
+                    String testContainerName = 'wall-e-test'
+                    withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
+                        sh "docker stop ${testContainerName} || true"
+                        sh "docker rm ${testContainerName} || true"
+                        sh "docker run -d -e ${tokenEnv} --net=host --name ${testContainerName} wall-e:${env.BUILD_ID}"
+                    }
                 }
             }
         }
@@ -30,7 +26,15 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(configName: '159.89.134.71', transfers: [sshTransfer(excludes: '', execCommand: 'pip3 install -r /home/wall-e/requirements.txt; screen -X -S \'wall-e\' kill; chmod +x /home/wall-e/main.py; screen -dmS \'wall-e\' bash -c \'python3 /home/wall-e/main.py; exec bash\'', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.py,requirements.txt')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                script {
+                    String tokenEnv = 'TOKEN'
+                    String productionContainerName = 'wall-e'
+                    withCredentials([string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
+                        sh "docker stop ${productionContainerName} || true"
+                        sh "docker rm ${productionContainerName} || true"
+                        sh "docker run -d -e ${tokenEnv} --net=host --name ${productionContainerName} wall-e:${env.BUILD_ID}"
+                    }
+                }
             }
         }
     }

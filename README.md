@@ -5,7 +5,14 @@
 This repo will hold all the scripts for the upcoming bot that will operate on the CSSS discord, located [here](https://discord.gg/Pf5Ncq3). This bot is owned by the CSSS and will be maintained for the most part by the current CSSS appointed Discord representative and the current bot development team.
   
 It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
-
+  
+## Table of Contents
+ - [Current Commands](#current-commands)  
+ - [Local Setup](#local-setup)  
+    - [Current-Setup Info](#current-setup-info)  
+    - [Part 1: Authentication](#part-1-authentication)  
+    - [Part 2: Running the bot](#part-2-running-the-bot)  
+  
 ## Current Commands
 
 * `.ping` - returns `pong!`
@@ -18,9 +25,16 @@ It is a namesake of the lovable [Wall-E](https://en.wikipedia.org/wiki/WALL-E).
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
 
 ## Local Setup
+  
+#### Current-Setup Info  
+Server IP: 178.128.184.141    
+For access to the jenkins, notify someone on the following list:  
+ * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
 
-Follow these steps to run the bot and do development on your local machine.
-
+Follow steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the machine to support CI/CD
+  
+Follow these steps to run the bot and do development on your local machine.  
+  
 ### Part 1: Authentication
 
 Pre-requisites: A Discord account.
@@ -41,5 +55,5 @@ Pre-requisites: `git`, `python3`, and `pip3`.
 
 1. Run `git clone https://github.com/CSSS/wall_e.git && cd wall_e`
 1. Run `pip3 install -r requirements.txt`
-1. Edit `main.py` and replace `'YOUR_TOKEN_HERE'` with the token you previously obtained (within quotations)
+1. Run `TOKEN=` the token you previously obtained
 1. Run `python3 main.py`
