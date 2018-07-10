@@ -124,6 +124,15 @@ async def remindme(ctx, timeUntil, message):
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
 
+@bot.command()
+async def listavailableRoles(ctx):
+    srvr = discord.Server
+    client = discord.client
+    output="Roles available:\n"
+    for role in srvr.roles:
+        output+="\t"+role+"\n"
+    await client.send_message(client.get_user_info(id), output)
+
 async def get_messages():
     await bot.wait_until_ready()
     while True:
