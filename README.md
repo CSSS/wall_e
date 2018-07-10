@@ -1,17 +1,17 @@
 # CSSS Discord Bot (Wall-E)  
-  
+
 ![The One and Only, Lovable Wall-E](wall_e_pic.jpg) 
 
 Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki/WALL-E), will hold all the scripts for the upcoming bot that will operate on the CSSS discord, located [here](https://discord.gg/Pf5Ncq3). This bot is owned by the CSSS and will be maintained by the current CSSS appointed Discord representative and the current bot development team. 
 
-  
+
 ## Table of Contents
- - [Current Commands](#current-commands)  
- - [Local Setup](#local-setup)  
-    - [Current-Setup Info](#current-setup-info)  
-    - [Part 1: Authentication](#part-1-authentication)  
-    - [Part 2: Running the bot](#part-2-running-the-bot)  
-  
+- [Current Commands](#current-commands)  
+- [Local Setup](#local-setup)  
+- [Current-Setup Info](#current-setup-info)  
+- [Part 1: Authentication](#part-1-authentication)  
+- [Part 2: Running the bot](#part-2-running-the-bot)  
+
 ## Current Commands
 
 * `.ping` - returns `pong!`
@@ -24,21 +24,21 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
 
 ## Local Setup
-  
+
 #### Current-Setup Info  
 Server IP: 178.128.184.141    
 For access to the jenkins, notify someone on the following list:  
- * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
+* Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
 
-Follow steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the machine to support CI/CD
-  
+Follow steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the host machine to support CI/CD
+
 Follow these steps to run the bot and do development on your local machine.  
-  
+
 ### Part 1: Authentication
 
 Pre-requisites: A Discord account.
 
-Create your own Discord server for testing
+1. Create your own Discord server for testing by clicking the + on the left side
 1. Navigate to `https://discordapp.com/developers/applications/me` and login
 1. Click `New App`
 1. Name your app to whatever you wish then click `Create App`
