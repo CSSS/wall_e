@@ -159,8 +159,8 @@ async def on_ready():
 @bot.command()
 async def urban(ctx, queryString):
     url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
-    res = await urllib.request.urlopen(url)
-    data = await json.loads(res.read())
+    res = urllib.request.urlopen(url)
+    data = json.loads(res.read())
 
     data = data['list']
 
