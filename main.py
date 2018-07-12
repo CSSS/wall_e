@@ -130,13 +130,43 @@ async def remindme(ctx, timeUntil, message):
 
 @bot.command()
 async def listAllRoles(ctx):
-    srvr = discord.Server
-    client = discord.client
-    output="Roles available:\n"
-    for role in srvr.roles:
-        output+="\t"+role+"\n"
+    guild = ctx.guild
+    output="```Roles available:\n"
+    for role in guild.roles:
+        if (role.name != "@everyone"):
+            output+="\t\""+role.name+"\"\n"
+    output+="```"
     await ctx.send(output)
-    #await client.send_message(client.get_user_info(id), output)
+
+@bot.command()
+async def listAllRolesDm(ctx):
+    guild = ctx.guild
+    output="```Roles available:\n"
+    for role in guild.roles:
+        if (role.name != "@everyone"):
+            output+="\t\""+role.name+"\"\n"
+    output+="```"
+    print("ctx="+str(ctx))
+    print("ctx.message="+str(ctx.message))
+    print("ctx.message.author="+str(ctx.message.author))
+    print("ctx.message.author.id="+str(ctx.message.author.id))
+    user = ctx.message.author
+
+    print("type(user)="+str(type(user)))
+    if (user is None):
+        print("here")
+        ctx.send("Could not find user "+str(ctx.message.author.name)+"!")
+        return
+    user.send(output)
+    userDMChannel = user.dm_channel
+    if (userDMChannel is None):
+        print("creatng a dm channel for the user")
+        userDMChannel = user.create_dm()
+    print("type(userDMChannel)="+str(type(userDMChannel)))
+    print("userDMChannel="+str(userDMChannel))
+    userDMChannel.send(None)
+    val = await userDMChannel.send(content=output)
+    print ("message ="+str(val)+" sent!")
 
 async def get_messages():
     await bot.wait_until_ready()
@@ -158,6 +188,8 @@ async def get_messages():
 
 @bot.event
 async def on_command_error(ctx, error):
+    print("on_command_error")
+    print(ctx)
     if isinstance(error, commands.MissingRequiredArgument):
         fmt = '```Missing argument: {0}```'
         await ctx.send(fmt.format(error.param))
