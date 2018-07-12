@@ -28,7 +28,11 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     await ctx.send('```pong!```')
-	
+
+@bot.command()
+async def png(ctx):
+    await ctx.send('```png!```')
+
 @bot.command()
 async def echo(ctx, arg):
     await ctx.send(arg)
@@ -125,13 +129,14 @@ async def remindme(ctx, timeUntil, message):
     await ctx.send(fmt.format(expire_seconds))
 
 @bot.command()
-async def listavailableRoles(ctx):
+async def listAllRoles(ctx):
     srvr = discord.Server
     client = discord.client
     output="Roles available:\n"
     for role in srvr.roles:
         output+="\t"+role+"\n"
-    await client.send_message(client.get_user_info(id), output)
+    await ctx.send(output)
+    #await client.send_message(client.get_user_info(id), output)
 
 async def get_messages():
     await bot.wait_until_ready()
