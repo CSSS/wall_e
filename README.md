@@ -56,7 +56,7 @@ From a command line
 1. Run `git clone https://github.com/CSSS/wall_e.git`
 1. cd into `wall_e` directory
 1. Run `pip3 install -r requirements.txt`
-1. Run 'sudo apt-get install -y redis-server`
-1. Run sudo service redis-server start`
+1. Run `sudo apt-get install -y redis-server`
+1. Run `sudo service redis-server start`
 1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
 1. Run `python3 main.py`
