@@ -7,6 +7,7 @@ import json
 import redis
 import parsedatetime
 import discord
+import urllib
 from discord.ext import commands
 from time import mktime
 
@@ -155,21 +156,25 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     bot.loop.create_task(get_messages())
+    print("ZA WARUDOOO!!!!")
 
 @bot.command()
 async def urban(ctx, queryString):
     url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
     res = urllib.request.urlopen(url)
-    data = json.loads(res.read())
+    data = json.loads(res.read().decode())
 
     data = data['list']
-
+    str = ''
     if not data: 
         #you printed something stupid
-        await ctx.send("```lul 404.\nYou seached something stupid didnt you?")
+        await ctx.send("```lul 404.\nYou seached something stupid didnt you?```")
         return
     else: 
-        str = data[0]['defintion']
+       # print(data)
+        for x in data:
+            str += data[x]['definition'] + "\n"
+            print(data[x]['definition'] + "\n")
         await ctx.send("```" + str + "```")
 
 bot.run(TOKEN)
