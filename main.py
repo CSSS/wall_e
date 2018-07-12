@@ -46,7 +46,22 @@ async def newrole(ctx, roleToAdd):
     role = await guild.create_role(name=roleToAdd)
     await role.edit(mentionable=True)
     await ctx.send("```" + "You have successfully created role '" + roleToAdd + "'. Calling .iam " + roleToAdd + " will add you to it." + "```")
-    
+
+@bot.command()
+async def deleterole(ctx, roleToDelete):
+    roleToDelete = roleToDelete.lower()
+    role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
+    if role == None:
+        await ctx.send("```" + "Role '" + roleToDelete + "' does not exist." + "```")
+        return
+    role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
+    membersOfRole = role.members
+    if not membersOfRole:
+        deleteRole = await role.delete()
+        await ctx.send("```" + "Role '" + roleToDelete + "' deleted." + "```")
+    else:
+        await ctx.send("```" + "Role '" + roleToDelete + "' has members. Cannot delete." + "```")
+
 @bot.command()
 async def iam(ctx, roleToAdd):
     roleToAdd = roleToAdd.lower()
@@ -59,15 +74,15 @@ async def iam(ctx, roleToAdd):
     await ctx.send("```" + "You have successfully been added to role '" + roleToAdd + "'." + "```")
     
 @bot.command()
-async def iamn(ctx, roleToAdd):
-    roleToAdd = roleToAdd.lower()
-    role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
+async def iamn(ctx, roleToRemove):
+    roleToRemove = roleToRemove.lower()
+    role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
     if role == None:
-        await ctx.send("```" + "Role '" + roleToAdd + "' does not exist." + "```")
+        await ctx.send("```" + "Role '" + roleToRemove + "' does not exist." + "```")
         return
     user = ctx.message.author
     await user.remove_roles(role)
-    await ctx.send("```" + "You have successfully been removed from role '" + roleToAdd + "'." + "```")
+    await ctx.send("```" + "You have successfully been removed from role '" + roleToRemove + "'." + "```")
 
 @bot.command()
 async def whois(ctx, roleToCheck):
@@ -85,7 +100,7 @@ async def whois(ctx, roleToCheck):
         memberString += name + "\n"
     await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
-@bot.command()
+    @bot.command()
 async def poll(ctx, *questions):
     if len(questions) > 12:
         await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
