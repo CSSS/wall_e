@@ -1,4 +1,3 @@
 redis
 parsedatetime
 discord-rewrite==1.0.0
-discord
