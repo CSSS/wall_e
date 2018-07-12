@@ -32,7 +32,7 @@ async def ping(ctx):
 	
 @bot.command()
 async def echo(ctx, arg):
-    user = ctx.author.nick
+    user = ctx.author.nick or ctx.author.name
     await ctx.send(user + " says: " + arg)
     
 @bot.command()
@@ -81,7 +81,8 @@ async def whois(ctx, roleToCheck):
         await ctx.send("```" + "No members in role '" + roleToCheck + "'." + "```")
         return
     for members in membersOfRole:
-        memberString += members.name + "\n"
+        name = members.nick or members.name
+        memberString += name + "\n"
     await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
 @bot.command()
@@ -166,16 +167,12 @@ async def urban(ctx, queryString):
 
     data = data['list']
     str = ''
-    if not data: 
-        #you printed something stupid
+    if not data:
         await ctx.send("```lul 404.\nYou seached something stupid didnt you?```")
         return
-    else: 
-        print(type(data))
-        for x in data:
-            temp = x
-            str += temp['definition'] + "\n"
-            print(temp['definition'] + "\n")
-        await ctx.send("```" + str + "```")
+    else:
+        str = data[1]['definition']
+        link = "\n <" + data[1]['permalink'] + ">"
+        await ctx.send("```" + str + "```" + "\n*Link* " + link)
 
 bot.run(TOKEN)
