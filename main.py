@@ -65,7 +65,7 @@ async def iamn(ctx, roleToRemove):
         return
     user = ctx.message.author
     await user.remove_roles(role)
-    await ctx.send("```" + "You have successfully been removed from role '" + roleToAdd + "'." + "```")
+    await ctx.send("```" + "You have successfully been removed from role '" + roleToRemove + "'." + "```")
 
 @bot.command()
 async def whois(ctx, roleToCheck):
@@ -80,7 +80,7 @@ async def whois(ctx, roleToCheck):
         return
     for members in membersOfRole:
         memberString += members.name + "\n"
-    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
+    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
 
 @bot.command()
 async def poll(ctx, *questions):
