@@ -171,10 +171,11 @@ async def urban(ctx, queryString):
         await ctx.send("```lul 404.\nYou seached something stupid didnt you?```")
         return
     else: 
-       # print(data)
+        print(type(data))
         for x in data:
-            str += data[x]['definition'] + "\n"
-            print(data[x]['definition'] + "\n")
+            temp = x
+            str += temp['definition'] + "\n"
+            print(temp['definition'] + "\n")
         await ctx.send("```" + str + "```")
 
 bot.run(TOKEN)
