@@ -29,7 +29,8 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     await ctx.send('```pong!```')
-	
+
+
 @bot.command()
 async def echo(ctx, arg):
     user = ctx.author.nick or ctx.author.name
@@ -100,7 +101,7 @@ async def whois(ctx, roleToCheck):
         memberString += name + "\n"
     await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
-    @bot.command()
+@bot.command()
 async def poll(ctx, *questions):
     if len(questions) > 12:
         await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
@@ -141,6 +142,17 @@ async def remindme(ctx, timeUntil, message):
     r.set(json_string, '', expire_seconds)
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
+
+
+@bot.command()
+async def dmroles(ctx):
+    guild = ctx.guild
+    output="```Roles available:\n"
+    for role in guild.roles:
+        if (role.name != "@everyone"):
+            output+="\t\""+role.name+"\"\n"
+    output+="```"
+    await ctx.author.send(output)
 
 async def get_messages():
     await bot.wait_until_ready()
