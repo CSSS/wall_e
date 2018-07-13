@@ -145,7 +145,7 @@ async def remindme(ctx, timeUntil, message):
 
 
 @bot.command()
-async def DMlistOfRoles(ctx):
+async def dmroles(ctx):
     guild = ctx.guild
     output="```Roles available:\n"
     for role in guild.roles:
