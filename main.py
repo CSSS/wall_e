@@ -101,7 +101,7 @@ async def whois(ctx, roleToCheck):
         memberString += name + "\n"
     await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
-    @bot.command()
+@bot.command()
 async def poll(ctx, *questions):
     if len(questions) > 12:
         await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
