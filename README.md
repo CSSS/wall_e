@@ -17,6 +17,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.ping` - returns `pong!`
 * `.echo <arg>` - returns `<arg>`
 * `.newrole <arg>` - creates role `<arg>`
+* `.deleterole <arg>` - deletes role `<arg>`
 * `.iam <arg>` - adds you to role `<arg>`
 * `.iamn <arg>` - removes you from role `<arg>`
 * `.whois <arg>` - returns everyone who has role `<arg>`
