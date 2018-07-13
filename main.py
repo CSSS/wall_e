@@ -10,6 +10,8 @@ import discord
 from discord.ext import commands
 from discord.abc import Messageable
 from time import mktime
+from pagination import Pages
+
 
 TOKEN = os.environ['TOKEN']
 
@@ -129,46 +131,16 @@ async def remindme(ctx, timeUntil, message):
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
 
-@bot.command()
-async def listAllRoles(ctx):
-    guild = ctx.guild
-    output="```Roles available:\n"
-    for role in guild.roles:
-        if (role.name != "@everyone"):
-            output+="\t\""+role.name+"\"\n"
-    output+="```"
-    await ctx.send(output)
 
 @bot.command()
-async def listAllRolesDm(ctx):
+async def DMlistOfRoles(ctx):
     guild = ctx.guild
     output="```Roles available:\n"
     for role in guild.roles:
         if (role.name != "@everyone"):
             output+="\t\""+role.name+"\"\n"
     output+="```"
-    print("ctx="+str(ctx))
-    print("ctx.message="+str(ctx.message))
-    print("ctx.message.author="+str(ctx.message.author))
-    print("ctx.message.author.id="+str(ctx.message.author.id))
-    userid = await bot.get_user_info(ctx.message.author.id)
-    await client.send_message(userid, output)
-    # user = ctx.message.author
-    # print("type(user)="+str(type(user)))
-    # if (user is None):
-    #     print("here")
-    #     ctx.send("Could not find user "+str(ctx.message.author.name)+"!")
-    #     return
-    # user.send(output)
-    # userDMChannel = user.dm_channel
-    # if (userDMChannel is None):
-    #     print("creatng a dm channel for the user")
-    #     userDMChannel = user.create_dm()
-    # print("type(userDMChannel)="+str(type(userDMChannel)))
-    # print("userDMChannel="+str(userDMChannel))
-    # userDMChannel.send(None)
-    # await userDMChannel.send(output)
-    # print ("message ="+str(val)+" sent!")
+    await ctx.author.send(output)
 
 async def get_messages():
     await bot.wait_until_ready()
