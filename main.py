@@ -29,7 +29,8 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     await ctx.send('```pong!```')
-	
+
+
 @bot.command()
 async def echo(ctx, arg):
     user = ctx.author.nick or ctx.author.name
@@ -141,6 +142,17 @@ async def remindme(ctx, timeUntil, message):
     r.set(json_string, '', expire_seconds)
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
+
+
+@bot.command()
+async def DMlistOfRoles(ctx):
+    guild = ctx.guild
+    output="```Roles available:\n"
+    for role in guild.roles:
+        if (role.name != "@everyone"):
+            output+="\t\""+role.name+"\"\n"
+    output+="```"
+    await ctx.author.send(output)
 
 async def get_messages():
     await bot.wait_until_ready()
