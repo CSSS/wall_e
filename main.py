@@ -7,6 +7,7 @@ import json
 import redis
 import parsedatetime
 import discord
+import urllib
 from discord.ext import commands
 from time import mktime
 
@@ -31,7 +32,8 @@ async def ping(ctx):
 	
 @bot.command()
 async def echo(ctx, arg):
-    await ctx.send(arg)
+    user = ctx.author.nick or ctx.author.name
+    await ctx.send(user + " says: " + arg)
     
 @bot.command()
 async def newrole(ctx, roleToAdd):
@@ -94,10 +96,11 @@ async def whois(ctx, roleToCheck):
         await ctx.send("```" + "No members in role '" + roleToCheck + "'." + "```")
         return
     for members in membersOfRole:
-        memberString += members.name + "\n"
-    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
+        name = members.nick or members.name
+        memberString += name + "\n"
+    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
-@bot.command()
+    @bot.command()
 async def poll(ctx, *questions):
     if len(questions) > 12:
         await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
@@ -169,5 +172,22 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     bot.loop.create_task(get_messages())
+    print("ZA WARUDOOO!!!!")
+
+@bot.command()
+async def urban(ctx, queryString):
+    url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
+    res = urllib.request.urlopen(url)
+    data = json.loads(res.read().decode())
+
+    data = data['list']
+    str = ''
+    if not data:
+        await ctx.send("```lul 404.\nYou seached something stupid didnt you?```")
+        return
+    else:
+        str = data[1]['definition']
+        link = "\n <" + data[1]['permalink'] + ">"
+        await ctx.send("```" + str + "```" + "\n*Link* " + link)
 
 bot.run(TOKEN)
