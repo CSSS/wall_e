@@ -45,7 +45,22 @@ async def newrole(ctx, roleToAdd):
     role = await guild.create_role(name=roleToAdd)
     await role.edit(mentionable=True)
     await ctx.send("```" + "You have successfully created role '" + roleToAdd + "'. Calling .iam " + roleToAdd + " will add you to it." + "```")
-    
+
+@bot.command()
+async def deleterole(ctx, roleToDelete):
+    roleToDelete = roleToDelete.lower()
+    role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
+    if role == None:
+        await ctx.send("```" + "Role '" + roleToDelete + "' does not exist." + "```")
+        return
+    role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
+    membersOfRole = role.members
+    if not membersOfRole:
+        deleteRole = await role.delete()
+        await ctx.send("```" + "Role '" + roleToDelete + "' deleted." + "```")
+    else:
+        await ctx.send("```" + "Role '" + roleToDelete + "' has members. Cannot delete." + "```")
+
 @bot.command()
 async def iam(ctx, roleToAdd):
     roleToAdd = roleToAdd.lower()
@@ -66,7 +81,7 @@ async def iamn(ctx, roleToRemove):
         return
     user = ctx.message.author
     await user.remove_roles(role)
-    await ctx.send("```" + "You have successfully been removed from role '" + roleToAdd + "'." + "```")
+    await ctx.send("```" + "You have successfully been removed from role '" + roleToRemove + "'." + "```")
 
 @bot.command()
 async def whois(ctx, roleToCheck):
@@ -81,7 +96,7 @@ async def whois(ctx, roleToCheck):
         return
     for members in membersOfRole:
         memberString += members.name + "\n"
-    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
+    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
 
 @bot.command()
 async def poll(ctx, *questions):
