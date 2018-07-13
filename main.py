@@ -8,10 +8,7 @@ import redis
 import parsedatetime
 import discord
 from discord.ext import commands
-from discord.abc import Messageable
 from time import mktime
-from pagination import Pages
-
 
 TOKEN = os.environ['TOKEN']
 
@@ -32,9 +29,6 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send('```pong!```')
 
-@bot.command()
-async def png(ctx):
-    await ctx.send('```png!```')
 
 @bot.command()
 async def echo(ctx, arg):
@@ -162,8 +156,6 @@ async def get_messages():
 
 @bot.event
 async def on_command_error(ctx, error):
-    print("on_command_error")
-    print(ctx)
     if isinstance(error, commands.MissingRequiredArgument):
         fmt = '```Missing argument: {0}```'
         await ctx.send(fmt.format(error.param))
