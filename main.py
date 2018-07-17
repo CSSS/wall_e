@@ -145,14 +145,14 @@ async def remindme(ctx, timeUntil, message):
 
 
 @bot.command()
-async def dmroles(ctx):
+async def listroles(ctx):
     guild = ctx.guild
     output="```Roles available:\n"
     for role in guild.roles:
         if (role.name != "@everyone"):
             output+="\t\""+role.name+"\"\n"
     output+="```"
-    await ctx.author.send(output)
+    await ctx.send(output)
 
 async def get_messages():
     await bot.wait_until_ready()
