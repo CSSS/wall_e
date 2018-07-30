@@ -7,9 +7,12 @@ import json
 import redis
 import parsedatetime
 import discord
+import requests
 import urllib
+import re
 from discord.ext import commands
 from time import mktime
+from embed import *
 
 TOKEN = os.environ['TOKEN']
 
@@ -19,17 +22,20 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 message_subscriber = r.pubsub(ignore_subscribe_messages=True)
 message_subscriber.subscribe('__keyevent@0__:expired')
 
-@bot.event
-async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
-    print('------')
+# @bot.event
+# async def on_ready():
+#     print('Logged in as')
+#     print(bot.user.name)
+#     print(bot.user.id)
+#     print('------')
 
 @bot.command()
 async def ping(ctx):
-    await ctx.send('```pong!```')
+    img =ctx.author.avatar_url
+    x = embed(title='testTitle', img=img, c=0x730100)
+    #await ctx.send('```pong!```')
 
+    await ctx.send(embed=x)
 
 @bot.command()
 async def echo(ctx, arg):
@@ -186,6 +192,7 @@ async def on_ready():
     bot.loop.create_task(get_messages())
     print("ZA WARUDOOO!!!!")
 
+# TODO: change out usage of urllib with requests package
 @bot.command()
 async def urban(ctx, queryString):
     url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
@@ -201,5 +208,46 @@ async def urban(ctx, queryString):
         str = data[1]['definition']
         link = "\n <" + data[1]['permalink'] + ">"
         await ctx.send("```" + str + "```" + "\n*Link* " + link)
+
+@bot.command()
+async def sfu(ctx, *course):
+    year = time.localtime()[0]
+    term = time.localtime()[1]
+
+    if(term <= 4):
+        term = 'spring'
+    elif(term >= 5 and term <= 8):
+        term = 'summer'
+    else:
+        term = 'fall'
+
+    #need to check if we need to manually split the arg
+    if(len(course) == 1):
+        #split
+        str = re.findall('(\d*\D+)', course[0])
+        if(len(str) < 2):
+            str = re.split('(\d+)', course[0])
+
+        
+        courseCode = str[0]
+        courseNum = str[1]
+
+        print('testing')
+        print(str)
+    else:
+        courseCode = course[0]
+        courseNum = course[1]
+    
+    #grab the things
+    url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
+    print(url)
+    res = urllib.request.urlopen(url)
+    data = json.loads(res.read())
+    print(data)
+    #get embed obj
+    #obj = 
+
+    #await ctx.send(embed=obj)
+    await ctx.send('```Still in testing```')
 
 bot.run(TOKEN)

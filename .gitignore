@@ -152,4 +152,5 @@ fabric.properties
 token
 
 #my own files
-updates.txt
+token.txt
+thumbnailsReference.txt
