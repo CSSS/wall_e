@@ -22,22 +22,20 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 message_subscriber = r.pubsub(ignore_subscribe_messages=True)
 message_subscriber.subscribe('__keyevent@0__:expired')
 
-# @bot.event
-# async def on_ready():
-#     print('Logged in as')
-#     print(bot.user.name)
-#     print(bot.user.id)
-#     print('------')
+@bot.event
+async def on_ready():
+    print('Logged in as')
+    print(bot.user.name)
+    print(bot.user.id)
+    print('------')
 
 @bot.command()
 async def ping(ctx):
-    #str = [["\u200b", 'pong!']]
     ava = bot.user.avatar_url
+    
     print(bot.user.display_name)
     name = bot.user.display_name or bot.user.name
     eObj = embed(description='Pong!', author=name, avatar=ava)
-
-    #await ctx.send('```pong!```')
 
     await ctx.send(embed=eObj)
 
@@ -45,92 +43,111 @@ async def ping(ctx):
 async def echo(ctx, arg):
     user = ctx.author.nick or ctx.author.name
     avatar = ctx.author.avatar_url
-    str = [['Says:', arg]]
+    str = [
+        ['Says:', arg]
+        ]
     eObj = embed(content=str, author=user, avatar=avatar)
     
     await ctx.send(embed=eObj)
-    #await ctx.send(user + " says: " + arg)
-    
+
+# TODO: change this to add the role to involking user upon creation
 @bot.command()
 async def newrole(ctx, roleToAdd):
     roleToAdd = roleToAdd.lower()
     guild = ctx.guild
     for role in guild.roles:
         if role.name == roleToAdd:
-            await ctx.send("```" + "Role '" + roleToAdd + "' exists. Calling .iam " + roleToAdd +" will add you to it." + "```")
+            eObj = embed(title='Newrole', description="Role \"" + roleToAdd + "\" exists. Calling .iam " + roleToAdd +" will add you to it.")
+            await ctx.send(embed=eObj)
             return
     role = await guild.create_role(name=roleToAdd)
     await role.edit(mentionable=True)
-    await ctx.send("```" + "You have successfully created role '" + roleToAdd + "'. Calling .iam " + roleToAdd + " will add you to it." + "```")
+    eObj = embed(title='Newrole', description="You have successfully created role \"" + roleToAdd + "\". Calling .iam " + roleToAdd + " will add you to it.")
+    await ctx.send(embed=eObj)
 
 @bot.command()
 async def deleterole(ctx, roleToDelete):
     roleToDelete = roleToDelete.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
     if role == None:
-        await ctx.send("```" + "Role '" + roleToDelete + "' does not exist." + "```")
+        eObj = embed(title='Deleterole', description="Role \"" + roleToDelete + "\" does not exist.")
+        await ctx.send(embed=eObj)
         return
     role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
     membersOfRole = role.members
     if not membersOfRole:
         deleteRole = await role.delete()
-        await ctx.send("```" + "Role '" + roleToDelete + "' deleted." + "```")
+        eObj = embed(title='Deleterole', description="Role \"" + roleToDelete + "\" deleted.")
+        await ctx.send(embed=eObj)
     else:
-        await ctx.send("```" + "Role '" + roleToDelete + "' has members. Cannot delete." + "```")
+        eObj = embed(title='Deleterole', description="Role \"" + roleToDelete + "\" has members. Cannot delete.")
+        await ctx.send(embed=eObj)
 
 @bot.command()
 async def iam(ctx, roleToAdd):
     roleToAdd = roleToAdd.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
     if role == None:
-        await ctx.send("```" + "Role '" + roleToAdd + "' does not exist. Calling .newrole " + roleToAdd +" will create it." + "```")
+        eObj = embed(title='Iam', description="Role \"" + roleToAdd + "\" doesn't exist.\nCalling .newrole " + roleToAdd)
+        await ctx.send(embed=eObj)
         return
     user = ctx.message.author
     await user.add_roles(role)
-    await ctx.send("```" + "You have successfully been added to role '" + roleToAdd + "'." + "```")
+    eObj = embed(title='Iam', description="You have successfully been added to role \"" + roleToAdd + "\".")
+    await ctx.send(embed=eObj)
     
 @bot.command()
 async def iamn(ctx, roleToRemove):
     roleToRemove = roleToRemove.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
     if role == None:
-        await ctx.send("```" + "Role '" + roleToRemove + "' does not exist." + "```")
+        eObj = embed(title='Iamn', description="Role \"" + roleToRemove + "\" doesn't exist.")
+        await ctx.send(embed=eObj)
         return
     user = ctx.message.author
     await user.remove_roles(role)
-    await ctx.send("```" + "You have successfully been removed from role '" + roleToRemove + "'." + "```")
+    eObj = embed(title='Iamn', description="You have successfully been remove from role \"" + roleToRemove + "\".")
+    await ctx.send(embed=eObj)
 
 @bot.command()
 async def whois(ctx, roleToCheck):
     memberString = ""
     role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
     if role == None:
-        await ctx.send("```" + "Role '" + roleToCheck + "' does not exist." + "```")
+        eObj = embed(title='Whois', description="\"" + roleToCheck + "\" does not exist.")
+        await ctx.send(embed=eObj)
         return
     membersOfRole = role.members
     if not membersOfRole:
-        await ctx.send("```" + "No members in role '" + roleToCheck + "'." + "```")
+        eObj = embed(title='Whois', description="No members in role \"" + roleToCheck + "\".")
+        await ctx.send(embed=eObj)
         return
     for members in membersOfRole:
         name = members.nick or members.name
         memberString += name + "\n"
-    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
+    eObj = embed(title='Whois', description="Members belonging to role \"" + roleToCheck + "\":\n" + memberString)
+
+    await ctx.send(embed=eObj)
 
 @bot.command()
 async def poll(ctx, *questions):
     if len(questions) > 12:
-        await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
+        eObj = embed(title='Poll Error', description='Please only submit a maximum of 11 options for a multi-option question.')
+        await ctx.send(embed=eObj)
         return
     elif len(questions) == 1:
-        post = await ctx.send("Poll:\n" + "```" + questions[0] + "```")
+        eObj = embed(title='Poll Error', description=questions[0])
+        post = await ctx.send(embed=eObj)
         await post.add_reaction(u"\U0001F44D")
         await post.add_reaction(u"\U0001F44E")
         return
     if len(questions) == 2:
-        await ctx.send("Poll Error:\n```Please submit at least 2 options for a multi-option question.```")
+        eObj = embed(title='Poll Error', description='Please submit at least 2 options for a multi-option question.')
+        await ctx.send(embed=eObj)
         return
     elif len(questions) == 0:
-        await ctx.send('```Usage: .poll <Question> [Option A] [Option B] ...```')
+        eObj = embed(title='Usage', description='.poll <Question> [Option A] [Option B] ...')
+        await ctx.send(embed=embed)
         return
     else:
         questions = list(questions)
@@ -142,7 +159,11 @@ async def poll(ctx, *questions):
         for m, n in zip(numbersEmoji, questions):
             optionString += m + ": " + n +"\n"
             options += 1
-        pollPost = await ctx.send("Poll:\n```" + question + "```" + optionString)
+        
+        content = [['Options:', optionString]]
+        eObj = embed(title='Poll:', description=question, content=content)
+        pollPost = await ctx.send(embed=eObj)
+
         for i in range(0, options):
             await pollPost.add_reaction(numbersUnicode[i])
 
@@ -162,12 +183,16 @@ async def remindme(ctx, timeUntil, message):
 @bot.command()
 async def listroles(ctx):
     guild = ctx.guild
-    output="```Roles available:\n"
+    output=""
     for role in guild.roles:
         if (role.name != "@everyone"):
             output+="\t\""+role.name+"\"\n"
-    output+="```"
-    await ctx.send(output)
+    
+    eObj = embed(title="Roles Available", description=output)
+    
+    print(ctx.message)
+    await ctx.message.delete()
+    await ctx.author.send(embed=eObj)
 
 async def get_messages():
     await bot.wait_until_ready()
@@ -201,22 +226,33 @@ async def on_ready():
     bot.loop.create_task(get_messages())
     print("ZA WARUDOOO!!!!")
 
-# TODO: change out usage of urllib with requests package
 @bot.command()
 async def urban(ctx, queryString):
     url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
-    res = urllib.request.urlopen(url)
-    data = json.loads(res.read().decode())
+    urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+
+    print(url)
+    res = req.get(url)
+    print(res)
+
+    if(res.status_code != 404):
+        data = res.json()
+    else:
+        data = ''
 
     data = data['list']
-    str = ''
+    print(data)
     if not data:
-        await ctx.send("```lul 404.\nYou seached something stupid didnt you?```")
+        eObj = embed(title="Urban Results", colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
+        await ctx.send(embed=eObj)
         return
     else:
-        str = data[1]['definition']
-        link = "\n <" + data[1]['permalink'] + ">"
-        await ctx.send("```" + str + "```" + "\n*Link* " + link)
+        content = [
+            ['Definition', data[1]['definition']], 
+            ['Link', urbanUrl]
+            ]
+        eObj = embed(title='Results from Urban Dictionary', colour=0xfd6a02, content=content)
+        await ctx.send(embed=eObj)
 
 @bot.command()
 async def sfu(ctx, *course):
@@ -247,6 +283,7 @@ async def sfu(ctx, *course):
         courseCode = course[0]
         courseNum = course[1]
     
+    sfuUrl='http://www.sfu.ca/students/calendar/%s/%s/courses/%s/%s.html' % (year, term, courseCode, courseNum)
     #grab the things
     url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
     print(url)
@@ -258,14 +295,12 @@ async def sfu(ctx, *course):
 
     print(data)
 
-    t='Results from SFU'
-    c=0xA6192E
+    title='Results from SFU'
+    colour=0xA6192E
     #$des=data['title']
-    link='[here](%s)' % url
+    link='[here](%s)' % sfuUrl
     #thumbnail <do later>
-    ftr='Written by VJ'
-
-    
+    footer='Written by VJ'
 
     #array of tuples
     #sections = ''
@@ -279,7 +314,7 @@ async def sfu(ctx, *course):
     ]
 
     
-    embedObj = embed(title=t, content=fields, colour=c, footer=ftr)
+    embedObj = embed(title=title, content=fields, colour=colour, footer=footer)
     #get embed obj
     #obj = embed(title='Results from SFU', colour=0xA6192E)
 
