@@ -4,17 +4,28 @@ import json
 
 from discord.ext import commands
 
-def embed(title, author, colour, url, thumbnail, content):
-    temp = discord.Embed(title=title, type='rich')
-    temp.add_field(name='name', value='pong!')
-    return temp
-    
-def embed(title, img, c):
-    temp = discord.Embed(title=title, type='rich')
-    temp.add_field(name='first person', value='vj')
-    temp.set_thumbnail(url=img)
-    temp.colour = c
-    
-    #adding fields can be done via loops and json objs i guess? 
-    
-    return temp
+def embed(title='', content='', description='', author='', colour=0x00bfbd, link='', thumbnail='', avatar='', footer=''):
+    """Required:\n
+    title:<str> Title of the embed 99% of the time it'll be the command name, exceptions when it makes sense like with the sfu command.\n
+    content:<array[tuples]> Array of tuples. Tuple per field of the embed. Field name at index 0 and value at index 1. \n
+    Optional:\n 
+    description:<str> Appears under the title. \n
+    author:<str> Used to indicate user who involked the command or the bot itself when it makes sense like with the echo command.\n
+    colour:<0x......> Used to set the coloured strip on the left side of the embed, by default set to a nice blue colour.\n
+    link: <deprecated>\n
+    thumbnail:<str> Url to image to be used in the embed. Thumbnail appears top right corner of the embed.\n
+    avatar:<str> Used to set avatar of next to author's name. Must be url. \n
+    footer:<str> Used for whatever."""
+
+    embObj = discord.Embed(title=title, type='rich')
+    embObj.description = description
+    embObj.set_author(name=author, icon_url=avatar)
+    print(avatar)
+    embObj.colour = colour
+    embObj.set_thumbnail(url=thumbnail)
+    embObj.set_footer(text=footer)
+    #embObj.url = link
+    #parse content to add fields
+    for x in content:
+        embObj.add_field(name=x[0], value=x[1], inline=True)
+    return embObj

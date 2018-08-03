@@ -7,7 +7,7 @@ import json
 import redis
 import parsedatetime
 import discord
-import requests
+import requests as req
 import urllib
 import re
 from discord.ext import commands
@@ -31,16 +31,25 @@ message_subscriber.subscribe('__keyevent@0__:expired')
 
 @bot.command()
 async def ping(ctx):
-    img =ctx.author.avatar_url
-    x = embed(title='testTitle', img=img, c=0x730100)
+    #str = [["\u200b", 'pong!']]
+    ava = bot.user.avatar_url
+    print(bot.user.display_name)
+    name = bot.user.display_name or bot.user.name
+    eObj = embed(description='Pong!', author=name, avatar=ava)
+
     #await ctx.send('```pong!```')
 
-    await ctx.send(embed=x)
+    await ctx.send(embed=eObj)
 
 @bot.command()
 async def echo(ctx, arg):
     user = ctx.author.nick or ctx.author.name
-    await ctx.send(user + " says: " + arg)
+    avatar = ctx.author.avatar_url
+    str = [['Says:', arg]]
+    eObj = embed(content=str, author=user, avatar=avatar)
+    
+    await ctx.send(embed=eObj)
+    #await ctx.send(user + " says: " + arg)
     
 @bot.command()
 async def newrole(ctx, roleToAdd):
@@ -241,13 +250,40 @@ async def sfu(ctx, *course):
     #grab the things
     url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
     print(url)
-    res = urllib.request.urlopen(url)
-    data = json.loads(res.read())
-    print(data)
-    #get embed obj
-    #obj = 
+    res = req.get(url)
+    if(res.status_code != 404):
+        data = res.json()
+    else:
+        data = '404'
 
-    #await ctx.send(embed=obj)
-    await ctx.send('```Still in testing```')
+    print(data)
+
+    t='Results from SFU'
+    c=0xA6192E
+    #$des=data['title']
+    link='[here](%s)' % url
+    #thumbnail <do later>
+    ftr='Written by VJ'
+
+    
+
+    #array of tuples
+    #sections = ''
+    sections = ''
+    for x in data['sections']:
+        sections += x['number'] + '\n'
+
+    fields = [
+        [data['title'], data['description']], 
+        ["URL", link]
+    ]
+
+    
+    embedObj = embed(title=t, content=fields, colour=c, footer=ftr)
+    #get embed obj
+    #obj = embed(title='Results from SFU', colour=0xA6192E)
+
+    await ctx.send(embed=embedObj)
+    #await ctx.send('```Still in testing```')
 
 bot.run(TOKEN)
