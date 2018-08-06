@@ -20,7 +20,6 @@ def embed(title='', content='', description='', author='', colour=0x00bfbd, link
     embObj = discord.Embed(title=title, type='rich')
     embObj.description = description
     embObj.set_author(name=author, icon_url=avatar)
-    print(avatar)
     embObj.colour = colour
     embObj.set_thumbnail(url=thumbnail)
     embObj.set_footer(text=footer)
