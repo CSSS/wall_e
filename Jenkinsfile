@@ -14,11 +14,16 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    String tokenEnv = 'TOKEN'
-                    String testContainerName = 'wall-e-test'
-                    withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
-                        sh "docker rm -f ${testContainerName}"
-                        sh "docker run -d -e ${tokenEnv} --net=host --name ${testContainerName} wall-e:${env.BUILD_ID}"
+                    withEnv([
+                            'ENVIRONMENT=TEST',
+                            "BRANCH=${GIT_LOCAL_BRANCH}"
+                    ]) {
+                        String tokenEnv = 'TOKEN'
+                        String testContainerName = 'wall-e-test'
+                        withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
+                            sh "docker rm -f ${testContainerName}"
+                            sh "docker run -d -e ${tokenEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} wall-e:${env.BUILD_ID}"
+                        }
                     }
                 }
             }
@@ -29,11 +34,13 @@ pipeline {
             }
             steps {
                 script {
-                    String tokenEnv = 'TOKEN'
-                    String productionContainerName = 'wall-e'
-                    withCredentials([string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
-                        sh "docker rm -f ${productionContainerName}"
-                        sh "docker run -d -e ${tokenEnv} --net=host --name ${productionContainerName} wall-e:${env.BUILD_ID}"
+                    withEnv(['ENVIRONMENT=PRODUCTION']) {
+                        String tokenEnv = 'TOKEN'
+                        String productionContainerName = 'wall-e'
+                        withCredentials([string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
+                            sh "docker rm -f ${productionContainerName}"
+                            sh "docker run -d -e ${tokenEnv} -e ENVIRONMENT --net=host --name ${productionContainerName} wall-e:${env.BUILD_ID}"
+                        }
                     }
                 }
             }
