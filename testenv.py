@@ -31,7 +31,6 @@ class TestCog:
 
     def __init__(self, bot):
         bot.add_check(self.check_test_environment)
-        bot.add_command(self.debuginfo)
         bot.add_listener(self.on_ready)
         self.bot = bot
 
