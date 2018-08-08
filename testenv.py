@@ -7,7 +7,7 @@ ENVIRONMENT = os.environ['ENVIRONMENT']
 
 class TestCog:
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def debuginfo(self, ctx):
         if ENVIRONMENT == 'TEST':
             branch = os.environ['BRANCH']
