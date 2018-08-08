@@ -19,7 +19,7 @@ pipeline {
                             "BRANCH=${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
-                        String testContainerName = 'wall-e-test'
+                        GString testContainerName = "wall-e-test-${BRANCH_NAME}"
                         withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
                             sh "docker rm -f ${testContainerName}"
                             sh "docker run -d -e ${tokenEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} wall-e:${env.BUILD_ID}"
