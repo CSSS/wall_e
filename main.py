@@ -203,5 +203,7 @@ async def urban(ctx, queryString):
         link = "\n <" + data[1]['permalink'] + ">"
         await ctx.send("```" + str + "```" + "\n*Link* " + link)
 
-bot.load_extension('testenv')
+if __name__ == '__main__':
+    bot.load_extension('testenv')
+
 bot.run(TOKEN)
