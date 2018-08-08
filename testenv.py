@@ -5,6 +5,14 @@ from discord.ext import commands
 ENVIRONMENT = os.environ['ENVIRONMENT']
 
 
+def filter_remindme_test_environment(ctx):
+    if ENVIRONMENT == 'TEST':
+        branch = os.environ['BRANCH'].lower()
+        if ctx.channel.name != branch:
+            return False
+    return True
+
+
 async def check_test_environment(ctx):
     if ENVIRONMENT == 'TEST':
         branch = os.environ['BRANCH'].lower()

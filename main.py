@@ -10,6 +10,7 @@ import discord
 import urllib
 from discord.ext import commands
 from time import mktime
+import testenv
 
 TOKEN = os.environ['TOKEN']
 
@@ -164,7 +165,7 @@ async def get_messages():
                 chan = bot.get_channel(cid_mid_dct['cid'])
                 msg = await chan.get_message(cid_mid_dct['mid'])
                 ctx = await bot.get_context(msg)
-                if ctx.valid:
+                if ctx.valid and testenv.filter_remindme_test_environment(ctx):
                     fmt = '<@{0}> ```{1}```'
                     await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
             except Exception as error:
