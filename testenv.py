@@ -24,15 +24,18 @@ class TestCog:
         return True
 
     async def on_ready(self):
-        if ENVIRONMENT == 'TEST':
-            branch = os.environ['BRANCH'].lower()
-            if discord.utils.get(self.bot.guilds[0].channels, name=branch) is None:
-                await self.bot.guilds[0].create_text_channel(branch)
+        if not self.channel_checked:
+            if ENVIRONMENT == 'TEST':
+                branch = os.environ['BRANCH'].lower()
+                if discord.utils.get(self.bot.guilds[0].channels, name=branch) is None:
+                    await self.bot.guilds[0].create_text_channel(branch)
+            self.channel_checked = True
 
     def __init__(self, bot):
         bot.add_check(self.check_test_environment)
         bot.add_listener(self.on_ready)
         self.bot = bot
+        self.channel_checked = False
 
 
 def setup(bot):
