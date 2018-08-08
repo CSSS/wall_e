@@ -16,7 +16,7 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
-                            "BRANCH=${GIT_BRANCH#*/}"
+                            "BRANCH=${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String testContainerName = 'wall-e-test'
