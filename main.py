@@ -7,6 +7,7 @@ import json
 import redis
 import parsedatetime
 import discord
+import urllib
 from discord.ext import commands
 from time import mktime
 
@@ -28,10 +29,12 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     await ctx.send('```pong!```')
-	
+
+
 @bot.command()
 async def echo(ctx, arg):
-    await ctx.send(arg)
+    user = ctx.author.nick or ctx.author.name
+    await ctx.send(user + " says: " + arg)
     
 @bot.command()
 async def newrole(ctx, roleToAdd):
@@ -44,7 +47,22 @@ async def newrole(ctx, roleToAdd):
     role = await guild.create_role(name=roleToAdd)
     await role.edit(mentionable=True)
     await ctx.send("```" + "You have successfully created role '" + roleToAdd + "'. Calling .iam " + roleToAdd + " will add you to it." + "```")
-    
+
+@bot.command()
+async def deleterole(ctx, roleToDelete):
+    roleToDelete = roleToDelete.lower()
+    role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
+    if role == None:
+        await ctx.send("```" + "Role '" + roleToDelete + "' does not exist." + "```")
+        return
+    role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
+    membersOfRole = role.members
+    if not membersOfRole:
+        deleteRole = await role.delete()
+        await ctx.send("```" + "Role '" + roleToDelete + "' deleted." + "```")
+    else:
+        await ctx.send("```" + "Role '" + roleToDelete + "' has members. Cannot delete." + "```")
+
 @bot.command()
 async def iam(ctx, roleToAdd):
     roleToAdd = roleToAdd.lower()
@@ -79,8 +97,9 @@ async def whois(ctx, roleToCheck):
         await ctx.send("```" + "No members in role '" + roleToCheck + "'." + "```")
         return
     for members in membersOfRole:
-        memberString += members.name + "\n"
-    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
+        name = members.nick or members.name
+        memberString += name + "\n"
+    await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
 
 @bot.command()
 async def poll(ctx, *questions):
@@ -124,6 +143,17 @@ async def remindme(ctx, timeUntil, message):
     fmt = '```Reminder set for {0} seconds from now```'
     await ctx.send(fmt.format(expire_seconds))
 
+
+@bot.command()
+async def listroles(ctx):
+    guild = ctx.guild
+    output="```Roles available:\n"
+    for role in guild.roles:
+        if (role.name != "@everyone"):
+            output+="\t\""+role.name+"\"\n"
+    output+="```"
+    await ctx.send(output)
+
 async def get_messages():
     await bot.wait_until_ready()
     while True:
@@ -154,5 +184,22 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     bot.loop.create_task(get_messages())
+    print("ZA WARUDOOO!!!!")
+
+@bot.command()
+async def urban(ctx, queryString):
+    url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
+    res = urllib.request.urlopen(url)
+    data = json.loads(res.read().decode())
+
+    data = data['list']
+    str = ''
+    if not data:
+        await ctx.send("```lul 404.\nYou seached something stupid didnt you?```")
+        return
+    else:
+        str = data[1]['definition']
+        link = "\n <" + data[1]['permalink'] + ">"
+        await ctx.send("```" + str + "```" + "\n*Link* " + link)
 
 bot.run(TOKEN)
