@@ -6,7 +6,7 @@ ENVIRONMENT = os.environ['ENVIRONMENT']
 
 async def check_test_environment(ctx):
     if ENVIRONMENT == 'TEST':
-        branch = os.environ['BRANCH']
+        branch = os.environ['BRANCH'].lower()
         if discord.utils.get(ctx.guild.channels, name=branch) is None:
             await ctx.guild.create_text_channel(branch)
         if ctx.channel.name != branch:
