@@ -97,6 +97,9 @@ async def iam(ctx, roleToAdd):
         return
     user = ctx.message.author
     await user.add_roles(role)
+    if(role == 'froshee'):
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="WELCOME TO SFU!!!!\nYou have successfully been added to role **`" + roleToAdd + "`**.")
+
     eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully been added to role **`" + roleToAdd + "`**.")
     await ctx.send(embed=eObj)
     
