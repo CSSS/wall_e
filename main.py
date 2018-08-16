@@ -23,7 +23,7 @@ message_subscriber = r.pubsub(ignore_subscribe_messages=True)
 message_subscriber.subscribe('__keyevent@0__:expired')
 
 #TODO: add bot as author to all commands and maybe get rid of the titles
-#       doesnt fit for some of them. just be sure to make it consistent
+#      doesnt fit for some of them. just be sure to make it consistent
 
 @bot.event
 async def on_ready():
@@ -35,7 +35,6 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     eObj = embed(description='Pong!', author=BOT_NAME, avatar=BOT_AVATAR)
-
     await ctx.send(embed=eObj)
 
 @bot.command()
@@ -47,27 +46,26 @@ async def echo(ctx, arg):
         ]
     
     test = '**Says**: ' + arg
-    eObj = embed(content=str, author=user, avatar=avatar)
+    eObj = embed(author=user, avatar=avatar, description=arg)
     
     await ctx.send(embed=eObj)
 
-# TODO: change this to add the role to involking user upon creation
 @bot.command()
 async def newrole(ctx, roleToAdd):
     roleToAdd = roleToAdd.lower()
     guild = ctx.guild
     for role in guild.roles:
         if role.name == roleToAdd:
-            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToAdd + "\" exists. Calling .iam " + roleToAdd +" will add you to it.")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToAdd + "\" exists. Calling **`.iam " + roleToAdd +"`** will add you to it.")
             await ctx.send(embed=eObj)
             return
     role = await guild.create_role(name=roleToAdd)
 
     #config the role and add to the user
     await role.edit(mentionable=True)
-    await ctx.message.author.add_roles(role)
+    await ctx.author.add_roles(role)
 
-    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully created role \"" + roleToAdd + "\".\nThe role has been given to you.")
+    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nThe role has been given to you.")
     await ctx.send(embed=eObj)
 
 @bot.command()
@@ -75,17 +73,17 @@ async def deleterole(ctx, roleToDelete):
     roleToDelete = roleToDelete.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
     if role == None:
-        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToDelete + "\" does not exist.")
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToDelete + "`** does not exist.")
         await ctx.send(embed=eObj)
         return
     role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
     membersOfRole = role.members
     if not membersOfRole:
         deleteRole = await role.delete()
-        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToDelete + "\" deleted.")
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToDelete + "`** deleted.")
         await ctx.send(embed=eObj)
     else:
-        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToDelete + "\" has members. Cannot delete.")
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToDelete + "`** has members. Cannot delete.")
         await ctx.send(embed=eObj)
 
 @bot.command()
@@ -93,12 +91,12 @@ async def iam(ctx, roleToAdd):
     roleToAdd = roleToAdd.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
     if role == None:
-        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToAdd + "\" doesn't exist.\nCalling .newrole " + roleToAdd)
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToAdd + "**` doesn't exist.\nCalling .newrole " + roleToAdd)
         await ctx.send(embed=eObj)
         return
     user = ctx.message.author
     await user.add_roles(role)
-    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully been added to role \"" + roleToAdd + "\".")
+    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully been added to role **`" + roleToAdd + "`**.")
     await ctx.send(embed=eObj)
     
 @bot.command()
@@ -106,12 +104,12 @@ async def iamn(ctx, roleToRemove):
     roleToRemove = roleToRemove.lower()
     role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
     if role == None:
-        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToRemove + "\" doesn't exist.")
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToRemove + "`** doesn't exist.")
         await ctx.send(embed=eObj)
         return
     user = ctx.message.author
     await user.remove_roles(role)
-    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully been remove from role \"" + roleToRemove + "\".")
+    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully been remove from role **`" + roleToRemove + "`**.")
     await ctx.send(embed=eObj)
 
 @bot.command()
@@ -119,18 +117,18 @@ async def whois(ctx, roleToCheck):
     memberString = ""
     role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
     if role == None:
-        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="\"" + roleToCheck + "\" does not exist.")
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="**`" + roleToCheck + "`** does not exist.")
         await ctx.send(embed=eObj)
         return
     membersOfRole = role.members
     if not membersOfRole:
-        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="No members in role \"" + roleToCheck + "\".")
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="No members in role **`" + roleToCheck + "`**.")
         await ctx.send(embed=eObj)
         return
     for members in membersOfRole:
         name = members.nick or members.name
         memberString += name + "\n"
-    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Members belonging to role \"" + roleToCheck + "\":\n" + memberString)
+    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Members belonging to role **`" + roleToCheck + "`**:\n" + memberString)
 
     await ctx.send(embed=eObj)
 
@@ -176,13 +174,16 @@ async def poll(ctx, *questions):
 async def remindme(ctx, timeUntil, message):
     time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
     if parse_status == 0:
-        await ctx.send('```Could not parse time!```')
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description='Could not parse time!')
+        await ctx.send(embed=eObj)
         return
     expire_seconds = int(mktime(time_struct) - time.time())
     json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
     r.set(json_string, '', expire_seconds)
-    fmt = '```Reminder set for {0} seconds from now```'
-    await ctx.send(fmt.format(expire_seconds))
+    fmt = 'Reminder set for {0} seconds from now'
+
+    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description=fmt.format(expire_seconds))
+    await ctx.send(embed=eObj)
 
 @bot.command()
 async def listroles(ctx):
@@ -237,7 +238,11 @@ async def on_ready():
     print("ZA WARUDOOO!!!!")
 
 @bot.command()
-async def urban(ctx, queryString):
+async def urban(ctx, *arg):
+    queryString = ''
+    for x in arg:
+        queryString += x
+
     url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
     urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
 
@@ -260,6 +265,7 @@ async def urban(ctx, queryString):
             ]
         eObj = embed(title='Results from Urban Dictionary', author=BOT_NAME, avatar=BOT_AVATAR, colour=0xfd6a02, content=content)
         await ctx.send(embed=eObj)
+    print(data[0])
 
 @bot.command()
 async def sfu(ctx, *course):
@@ -305,11 +311,6 @@ async def sfu(ctx, *course):
     #thumbnail <do later>
     footer='Written by VJ'
 
-    #array of tuples
-    # sections = ''
-    # for x in data['sections']:
-    #     sections += x['number'] + '\n'
-
     fields = [
         [data['title'], data['description']], 
         ["URL", link]
@@ -320,4 +321,5 @@ async def sfu(ctx, *course):
     
     await ctx.send(embed=embedObj)
     
+
 bot.run(TOKEN)
