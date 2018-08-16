@@ -8,7 +8,6 @@ import redis
 import parsedatetime
 import discord
 import requests as req
-import urllib
 import re
 from discord.ext import commands
 from time import mktime
@@ -34,6 +33,9 @@ async def on_ready():
 
 @bot.command()
 async def ping(ctx):
+    x = bot.commands
+    print(type(x))
+    print(x[0].name)
     eObj = embed(description='Pong!', author=BOT_NAME, avatar=BOT_AVATAR)
     await ctx.send(embed=eObj)
 
