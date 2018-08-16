@@ -1,0 +1,11 @@
+# Created by .ignore support plugin (hsz.mobi)
+.git
+.gitignore
+CODEOWNERS
+Dockerfile
+Jenkinsfile
+LICENSE
+*.md
+files_for_machine_setup
+test-bot.iml
+wall_e_pic.jpg
