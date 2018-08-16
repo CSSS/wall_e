@@ -23,9 +23,6 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 message_subscriber = r.pubsub(ignore_subscribe_messages=True)
 message_subscriber.subscribe('__keyevent@0__:expired')
 
-#TODO: add bot as author to all commands and maybe get rid of the titles
-#      doesnt fit for some of them. just be sure to make it consistent
-
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -212,9 +209,11 @@ async def get_messages():
                 chan = bot.get_channel(cid_mid_dct['cid'])
                 msg = await chan.get_message(cid_mid_dct['mid'])
                 ctx = await bot.get_context(msg)
+                
                 if ctx.valid and testenv.TestCog.check_test_environment(ctx):
-                    fmt = '<@{0}> ```{1}```'
-                    await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+                    fmt = '<@{0}> {1}'
+                    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content))
+                    await ctx.send(embed=eObj)
             except Exception as error:
                 print('Ignoring exception when generating reminder:', file=sys.stderr)
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
@@ -223,8 +222,9 @@ async def get_messages():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        fmt = '```Missing argument: {0}```'
-        await ctx.send(fmt.format(error.param))
+        fmt = 'Missing argument: {0}'
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description=fmt.format(error.param))
+        await ctx.send(embed=eObj)
     else:
         print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
@@ -290,7 +290,6 @@ async def sfu(ctx, *course):
         if(len(str) < 2):
             str = re.split('(\d+)', course[0])
 
-        
         courseCode = str[0]
         courseNum = str[1]
 
