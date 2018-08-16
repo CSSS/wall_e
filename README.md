@@ -50,7 +50,7 @@ Pre-requisites: A Discord account.
 1. Save the `Client ID` under the `App Details`
 1. Scroll down, click `Create a Bot User` and confirm
 1. Within the new `Bot` section of the dashboard, click `click to reveal`, and save the `token`
-1. Naviate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=0` and replace `YOUR_CLIENT_ID_HERE` with the client ID of your bot
+1. Naviate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=2119564375` and replace `YOUR_CLIENT_ID_HERE` with the client ID of your bot
 1. Select the server you created and click `Authorize`
 
 ### Part 2: Running the Bot

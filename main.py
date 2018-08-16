@@ -13,6 +13,8 @@ import re
 from discord.ext import commands
 from time import mktime
 from embed import *
+import testenv
+
 
 TOKEN = os.environ['TOKEN']
 
@@ -128,8 +130,8 @@ async def whois(ctx, roleToCheck):
     for members in membersOfRole:
         name = members.nick or members.name
         memberString += name + "\n"
-    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Members belonging to role **`" + roleToCheck + "`**:\n" + memberString)
 
+    eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Members belonging to role **`" + roleToCheck + "`**:\n" + memberString)
     await ctx.send(embed=eObj)
 
 @bot.command()
@@ -208,7 +210,7 @@ async def get_messages():
                 chan = bot.get_channel(cid_mid_dct['cid'])
                 msg = await chan.get_message(cid_mid_dct['mid'])
                 ctx = await bot.get_context(msg)
-                if ctx.valid:
+                if ctx.valid and testenv.TestCog.check_test_environment(ctx):
                     fmt = '<@{0}> ```{1}```'
                     await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
             except Exception as error:
@@ -322,4 +324,5 @@ async def sfu(ctx, *course):
     await ctx.send(embed=embedObj)
     
 
+bot.load_extension('testenv')
 bot.run(TOKEN)
