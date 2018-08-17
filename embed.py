@@ -5,10 +5,9 @@ import json
 from discord.ext import commands
 
 def embed(title='', content='', description='', author='', colour=0x00bfbd, link='', thumbnail='', avatar='', footer=''):
-    """Required:\n
+    """
     title:<str> Title of the embed 99% of the time it'll be the command name, exceptions when it makes sense like with the sfu command.\n
     content:<array[tuples]> Array of tuples. Tuple per field of the embed. Field name at index 0 and value at index 1. \n
-    Optional:\n 
     description:<str> Appears under the title. \n
     author:<str> Used to indicate user who involked the command or the bot itself when it makes sense like with the echo command.\n
     colour:<0x......> Used to set the coloured strip on the left side of the embed, by default set to a nice blue colour.\n
