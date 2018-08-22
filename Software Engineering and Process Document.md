@@ -66,8 +66,11 @@ Jenkins automates deployments of each push using a pipeline, a procedure of one 
 | ------------- |:-------------:| :-------------:| -----:|
 | **Checkout**: the latest code is retrieved from version control | **Build**: the code is built into an application | **Test**: the application is tested (goes to testing) | **Deploy**: the application goes to production |
 
-| Jenkins pipeline for Wall-E |
-| This process is triggered every push to the Wall-E repository |
+
+** Jenkins pipeline for Wall-E **
+This process is triggered every push to the Wall-E repository
+
+|||||
 | ------------- |:-------------:| :-------------:| -----:|
 | **Checkout**: the new code in the push is retrieved from Git | **Build**: the Docker image is built according to the Dockerfile | **Test**: a container of the image is run with the testing token and test variables | **Deploy**: if push is to master a container with the production token is run |
 
