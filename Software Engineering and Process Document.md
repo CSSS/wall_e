@@ -68,6 +68,7 @@ Jenkins automates deployments of each push using a pipeline, a procedure of one 
 
 
 **Jenkins pipeline for Wall-E**
+
 This process is triggered every push to the Wall-E repository
 
 |||||
