@@ -152,15 +152,15 @@ To propose a new change please make an issue on the repository.
  * Make sure the following items are installed.
    * Python 3.5.5
    * All packages in requirements.txt (IntelliJ will prompt to install these)
-   * A Redis server on the local computer with key expiry event notifications enabled. This requires the line “notify-keyspace-events "Ex"” to be present in /etc/redis/redis.conf.
+   * A Redis server on the local computer with key expiry event notifications enabled. This requires the line `notify-keyspace-events "Ex"` to be present in `/etc/redis/redis.conf`.
  * Run the bot from IntelliJ IDEA which will attach the Python debugger and display the output for you if you select the Debug option.
 
 #### Local Testing Inside Of A Container
 
  * Use of IntelliJ IDEA Ultimate Edition with Python and Docker plugins is recommended.
  * Use the environment variable values for local testing specified above. They can be entered into the Edit Configurations page under the Run menu in the Docker Deployment section’s Container tab.
- * Since the container will need to access a Redis server running outside of it on the local machine, you will need to specify the Host Network Mode for Docker. On the aforementioned page select as the JSON file container_settings.json. This is the equivalent of adding the required “--net=host” flag to the command line.
- * Make sure a Redis server on the local computer with key expiry event notifications enabled is installed. This requires the line “notify-keyspace-events "Ex"” to be present in /etc/redis/redis.conf. 
+ * Since the container will need to access a Redis server running outside of it on the local machine, you will need to specify the Host Network Mode for Docker. On the aforementioned page select as the JSON file `container_settings.json`. This is the equivalent of adding the required `--net=host` flag to the command line.
+ * Make sure a Redis server on the local computer with key expiry event notifications enabled is installed. This requires the line `notify-keyspace-events "Ex"` to be present in `/etc/redis/redis.conf`. 
  * Run the bot in a container from IntelliJ IDEA making sure to choose the Docker Deployment configuration.
 
 ### The Role Of Redis In The RemindMe Command
