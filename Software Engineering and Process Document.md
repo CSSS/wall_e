@@ -81,10 +81,10 @@ This pipeline is defined in the repository’s Jenkinsfile and is read in by Jen
 
 |||||
 | --- | --- | --- | --- |
-| 1. Pick an issue from the repository. | 3. Start working on the issue **in the branch.**                                                              | 6. **Merge master** into your branch so you have others’ changes.            | 10. **Reviewer: test the changes on the test server** in addition to inspecting code before **approving.** |
-| 2. **Make a branch** for that issue.  | 4. **Push frequently** so Jenkins can deploy your code to the test server so **bugs can be caught early on.** | 7. **After testing on the test server and locally** make a **pull request.** | 11. **Developer: merge and delete** the branch.                                                            |
-|                                    | 5. **Test on the test server and locally** frequently for bugs.                                               | 8. Request a **review** from a reviewer.                                     |                                                                                                        |
-|                                    |                                                                                                            | 9. **Continue Testing**                                                      |                                                                                                        |
+| <ol><li>Pick an issue from the repository.</li><li>**Make a branch** for that issue.</li></ol> |
+| <ol><li>Start working on the issue **in the branch.**</li><li>**Push frequently** so Jenkins can deploy your code to the test server so **bugs can be caught early on.**</li><li>**Test on the test server and locally** frequently for bugs.</li></ol> |
+| <ol><li>**Merge master** into your branch so you have others’ changes.</li><li>**After testing on the test server and locally** make a **pull request.**</li><li>Request a **review** from a reviewer.</li><li>**Continue Testing**</li></ol> |
+| <ol><li>**Reviewer: test the changes on the test server** in addition to inspecting code before **approving.**</li><li>**Developer: merge and delete** the branch.</li></ol> |
 
 #### Local Testing: Pitfalls and Necessity
 
