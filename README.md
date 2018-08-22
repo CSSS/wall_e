@@ -38,9 +38,9 @@ Server IP: 178.128.184.141
 For access to the jenkins, notify someone on the following list:  
 * Winfield Chen (CSSS VP) - csss-vp@sfu.ca  
 
-Follow steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the host machine to support CI/CD
+Follow steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the host machine to support CI/CD.
 
-Follow these steps to run the bot and do development on your local machine.  
+Follow the steps below [Part 1] to run the bot and do development on your local machine.  
 
 ### Part 1: Creating Bot and Attaching it to Development Server
 
@@ -64,7 +64,7 @@ Follow these steps to run the bot and do development on your local machine.
 7. Click on `Add Bot` 
 
 ![Click on Add Bot](README_files/add_bot.png) 
- 
+
 8. Navigate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=2119564375`
    * `YOUR_CLIENT_ID` is the `CLIENT ID` you recorded in Step 5
 9. Select the server you created and click `Authorize`
