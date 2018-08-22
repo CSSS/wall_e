@@ -106,8 +106,8 @@ To propose a new change please make an issue on the repository.
 
 1. Go to [https://178.128.184.141/](https://178.128.184.141/)
 1. Proceed through any browser security warnings.
-   1. Advanced users may choose to install the Computing Science Student Society Root CA certificate authority into the browser.
-1. Click log in at the top-right corner of the page.
+   1. Advanced users may choose to install the **Computing Science Student Society Root CA** certificate authority into the browser.
+1. Click **log in** at the top-right corner of the page.
 1. Login with your provided credentials.
 
 ### Changing Jenkins Password
