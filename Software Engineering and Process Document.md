@@ -79,7 +79,7 @@ This pipeline is defined in the repository’s Jenkinsfile and is read in by Jen
 
 ### Making changes to Wall-E
 
-|||||
+|Stage 1|Stage 2|Stage 3|Stage 4|
 | --- | --- | --- | --- |
 | <ol><li>Pick an issue from the repository.</li><li>**Make a branch** for that issue.</li></ol>| <ol><li>Start working on the issue **in the branch.**</li><li>**Push frequently** so Jenkins can deploy your code to the test server so **bugs can be caught early on.**</li><li>**Test on the test server and locally** frequently for bugs.</li></ol> | <ol><li>**Merge master** into your branch so you have others’ changes.</li><li>**After testing on the test server and locally** make a **pull request.**</li><li>Request a **review** from a reviewer.</li><li>**Continue Testing**</li></ol> | <ol><li>**Reviewer: test the changes on the test server** in addition to inspecting code before **approving.**</li><li>**Developer: merge and delete** the branch.</li></ol> |
 
