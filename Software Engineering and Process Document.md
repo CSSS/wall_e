@@ -178,5 +178,6 @@ Redis is a key-value store database. Wall-E uses Redis to store and countdown pe
 Ultimately, using a database like Redis which has features so closely related to the reminder functionality required is advantageous.
 
 ## Changelog
-
-| August 2018 | Revision 1 | Initial Version
+||||
+|---|---|---|
+|August 2018|Revision 1|Initial Version|
