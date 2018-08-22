@@ -61,6 +61,7 @@ Jenkins is a software-development automation server which connects version contr
 Jenkins automates deployments of each push using a pipeline, a procedure of one or more steps known as stages which are found in a Jenkinsfile.
 
 **Commonly-used stages in a Jenkins pipeline**
+|||||
 | ------------- |:-------------:| :-------------:| -----:|
 | **Checkout**: the latest code is retrieved from version control | **Build**: the code is built into an application | **Test**: the application is tested (goes to testing) | **Deploy**: the application goes to production |
 
@@ -75,6 +76,8 @@ This pipeline is defined in the repository’s Jenkinsfile and is read in by Jen
 
 ### Making changes to Wall-E
 
+|||||
+| --- | --- | --- | --- |
 | Pick an issue from the repository. | Start working on the issue **in the branch.**                                                              | **Merge master** into your branch so you have others’ changes.            | **Reviewer: test the changes on the test server** in addition to inspecting code before **approving.** |
 | **Make a branch** for that issue.  | **Push frequently** so Jenkins can deploy your code to the test server so **bugs can be caught early on.** | **After testing on the test server and locally** make a **pull request.** | **Developer: merge and delete** the branch.                                                            |
 |                                    | **Test on the test server and locally** frequently for bugs.                                               | Request a **review** from a reviewer.                                     |                                                                                                        |
