@@ -65,7 +65,7 @@ Follow the steps below [Part 1] to run the bot and do development on your local 
 
 ### Part 2: Running the Bot
 
-Pre-requisites: `git`, `python3`, `python3-venv`, and `pip3`.
+Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
 
 From a command line
 1. Run `git clone https://github.com/CSSS/wall_e.git`
