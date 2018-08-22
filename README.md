@@ -54,14 +54,17 @@ Follow these steps to run the bot and do development on your local machine.
 3. Click `Create New Application` 
 
 ![Creating Discord Application](README_files/create_application.png) 
+
 4. Change the name of the Application to whatever you want and then click `Save Changes`
 5. Take note of the `Client ID` for step 8
 6. Click on `Bot` 
 
 ![Click on Bot](README_files/click_on_bot.png) 
+
 7. Click on `Add Bot` 
 
-![Click on Add Bot](README_files/add_bot.png)  
+![Click on Add Bot](README_files/add_bot.png) 
+ 
 8. Navigate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=2119564375`
    * `YOUR_CLIENT_ID` is the `CLIENT ID` you recorded in Step 5
 9. Select the server you created and click `Authorize`
