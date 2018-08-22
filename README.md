@@ -6,11 +6,12 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 
 ## Table of Contents
+- [Software Engineering and Process Document](Software%20Engineering%20and%20Process%20Document.md)
 - [Current Commands](#current-commands)  
 - [Local Setup](#local-setup)  
 - [Current-Setup Info](#current-setup-info)  
 - [Part 1: Authentication](#part-1-authentication)  
-- [Part 2: Running the bot](#part-2-running-the-bot)  
+- [Part 2: Running the bot](#part-2-running-the-bot)
 
 ## Current Commands
 
