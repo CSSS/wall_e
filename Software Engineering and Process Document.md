@@ -47,7 +47,7 @@ Docker is a computer program that performs operating-system-level virtualization
 Running Wall-E in a container brings with it several advantages. These advantages eliminate several categories of bugs stemming from poor package management and inconsistent developer environments. It is highly recommended that Wall-E be run in a Docker container at all times, including during local testing following the procedures as outlined in the appendix.
 
 | Advantages of Running Wall-E in a Container | Disadvantages of Running Wall-E in a Container |
-| --- | --- |
+|---|---|
 | <ul><li> Repeatable builds: no matter which computer is building the image, the same image is built.</li><li>Known starting state: the container is always built from the base image, meaning packages are installed from scratch, avoiding versioning issues and package conflicts.</li><li>Isolation: Wall-E is isolated from the rest of the system as well as from other instances of itself.</li></ul> | <ul><li>Harder to debug outside of an IDE: while IntelliJ IDEA can attach its debugger to programs inside of a running container it is much harder without an IDE.</li><li>Harder to access program output: output must be accessed using Docker’s log command or by an IDE.</li></ul> |
 
 ### Jenkins
@@ -60,18 +60,18 @@ Jenkins automates deployments of each push using a pipeline, a procedure of one 
 
 **Commonly-used stages in a Jenkins pipeline**
 
-|||||
-| ------------- |:-------------:| :-------------:| -----:|
-| **Checkout**: the latest code is retrieved from version control | **Build**: the code is built into an application | **Test**: the application is tested (goes to testing) | **Deploy**: the application goes to production |
+|Checkout|Build|Test|Deploy|
+|---|---|---|---|
+|the latest code is retrieved from version control|the code is built into an application|the application is tested (goes to testing)|the application goes to production|
 
 
 **Jenkins pipeline for Wall-E**
 
 This process is triggered every push to the Wall-E repository
 
-|||||
-| ------------- |:-------------:| :-------------:| -----:|
-| **Checkout**: the new code in the push is retrieved from Git | **Build**: the Docker image is built according to the Dockerfile | **Test**: a container of the image is run with the testing token and test variables | **Deploy**: if push is to master a container with the production token is run |
+|Checkout|Build|Test|Deploy|
+|---|---|---|---|
+|the new code in the push is retrieved from Git|the Docker image is built according to the Dockerfile|a container of the image is run with the testing token and test variables|if push is to master a container with the production token is run|
 
 This pipeline is defined in the repository’s Jenkinsfile and is read in by Jenkins on each push. Github notifies Jenkins of new pushes using webhooks to the server.
 
@@ -137,11 +137,11 @@ To propose a new change please make an issue on the repository.
 
 ### Required Environment Variables
 
-| Environment Variable | Local Testing | Test Server | Production Server |
-| --- |---| ---| --- |
-| Token         | Your server’s token. | Test server’s token. | Production server’s token. |
-| ENVIRONMENT | You may choose any value other than TEST. | TEST | PRODUCTION |
-| BRANCH     | Undefined. | Git branch’s name. | Undefined |
+|Environment Variable|Local Testing|Test Server|Production Server|
+|---|---|---|---|
+|Token|Your server’s token.|Test server’s token.|Production server’s token.|
+|ENVIRONMENT|You may choose any value other than TEST.|TEST|PRODUCTION|
+|BRANCH|Undefined.|Git branch’s name.|Undefined|
 
 ### Local Testing Recommended Procedures
 
@@ -169,9 +169,9 @@ Redis is a key-value store database. Wall-E uses Redis to store and countdown pe
 
 ![Diagram of How redis is used with remindme command](remindme_diagram.png) 
 
-| Advantages to Handling Reminders Using Redis | Disadvantages to Handling Reminders Using Redis                                                                                                                                                                        |
-| --- | ---|
-| <ul><li>Persistence: reminders would be lost on bot shutdown, crash, or update if reminders were handled in Wall-E.</li><li>Data-logic separation: better style.</li><li>Less development needed: by using a pre-made component the wheel need not be reinvented.</li><li>Available for future features: Redis can also be used for future stateful features like XP tracking.</li></ul> | <ul><li>Additional external dependency: Wall-E requires Redis to function.</li><li>Configuration required: Redis by default does not publish notifications; this must be enabled in the configuration file and is an extra setup step</li><li>Complicates structure: container must be able to talk to Redis on the localhost which is an additional complexity</li></ul>|
+|Advantages to Handling Reminders Using Redis|Disadvantages to Handling Reminders Using Redis|
+|---|---|
+|<ul><li>Persistence: reminders would be lost on bot shutdown, crash, or update if reminders were handled in Wall-E.</li><li>Data-logic separation: better style.</li><li>Less development needed: by using a pre-made component the wheel need not be reinvented.</li><li>Available for future features: Redis can also be used for future stateful features like XP tracking.</li></ul>|<ul><li>Additional external dependency: Wall-E requires Redis to function.</li><li>Configuration required: Redis by default does not publish notifications; this must be enabled in the configuration file and is an extra setup step</li><li>Complicates structure: container must be able to talk to Redis on the localhost which is an additional complexity</li></ul>|
 
 Ultimately, using a database like Redis which has features so closely related to the reminder functionality required is advantageous.
 
