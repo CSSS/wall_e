@@ -83,10 +83,10 @@ This pipeline is defined in the repository’s Jenkinsfile and is read in by Jen
 
 |||||
 | --- | --- | --- | --- |
-| Pick an issue from the repository. | Start working on the issue **in the branch.**                                                              | **Merge master** into your branch so you have others’ changes.            | **Reviewer: test the changes on the test server** in addition to inspecting code before **approving.** |
-| **Make a branch** for that issue.  | **Push frequently** so Jenkins can deploy your code to the test server so **bugs can be caught early on.** | **After testing on the test server and locally** make a **pull request.** | **Developer: merge and delete** the branch.                                                            |
-|                                    | **Test on the test server and locally** frequently for bugs.                                               | Request a **review** from a reviewer.                                     |                                                                                                        |
-|                                    |                                                                                                            | **Continue Testing**                                                      |                                                                                                        |
+| 1. Pick an issue from the repository. | 3. Start working on the issue **in the branch.**                                                              | 6. **Merge master** into your branch so you have others’ changes.            | 10. **Reviewer: test the changes on the test server** in addition to inspecting code before **approving.** |
+| 2. **Make a branch** for that issue.  | 4. **Push frequently** so Jenkins can deploy your code to the test server so **bugs can be caught early on.** | 7. **After testing on the test server and locally** make a **pull request.** | 11. **Developer: merge and delete** the branch.                                                            |
+|                                    | 5. **Test on the test server and locally** frequently for bugs.                                               | 8. Request a **review** from a reviewer.                                     |                                                                                                        |
+|                                    |                                                                                                            | 9. **Continue Testing**                                                      |                                                                                                        |
 
 #### Local Testing: Pitfalls and Necessity
 
