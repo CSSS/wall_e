@@ -67,7 +67,7 @@ Jenkins automates deployments of each push using a pipeline, a procedure of one 
 | **Checkout**: the latest code is retrieved from version control | **Build**: the code is built into an application | **Test**: the application is tested (goes to testing) | **Deploy**: the application goes to production |
 
 
-** Jenkins pipeline for Wall-E **
+**Jenkins pipeline for Wall-E**
 This process is triggered every push to the Wall-E repository
 
 |||||
