@@ -48,9 +48,9 @@ Running Wall-E in a container brings with it several advantages. These advantage
 
 | Advantages of Running Wall-E in a Container | Disadvantages of Running Wall-E in a Container |
 | ------------- |:-------------:|
-| * Repeatable builds: no matter which computer is building the image, the same image is built. | * Harder to debug outside of an IDE: while IntelliJ IDEA can attach its debugger to programs inside of a running container it is much harder without an IDE. |
-| * Known starting state: the container is always built from the base image, meaning packages are installed from scratch, avoiding versioning issues and package conflicts. | * Harder to access program output: output must be accessed using Docker’s log command or by an IDE. |
-| * Isolation: Wall-E is isolated from the rest of the system as well as from other instances of itself. | are neat      |
+|* Repeatable builds: no matter which computer is building the image, the same image is built. |* Harder to debug outside of an IDE: while IntelliJ IDEA can attach its debugger to programs inside of a running container it is much harder without an IDE. |
+|* Known starting state: the container is always built from the base image, meaning packages are installed from scratch, avoiding versioning issues and package conflicts. |* Harder to access program output: output must be accessed using Docker’s log command or by an IDE. |
+|* Isolation: Wall-E is isolated from the rest of the system as well as from other instances of itself. ||
 
 ### Jenkins
 
@@ -60,7 +60,7 @@ Jenkins is a software-development automation server which connects version contr
 
 Jenkins automates deployments of each push using a pipeline, a procedure of one or more steps known as stages which are found in a Jenkinsfile.
 
-| Commonly-used stages in a Jenkins pipeline |
+**Commonly-used stages in a Jenkins pipeline**
 | ------------- |:-------------:| :-------------:| -----:|
 | **Checkout**: the latest code is retrieved from version control | **Build**: the code is built into an application | **Test**: the application is tested (goes to testing) | **Deploy**: the application goes to production |
 
