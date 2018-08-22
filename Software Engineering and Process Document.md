@@ -143,7 +143,7 @@ To propose a new change please make an issue on the repository.
 ### Required Environment Variables
 
 | Environment Variable | Local Testing | Test Server | Production Server |
-| ------------- |:-------------:| -----:|
+| --- |---| ---| --- |
 | Token         | Your server’s token. | Test server’s token. | Production server’s token. |
 | ENVIRONMENT | You may choose any value other than TEST. | TEST | PRODUCTION |
 | BRANCH     | Undefined. | Git branch’s name. | Undefined |
