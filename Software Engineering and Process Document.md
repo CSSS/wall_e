@@ -58,13 +58,15 @@ Jenkins is a software-development automation server which connects version contr
 
 Jenkins automates deployments of each push using a pipeline, a procedure of one or more steps known as stages which are found in a Jenkinsfile.
 
+
+-----
 **Commonly-used stages in a Jenkins pipeline**
 
 |Checkout|Build|Test|Deploy|
 |---|---|---|---|
 |the latest code is retrieved from version control|the code is built into an application|the application is tested (goes to testing)|the application goes to production|
 
-
+-----
 **Jenkins pipeline for Wall-E**
 
 This process is triggered every push to the Wall-E repository
