@@ -47,10 +47,8 @@ Docker is a computer program that performs operating-system-level virtualization
 Running Wall-E in a container brings with it several advantages. These advantages eliminate several categories of bugs stemming from poor package management and inconsistent developer environments. It is highly recommended that Wall-E be run in a Docker container at all times, including during local testing following the procedures as outlined in the appendix.
 
 | Advantages of Running Wall-E in a Container | Disadvantages of Running Wall-E in a Container |
-| ------------- |:-------------:|
-|* Repeatable builds: no matter which computer is building the image, the same image is built. |* Harder to debug outside of an IDE: while IntelliJ IDEA can attach its debugger to programs inside of a running container it is much harder without an IDE. |
-|* Known starting state: the container is always built from the base image, meaning packages are installed from scratch, avoiding versioning issues and package conflicts. |* Harder to access program output: output must be accessed using Docker’s log command or by an IDE. |
-|* Isolation: Wall-E is isolated from the rest of the system as well as from other instances of itself. ||
+| --- | --- |
+| <ul><li> Repeatable builds: no matter which computer is building the image, the same image is built.</li><li>Known starting state: the container is always built from the base image, meaning packages are installed from scratch, avoiding versioning issues and package conflicts.</li><li>Isolation: Wall-E is isolated from the rest of the system as well as from other instances of itself.</li></ul> | <ul><li>Harder to debug outside of an IDE: while IntelliJ IDEA can attach its debugger to programs inside of a running container it is much harder without an IDE.</li><li>Harder to access program output: output must be accessed using Docker’s log command or by an IDE.</li></ul> |
 
 ### Jenkins
 
