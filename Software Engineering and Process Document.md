@@ -1,6 +1,6 @@
 # Software Engineering and Process Document
 
-Created by Winfield Chen - wca988@sfu.ca
+Created by [Winfield Chen](https://github.com/wnfldchen) - wca988@sfu.ca
 
 August 2018
 Revision 1
