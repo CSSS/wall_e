@@ -65,14 +65,16 @@ Follow the steps below [Part 1] to run the bot and do development on your local 
 
 ### Part 2: Running the Bot
 
-Pre-requisites: `git`, `python3`, and `pip3`.
+Pre-requisites: `git`, `python3`, `python3-venv`, and `pip3`.
 
 From a command line
 1. Run `git clone https://github.com/CSSS/wall_e.git`
-1. cd into `wall_e` directory
-1. Run `pip3 install -r requirements.txt`
-1. Run `sudo apt-get install -y redis-server`
-1. Edit `/etc/redis/redis.conf` to add line `notify-keyspace-events "Ex"`
-1. Run `sudo service redis-server start`
-1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
-1. Run `python3 main.py`
+2. cd into `wall_e` directory
+3. Run `python3.5 -m venv ENV`
+4. Run `. ENV/bin/activate`
+5. Run `python3.5 -m pip install -r requirements.txt`
+6. Run `sudo apt-get install -y redis-server`
+7. Edit `/etc/redis/redis.conf` to add line `notify-keyspace-events "Ex"`
+8. Run `sudo service redis-server start`
+9. Run `export TOKEN=token` with the `token` you obtained during the authentication step
+10. Run `python3.5 main.py`
