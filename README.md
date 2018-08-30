@@ -6,17 +6,19 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 
 ## Table of Contents
-- [Current Commands](#current-commands)  
-- [Local Setup](#local-setup)  
-- [Current-Setup Info](#current-setup-info)  
-- [Part 1: Authentication](#part-1-authentication)  
-- [Part 2: Running the bot](#part-2-running-the-bot)  
+- [CSSS Discord Bot (Wall-E)](#csss-discord-bot-wall-e)
+    - [Table of Contents](#table-of-contents)
+    - [Current Commands](#current-commands)
+    - [Local Setup](#local-setup)
+            - [Current-Setup Info](#current-setup-info)
+        - [Part 1: Authentication](#part-1-authentication)
+        - [Part 2: Running the Bot](#part-2-running-the-bot)
 
 ## Current Commands
 
 * `.ping` - returns `pong!`
 * `.echo <arg>` - returns `<arg>`
-* `.newrole <arg>` - creates role `<arg>`
+* `.newrole <arg>` - creates role `<arg>`, and adds invoking user to the role
 * `.deleterole <arg>` - deletes role `<arg>`
 * `.iam <arg>` - adds you to role `<arg>`
 * `.iamn <arg>` - removes you from role `<arg>`
@@ -24,6 +26,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
 * `.urban <arg>` - returns defintion of `<arg>` along with a link to the definition on urban dictionary
+* `.sfu <arg>` - returns calendar description of the specified course. The `<arg>` doesn't need quotes and you can specify the course in two ways. For example, `.sfu cmpt120` or `.sfu cmpt 120`, either method will work 
 
 ## Local Setup
 
