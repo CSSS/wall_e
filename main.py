@@ -324,6 +324,67 @@ async def sfu(ctx, *course):
     
     await ctx.send(embed=embedObj)
     
+@bot.command()
+async def outline(ctx, *course):# command only takes 3 args, last 2 are optional
+    # parge args
+    year = time.localtime()[0]
+    term = time.localtime()[1]
+    courseCdoe = ''
+    courseNum = ''
+    section = 'd100' # this is the default section
+    
+    argNum = len(course)
+
+    # course only specified
+    if(argNum == 1):
+        if(term <= 4):
+            term = 'spring'
+        elif(term >= 5 and term <= 8):
+            term = 'summer'
+        else:
+            term = 'fall'
+    
+    # course and term or section is specified
+    elif(argNum == 2):
+        # figure out if section or term was given
+        temp = course[1].lower()
+
+        if(temp == 'fall'):
+            term = temp
+        elif(temp == 'summer'):
+            term = temp
+        elif(temp == 'spring'):
+            term = temp
+        elif(len(temp) == 4):
+            section = temp
+
+        
+    # course, term, and section is specified
+    elif(argNum == 3):
+        term = course[1].lower()
+        section = course[2].lower()
+
+    
+    # split course[0] into the parts
+    str = re.findall('(\d*\D+)', course[0])
+    if(len(str) < 2):
+        str = re.split('(\d+)', course[0]) # this incase the course num doesnt end in a letter, need to split with different regex
+
+    courseCode = str[0]
+    courseNum = str[1]
+
+    # set up url for get
+    url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
+    
+    # make get request and get json data
+
+    # parse data into pieces
+
+    # make tuple of of the
+
+    # get embed object 
+
+    # send embed object
 
 bot.load_extension('testenv')
 bot.run(TOKEN)
