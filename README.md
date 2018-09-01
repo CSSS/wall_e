@@ -53,13 +53,18 @@ Pre-requisites: A Discord account.
 
 ### Part 2: Running the Bot
 
-Pre-requisites: `git`, `python3`, and `pip3`.
+Pre-requisites: `git`, `python3.5`, and `pip3`.
 
 From a command line
 1. Run `git clone https://github.com/CSSS/wall_e.git`
 1. cd into `wall_e` directory
-1. Run `pip3 install -r requirements.txt`
-1. Run `sudo apt-get install -y redis-server`
-1. Run `sudo service redis-server start`
+1. Run `python3.5 -m pip install -r requirements.txt`
+1. Redis Instructions
+   1. Mac
+      1. Run `brew install redis`
+      1. Run `redis-server /usr/local/etc/redis.conf`
+   1. Ubuntu
+      1. Run `sudo apt-get install -y redis-server`
+      1. Run `sudo service redis-server start`
 1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
-1. Run `python3 main.py`
+1. Run `python3.5 main.py`
