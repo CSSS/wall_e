@@ -24,7 +24,6 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.whois <arg>` - returns everyone who has role `<arg>`
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
-* `.urban <arg>` - returns defintion of `<arg>` along with a link to the definition on urban dictionary
 
 ## Local Setup
 
