@@ -17,8 +17,8 @@ from logger_setup import LoggerWriter
 ######################
 ## VARIABLES TO USE ##
 ######################
-BOT_LOG_CHANNEL = 480028037145165834
-BOT_USER_ID = 478434246277726219
+BOT_LOG_CHANNEL = 478776321808269322
+BOT_USER_ID = 482394461993828353
 bot = commands.Bot(command_prefix='.')
 
 # setting up path hierarchy for commands to load
