@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt ./
 
-RUN pip install --no-cache-dir -r requirements.txt && apk add build-base
+RUN apk add --update alpine-sdk && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
