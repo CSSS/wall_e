@@ -99,7 +99,7 @@ class RoleCommands():
             name = members.nick or members.name
             memberString += name + "\n"
         logger.info("[RoleCommands whois()] following members were found in the role: "+str(memberString))
-        await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```" + memberString + "```")
+        await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
 
 
 def setup(bot):

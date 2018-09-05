@@ -57,7 +57,7 @@ def createLogFile(formatter,logger):
 async def on_ready():
     logger.info('[main.py on_ready()] Logged in as')
     logger.info('[main.py on_ready()] '+bot.user.name)
-    logger.info('[main.py on_ready()] '+bot.user.id)
+    logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
     bot.loop.create_task(get_messages())
 
@@ -68,7 +68,7 @@ async def write_to_bot_log_channel():
     await bot.wait_until_ready()
     channel = bot.get_channel(BOT_LOG_CHANNEL) # channel ID goes here
     if channel is None:
-        logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id " +BOT_LOG_CHANNEL +" . Please investigate further")
+        logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id " +str(BOT_LOG_CHANNEL) +" . Please investigate further")
     else:
         logger.info("[main.py write_to_bot_log_channel] bot_log channel with id " +str(BOT_LOG_CHANNEL) +" successfully retrieved.")
         while not bot.is_closed():
