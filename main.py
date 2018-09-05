@@ -1,22 +1,18 @@
 import os
 import sys
-import time
 import traceback
 import asyncio
-import json
-import parsedatetime
 import discord
 import logging
 import datetime
 import pytz
-from time import mktime
 from discord.ext import commands
 from logger_setup import LoggerWriter
-
+from commands_to_load import Misc
 ######################
 ## VARIABLES TO USE ##
 ######################
-BOT_LOG_CHANNEL = 478776321808269322
+BOT_LOG_CHANNEL = 480028037145165834
 BOT_USER_ID = 482394461993828353
 bot = commands.Bot(command_prefix='.')
 
@@ -130,7 +126,6 @@ if __name__ == "__main__":
             logger.error('[main.py] Failed to load command {}\n{}'.format(com, exception))
         if commandLoaded:
             logger.info("[main.py] "+com+" successfully loaded")
-
     ##final step, running the bot with the passed in environment TOKEN variable
     TOKEN = os.environ['TOKEN']
     bot.run(TOKEN)
