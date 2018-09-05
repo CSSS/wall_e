@@ -9,7 +9,7 @@ logger = logging.getLogger('wall_e')
 class Administration():
 
 	async def botManager(self, ctx):
-		for managers in self.admin['BOT_MANAGERS']:
+		for managers in self.admin_list['BOT_MANAGERS']:
 			if str(ctx.message.author.id) in managers.values():
 				return True
 		return False
@@ -54,7 +54,7 @@ class Administration():
 			logger.info("[Administration reload()] "+str(ctx.message.author)+" successfully authenticated")
 			self.bot.unload_extension(commandFolder+name)
 			try:
-				bot.load_extension(commandFolder+name)
+				self.bot.load_extension(commandFolder + name)
 				await ctx.send("`{} command reloaded`".format(commandFolder+name))
 				logger.info("[Administration reload()] "+name+" has been successfully reloaded")
 			except(AttributeError, ImportError) as e:
