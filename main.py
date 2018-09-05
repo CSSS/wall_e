@@ -1,16 +1,13 @@
 import os
 import sys
-import time
 import traceback
 import asyncio
 import json
 import redis
-import parsedatetime
 import discord
 import logging
 import datetime
 import pytz
-from time import mktime
 from discord.ext import commands
 from logger_setup import LoggerWriter
 
