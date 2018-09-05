@@ -59,7 +59,6 @@ async def on_ready():
     logger.info('[main.py on_ready()] '+bot.user.name)
     logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
-    bot.loop.create_task(get_messages())
 
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
@@ -129,15 +128,6 @@ if __name__ == "__main__":
         logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")        
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
-
-    #setting up database connection
-    try:
-        r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
-        message_subscriber = r.pubsub(ignore_subscribe_messages=True)
-        message_subscriber.subscribe('__keyevent@0__:expired')
-        logger.info("[main.py] redis connection established")
-    except Exception as e:
-        logger.error("[main.py] enountered following exception when setting up redis connection:"+e)
 
     #removing default help command to allow for custom help command
     logger.info("[main.py] default help command being removed")

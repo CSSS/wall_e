@@ -1,5 +1,4 @@
 from discord.ext import commands
-
 import logging
 logger = logging.getLogger('wall_e')
 
@@ -7,6 +6,16 @@ class Misc():
 
     def __init__(self, bot):
         self.bot = bot
+    
+    #setting up database connection
+    try:
+        self.bot.loop.create_task(get_messages())
+        self.r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+        message_subscriber = self.r.pubsub(ignore_subscribe_messages=True)
+        message_subscriber.subscribe('__keyevent@0__:expired')
+        logger.info("[Misc __init__] redis connection established")
+    except Exception as e:
+        logger.error("[Misc __init__] enountered following exception when setting up redis connection:"+e)
 
     @commands.command()
     async def poll(self, ctx, *questions):
@@ -58,7 +67,7 @@ class Misc():
             return
         expire_seconds = int(mktime(time_struct) - time.time())
         json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
-        r.set(json_string, '', expire_seconds)
+        self.r.set(json_string, '', expire_seconds)
         fmt = '```Reminder set for {0} seconds from now```'
         await ctx.send(fmt.format(expire_seconds))
         logger.info("[Misc remindme()] reminder has been contructed and sent.")
