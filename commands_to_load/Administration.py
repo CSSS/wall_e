@@ -26,7 +26,7 @@ class Administration():
 	async def load(self, ctx, name):
 		if await self.botManager(ctx):
 			try:
-				logger.info("[Administration load()] "+ctx.message.author+" successfully authenticated")
+				logger.info("[Administration load()] "+str(ctx.message.author)+" successfully authenticated")
 				self.bot.load_extension(commandFolder+name)
 				await ctx.send("{} command loaded.".format(name))
 				logger.info("[Administration load()] "+name+" has been successfully loaded")
@@ -40,7 +40,7 @@ class Administration():
 	@commands.command()
 	async def unload(self, ctx, name):
 		if await self.botManager(ctx):
-			logger.info("[Administration unload()] "+ctx.message.author+" successfully authenticated")
+			logger.info("[Administration unload()] "+str(ctx.message.author)+" successfully authenticated")
 			self.bot.unload_extension(commandFolder+name)
 			await ctx.send("{} command unloaded".format(name))
 			logger.info("[Administration unload()] "+name+" has been successfully loaded")
@@ -51,7 +51,7 @@ class Administration():
 	@commands.command()
 	async def reload(self, ctx, name):
 		if await self.botManager(ctx):
-			logger.info("[Administration reload()] "+ctx.message.author+" successfully authenticated")
+			logger.info("[Administration reload()] "+str(ctx.message.author)+" successfully authenticated")
 			self.bot.unload_extension(commandFolder+name)
 			try:
 				bot.load_extension(commandFolder+name)
@@ -68,7 +68,7 @@ class Administration():
 	@commands.command()
 	async def exc(self, ctx, *args):
 		if await self.botManager(ctx):
-			logger.info("[Administration exc()] "+ctx.message.author+" successfully authenticated")
+			logger.info("[Administration exc()] "+str(ctx.message.author)+" successfully authenticated")
 			query = " ".join(args)
 			await ctx.send("```"+subprocess.getoutput(query)+"```")
 		else:
