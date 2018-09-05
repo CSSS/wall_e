@@ -6,6 +6,8 @@ from time import mktime
 import logging
 import redis
 import asyncio
+import traceback
+import sys
 
 logger = logging.getLogger('wall_e')
 
