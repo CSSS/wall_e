@@ -12,8 +12,7 @@ from commands_to_load import Misc
 ######################
 ## VARIABLES TO USE ##
 ######################
-BOT_LOG_CHANNEL = 480028037145165834
-BOT_USER_ID = 482394461993828353
+BOT_LOG_CHANNEL = 478776321808269322
 bot = commands.Bot(command_prefix='.')
 
 # setting up path hierarchy for commands to load

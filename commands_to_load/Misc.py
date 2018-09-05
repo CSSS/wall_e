@@ -1,12 +1,13 @@
+import time
+import parsedatetime
+import json
 from discord.ext import commands
+from time import mktime
 import logging
 import redis
 import asyncio
-import time
-import json
-from time import mktime
-import parsedatetime
-
+import traceback
+import sys
 
 logger = logging.getLogger('wall_e')
 
@@ -15,7 +16,7 @@ class Misc():
 
     def __init__(self, bot):
         self.bot = bot
-    
+
         #setting up database connection
         try:
             self.r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
