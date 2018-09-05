@@ -25,7 +25,7 @@ class RoleCommands():
 
     @commands.command()
     async def deleterole(self, ctx, roleToDelete):
-        logger.info("[RoleCommands deleterole()] "+ctx.message.author+" called deleterole with role "+str(roleToDelete)+".")
+        logger.info("[RoleCommands deleterole()] "+str(ctx.message.author)+" called deleterole with role "+str(roleToDelete)+".")
         roleToDelete = roleToDelete.lower()
         role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
         if role == None:
@@ -43,7 +43,7 @@ class RoleCommands():
 
     @commands.command()
     async def iam(self, ctx, roleToAdd):
-        logger.info("[RoleCommands iam()] "+ctx.message.author+" called iam with role "+str(roleToAdd))
+        logger.info("[RoleCommands iam()] "+str(ctx.message.author)+" called iam with role "+str(roleToAdd))
         roleToAdd = roleToAdd.lower()
         role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
         if role == None:
@@ -62,7 +62,7 @@ class RoleCommands():
         
     @commands.command()
     async def iamn(self, ctx, roleToRemove):
-        logger.info("[RoleCommands iamn()] "+ctx.message.author+" called iamn with role "+str(roleToRemove))
+        logger.info("[RoleCommands iamn()] "+str(ctx.message.author)+" called iamn with role "+str(roleToRemove))
         roleToRemove = roleToRemove.lower()
         role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
         if role == None:
@@ -83,7 +83,7 @@ class RoleCommands():
 
     @commands.command()
     async def whois(self, ctx, roleToCheck):
-        logger.info("[RoleCommands whois()] "+ctx.message.author+" called whois with role "+str(roleToCheck))
+        logger.info("[RoleCommands whois()] "+str(ctx.message.author)+" called whois with role "+str(roleToCheck))
         memberString = ""
         role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
         if role == None:
