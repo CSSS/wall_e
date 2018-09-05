@@ -64,7 +64,7 @@ class HealthChecks():
 		logger.info("[HealthChecks help()] transfer successful")
 
 		#rolesList = sorted(rolesList, key=str.lower)
-		await paginate(bot=self.bot,title="Help Page" ,ctx=ctx,listToPaginate=helpArr, numOfPageEntries=5)
+		await paginateEmbed(bot=self.bot,title="Help Page" ,ctx=ctx,listToEmbed=helpArr, numOfPageEntries=5)
 
 
 def setup(bot):
