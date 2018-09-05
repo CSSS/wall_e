@@ -10,7 +10,7 @@ class RoleCommands():
 
     @commands.command()
     async def newrole(self, ctx, roleToAdd):
-        logger.info("[RoleCommands newrole()] "+ctx.message.author+" called newrole with following argument: roleToAdd="+roleToAdd)
+        logger.info("[RoleCommands newrole()] "+str(ctx.message.author)+" called newrole with following argument: roleToAdd="+roleToAdd)
         roleToAdd = roleToAdd.lower()
         guild = ctx.guild
         for role in guild.roles:
