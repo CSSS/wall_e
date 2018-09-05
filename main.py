@@ -143,6 +143,13 @@ if __name__ == "__main__":
     logger.info("[main.py] default help command being removed")
     bot.remove_command("help")
 
+    # load the code dealing with test server interaction
+    try:
+        bot.load_extension('testenv')
+    except Exception as e:
+        exception = '{}: {}'.format(type(e).__name__, e)
+        logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
+
     ## tries to loads any commands specified in the_commands into the bot
     for com in the_commands:
         commandLoaded=True
