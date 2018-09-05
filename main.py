@@ -57,7 +57,7 @@ def createLogFile(formatter,logger):
 async def on_ready():
     logger.info('[main.py on_ready()] Logged in as')
     logger.info('[main.py on_ready()] '+bot.user.name)
-    logger.info('[main.py on_ready()] '+bot.user.id)
+    logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
     bot.loop.create_task(get_messages())
 
