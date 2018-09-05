@@ -2,6 +2,7 @@
 import discord
 import asyncio
 import logging
+
 logger = logging.getLogger('wall_e')
 from main import BOT_USER_ID
 async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0, title=" "):
@@ -163,7 +164,7 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
 
 			logger.info("[Paginate paginate()] added all reactions to message")
 			def checkReaction(reaction, user):
-				if user.id != 478434246277726219:
+				if user.id != BOT_USER_ID:
 					e = str(reaction.emoji)
 					logger.info("[Paginate paginate()] user reaction detected..."+ str(e))
 					return e.startswith(('⏪', '⏩', '✅'))

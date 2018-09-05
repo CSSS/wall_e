@@ -4,12 +4,49 @@ import json
 from discord.ext import commands
 from time import mktime
 import logging
+import redis
+import asyncio
+
 logger = logging.getLogger('wall_e')
 
 class Misc():
 
+#######################
+## NEEDS DESCRIPTION ##
+#######################
+    async def get_messages(self):
+        await self.bot.wait_until_ready()
+        while True:
+            message = self.message_subscriber.get_message()
+            if message is not None and message['type'] == 'message':
+                try:
+                    cid_mid_dct = json.loads(message['data'])
+                    chan = self.bot.get_channel(cid_mid_dct['cid'])
+                    msg = await chan.get_message(cid_mid_dct['mid'])
+                    ctx = await self.bot.get_context(msg)
+                    if ctx.valid:
+                        fmt = '<@{0}> ```{1}```'
+                        await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+                except Exception as error:
+                    logger.error('[main.py get_message()] Ignoring exception when generating reminder:')
+                    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            await asyncio.sleep(2)
+
     def __init__(self, bot):
         self.bot = bot
+
+        #setting up database connection
+        try:
+            self.bot.loop.create_task(self.get_messages())
+            self.r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+            self.message_subscriber = self.r.pubsub(ignore_subscribe_messages=True)
+            self.message_subscriber.subscribe('__keyevent@0__:expired')
+            logger.info("[Misc __init__] redis connection established")
+        except Exception as e:
+            logger.error("[Misc __init__] enountered following exception when setting up redis connection\n{}".format(e))
+
+
+
 
     @commands.command()
     async def poll(self, ctx, *questions):
@@ -61,7 +98,7 @@ class Misc():
             return
         expire_seconds = int(mktime(time_struct) - time.time())
         json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
-        r.set(json_string, '', expire_seconds)
+        self.r.set(json_string, '', expire_seconds)
         fmt = '```Reminder set for {0} seconds from now```'
         await ctx.send(fmt.format(expire_seconds))
         logger.info("[Misc remindme()] reminder has been contructed and sent.")

@@ -3,7 +3,6 @@ import sys
 import traceback
 import asyncio
 import json
-import redis
 import discord
 import logging
 import datetime
@@ -56,7 +55,6 @@ async def on_ready():
     logger.info('[main.py on_ready()] '+bot.user.name)
     logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
-    bot.loop.create_task(get_messages())
 
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
@@ -76,27 +74,6 @@ async def write_to_bot_log_channel():
                     await channel.send(line)
                 line = f.readline()
             await asyncio.sleep(1)
-
-#######################
-## NEEDS DESCRIPTION ##
-#######################
-async def get_messages():
-    await bot.wait_until_ready()
-    while True:
-        message = message_subscriber.get_message()
-        if message is not None and message['type'] == 'message':
-            try:
-                cid_mid_dct = json.loads(message['data'])
-                chan = bot.get_channel(cid_mid_dct['cid'])
-                msg = await chan.get_message(cid_mid_dct['mid'])
-                ctx = await bot.get_context(msg)
-                if ctx.valid:
-                    fmt = '<@{0}> ```{1}```'
-                    await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
-            except Exception as error:
-                logger.error('[main.py get_message()] Ignoring exception when generating reminder:')
-                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-        await asyncio.sleep(2)
 
 #######################
 ## NEEDS DESCRIPTION ##
@@ -126,15 +103,6 @@ if __name__ == "__main__":
         logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")        
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
-
-    #setting up database connection
-    try:
-        r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
-        message_subscriber = r.pubsub(ignore_subscribe_messages=True)
-        message_subscriber.subscribe('__keyevent@0__:expired')
-        logger.info("[main.py] redis connection established")
-    except Exception as e:
-        logger.error("[main.py] enountered following exception when setting up redis connection:"+e)
 
     #removing default help command to allow for custom help command
     logger.info("[main.py] default help command being removed")
