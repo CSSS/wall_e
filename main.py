@@ -4,7 +4,6 @@ import time
 import traceback
 import asyncio
 import json
-import redis
 import parsedatetime
 import discord
 import logging
@@ -78,27 +77,6 @@ async def write_to_bot_log_channel():
                     await channel.send(line)
                 line = f.readline()
             await asyncio.sleep(1)
-
-#######################
-## NEEDS DESCRIPTION ##
-#######################
-async def get_messages():
-    await bot.wait_until_ready()
-    while True:
-        message = message_subscriber.get_message()
-        if message is not None and message['type'] == 'message':
-            try:
-                cid_mid_dct = json.loads(message['data'])
-                chan = bot.get_channel(cid_mid_dct['cid'])
-                msg = await chan.get_message(cid_mid_dct['mid'])
-                ctx = await bot.get_context(msg)
-                if ctx.valid:
-                    fmt = '<@{0}> ```{1}```'
-                    await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
-            except Exception as error:
-                logger.error('[main.py get_message()] Ignoring exception when generating reminder:')
-                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-        await asyncio.sleep(2)
 
 #######################
 ## NEEDS DESCRIPTION ##
