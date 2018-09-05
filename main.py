@@ -68,7 +68,7 @@ async def write_to_bot_log_channel():
     await bot.wait_until_ready()
     channel = bot.get_channel(BOT_LOG_CHANNEL) # channel ID goes here
     if channel is None:
-        logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id " +BOT_LOG_CHANNEL +" . Please investigate further")
+        logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id " +str(BOT_LOG_CHANNEL) +" . Please investigate further")
     else:
         logger.info("[main.py write_to_bot_log_channel] bot_log channel with id " +str(BOT_LOG_CHANNEL) +" successfully retrieved.")
         while not bot.is_closed():
