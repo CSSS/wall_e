@@ -61,9 +61,11 @@ From a command line
 1. Redis Instructions
    1. Mac
       1. Run `brew install redis`
-      1. Run `redis-server /usr/local/etc/redis.conf`
+      1. Add `notify-keyspace-events "Ex"` to the end of `/usr/local/etc/redis.conf`
+      1. Run `brew services start|stop|restart redis` to start, stop and restart redis
    1. Ubuntu
       1. Run `sudo apt-get install -y redis-server`
+      1. Add `notify-keyspace-events "Ex"` to the end of `/etc/redis/redis.conf`
       1. Run `sudo service redis-server start`
 1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
 1. Run `python3.5 main.py`
