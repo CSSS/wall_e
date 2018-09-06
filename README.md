@@ -68,4 +68,5 @@ From a command line
       1. Add `notify-keyspace-events "Ex"` to the end of `/etc/redis/redis.conf`
       1. Run `sudo service redis-server start`
 1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
+1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
 1. Run `python3.5 main.py`

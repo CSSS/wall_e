@@ -12,7 +12,7 @@ from commands_to_load import Misc
 ######################
 ## VARIABLES TO USE ##
 ######################
-BOT_LOG_CHANNEL = 478776321808269322
+BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 bot = commands.Bot(command_prefix='.')
 
 # setting up path hierarchy for commands to load
