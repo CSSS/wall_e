@@ -22,7 +22,6 @@ class Misc():
             self.r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
             self.message_subscriber = self.r.pubsub(ignore_subscribe_messages=True)
             self.message_subscriber.subscribe('__keyevent@0__:expired')
-            print("[__init__] type of self="+str(type(self))+" which self="+str(self))
             self.bot.loop.create_task(self.get_messages())
             logger.info("[Misc __init__] redis connection established")
         except Exception as e:
@@ -93,11 +92,7 @@ class Misc():
     async def get_messages(self):
         await self.bot.wait_until_ready()
         while True:
-            print("[get_messages 1]")
             message = self.message_subscriber.get_message()
-            print("[get_messages] type of self="+str(type(self))+" which self="+str(self))
-            print("[get_messages 2]")
-            print("messages type="+str(type(message))+" and message content is "+str(message))
             if message is not None and message['type'] == 'message':
                 try:
                     cid_mid_dct = json.loads(message['data'])
