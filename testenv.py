@@ -1,5 +1,6 @@
 import os
 import discord
+import main
 from discord.ext import commands
 
 ENVIRONMENT = os.environ['ENVIRONMENT']
@@ -28,6 +29,8 @@ class TestCog:
             branch = os.environ['BRANCH'].lower()
             if discord.utils.get(self.bot.guilds[0].channels, name=branch) is None:
                 await self.bot.guilds[0].create_text_channel(branch)
+                log_channel = await self.bot.guilds[0].create_text_channel(branch + '_logs')
+                main.BOT_LOG_CHANNEL = log_channel.id
 
     def __init__(self, bot):
         bot.add_check(self.check_test_environment)
