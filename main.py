@@ -12,6 +12,10 @@ from commands_to_load import Misc
 ######################
 ## VARIABLES TO USE ##
 ######################
+if 'ENVIRONMENT' not in os.environ:
+    print("Hmmm, no environment variable \"ENVIRONMENT\" seems to exist...read the README again")
+    exit(1)
+
 ENVIRONMENT = os.environ['ENVIRONMENT']
 BOT_LOG_CHANNEL = None
 if ENVIRONMENT != 'TEST':
