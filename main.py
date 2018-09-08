@@ -25,7 +25,7 @@ if ENVIRONMENT != 'TEST':
     else:
         BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 bot = commands.Bot(command_prefix='.')
-
+FILENAME = None
 # setting up path hierarchy for commands to load
 commandFolder="commands_to_load."
 the_commands=[commandFolder+"HealthChecks", commandFolder+"Misc", commandFolder+"RoleCommands", commandFolder+"Administration"]
@@ -49,7 +49,8 @@ def initalizeLogger():
 
 def createLogFile(formatter,logger):
     DATE=datetime.datetime.now(pytz.timezone('US/Pacific')).strftime("%Y_%m_%d_%H_%M_%S")
-    FILENAME="wall_e"
+    global FILENAME
+    FILENAME=DATE+"_wall_e"
     filehandler=logging.FileHandler("{}.log".format(FILENAME))
     filehandler.setLevel(logging.INFO)
     filehandler.setFormatter(formatter)
@@ -121,7 +122,7 @@ if __name__ == "__main__":
     ## tries to open log file in prep for write_to_bot_log_channel function
     try:
         logger.info("[main.py] trying to open wall_e.log to be able to send its output to #bot_log channel")
-        f = open('wall_e.log', 'r')
+        f = open(FILENAME+'.log', 'r')
         f.seek(0)
         bot.loop.create_task(write_to_bot_log_channel())
         logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")        
