@@ -70,7 +70,7 @@ class Administration():
 
 	@commands.command()
 	async def exc(self, ctx, *args):
-		logger.info("[Administration exc()] exc command detected from "+str(ctx.message.author))
+		logger.info("[Administration exc()] exc command detected from "+str(ctx.message.author) + "with arguments \""+" ".join(args)+"\""
 		if await self.botManager(ctx):
 			logger.info("[Administration exc()] "+str(ctx.message.author)+" successfully authenticated")
 			query = " ".join(args)
