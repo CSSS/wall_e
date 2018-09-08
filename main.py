@@ -12,8 +12,9 @@ from commands_to_load import Misc
 ######################
 ## VARIABLES TO USE ##
 ######################
+ENVIRONMENT = os.environ['ENVIRONMENT']
 BOT_LOG_CHANNEL = None
-if os.environ['ENVIRONMENT'] != 'TEST':
+if ENVIRONMENT != 'TEST':
     BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 bot = commands.Bot(command_prefix='.')
 
@@ -61,6 +62,13 @@ async def on_ready():
 ##################################################################################################
 async def write_to_bot_log_channel():
     await bot.wait_until_ready()
+    global BOT_LOG_CHANNEL
+    if ENVIRONMENT == 'TEST':
+        branch = os.environ['BRANCH'].lower()
+        log_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_logs')
+        if log_channel is None:
+            log_channel = await bot.guilds[0].create_text_channel(branch + '_logs')
+        BOT_LOG_CHANNEL = log_channel.id
     channel = bot.get_channel(BOT_LOG_CHANNEL) # channel ID goes here
     if channel is None:
         logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id " +str(BOT_LOG_CHANNEL) +" . Please investigate further")
