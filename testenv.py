@@ -29,6 +29,7 @@ class TestCog:
             branch = os.environ['BRANCH'].lower()
             if discord.utils.get(self.bot.guilds[0].channels, name=branch) is None:
                 await self.bot.guilds[0].create_text_channel(branch)
+            if discord.utils.get(self.bot.guilds[0].channels, name=branch + '_logs') is None:
                 log_channel = await self.bot.guilds[0].create_text_channel(branch + '_logs')
                 main.BOT_LOG_CHANNEL = log_channel.id
 
