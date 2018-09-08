@@ -12,7 +12,9 @@ from commands_to_load import Misc
 ######################
 ## VARIABLES TO USE ##
 ######################
-BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
+BOT_LOG_CHANNEL = None
+if os.environ['ENVIRONMENT'] != 'TEST':
+    BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 bot = commands.Bot(command_prefix='.')
 
 # setting up path hierarchy for commands to load
@@ -98,6 +100,10 @@ if __name__ == "__main__":
     except Exception as e:
         exception = '{}: {}'.format(type(e).__name__, e)
         logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
+
+    # wait until the test logging channel is setup
+    while BOT_LOG_CHANNEL is None:
+        continue
 
     ## tries to open log file in prep for write_to_bot_log_channel function
     try:
