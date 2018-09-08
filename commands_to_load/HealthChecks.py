@@ -25,18 +25,19 @@ class HealthChecks():
 
 	@commands.command()
 	async def ping(self, ctx):
-		logger.info("[HealthChecks ping()] ping command detected")
+		logger.info("[HealthChecks ping()] ping command detected from "+str(ctx.message.author))
 		await ctx.send('```pong!```')
 
 
 	@commands.command()
 	async def echo(self, ctx, arg):
 		user = ctx.author.nick or ctx.author.name
-		logger.info("[HealthChecks echo()] echo command detected from "+user+" with argument "+str(arg))
+		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
 		await ctx.send(user + " says: " + arg)
 
 	@commands.command()
 	async def help(self, ctx):
+		logger.info("[HealthChecks help()] help command detected from "+str(ctx.message.author))
 		logger.info("[HealthChecks help()] attempting to load command info from help.json")
 		with open('commands_to_load/help.json') as f:
 			helpDict = json.load(f)
