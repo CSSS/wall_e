@@ -39,7 +39,7 @@ pipeline {
                         String productionContainerName = 'wall-e'
                         withCredentials([string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}")]) {
                             sh "docker rm -f ${productionContainerName} || true"
-                            sh "docker run -d -e ${tokenEnv} -e ENVIRONMENT --net=host --name ${productionContainerName} wall-e:${env.BUILD_ID}"
+                            sh "docker run -d -e ${tokenEnv} -e ENVIRONMENT -e BOT_LOG_CHANNEL_ID --net=host --name ${productionContainerName} wall-e:${env.BUILD_ID}"
                         }
                     }
                 }
