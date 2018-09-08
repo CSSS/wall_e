@@ -109,10 +109,6 @@ if __name__ == "__main__":
         exception = '{}: {}'.format(type(e).__name__, e)
         logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
 
-    # wait until the test logging channel is setup
-    while BOT_LOG_CHANNEL is None:
-        continue
-
     ## tries to open log file in prep for write_to_bot_log_channel function
     try:
         logger.info("[main.py] trying to open wall_e.log to be able to send its output to #bot_log channel")
