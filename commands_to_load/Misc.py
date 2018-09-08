@@ -32,7 +32,7 @@ class Misc():
 
     @commands.command()
     async def poll(self, ctx, *questions):
-        logger.info("[Misc poll()] poll command detected")
+        logger.info("[Misc poll()] poll command detected from user "+str(ctx.message.author))
         if len(questions) > 12:
             logger.error("[Misc poll()] was called with too many options.")
             await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
@@ -72,7 +72,7 @@ class Misc():
 
     @commands.command()
     async def remindme(self, ctx, timeUntil, message):
-        logger.info("[Misc remindme()] remindme command detected")
+        logger.info("[Misc remindme()] remindme command detected from user "+str(ctx.message.author))
         time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
         if parse_status == 0:
             logger.info("[Misc remindme()] couldn't parse the time")
