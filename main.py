@@ -19,7 +19,11 @@ if 'ENVIRONMENT' not in os.environ:
 ENVIRONMENT = os.environ['ENVIRONMENT']
 BOT_LOG_CHANNEL = None
 if ENVIRONMENT != 'TEST':
-    BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
+    if 'BOT_LOG_CHANNEL_ID' not in os.environ:
+        print("Hmmm, no environment variable \"BOT_LOG_CHANNEL_ID\" seems to exist...read the README again")
+        exit(1)
+    else:
+        BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 bot = commands.Bot(command_prefix='.')
 
 # setting up path hierarchy for commands to load
