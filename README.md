@@ -6,7 +6,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 
 ## Table of Contents
-- [Software Engineering and Process Document](Software%20Engineering%20and%20Process%20Document.md)
+- [Software Engineering and Process Document](Software%20Engineering%20and%20Process%20Document)
 - [Current Commands](#current-commands)  
 - [Local Setup](#local-setup)  
 - [Current-Setup Info](#current-setup-info)  
