@@ -7,7 +7,7 @@ import logging
 import datetime
 import pytz
 from discord.ext import commands
-from logger_setup import LoggerWriter
+from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
 ######################
 ## VARIABLES TO USE ##
@@ -125,7 +125,7 @@ if __name__ == "__main__":
 
     # load the code dealing with test server interaction
     try:
-        bot.load_extension('testenv')
+        bot.load_extension('helper_files.testenv')
     except Exception as e:
         exception = '{}: {}'.format(type(e).__name__, e)
         logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
