@@ -106,12 +106,11 @@ class RoleCommands():
     @commands.command()
     async def roles(self, ctx):
         guild = ctx.guild
-        output=''
+        roleList = []
         for role in guild.roles:
             if role.name != "@everyone":
-                output+="\t\""+str(role.name)+"\"\n"
-        output+="```"
-        await paginate(bot=self.bot,title="Roles Available" ,ctx=ctx,listToPaginate=guild.roles, numOfPageEntries=10)
+                roleList.append(str(role.name))
+        await paginate(bot=self.bot,title="Roles Available" ,ctx=ctx,listToPaginate=roleList, numOfPageEntries=10)
 
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
