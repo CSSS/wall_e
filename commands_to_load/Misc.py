@@ -115,9 +115,10 @@ class Misc():
 					ctx = await self.bot.get_context(msg)
 					if ctx.valid:
 						fmt = '<@{0}> ```{1}```'
+						logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
 						await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
 				except Exception as error:
-					logger.error('[main.py get_message()] Ignoring exception when generating reminder:')
+					logger.error('[Misc.py get_message()] Ignoring exception when generating reminder:')
 					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 			await asyncio.sleep(2)
 
