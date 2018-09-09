@@ -85,8 +85,8 @@ class Misc():
 			else:
 				message+=str(value)+" "
 		timeUntil = str(parsedTime)
-		print("time="+str(timeUntil))
-		print("message="+str(message))
+		logger.info("[Misc remindme()] extracted time is "+str(timeUntil))
+		logger.info("[Misc remindme()] extracted message is "+str(message))
 		time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
 		if parse_status == 0:
 			logger.error("[Misc remindme()] couldn't parse the time")
