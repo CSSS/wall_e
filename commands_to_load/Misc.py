@@ -71,16 +71,13 @@ class Misc():
 
 
 	@commands.command()
-	async def remindme(self, ctx, *args):
+	async def remindmein(self, ctx, *args):
 		logger.info("[Misc remindme()] remindme command detected from user "+str(ctx.message.author))
 		parsedTime=''
 		message=''
-		parseTime=None
+		parseTime=True
 		for index, value in enumerate(args):
-			if value == 'in' and index == 0:
-				parseTime=True
-				pass
-			elif parseTime == True:
+			if parseTime == True:
 				if value == 'to':
 					parseTime = False
 				else:
