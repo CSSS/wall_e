@@ -17,6 +17,7 @@ if 'ENVIRONMENT' not in os.environ:
     exit(1)
 
 ENVIRONMENT = os.environ['ENVIRONMENT']
+print("environment variable \"ENVIRONMENT\" is set to \""+str(ENVIRONMENT)+"\"")
 BOT_LOG_CHANNEL = None
 if ENVIRONMENT != 'TEST':
     if 'BOT_LOG_CHANNEL_ID' not in os.environ:
@@ -24,6 +25,8 @@ if ENVIRONMENT != 'TEST':
         exit(1)
     else:
         BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
+
+print("environment variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 bot = commands.Bot(command_prefix='.')
 FILENAME = None
 # setting up path hierarchy for commands to load
@@ -50,7 +53,7 @@ def initalizeLogger():
 def createLogFile(formatter,logger):
     DATE=datetime.datetime.now(pytz.timezone('US/Pacific')).strftime("%Y_%m_%d_%H_%M_%S")
     global FILENAME
-    FILENAME=DATE+"_wall_e"
+    FILENAME="logs/"+DATE+"_wall_e"
     filehandler=logging.FileHandler("{}.log".format(FILENAME))
     filehandler.setLevel(logging.INFO)
     filehandler.setFormatter(formatter)
