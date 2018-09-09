@@ -59,15 +59,19 @@ def createLogFile(formatter,logger):
     filehandler.setFormatter(formatter)
     logger.addHandler(filehandler)
 
-#######################
-## NEEDS DESCRIPTION ##
-#######################
+##################################################
+## signals to all functions that use            ##
+## "wait_until_ready" that the bot is now ready ##
+## to start performing background tasks         ## 
+##################################################
+
 @bot.event
 async def on_ready():
     logger.info('[main.py on_ready()] Logged in as')
     logger.info('[main.py on_ready()] '+bot.user.name)
     logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
+    logger.info('[main.py on_ready()] '+bot.user.name+' is now ready for commands')
 
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
@@ -96,9 +100,10 @@ async def write_to_bot_log_channel():
                 line = f.readline()
             await asyncio.sleep(1)
 
-#######################
-## NEEDS DESCRIPTION ##
-#######################
+####################################################
+## Function that gets called when the script cant ##
+## understand the command that the user invoked   ##
+####################################################
 @bot.event
 async def on_command_error(ctx, error):
     logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" isnt working....")
