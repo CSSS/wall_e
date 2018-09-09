@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
     ## tries to open log file in prep for write_to_bot_log_channel function
     try:
-        logger.info("[main.py] trying to open wall_e.log to be able to send its output to #bot_log channel")
+        logger.info("[main.py] trying to open "+FILENAME+".log to be able to send its output to #bot_log channel")
         f = open(FILENAME+'.log', 'r')
         f.seek(0)
         bot.loop.create_task(write_to_bot_log_channel())
