@@ -1,6 +1,8 @@
 from discord.ext import commands
 import discord
 import logging
+from commands_to_load.Paginate import paginate
+
 logger = logging.getLogger('wall_e')
 
 class RoleCommands():
@@ -101,6 +103,14 @@ class RoleCommands():
         logger.info("[RoleCommands whois()] following members were found in the role: "+str(memberString))
         await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
 
+    @commands.command()
+    async def roles(self, ctx):
+        guild = ctx.guild
+        for role in guild.roles:
+            if role.name != "@everyone":
+                output+="\t\""+role.name+"\"\n"
+        output+="```"
+        await paginate(bot=self.bot,title="Roles Available" ,ctx=ctx,listToPaginate=guild.roles, numOfPageEntries=10)
 
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
