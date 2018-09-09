@@ -67,6 +67,10 @@ From a command line
       1. Run `sudo apt-get install -y redis-server`
       1. Add `notify-keyspace-events "Ex"` to the end of `/etc/redis/redis.conf`
       1. Run `sudo service redis-server start`
-1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
-1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
-1. Run `python3.5 main.py`
+1. Using Your Own Discord Test Server
+   1. Run `export ENVIRONMENT='localhost'`
+   1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
+   1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
+   1. Run `python3.5 main.py`
+1. Testing on [CSSS Bot Test Server](https://discord.gg/c3MPjY5)
+   1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server
