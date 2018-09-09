@@ -76,7 +76,7 @@ class Administration():
 			query = " ".join(args)
 			await ctx.send("```"+subprocess.getoutput(query)+"```")
 		else:
-			logger.error("[Administration exc()] unauthorized command attempt detected from "+ ctx.message.author)
+			logger.error("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
 
 
