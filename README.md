@@ -6,7 +6,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 
 ## Table of Contents
-- [Software Engineering and Process Document](Software%20Engineering%20and%20Process%20Document.md)
+- [Software Engineering and Process Document](Software%20Engineering%20and%20Process%20Document)
 - [Current Commands](#current-commands)  
 - [Local Setup](#local-setup)  
 - [Current-Setup Info](#current-setup-info)  
@@ -24,7 +24,6 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.whois <arg>` - returns everyone who has role `<arg>`
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
-* `.urban <arg>` - returns defintion of `<arg>` along with a link to the definition on urban dictionary
 
 ## Local Setup
 
@@ -53,13 +52,25 @@ Pre-requisites: A Discord account.
 
 ### Part 2: Running the Bot
 
-Pre-requisites: `git`, `python3`, and `pip3`.
+Pre-requisites: `git`, `python3.5`, and `pip3`.
 
 From a command line
 1. Run `git clone https://github.com/CSSS/wall_e.git`
 1. cd into `wall_e` directory
-1. Run `pip3 install -r requirements.txt`
-1. Run `sudo apt-get install -y redis-server`
-1. Run `sudo service redis-server start`
-1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
-1. Run `python3 main.py`
+1. Run `python3.5 -m pip install -r requirements.txt`
+1. Redis Instructions
+   1. Mac
+      1. Run `brew install redis`
+      1. Add `notify-keyspace-events "Ex"` to the end of `/usr/local/etc/redis.conf`
+      1. Run `brew services start|stop|restart redis` to start, stop and restart redis
+   1. Ubuntu
+      1. Run `sudo apt-get install -y redis-server`
+      1. Add `notify-keyspace-events "Ex"` to the end of `/etc/redis/redis.conf`
+      1. Run `sudo service redis-server start`
+1. Using Your Own Discord Test Server
+   1. Run `export ENVIRONMENT='localhost'`
+   1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
+   1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
+   1. Run `python3.5 main.py`
+1. Testing on [CSSS Bot Test Server](https://discord.gg/c3MPjY5)
+   1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server
