@@ -13,20 +13,20 @@ from commands_to_load import Misc
 ## VARIABLES TO USE ##
 ######################
 if 'ENVIRONMENT' not in os.environ:
-    print("Hmmm, no environment variable \"ENVIRONMENT\" seems to exist...read the README again")
+    print("[main.py] No environment variable \"ENVIRONMENT\" seems to exist...read the README again")
     exit(1)
 
 ENVIRONMENT = os.environ['ENVIRONMENT']
-print("environment variable \"ENVIRONMENT\" is set to \""+str(ENVIRONMENT)+"\"")
+print("[main.py] Environment variable \"ENVIRONMENT\" is set to \""+str(ENVIRONMENT)+"\"")
 BOT_LOG_CHANNEL = None
 if ENVIRONMENT != 'TEST':
     if 'BOT_LOG_CHANNEL_ID' not in os.environ:
-        print("Hmmm, no environment variable \"BOT_LOG_CHANNEL_ID\" seems to exist...read the README again")
+        print("[main.py] No environment variable \"BOT_LOG_CHANNEL_ID\" seems to exist...read the README again")
         exit(1)
     else:
         BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 
-print("environment variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
+print("[main.py] Environment variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 bot = commands.Bot(command_prefix='.')
 FILENAME = None
 # setting up path hierarchy for commands to load
