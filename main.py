@@ -106,9 +106,10 @@ async def write_to_bot_log_channel():
 ####################################################
 @bot.event
 async def on_command_error(ctx, error):
-    logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" isnt working....")
+    logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
     if isinstance(error, commands.MissingRequiredArgument):
         fmt = '```Missing argument: {0}```'
+        logger.error('[main.py on_command_error()] '+fmt.format(error.param))
         await ctx.send(fmt.format(error.param))
     else:
         author = ctx.author.nick or ctx.author.name
