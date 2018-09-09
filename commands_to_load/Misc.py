@@ -109,9 +109,11 @@ class Misc():
 		await ctx.send(fmt.format(expire_seconds))
 		logger.info("[Misc remindme()] reminder has been contructed and sent.")
 
-#######################
-## NEEDS DESCRIPTION ##
-#######################
+#########################################
+## Background function that determines ##
+## if a reminder's time has come       ##
+## to be sent to its channel           ##
+#########################################
 	async def get_messages(self):
 		await self.bot.wait_until_ready()
 		while True:
