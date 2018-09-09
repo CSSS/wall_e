@@ -84,13 +84,21 @@ class Misc():
 					parsedTime+=str(value)+" "
 			else:
 				message+=str(value)+" "
+		if parsedTime == '':
+			logger.error("[Misc remindme()] was unable to extract a time")
+			await ctx.send("RemindMeIn Error:\n```unable to extract a time```")
+			return
+		if message == '':
+			logger.error("[Misc remindme()] was unable to extract a message")
+			await ctx.send("RemindMeIn Error:\n```unable to extract a message```")
+			return
 		timeUntil = str(parsedTime)
 		logger.info("[Misc remindme()] extracted time is "+str(timeUntil))
 		logger.info("[Misc remindme()] extracted message is "+str(message))
 		time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
 		if parse_status == 0:
 			logger.error("[Misc remindme()] couldn't parse the time")
-			await ctx.send('```Could not parse time!```')
+			await ctx.send('RemindMeIn Error:\n```Could not parse time!```')
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
 		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
