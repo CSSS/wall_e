@@ -28,8 +28,10 @@ class Misc():
 		except Exception as e:
 			logger.error("[Misc __init__] enountered following exception when setting up redis connection\n{}".format(e))
 
-		# global BOT_NAME = bot.user.name
-        # global BOT_Avatar = bot.user.avatar
+		global BOT_NAME
+		BOT_NAME = bot.user.name
+		global BOT_AVATAR
+		BOT_AVATAR = bot.user.avatar
 
 
 	@commands.command()

@@ -13,7 +13,7 @@ def embed(title='', content='', description='', author='', colour=0x00bfbd, link
     colour:<0x......> Used to set the coloured strip on the left side of the embed, by default set to a nice blue colour.\n
     link: <deprecated>\n
     thumbnail:<str> Url to image to be used in the embed. Thumbnail appears top right corner of the embed.\n
-    avatar:<str> Used to set avatar of next to author's name. Must be url. \n
+    avatar:<str> Used to set avatar next to author's name. Must be url. \n
     footer:<str> Used for whatever."""
 
     embObj = discord.Embed(title=title, type='rich')

@@ -10,7 +10,7 @@ logger = logging.getLogger('wall_e')
 
 class HealthChecks():
 
-	def __init__(self, bot):
+	def __init__(self, bot:commands.bot.Bot):
 		logger.info("[Administration buildBot_Manager_list()] attempting to load bot managers from bot_mangers.json")
 		with open('commands_to_load/bot_managers.json') as f:
 			TheAdmins = json.load(f)
@@ -18,8 +18,10 @@ class HealthChecks():
 		self.bot = bot
 		self.admin = TheAdmins
 
-		global BOT_NAME = bot.user.name
-        global BOT_Avatar = bot.user.avatar
+		global BOT_NAME
+		BOT_NAME = bot.user.name
+		global BOT_AVATAR
+		BOT_AVATAR = bot.user.avatar
 
 	async def botManager(self, ctx):
 		for manager in self.admin['BOT_MANAGERS']:

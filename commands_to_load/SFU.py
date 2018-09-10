@@ -11,8 +11,11 @@ logger = logging.getLogger('wall_e')
 class sfu():
     def __init__(self, bot):
         self.bot = bot
-        # global BOT_NAME = bot.user.name
-        # global BOT_Avatar = bot.user.avatar
+
+        global BOT_NAME
+        BOT_NAME = bot.user.name
+        global BOT_AVATAR
+        BOT_AVATAR = bot.user.avatar
     
     @commands.command()
     async def sfu(self, ctx, *course):
