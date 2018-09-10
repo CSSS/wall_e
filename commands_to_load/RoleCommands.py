@@ -29,6 +29,8 @@ class RoleCommands():
         await ctx.author.add_roles(role)
 
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
+        logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" added to " + str(ctx.message.author))
+
         eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nThe role has been given to you.")
         await ctx.send(embed=eObj)
 
@@ -60,18 +62,25 @@ class RoleCommands():
         role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
         if role == None:
             logger.error("[RoleCommands iam()] role doesnt exist.")
-            await ctx.send("```" + "Role '" + roleToAdd + "' does not exist. Calling .newrole " + roleToAdd +" will create it." + "```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToAdd + "**` doesn't exist.\nCalling .newrole " + roleToAdd)
+            await ctx.send(embed=eObj)
             return
         user = ctx.message.author
         membersOfRole = role.members
         if user in membersOfRole:
             logger.error("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
-            await ctx.send("```" + "You were already in the role '" + roleToAdd + "'." + "```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAPH!!")            
+            ctx.send(embed=eObj)
         else:
             await user.add_roles(role)
             logger.info("[RoleCommands iam()] user " + str(user) + " added to role " + str(roleToAdd) + ".")
-            await ctx.send("```" + "You have successfully been added to role '" + roleToAdd + "'." + "```")
-        
+            
+            if(roleToAdd == 'froshee'):
+                eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="**WELCOME TO SFU!!!!**\nYou have successfully been added to role **`" + roleToAdd + "`**.")
+            else:
+                eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully been added to role **`" + roleToAdd + "`**.")
+            await ctx.send(embed=eObj)
+            
     @commands.command()
     async def iamn(self, ctx, roleToRemove):
         logger.info("[RoleCommands iamn()] "+str(ctx.message.author)+" called iamn with role "+str(roleToRemove))
