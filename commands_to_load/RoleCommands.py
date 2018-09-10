@@ -88,16 +88,19 @@ class RoleCommands():
         role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
         if role == None:
             logger.error("[RoleCommands iam()] role doesnt exist.")
-            await ctx.send("```" + "Role '" + roleToRemove + "' does not exist." + "```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToRemove + "`** doesn't exist.")
+            await ctx.send(embed=eObj)
             return
         membersOfRole = role.members
         user = ctx.message.author
         if user in membersOfRole:
             await user.remove_roles(role)
-            await ctx.send("```" + "You have successfully been removed from role '" + roleToRemove + "'." + "```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully been remove from role **`" + roleToRemove + "`**.")
+            await ctx.send(embed=eObj)
             logger.info("[RoleCommands iamn()] " + str(user) + " has been removed from role " + str(roleToRemove) )
         else:
-            await ctx.send("```" + "You don't seem to be in the role " +roleToRemove+".```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Wut??\n You don't have the role, so how am I gonna remove it????")
+            await ctx.send(embed=eObj)
             logger.error("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
         
         
