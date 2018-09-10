@@ -110,6 +110,71 @@ class Misc():
 		await ctx.send(fmt.format(expire_seconds))
 		logger.info("[Misc remindme()] reminder has been contructed and sent.")
 
+	@commands.command()
+	async def showreminders(self, ctx):
+		logger.info("[Misc showreminders()] remindme command detected from user "+str(ctx.message.author))
+		if self.r is not None:
+			try:
+				reminders=''
+				logger.info("[Misc showreminders()] iterating through all the keys in the database")
+				for key in self.r.scan_iter("*"):
+					keyValue = json.loads(key)
+					logger.info("[Misc showreminders()] aquired key "+str(keyValue))
+					chan = self.bot.get_channel(keyValue['cid'])
+					if chan is not None:
+						logger.info("[Misc showreminders()] aquired valid channel "+str(chan))
+						msg = await chan.get_message(keyValue['mid'])
+						logger.info("[Misc showreminders()] aquired the messsage "+str(msg))
+						reminderCtx = await self.bot.get_context(msg)
+						logger.info("[Misc showreminders()] aquired message's context "+str(reminderCtx))
+						if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
+							if reminderCtx.message.author  == ctx.message.author:
+								logger.info("[Misc showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
+								reminders+="message = "+reminderCtx.message.content+"\tmessageId = "+str(keyValue['mid'])+"\n"
+				author = ctx.author.nick or ctx.author.name
+				if reminders != '':
+					logger.info("[Misc showreminders()] sent off the list of reminders to "+str(ctx.message.author))
+					await ctx.send("Here are your reminders "+ author+"\n```"+reminders+"```")
+				else:
+					logger.info("[Misc showreminders()] "+str(ctx.message.author)+" didnt seem to have any reminders.")
+					await ctx.send("You dont seem to have any reminders "+ author)
+			except Exception as error:
+				logger.error('[Misc.py showreminders()] Ignoring exception when generating reminder:')
+				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
+	@commands.command()
+	async def deletereminder(self,ctx,messageId):
+		logger.info("[Misc deletereminder()] deletereminder command detected from user "+str(ctx.message.author))
+		if self.r is not None:
+			try:
+				reminder=''
+				logger.info("[Misc deletereminder()] iterating through all the keys in the database")
+				for key in self.r.scan_iter("*"):
+					keyValue = json.loads(key)
+					logger.info("[Misc deletereminder()] aquired key "+str(keyValue))
+					if keyValue['mid'] == int(tmessageId):
+						logger.info("[Misc deletereminder()] determined that it was the key the user wants to delete")
+						chan = self.bot.get_channel(keyValue['cid'])
+						if chan is not None:
+							logger.info("[Misc deletereminder()] aquired valid channel "+str(chan))
+							msg = await chan.get_message(keyValue['mid'])
+							logger.info("[Misc deletereminder()] aquired the messsage "+str(msg))
+							reminderCtx = await self.bot.get_context(msg)
+							logger.info("[Misc deletereminder()] aquired message's context "+str(reminderCtx))
+							if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
+								if reminderCtx.message.author  == ctx.message.author:
+									logger.info("[Misc deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
+									reminder=reminderCtx.message.content
+				if reminder != '':
+					self.r.delete(key)
+					logger.info("[Misc deletereminder()] following reminder was deleted = "+reminder)
+					await ctx.send("Following reminder has been deleted:```"+reminder+"```")
+				else:
+					await ctx.send("Specified reminder could not be found")
+					logger.info("[Misc deletereminder()] Specified reminder could not be found ")
+			except Exception as error:
+				logger.error('[Misc.py showreminders()] Ignoring exception when generating reminder:')
+				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 #########################################
 ## Background function that determines ##
 ## if a reminder's time has come       ##
