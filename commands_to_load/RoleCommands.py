@@ -2,11 +2,14 @@ from discord.ext import commands
 import discord
 import logging
 logger = logging.getLogger('wall_e')
+import helper_files.embed
 
 class RoleCommands():
 
     def __init__(self, bot):
         self.bot = bot
+        global BOT_NAME = bot.user.name
+        global BOT_Avatar = bot.user.avatar
 
     @commands.command()
     async def newrole(self, ctx, roleToAdd):
@@ -15,14 +18,20 @@ class RoleCommands():
         guild = ctx.guild
         for role in guild.roles:
             if role.name == roleToAdd:
-                await ctx.send("```" + "Role '" + roleToAdd + "' exists. Calling .iam " + roleToAdd +" will add you to it." + "```")
+                eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role \"" + roleToAdd + "\" exists. Calling **`.iam " + roleToAdd +"`** will add you to it.")
+                await ctx.send(embed=eObj)
                 logger.error("[RoleCommands newrole()] "+roleToAdd+" already exists")
                 return
         role = await guild.create_role(name=roleToAdd)
+        
+        #config the role and add to the user
         await role.edit(mentionable=True)
-        logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
-        await ctx.send("```" + "You have successfully created role '" + roleToAdd + "'. Calling .iam " + roleToAdd + " will add you to it." + "```")
+        await ctx.author.add_roles(role)
 
+        logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
+        eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nThe role has been given to you.")
+        await ctx.send(embed=eObj)
+        
     @commands.command()
     async def deleterole(self, ctx, roleToDelete):
         logger.info("[RoleCommands deleterole()] "+str(ctx.message.author)+" called deleterole with role "+str(roleToDelete)+".")
