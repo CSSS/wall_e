@@ -75,14 +75,13 @@ class Reminders():
 				logger.info("[Reminders showreminders()] iterating through all the keys in the database")
 				for key in self.r.scan_iter("*"):
 					keyValue = json.loads(key)
-					logger.info("[Reminders showreminders()] aquired key "+str(keyValue))
+					logger.info("[Reminders showreminders()] acquired key "+str(keyValue))
 					chan = self.bot.get_channel(keyValue['cid'])
 					if chan is not None:
-						logger.info("[Reminders showreminders()] aquired valid channel "+str(chan))
+						logger.info("[Reminders showreminders()] acquired valid channel "+str(chan))
 						msg = await chan.get_message(keyValue['mid'])
-						logger.info("[Reminders showreminders()] aquired the messsage "+str(msg))
+						logger.info("[Reminders showreminders()] acquired the messsage "+str(msg))
 						reminderCtx = await self.bot.get_context(msg)
-						logger.info("[Reminders showreminders()] aquired message's context "+str(reminderCtx))
 						if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
 							if reminderCtx.message.author  == ctx.message.author:
 								logger.info("[Reminders showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
@@ -95,6 +94,7 @@ class Reminders():
 					logger.info("[Reminders showreminders()] "+str(ctx.message.author)+" didnt seem to have any reminders.")
 					await ctx.send("You dont seem to have any reminders "+ author)
 			except Exception as error:
+				await ctx.send("Something screwy seems to have happened, look at the logs for more info.")
 				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
 				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
@@ -102,40 +102,35 @@ class Reminders():
 	async def deletereminder(self,ctx,messageId):
 		logger.info("[Reminders deletereminder()] deletereminder command detected from user "+str(ctx.message.author))
 		if self.r is not None:
-			incorrectAuthor=False
+			reminderExists=False
 			try:
 				reminder=''
-				keyToDelete=None
 				logger.info("[Reminders deletereminder()] iterating through all the keys in the database")
 				for key in self.r.scan_iter("*"):
 					keyValue = json.loads(key)
-					logger.info("[Reminders deletereminder()] aquired key "+str(keyValue))
+					logger.info("[Reminders deletereminder()] acquired key "+str(keyValue))
 					if keyValue['mid'] == int(messageId):
+						reminderExists = True
 						logger.info("[Reminders deletereminder()] determined that it was the key the user wants to delete")
 						chan = self.bot.get_channel(keyValue['cid'])
 						if chan is not None:
-							logger.info("[Reminders deletereminder()] aquired valid channel "+str(chan))
+							logger.info("[Reminders deletereminder()] acquired valid channel "+str(chan))
 							msg = await chan.get_message(keyValue['mid'])
-							logger.info("[Reminders deletereminder()] aquired the messsage "+str(msg))
+							logger.info("[Reminders deletereminder()] acquired the messsage "+str(msg))
 							reminderCtx = await self.bot.get_context(msg)
-							logger.info("[Reminders deletereminder()] aquired message's context "+str(reminderCtx))
 							if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
 								if reminderCtx.message.author  == ctx.message.author:
 									logger.info("[Reminders deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
 									reminder=reminderCtx.message.content
-									keyToDelete = key
+									logger.info("[Reminders deletereminder()] following reminder was deleted = "+reminderCtx.message.content)
+									await ctx.send("deleteReminder\n```Following reminder has been deleted:\n"+reminder+"```")
+									self.r.delete(key)
 								else:
-									incorrectAuthor = True
-									await ctx.send("You are trying to delete a reminder that is not yours")
+									await ctx.send("deleteReminder ERROR\n```You are trying to delete a reminder that is not yours```")
 									logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(reminderCtx.message.author)+"'s reminder.")
-				if reminder != '':
-					self.r.delete(keyToDelete)
-					logger.info("[Reminders deletereminder()] following reminder was deleted = "+reminder)
-					await ctx.send("Following reminder has been deleted:```"+reminder+"```")
-				else:
-					if incorrectAuthor != True:
-						await ctx.send("Specified reminder could not be found")
-						logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
+				if not reminderExists:
+					await ctx.send("deleteReminder ERROR\n```Specified reminder could not be found```")
+					logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
 			except Exception as error:
 				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
 				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
