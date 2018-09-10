@@ -9,6 +9,7 @@
 		{ "access": "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
 		{ "access": "public", "name": ".poll <arg0> <arg1> <arg2> (up to 12 arguments)", "description": "starts a poll where <arg0> is the question and the remaining arguments are the options"},
 		{ "access": "public", "name": "remindmein", "description": "can be called like so: \".remindmein <2 hours> to <finish my assignment>\"" },
+		{ "access": "public", "name": "roles", "description": "will display all the roles that exist"},
 		{ "access": "bot_manager", "name": ".load <arg>", "description": "loads the commands in the class <arg>"},
 		{ "access": "bot_manager", "name": ".unload <arg>", "description": "unloads the commands in the class <arg>"},
 		{ "access": "bot_manager", "name": ".reload <arg>", "description": "reloads the commands in the class <arg>"},
