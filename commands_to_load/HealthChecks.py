@@ -3,7 +3,7 @@ from commands_to_load.Administration import Administration
 import discord.client
 import json
 from commands_to_load.Paginate import paginateEmbed, paginate
-import helper_files.embed
+from helper_files.embed import * 
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -31,7 +31,7 @@ class HealthChecks():
 	async def ping(self, ctx):
 		logger.info("[HealthChecks ping()] ping command detected from "+str(ctx.message.author))
 		eObj = embed(description='Pong!', author=BOT_NAME, avatar=BOT_AVATAR)
-    	await ctx.send(embed=eObj)
+		await ctx.send(embed=eObj)
 
 
 	@commands.command()

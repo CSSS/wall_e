@@ -2,14 +2,14 @@ from discord.ext import commands
 import discord
 import logging
 logger = logging.getLogger('wall_e')
-import helper_files.embed
+from helper_files.embed import * 
 
 class RoleCommands():
 
     def __init__(self, bot):
         self.bot = bot
-        global BOT_NAME = bot.user.name
-        global BOT_Avatar = bot.user.avatar
+        # global BOT_NAME = bot.user.name
+        # global BOT_Avatar = bot.user.avatar
 
     @commands.command()
     async def newrole(self, ctx, roleToAdd):

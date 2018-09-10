@@ -3,13 +3,16 @@ import logging
 import time
 import json # dont need since requests has built in json encoding and decoding
 import requests as req
+import re
+from helper_files.embed import * 
+
 logger = logging.getLogger('wall_e')
 
 class sfu():
     def __init__(self, bot):
         self.bot = bot
-        global BOT_NAME = bot.user.name
-        global BOT_Avatar = bot.user.avatar
+        # global BOT_NAME = bot.user.name
+        # global BOT_Avatar = bot.user.avatar
     
     @commands.command()
     async def sfu(self, ctx, *course):

@@ -8,7 +8,7 @@ import redis
 import asyncio
 import traceback
 import sys
-import helper_files.embed
+from helper_files.embed import * 
 
 logger = logging.getLogger('wall_e')
 
@@ -28,8 +28,8 @@ class Misc():
 		except Exception as e:
 			logger.error("[Misc __init__] enountered following exception when setting up redis connection\n{}".format(e))
 
-		global BOT_NAME = bot.user.name
-        global BOT_Avatar = bot.user.avatar
+		# global BOT_NAME = bot.user.name
+        # global BOT_Avatar = bot.user.avatar
 
 
 	@commands.command()
@@ -38,7 +38,7 @@ class Misc():
 		if len(questions) > 12:
 			logger.error("[Misc poll()] was called with too many options.")
 			eObj = embed(title='Poll Error', author=BOT_NAME, avatar=BOT_AVATAR, description='Please only submit a maximum of 11 options for a multi-option question.')
-        	await ctx.send(embed=eObj)
+			await ctx.send(embed=eObj)
 			return
 		elif len(questions) == 1:
 			logger.info("[Misc poll()] yes/no poll being constructed.")
@@ -51,12 +51,12 @@ class Misc():
 		if len(questions) == 2:
 			logger.error("[Misc poll()] poll with only 2 arguments detected.")
 			eObj = embed(title='Poll Error', author=BOT_NAME, avatar=BOT_AVATAR, description='Please submit at least 2 options for a multi-option question.')
-        	await ctx.send(embed=eObj)
+			await ctx.send(embed=eObj)
 			return
 		elif len(questions) == 0:
 			logger.error("[Misc poll()] poll with no arguments detected.")
 			eObj = embed(title='Usage', author=BOT_NAME, avatar=BOT_AVATAR, description='.poll <Question> [Option A] [Option B] ...')
-        	await ctx.send(embed=embed)
+			await ctx.send(embed=embed)
 			return
 		else:
 			logger.info("[Misc poll()] multi-option poll being constructed.")
@@ -120,7 +120,7 @@ class Misc():
 		r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
 		eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description=fmt.format(expire_seconds))
-    	await ctx.send(embed=eObj)
+		await ctx.send(embed=eObj)
 		logger.info("[Misc remindme()] reminder has been contructed and sent.")
 
 #########################################
