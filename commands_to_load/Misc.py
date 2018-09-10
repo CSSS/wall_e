@@ -1,6 +1,6 @@
 from discord.ext import commands
 import logging
-∂∂∂
+
 logger = logging.getLogger('wall_e')
 
 
