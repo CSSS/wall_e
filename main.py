@@ -6,6 +6,7 @@ import discord
 import logging
 import datetime
 import pytz
+import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
@@ -110,7 +111,7 @@ async def write_to_bot_log_channel():
 ####################################################
 @bot.event
 async def on_command_error(ctx, error):
-    if not isinstance(error, commands.CheckFailure):
+    if helper_files.testenv.TestCog.check_test_environment(ctx):
         logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
         if isinstance(error, commands.MissingRequiredArgument):
             fmt = '```Missing argument: {0}```'
