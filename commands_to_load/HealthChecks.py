@@ -3,6 +3,7 @@ from commands_to_load.Administration import Administration
 import discord.client
 import json
 from commands_to_load.Paginate import paginateEmbed, paginate
+import helper_files.embed
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -17,6 +18,9 @@ class HealthChecks():
 		self.bot = bot
 		self.admin = TheAdmins
 
+		global BOT_NAME = bot.user.name
+        global BOT_Avatar = bot.user.avatar
+
 	async def botManager(self, ctx):
 		for manager in self.admin['BOT_MANAGERS']:
 			if str(ctx.message.author.id) in manager.values():
@@ -26,14 +30,17 @@ class HealthChecks():
 	@commands.command()
 	async def ping(self, ctx):
 		logger.info("[HealthChecks ping()] ping command detected from "+str(ctx.message.author))
-		await ctx.send('```pong!```')
+		eObj = embed(description='Pong!', author=BOT_NAME, avatar=BOT_AVATAR)
+    	await ctx.send(embed=eObj)
 
 
 	@commands.command()
 	async def echo(self, ctx, arg):
 		user = ctx.author.nick or ctx.author.name
 		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
-		await ctx.send(user + " says: " + arg)
+		avatar = ctx.author.avatar_url
+		eObj = embed(author=user, avatar=avatar, description=arg)
+		await ctx.send(embed=eObj)
 
 	@commands.command()
 	async def help(self, ctx):

@@ -76,7 +76,7 @@ async def on_ready():
     logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
     logger.info('[main.py on_ready()] '+bot.user.name+' is now ready for commands')
-
+    print("ZA WARUDOOO!!!!")
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
 ##################################################################################################
