@@ -8,6 +8,7 @@ import redis
 import asyncio
 import traceback
 import sys
+import helper_files.testenv
 
 logger = logging.getLogger('wall_e')
 
@@ -122,12 +123,13 @@ class Misc():
 				try:
 					cid_mid_dct = json.loads(message['data'])
 					chan = self.bot.get_channel(cid_mid_dct['cid'])
-					msg = await chan.get_message(cid_mid_dct['mid'])
-					ctx = await self.bot.get_context(msg)
-					if ctx.valid:
-						fmt = '<@{0}> ```{1}```'
-						logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
-						await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+					if chan is not None:
+						msg = await chan.get_message(cid_mid_dct['mid'])
+						ctx = await self.bot.get_context(msg)
+						if ctx.valid and helper_files.testenv.TestCog.check_test_environment(ctx):
+							fmt = '<@{0}> ```{1}```'
+							logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
+							await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
 				except Exception as error:
 					logger.error('[Misc.py get_message()] Ignoring exception when generating reminder:')
 					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
