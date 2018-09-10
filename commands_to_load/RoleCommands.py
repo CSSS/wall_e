@@ -31,7 +31,7 @@ class RoleCommands():
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
         eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nThe role has been given to you.")
         await ctx.send(embed=eObj)
-        
+
     @commands.command()
     async def deleterole(self, ctx, roleToDelete):
         logger.info("[RoleCommands deleterole()] "+str(ctx.message.author)+" called deleterole with role "+str(roleToDelete)+".")
@@ -39,16 +39,19 @@ class RoleCommands():
         role = discord.utils.get(ctx.guild.roles, name=roleToDelete)
         if role == None:
             logger.info("[RoleCommands deleterole()] role that user wants to delete doesnt seem to exist.")
-            await ctx.send("```" + "Role '" + roleToDelete + "' does not exist." + "```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToDelete + "`** does not exist.")
+            await ctx.send(embed=eObj)
             return
         membersOfRole = role.members
         if not membersOfRole:
             deleteRole = await role.delete()
             logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
-            await ctx.send("```" + "Role '" + roleToDelete + "' deleted." + "```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToDelete + "`** deleted.")
+            await ctx.send(embed=eObj)
         else:
             logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
-            await ctx.send("```" + "Role '" + roleToDelete + "' has members. Cannot delete." + "```")
+            eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description="Role **`" + roleToDelete + "`** has members. Cannot delete.")
+            await ctx.send(embed=eObj)
 
     @commands.command()
     async def iam(self, ctx, roleToAdd):
