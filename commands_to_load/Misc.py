@@ -8,6 +8,7 @@ import redis
 import asyncio
 import traceback
 import sys
+import helper_files.embed
 
 logger = logging.getLogger('wall_e')
 
