@@ -9,6 +9,7 @@ import asyncio
 import traceback
 import sys
 from helper_files.embed import embed 
+import helper_files.settings as settings
 
 logger = logging.getLogger('wall_e')
 
@@ -28,20 +29,12 @@ class Misc():
 		except Exception as e:
 			logger.error("[Misc __init__] enountered following exception when setting up redis connection\n{}".format(e))
 
-		@bot.event
-		async def on_ready():
-			global BOT_NAME
-			BOT_NAME = bot.user.name
-			global BOT_AVATAR
-			BOT_AVATAR = bot.user.avatar
-
-
 	@commands.command()
 	async def poll(self, ctx, *questions):
 		logger.info("[Misc poll()] poll command detected from user "+str(ctx.message.author))
 		if len(questions) > 12:
 			logger.error("[Misc poll()] was called with too many options.")
-			eObj = embed(title='Poll Error', author=BOT_NAME, avatar=BOT_AVATAR, description='Please only submit a maximum of 11 options for a multi-option question.')
+			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please only submit a maximum of 11 options for a multi-option question.')
 			await ctx.send(embed=eObj)
 			return
 		elif len(questions) == 1:
@@ -54,12 +47,12 @@ class Misc():
 			return
 		if len(questions) == 2:
 			logger.error("[Misc poll()] poll with only 2 arguments detected.")
-			eObj = embed(title='Poll Error', author=BOT_NAME, avatar=BOT_AVATAR, description='Please submit at least 2 options for a multi-option question.')
+			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please submit at least 2 options for a multi-option question.')
 			await ctx.send(embed=eObj)
 			return
 		elif len(questions) == 0:
 			logger.error("[Misc poll()] poll with no arguments detected.")
-			eObj = embed(title='Usage', author=BOT_NAME, avatar=BOT_AVATAR, description='.poll <Question> [Option A] [Option B] ...')
+			eObj = embed(title='Usage', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='.poll <Question> [Option A] [Option B] ...')
 			await ctx.send(embed=embed)
 			return
 		else:
@@ -75,7 +68,7 @@ class Misc():
 				options += 1
 			
 			content = [['Options:', optionString]]
-			eObj = embed(title='Poll:', author=BOT_NAME, avatar=BOT_AVATAR, description=question, content=content)
+			eObj = embed(title='Poll:', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=question, content=content)
 			pollPost = await ctx.send(embed=eObj)
 
 			logger.info("[Misc poll()] multi-option poll message contructed and sent.")
@@ -101,12 +94,12 @@ class Misc():
 		how_to_call_command="\nPlease call command like so:\nremindmein <time|minutes|hours|days> to <what to remind you about>\nExample: \".remindmein 10 minutes to turn in my assignment\""
 		if parsedTime == '':
 			logger.error("[Misc remindme()] was unable to extract a time")
-			eObj = embed(title='RemindMeIn Error', author=BOT_NAME, avatar=BOT_AVATAR, description="unable to extract a time"+str(how_to_call_command))
+			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a time"+str(how_to_call_command))
 			await ctx.send(embed=eObj)
 			return
 		if message == '':
 			logger.error("[Misc remindme()] was unable to extract a message")
-			eObj = embed(title='RemindMeIn Error', author=BOT_NAME, avatar=BOT_AVATAR, description="unable to extract a string"+str(how_to_call_command))
+			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a string"+str(how_to_call_command))
 			await ctx.send(embed=eObj)
 			return
 		timeUntil = str(parsedTime)
@@ -115,7 +108,7 @@ class Misc():
 		time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
 		if parse_status == 0:
 			logger.error("[Misc remindme()] couldn't parse the time")
-			eObj = embed(title='RemindMeIn Error', author=BOT_NAME, avatar=BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
+			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
 			await ctx.send(embed=eObj)
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
@@ -123,7 +116,7 @@ class Misc():
 		r = self.r
 		r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
-		eObj = embed(author=BOT_NAME, avatar=BOT_AVATAR, description=fmt.format(expire_seconds))
+		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
 		await ctx.send(embed=eObj)
 		logger.info("[Misc remindme()] reminder has been contructed and sent.")
 

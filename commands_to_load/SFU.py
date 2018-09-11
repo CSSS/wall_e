@@ -5,6 +5,7 @@ import json # dont need since requests has built in json encoding and decoding
 import requests as req
 import re
 from helper_files.embed import embed 
+import helper_files.settings as settings
 
 logger = logging.getLogger('wall_e')
 
@@ -12,13 +13,6 @@ class sfu():
     def __init__(self, bot):
         self.bot = bot
 
-        @bot.event
-        async def on_ready():
-            global BOT_NAME
-            BOT_NAME = bot.user.name
-            global BOT_AVATAR
-            BOT_AVATAR = bot.user.avatar
-    
     @commands.command()
     async def sfu(self, ctx, *course):
         year = time.localtime()[0]
@@ -52,7 +46,7 @@ class sfu():
         if(res.status_code != 404):
             data = res.json()
         else:
-            eObj = embed(title='Results from SFU', author=BOT_NAME, avatar=BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year.upper(), term.upper(), courseCode.upper(), courseNum.upper()))
+            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year.upper(), term.upper(), courseCode.upper(), courseNum.upper()))
             await ctx.sent(embed=eObj)
             return
 
@@ -68,7 +62,7 @@ class sfu():
             ["URL", link]
         ]
         
-        embedObj = embed(title=title, author=BOT_NAME, avatar=BOT_AVATAR, content=fields, colour=colour, footer=footer)
+        embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=colour, footer=footer)
         await ctx.send(embed=embedObj)
 
     @commands.command()
@@ -112,7 +106,7 @@ class sfu():
                 section = course[2].lower()
             else:
                 # send something saying be in this order
-                eObj = embed(title='SFU Course Outlines', author=BOT_NAME, avatar=BOT_AVATAR, colour=0xA6192E, description='Make sure you arg\'s are in the following order:\n<course> <term> <section>\nexample: .outline cmpt300 fall d200')
+                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Make sure you arg\'s are in the following order:\n<course> <term> <section>\nexample: .outline cmpt300 fall d200')
                 await ctx.send(embed=eObj)
                 return
         
@@ -132,7 +126,7 @@ class sfu():
         if(res.status_code != 404):
             data = res.json()
         else:
-            eObj = embed(title='SFU Course Outlines', author=BOT_NAME, avatar=BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s\nMake sure you entered all the arguments correctly' % (year.upper(), term.upper(), courseCode.upper(), courseNum.upper(), section.upper()))
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s\nMake sure you entered all the arguments correctly' % (year.upper(), term.upper(), courseCode.upper(), courseNum.upper(), section.upper()))
             await ctx.sent(embed=eObj)
             return
         
@@ -194,6 +188,6 @@ class sfu():
             ['URL', '[here](%s)' % url]
         ]
         # get embed object 
-        eObj = embed(title='SFU Outline Results', author=BOT_NAME, avatar=BOT_AVATAR, colour=0xA6192E, content=fields, footer='Written by VJ')
+        eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=fields, footer='Written by VJ')
         # send embed object
         await ctx.send(embed=eObj)
