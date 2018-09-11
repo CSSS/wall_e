@@ -111,21 +111,23 @@ class RoleCommands():
         logString = ''
         role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
         if role == None:
-            await ctx.send("```" + "Role '" + roleToCheck + "' does not exist." + "```")
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="**`" + roleToCheck + "`** does not exist.")
+            await ctx.send(embed=eObj)
             logger.error("[RoleCommands whois()] role "+str(roleToCheck) + " doesnt exist")
             return
         membersOfRole = role.members
         if not membersOfRole:
             logger.error("[RoleCommands whois()] there are no members in the role "+str(roleToCheck))
-            await ctx.send("```" + "No members in role '" + roleToCheck + "'." + "```")
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="No members in role **`" + roleToCheck + "`**.")
+            await ctx.send(embed=eObj)
             return
         for members in membersOfRole:
             name = members.nick or members.name
             memberString += name + "\n"
             logString += name + '\t'
         logger.info("[RoleCommands whois()] following members were found in the role: "+str(logString))
-        await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
-
+        eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Members belonging to role **`" + roleToCheck + "`**:\n" + memberString)
+        await ctx.send(embed=eObj)
 
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
