@@ -108,6 +108,7 @@ class RoleCommands():
     async def whois(self, ctx, roleToCheck):
         logger.info("[RoleCommands whois()] "+str(ctx.message.author)+" called whois with role "+str(roleToCheck))
         memberString = ""
+        logString = ''
         role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
         if role == None:
             await ctx.send("```" + "Role '" + roleToCheck + "' does not exist." + "```")
@@ -121,7 +122,8 @@ class RoleCommands():
         for members in membersOfRole:
             name = members.nick or members.name
             memberString += name + "\n"
-        logger.info("[RoleCommands whois()] following members were found in the role: "+str(memberString))
+            logString += name + '\t'
+        logger.info("[RoleCommands whois()] following members were found in the role: "+str(logString))
         await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
 
 
