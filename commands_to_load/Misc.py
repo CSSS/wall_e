@@ -10,6 +10,7 @@ import traceback
 import sys
 from helper_files.embed import embed 
 import helper_files.settings as settings
+import requests as req
 
 logger = logging.getLogger('wall_e')
 
@@ -39,7 +40,7 @@ class Misc():
 			return
 		elif len(questions) == 1:
 			logger.info("[Misc poll()] yes/no poll being constructed.")
-			eObj = embed(title='Poll', description=questions[0])
+			eObj = embed(title='Poll', author=settings.BOT_AVATAR, avatar=settings.BOT_AVATAR, description=questions[0])
 			post = await ctx.send(embed=eObj)
 			await post.add_reaction(u"\U0001F44D")
 			await post.add_reaction(u"\U0001F44E")
@@ -143,6 +144,43 @@ class Misc():
 					logger.error('[Misc.py get_message()] Ignoring exception when generating reminder:')
 					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 			await asyncio.sleep(2)
+	
+	@commands.command()
+	async def urban(self, ctx, *arg):
+		logger.info("[Misc urban()] - urban command detected from user "+str(ctx.message.author))
+		logger.info("[Misc urban()] - query string being contructed")
+		queryString = ''
+		for x in arg:
+			queryString += x
+
+		logger.info("[Misc urban()] - url contructed for get request")
+		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
+		urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+
+		logger.info("[Misc urban()] - Get request made")
+		res = req.get(url)
+		
+		if(res.status_code != 404):
+			logger.info("[Misc urban()] - Get request successful")			
+			data = res.json()
+		else:
+			logger.error("[Misc urban()] - Get request failed, 404 resulted")
+			data = ''
+
+		data = data['list']
+		if not data:
+			logger.error("[Misc urban()] - sending message indicating 404 result")
+			eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
+			await ctx.send(embed=eObj)
+			return
+		else:
+			logger.info("[Misc urban()] - constructing embed object with definition of " + queryString)
+			content = [
+				['Definition', data[1]['definition']], 
+				['Link', urbanUrl]
+				]
+			eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
+			await ctx.send(embed=eObj)
 
 def setup(bot):
 	bot.add_cog(Misc(bot))
