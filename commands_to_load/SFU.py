@@ -4,7 +4,7 @@ import time
 import json # dont need since requests has built in json encoding and decoding
 import requests as req
 import re
-from helper_files.embed import * 
+from helper_files.embed import embed 
 
 logger = logging.getLogger('wall_e')
 
@@ -12,10 +12,12 @@ class sfu():
     def __init__(self, bot):
         self.bot = bot
 
-        global BOT_NAME
-        BOT_NAME = bot.user.name
-        global BOT_AVATAR
-        BOT_AVATAR = bot.user.avatar
+        @bot.event
+        async def on_ready():
+            global BOT_NAME
+            BOT_NAME = bot.user.name
+            global BOT_AVATAR
+            BOT_AVATAR = bot.user.avatar
     
     @commands.command()
     async def sfu(self, ctx, *course):

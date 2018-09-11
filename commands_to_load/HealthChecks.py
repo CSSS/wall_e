@@ -3,7 +3,7 @@ from commands_to_load.Administration import Administration
 import discord.client
 import json
 from commands_to_load.Paginate import paginateEmbed, paginate
-from helper_files.embed import * 
+from helper_files.embed import embed 
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -18,10 +18,12 @@ class HealthChecks():
 		self.bot = bot
 		self.admin = TheAdmins
 
-		global BOT_NAME
-		BOT_NAME = bot.user.name
-		global BOT_AVATAR
-		BOT_AVATAR = bot.user.avatar
+		@bot.event
+		async def on_ready():
+			global BOT_NAME
+			BOT_NAME = bot.user.name
+			global BOT_AVATAR
+			BOT_AVATAR = bot.user.avatar_url
 
 	async def botManager(self, ctx):
 		for manager in self.admin['BOT_MANAGERS']:
