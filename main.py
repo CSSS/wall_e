@@ -100,6 +100,7 @@ async def write_to_bot_log_channel():
             line = f.readline()
             while line:
                 if line.strip() != "":
+                    line="."+line
                     line=line.replace("@","[at]")
                     await channel.send(line)
                 line = f.readline()
