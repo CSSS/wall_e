@@ -9,7 +9,7 @@ import helper_files.settings as settings
 
 logger = logging.getLogger('wall_e')
 
-class sfu():
+class SFU():
     def __init__(self, bot):
         self.bot = bot
 
@@ -115,6 +115,7 @@ class sfu():
                 section = course[2].lower()
             else:
                 # send something saying be in this order
+                logger.error('[SFU outline()] - args out of order or just wrong')
                 eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Make sure you arg\'s are in the following order:\n<course> <term> <section>\nexample: .outline cmpt300 fall d200')
                 await ctx.send(embed=eObj)
                 return
@@ -206,3 +207,6 @@ class sfu():
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=fields, footer='Written by VJ')
         # send embed object
         await ctx.send(embed=eObj)
+
+def setup(bot):
+    bot.add_cog(SFU(bot))
