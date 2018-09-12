@@ -3,6 +3,7 @@
     {"name": "HealthChecks"}, 
     {"name": "Misc"}, 
     {"name": "RoleCommands"}, 
-    {"name": "SFU"} 
+    {"name": "SFU"},
+    {"name": "Mod"}
 ]
 }
