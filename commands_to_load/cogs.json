@@ -1,0 +1,8 @@
+{ "cogs" : [
+    {"name": "Administration"},
+    {"name": "HealthChecks"}, 
+    {"name": "Misc"}, 
+    {"name": "RoleCommands"}, 
+    {"name": "SFU"} 
+]
+}
