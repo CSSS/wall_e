@@ -42,8 +42,8 @@ class Mod():
         if not argLen%2 == 0:
             desc = arg[0]
             arg.pop(0)
-        
-        argLen = len(arg)
+            argLen = len(arg)
+            
         i = 0
         while i < argLen:
             fields.append([arg[i], arg[i+1]])
