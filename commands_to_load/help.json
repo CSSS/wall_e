@@ -11,7 +11,7 @@
 		{ "access": "public", "name": "remindmein", "description": "can be called like so: \".remindmein <2 hours> to <finish my assignment>\"" },
 		{"access": "public", "name": "urban", "description": "returns definition from urban dictionary of <arg>"},
 		{"access": "public", "name": "sfu", "description": "returns calendar description from current semester of <arg>"},
-		{"access": "public", "name": "outline", "description": "returns outline information of <arg1>. Optionally you may specify term as <arg2> and/or section as <arg2> or <arg3>"},
+		{"access": "public", "name": "outline", "description": "returns outline information of <arg0>. Optionally you may specify term as <arg1> and/or section as <arg1> or <arg2>"},
 		{ "access": "bot_manager", "name": ".load <arg>", "description": "loads the commands in the class <arg>"},
 		{ "access": "bot_manager", "name": ".unload <arg>", "description": "unloads the commands in the class <arg>"},
 		{ "access": "bot_manager", "name": ".reload <arg>", "description": "reloads the commands in the class <arg>"},

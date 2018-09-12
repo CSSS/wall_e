@@ -6,12 +6,13 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 
 ## Table of Contents
-- [Software Engineering and Process Document](Software%20Engineering%20and%20Process%20Document)
-- [Current Commands](#current-commands)  
-- [Local Setup](#local-setup)  
-- [Current-Setup Info](#current-setup-info)  
-- [Part 1: Authentication](#part-1-authentication)  
-- [Part 2: Running the bot](#part-2-running-the-bot)
+- [CSSS Discord Bot (Wall-E)](#csss-discord-bot-wall-e)
+      - [Table of Contents](#table-of-contents)
+      - [Current Commands](#current-commands)
+      - [Local Setup](#local-setup)
+                  - [Current-Setup Info](#current-setup-info)
+            - [Part 1: Authentication](#part-1-authentication)
+            - [Part 2: Running the Bot](#part-2-running-the-bot)
 
 ## Current Commands
 
@@ -24,6 +25,13 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.whois <arg>` - returns everyone who has role `<arg>`
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
+* `.urban <arg0>` - return definition from urban dictionary of `<arg0>`
+* `.sfu <arg0>` - returns calendar description from current semesters calendar of `<arg0>`
+* `.outline <arg0> optional: <arg1> <arg2>` - returns outline details of course `<arg0>`. defaults to current term and section d100. optionally you can specify term in `<arg1>` and/or section with `<arg1>` or `<arg2>`. Usage examples:
+      * `.outline cmpt300`
+      * `.outline cmpt300 d200`
+      * `.outline cmpt300 spring`
+      * `.outline cmpt300 summer d200`
 
 ## Local Setup
 
@@ -41,14 +49,14 @@ Follow these steps to run the bot and do development on your local machine.
 Pre-requisites: A Discord account.
 
 1. Create your own Discord server for testing by clicking the + on the left side
-1. Navigate to `https://discordapp.com/developers/applications/me` and login
-1. Click `New App`
-1. Name your app to whatever you wish then click `Create App`
-1. Save the `Client ID` under the `App Details`
-1. Scroll down, click `Create a Bot User` and confirm
-1. Within the new `Bot` section of the dashboard, click `click to reveal`, and save the `token`
-1. Naviate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=2119564375` and replace `YOUR_CLIENT_ID_HERE` with the client ID of your bot
-1. Select the server you created and click `Authorize`
+2. Navigate to `https://discordapp.com/developers/applications/me` and login
+3. Click `New App`
+4. Name your app to whatever you wish then click `Create App`
+5. Save the `Client ID` under the `App Details`
+6. Scroll down, click `Create a Bot User` and confirm
+7. Within the new `Bot` section of the dashboard, click `click to reveal`, and save the `token`
+8. Naviate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=2119564375` and replace `YOUR_CLIENT_ID_HERE` with the client ID of your bot
+9. Select the server you created and click `Authorize`
 
 ### Part 2: Running the Bot
 
