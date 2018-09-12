@@ -33,6 +33,9 @@ class Misc():
 	@commands.command()
 	async def poll(self, ctx, *questions):
 		logger.info("[Misc poll()] poll command detected from user "+str(ctx.message.author))
+		name = ctx.author.nick or ctx.author.name
+		ava = ctx.author.avatar_url
+		
 		if len(questions) > 12:
 			logger.error("[Misc poll()] was called with too many options.")
 			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please only submit a maximum of 11 options for a multi-option question.')
@@ -40,7 +43,7 @@ class Misc():
 			return
 		elif len(questions) == 1:
 			logger.info("[Misc poll()] yes/no poll being constructed.")
-			eObj = embed(title='Poll', author=settings.BOT_AVATAR, avatar=settings.BOT_AVATAR, description=questions[0])
+			eObj = embed(title='Poll', author=name, avatar=ava, description=questions[0])
 			post = await ctx.send(embed=eObj)
 			await post.add_reaction(u"\U0001F44D")
 			await post.add_reaction(u"\U0001F44E")
@@ -69,7 +72,7 @@ class Misc():
 				options += 1
 			
 			content = [['Options:', optionString]]
-			eObj = embed(title='Poll:', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=question, content=content)
+			eObj = embed(title='Poll:', author=name, avatar=ava, description=question, content=content)
 			pollPost = await ctx.send(embed=eObj)
 
 			logger.info("[Misc poll()] multi-option poll message contructed and sent.")
