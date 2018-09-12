@@ -11,6 +11,7 @@ from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
 import helper_files.settings as settings
+from helper_files.embed import embed
 ######################
 ## VARIABLES TO USE ##
 ######################
@@ -113,17 +114,27 @@ async def write_to_bot_log_channel():
 ####################################################
 @bot.event
 async def on_command_error(ctx, error):
-    if not isinstance(error, commands.CheckFailure):
-        logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
-        if isinstance(error, commands.MissingRequiredArgument):
-            fmt = '```Missing argument: {0}```'
-            logger.error('[main.py on_command_error()] '+fmt.format(error.param))
-            await ctx.send(fmt.format(error.param))
-        else:
-            author = ctx.author.nick or ctx.author.name
-            await ctx.send('Error:\n```Sorry '+author+', seems like the command doesn\'t exist :(```')
-            logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+    logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")        
+    if isinstance(error, commands.MissingRequiredArgument):
+        fmt = 'Missing argument: {0}'
+        logger.error('[main.py on_command_error()] '+fmt.format(error.param))
+        eObj = embed(author=setttings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
+        await ctx.send(embed=eObj)
+    else:
+        logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))        
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
+    # if not isinstance(error, commands.CheckFailure):
+    #     logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
+    #     if isinstance(error, commands.MissingRequiredArgument):
+    #         fmt = '```Missing argument: {0}```'
+    #         logger.error('[main.py on_command_error()] '+fmt.format(error.param))
+    #         await ctx.send(fmt.format(error.param))
+    #     else:
+    #         author = ctx.author.nick or ctx.author.name
+    #         await ctx.send('Error:\n```Sorry '+author+', seems like the command doesn\'t exist :(```')
+    #         logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))
+    #         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 ####################
 ## STARTING POINT ##
