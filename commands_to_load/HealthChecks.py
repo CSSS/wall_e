@@ -33,11 +33,14 @@ class HealthChecks():
 
 
 	@commands.command()
-	async def echo(self, ctx, arg):
+	async def echo(self, ctx, *arg):
 		user = ctx.author.nick or ctx.author.name
 		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
 		avatar = ctx.author.avatar_url
-		eObj = embed(author=user, avatar=avatar, description=arg)
+		echo = ''
+		for x in arg:
+			echo += x + ' '
+		eObj = embed(author=user, avatar=avatar, description=echo)
 		await ctx.send(embed=eObj)
 
 	@commands.command()
