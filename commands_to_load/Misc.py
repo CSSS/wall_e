@@ -57,7 +57,7 @@ class Misc():
 		elif len(questions) == 0:
 			logger.error("[Misc poll()] poll with no arguments detected.")
 			eObj = embed(title='Usage', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='.poll <Question> [Option A] [Option B] ...')
-			await ctx.send(embed=embed)
+			await ctx.send(embed=eObj)
 			return
 		else:
 			logger.info("[Misc poll()] multi-option poll being constructed.")
