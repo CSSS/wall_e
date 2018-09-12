@@ -7,7 +7,7 @@ import helper_files.settings as settings
 
 class RoleCommands():
 
-    def __init__(self, bot:commands.bot.Bot):
+    def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
