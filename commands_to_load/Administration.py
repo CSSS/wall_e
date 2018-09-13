@@ -1,6 +1,6 @@
 from discord.ext import commands
+import discord
 from main import commandFolder
-import json
 import subprocess
 
 import logging
@@ -8,19 +8,13 @@ logger = logging.getLogger('wall_e')
 
 class Administration():
 
-	async def botManager(self, ctx):
-		for managers in self.admin_list['BOT_MANAGERS']:
-			if str(ctx.message.author.id) in managers.values():
-				return True
-		return False
-
 	def __init__(self, bot):
-		logger.info("[Administration __init__()] attempting to load bot managers from bot_mangers.json")
-		with open('commands_to_load/bot_managers.json') as f:
-			TheAdmins = json.load(f)
-		logger.info("[Administration __init__()] loaded bot_managers from bot_managers.json=\n"+str(json.dumps(TheAdmins, indent=3)))
-		self.admin_list = TheAdmins
 		self.bot = bot
+
+	async def botManager(self, ctx):
+		role = discord.utils.get(ctx.guild.roles, name="Bot_manager")
+		membersOfRole = role.members
+		return ctx.message.author in membersOfRole
 
 	@commands.command()
 	async def load(self, ctx, name):
