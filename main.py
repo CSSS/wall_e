@@ -37,7 +37,6 @@ FILENAME = None
 commandFolder="commands_to_load."
 the_commands=[commandFolder+"HealthChecks", commandFolder+"Misc", commandFolder+"RoleCommands", commandFolder+"Administration"]
 
-
 ##################
 ## LOGGING SETUP ##
 ##################
@@ -101,7 +100,14 @@ async def write_to_bot_log_channel():
             while line:
                 if line.strip() != "":
                     line=line.replace("@","[at]")
-                    await channel.send(line)
+                    output=line
+                    if len(line)>2000:
+                        prefix="truncated output="
+                        line = prefix+line
+                        length = len(line)- (len(line) - 2000) #taking length of just output into account
+                        length = length - len(prefix) #taking length of prefix into account
+                        output=line[:length]
+                    await channel.send(output)
                 line = f.readline()
             await asyncio.sleep(1)
 
