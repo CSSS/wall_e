@@ -27,6 +27,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.remindmein <arg0> to <arg1>` - created a reminder from `<arg0>` from now with the message `<arg1>`
 * `showreminders` - displays all of the invoking user's reminders and their corresponding messageID
 * `deletereminder <arg>` - deletes the reminder that the invoking user created that has the messageId `<arg>`
+* `.roles` - displays all roles that exist on the server
 
 ## Local Setup
 
