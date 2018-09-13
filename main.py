@@ -67,7 +67,7 @@ def createLogFile(formatter,logger):
 ##################################################
 ## signals to all functions that use            ##
 ## "wait_until_ready" that the bot is now ready ##
-## to start performing background tasks         ## 
+## to start performing background tasks         ##
 ##################################################
 
 @bot.event
@@ -120,7 +120,9 @@ async def on_command_error(ctx, error):
             await ctx.send(fmt.format(error.param))
         else:
             author = ctx.author.nick or ctx.author.name
-            await ctx.send('Error:\n```Sorry '+author+', seems like the command doesn\'t exist :(```')
+
+            # Absolutely no reason to send a message when a command isn't recognized
+            #await ctx.send('Error:\n```Sorry '+author+', seems like the command doesn\'t exist :(```')
             logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
@@ -144,7 +146,7 @@ if __name__ == "__main__":
         f = open(FILENAME+'.log', 'r')
         f.seek(0)
         bot.loop.create_task(write_to_bot_log_channel())
-        logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")        
+        logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
 
