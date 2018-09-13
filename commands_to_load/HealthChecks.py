@@ -13,7 +13,7 @@ class HealthChecks():
 		logger.info("[Administration buildBot_Manager_list()] attempting to load bot managers from bot_mangers.json")
 		with open('commands_to_load/bot_managers.json') as f:
 			TheAdmins = json.load(f)
-		logger.info("[HealthChecks help()] loaded bot_managers from bot_managers.json"+str(TheAdmins))
+		logger.info("[HealthChecks help()] loaded bot_managers from bot_managers.json=\n"+str(json.dumps(TheAdmins, indent=3)))
 		self.bot = bot
 		self.admin = TheAdmins
 
@@ -37,11 +37,12 @@ class HealthChecks():
 
 	@commands.command()
 	async def help(self, ctx):
+		await ctx.send("     help me.....")
 		logger.info("[HealthChecks help()] help command detected from "+str(ctx.message.author))
 		logger.info("[HealthChecks help()] attempting to load command info from help.json")
 		with open('commands_to_load/help.json') as f:
 			helpDict = json.load(f)
-		logger.info("[HealthChecks help()] loaded commands from help.json"+str(helpDict))
+		logger.info("[HealthChecks help()] loaded commands from help.json=\n"+str(json.dumps(helpDict, indent=3)))
 		
 		# determing the number of commands the user has access to.
 		numberOfCommands=0
