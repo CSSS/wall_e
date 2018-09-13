@@ -18,7 +18,7 @@ class Administration():
 		logger.info("[Administration __init__()] attempting to load bot managers from bot_mangers.json")
 		with open('commands_to_load/bot_managers.json') as f:
 			TheAdmins = json.load(f)
-		logger.info("[Administration __init__()] loaded bot_managers from bot_managers.json= "+str(TheAdmins))
+		logger.info("[Administration __init__()] loaded bot_managers from bot_managers.json=\n"+str(json.dumps(TheAdmins, indent=3)))
 		self.admin_list = TheAdmins
 		self.bot = bot
 
