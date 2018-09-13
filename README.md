@@ -27,7 +27,8 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
 * `.urban <arg0>` - return definition from urban dictionary of `<arg0>`
 * `.sfu <arg0>` - returns calendar description from current semesters calendar of `<arg0>`
-* `.outline <arg0> optional: <arg1> <arg2>` - returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally you may specify term in `<arg1>` and/or section with `<arg1>` or `<arg2>`. Usage examples:
+* `.outline <arg0> optional: <arg1> <arg2>` - returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally you may specify term in `<arg1>` and/or section with `<arg1>` or `<arg2>`. 
+      * Usage examples:
       * `.outline cmpt300`
       * `.outline cmpt300 d200`
       * `.outline cmpt300 spring`
