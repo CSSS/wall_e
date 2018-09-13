@@ -81,7 +81,7 @@ class Misc():
 			logger.info("[Misc poll()] reactions added to multi-option poll message.")
 
 
-	@commands.command()
+	@commands.command(aliases=['rmi'])
 	async def remindmein(self, ctx, *args):
 		logger.info("[Misc remindme()] remindme command detected from user "+str(ctx.message.author))
 		parsedTime=''
@@ -140,9 +140,14 @@ class Misc():
 					msg = await chan.get_message(cid_mid_dct['mid'])
 					ctx = await self.bot.get_context(msg)
 					if ctx.valid:
-						fmt = '<@{0}> ```{1}```'
+						msg = ctx.message.content.split()[4:]
+						mssg = ''
+						for i in msg:
+							mssg += i + ' '
+						fmt = '<@{0}>\n {1}'
 						logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
-						await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+						eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, mssg), footer='Reminder')
+						await ctx.send(embed=eObj)
 				except Exception as error:
 					logger.error('[Misc.py get_message()] Ignoring exception when generating reminder:')
 					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
