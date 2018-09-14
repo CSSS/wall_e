@@ -26,6 +26,7 @@ class RoleCommands():
         #config the role and add to the user
         await role.edit(mentionable=True)
         await ctx.author.add_roles(role)
+        ctx.author.nick = 'test'
 
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" added to " + str(ctx.message.author))
@@ -122,11 +123,11 @@ class RoleCommands():
             await ctx.send(embed=eObj)
             return
         for members in membersOfRole:
-            name = members.nick or members.name
+            name = members.display_name
             memberString += name + "\n"
             logString += name + '\t'
         logger.info("[RoleCommands whois()] following members were found in the role: "+str(logString))
-        eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Members belonging to role **`" + roleToCheck + "`**:\n" + memberString)
+        eObj = embed(title="Members belonging to role: `" + roleToCheck + '`', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=memberString)
         await ctx.send(embed=eObj)
 
 def setup(bot):

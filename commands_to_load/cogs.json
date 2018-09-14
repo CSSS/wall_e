@@ -1,9 +1,9 @@
 { "cogs" : [
-    {"name": "Administration"},
-    {"name": "HealthChecks"}, 
-    {"name": "Misc"}, 
-    {"name": "RoleCommands"}, 
-    {"name": "SFU"},
-    {"name": "Mod"}
+    {"folder":"cogs", "name": "Administration"},
+    {"folder":"cogs", "name": "HealthChecks"}, 
+    {"folder":"cogs", "name": "Misc"}, 
+    {"folder":"cogs", "name": "RoleCommands"}, 
+    {"folder":"cogs", "name": "SFU"},
+    {"folder":"cogs", "name": "Mod"}
 ]
 }

@@ -119,7 +119,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         fmt = 'Missing argument: {0}'
         logger.error('[main.py on_command_error()] '+fmt.format(error.param))
-        eObj = embed(author=setttings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
+        eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
         await ctx.send(embed=eObj)
     else:
         logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))        
