@@ -48,8 +48,8 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
     msg = None
 
     while True:
-        logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage) + " with roles " + str(
-            listOfRoles[currentPage]))
+        logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
+        logger.info("[Paginate paginateEmbed()] loading roles " + str(listOfRoles[currentPage]))
         embed = discord.Embed(title=title, color=0x81e28d)
         for x in listOfRoles[currentPage]:
             if x[0] != "":
@@ -151,7 +151,8 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
     firstRun = True
     msg = None
     while True:
-        logger.info("[Paginate paginate()] loading page " + str(currentPage) + " with roles " + str(listOfRoles))
+        logger.info("[Paginate paginate()] loading page " + str(currentPage))
+        logger.info("[Paginate paginate()] loading roles " + str(listOfRoles[currentPage]))
         output = title + "\n\n```"
         for x in listOfRoles[currentPage]:
             if x != '':
