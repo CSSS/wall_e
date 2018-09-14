@@ -26,7 +26,6 @@ class RoleCommands():
         #config the role and add to the user
         await role.edit(mentionable=True)
         await ctx.author.add_roles(role)
-        ctx.author.nick = 'test'
 
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" added to " + str(ctx.message.author))
