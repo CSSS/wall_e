@@ -28,12 +28,12 @@ class Mod():
     
     @commands.command()
     async def embed(self, ctx, *arg):
-        logger.info('[Mod embed()] - embed function detected by minion ' + str(ctx.message.author))
+        logger.info('[Mod embed()] embed function detected by minion ' + str(ctx.message.author))
         if not self.isMinion(ctx):
             await self.rekt(ctx)
             return
         
-        logger.info('[Mod ember()] - parsing args')
+        logger.info('[Mod embed()] parsing args')
         fields = []
         desc = ''
         arg = list(arg)

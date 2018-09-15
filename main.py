@@ -80,7 +80,7 @@ async def on_ready():
     
     settings.BOT_NAME = bot.user.name
     settings.BOT_AVATAR = bot.user.avatar_url
-    logger.info('[main.py on_ready()] - BOT_NAME and BOT_AVATAR variables initialed in settings.py')
+    logger.info('[main.py on_ready()] BOT_NAME and BOT_AVATAR variables initialed in settings.py')
     print("ZA WARUDOOO!!!!")
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     logger.info("[main.py] default help command being removed")
     bot.remove_command("help")
 
-    logger.info('[main.py] - loading cog names from json file')
+    logger.info('[main.py] loading cog names from json file')
     with open('commands_to_load/cogs.json') as f:
         cogs = json.load(f)
     cogs = cogs['cogs']

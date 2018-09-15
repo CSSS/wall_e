@@ -15,7 +15,7 @@ class SFU():
 
     @commands.command()
     async def sfu(self, ctx, *course):
-        logger.info('[SFU sfu()] - sfu command detected from user ' + str(ctx.message.author))
+        logger.info('[SFU sfu()] sfu command detected from user ' + str(ctx.message.author))
 
         year = time.localtime()[0]
         term = time.localtime()[1]
@@ -40,23 +40,23 @@ class SFU():
             courseCode = course[0]
             courseNum = course[1]
         
-        logger.info('[SFU sfu()] - constructing url for get request')
+        logger.info('[SFU sfu()] constructing url for get request')
         sfuUrl='http://www.sfu.ca/students/calendar/%s/%s/courses/%s/%s.html' % (year, term, courseCode, courseNum)
         #grab the things
         url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
         
-        logger.info('[SFU sfu()] - get request made')
+        logger.info('[SFU sfu()] get request made')
         res = req.get(url)
         if(res.status_code != 404):
-            logger.info('[SFU sfu()] - get request successful')
+            logger.info('[SFU sfu()] get request successful')
             data = res.json()
         else:
-            logger.error('[SFU sfu()] - get resulted in 404. Notifying user of 404')
+            logger.error('[SFU sfu()] get resulted in 404. Notifying user of 404')
             eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year.upper(), term.upper(), courseCode.upper(), courseNum.upper()))
             await ctx.sent(embed=eObj)
             return
 
-        logger.info('[SFU sfu()] - constructing embed with information about ' + str(courseCode) + str(courseNum))
+        logger.info('[SFU sfu()] constructing embed with information about ' + str(courseCode) + str(courseNum))
         title='Results from SFU'
         colour=0xA6192E
         link='[here](%s)' % sfuUrl
@@ -70,11 +70,11 @@ class SFU():
         
         embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=colour, footer=footer)
         await ctx.send(embed=embedObj)
-        logger.info('[SFU sfu()] - output send to server')
+        logger.info('[SFU sfu()] output send to server')
 
     @commands.command()
     async def outline(self, ctx, *course):
-        logger.info('[SFU outline()] - outline command detected from user ' + str(ctx.message.author))        
+        logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))        
         year = time.localtime()[0]
         term = time.localtime()[1]
 
@@ -89,7 +89,7 @@ class SFU():
         else:
             term = 'fall'
         
-        logger.info('[SFU outline()] - parsing args')
+        logger.info('[SFU outline()] parsing args')
         argNum = len(course)
         # course and term or section is specified
         if(argNum == 2):
@@ -115,7 +115,7 @@ class SFU():
                 section = course[2].lower()
             else:
                 # send something saying be in this order
-                logger.error('[SFU outline()] - args out of order or just wrong')
+                logger.error('[SFU outline()] args out of order or just wrong')
                 eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Make sure you arg\'s are in the following order:\n<course> <term> <section>\nexample: .outline cmpt300 fall d200')
                 await ctx.send(embed=eObj)
                 return
@@ -129,24 +129,24 @@ class SFU():
         courseNum = crs[1]
 
         # set up url for get
-        logger.info('[SFU outline()] - constructing url for get request')
+        logger.info('[SFU outline()] constructing url for get request')
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
-        logger.info('[SFU outline()] - url for get request constructed')
+        logger.info('[SFU outline()] url for get request constructed')
 
         # make get request and get json data
-        logger.info('[SFU outline()] - get request made')
+        logger.info('[SFU outline()] get request made')
         res = req.get(url)
         if(res.status_code != 404):
-            logger.info('[SFU outline()] - get request successful')
+            logger.info('[SFU outline()] get request successful')
             data = res.json()
         else:
-            logger.error('[SFU outline()] - get resulted in 404. Notifying user of 404')
+            logger.error('[SFU outline()] get resulted in 404. Notifying user of 404')
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s\nMake sure you entered all the arguments correctly' % (year.upper(), term.upper(), courseCode.upper(), courseNum.upper(), section.upper()))
             await ctx.sent(embed=eObj)
             return
         
         # Parse data into pieces
-        logger.info('[SFU outline()] - parsing data from get request')
+        logger.info('[SFU outline()] parsing data from get request')
         outline = data['info']['outlinePath'].upper()
         title = data['info']['title']
         instructor = data['instructor'][0]['name'] + '\n(' + data['instructor'][0]['email'] + ')'
@@ -190,7 +190,7 @@ class SFU():
 
         url = 'http://www.sfu.ca/outlines.html?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         
-        logger.info('[SFU outline()] - building embed object with outline info of ' + str(courseCode) + str(courseNum))
+        logger.info('[SFU outline()] building embed object with outline info of ' + str(courseCode) + str(courseNum))
         # make tuple of the data for the fields
         fields = [
             ['Outline', outline], 
