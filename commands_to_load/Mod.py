@@ -26,9 +26,11 @@ class Mod():
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.command()
+    @commands.command(aliases=['em'])
     async def embed(self, ctx, *arg):
         logger.info('[Mod embed()] embed function detected by minion ' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod embed()] invoking message deleted')
         if not self.isMinion(ctx):
             await self.rekt(ctx)
             return
@@ -51,6 +53,18 @@ class Mod():
 
         name = ctx.author.nick or ctx.author.name
         eObj = em(description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d ,content=fields)
+        await ctx.send(embed=eObj)
+
+    @commands.command(aliases=['warn'])
+    async def modspeak(self, ctx, *arg):
+        logger.info('[Mod modspeak()] modspeack function detected by minion ' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod embed()] invoking message deleted')
+        msg = ''
+        for wrd in arg:
+            msg += wrd + ' '
+
+        eObj = em(title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         await ctx.send(embed=eObj)
 
 def setup(bot):
