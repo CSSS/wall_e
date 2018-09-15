@@ -30,12 +30,12 @@ class SFU():
         #need to check if we need to manually split the arg
         if(len(course) == 1):
             #split
-            str = re.findall('(\d*\D+)', course[0])
-            if(len(str) < 2):
-                str = re.split('(\d+)', course[0])
+            crs = re.findall('(\d*\D+)', course[0])
+            if(len(crs) < 2):
+                crs = re.split('(\d+)', course[0])
 
-            courseCode = str[0]
-            courseNum = str[1]
+            courseCode = crs[0]
+            courseNum = crs[1]
         else:
             courseCode = course[0]
             courseNum = course[1]

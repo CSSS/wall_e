@@ -175,7 +175,7 @@ if __name__ == "__main__":
         commandLoaded=True
         try:
             logger.info("[main.py] attempting to load command "+cog['name'])
-            bot.load_extension('commands_to_load.' + cog['name'])
+            bot.load_extension(cog['folder'] + '.' + cog['name'])
         except Exception as e:
             commandLoaded=False
             exception = '{}: {}'.format(type(e).__name__, e)
