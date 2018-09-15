@@ -19,9 +19,13 @@ class Mod():
         return False
 
     async def rekt(self, ctx):
+        logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
         eObj = em(title='Minion Things', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=lol)        
-        await ctx.send(embed=eObj)
+        msg = await ctx.send(embed=eObj)
+        await asyncio.sleep(5)
+        await msg.delete()
+        logger.info('[Mod rekt()] troll message deleted')
     
     def __init__(self, bot):
         self.bot = bot
