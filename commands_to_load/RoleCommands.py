@@ -94,11 +94,11 @@ class RoleCommands():
         user = ctx.message.author
         if user in membersOfRole:
             await user.remove_roles(role)
-            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully been remove from role **`" + roleToRemove + "`**.")
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully been removed from role **`" + roleToRemove + "`**.")
             await ctx.send(embed=eObj)
             logger.info("[RoleCommands iamn()] " + str(user) + " has been removed from role " + str(roleToRemove) )
         else:
-            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Wut??\n You don't have the role, so how am I gonna remove it????")
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Boop Beep??\n You don't have the role, so how am I gonna remove it????")
             await ctx.send(embed=eObj)
             logger.error("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
         
