@@ -28,14 +28,16 @@ class Mod():
     
     @commands.command(aliases=['em'])
     async def embed(self, ctx, *arg):
-        logger.info('[Mod embed()] embed function detected by minion ' + str(ctx.message.author))
+        logger.info('[Mod embed()] embed function detected by user ' + str(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod embed()] invoking message deleted')
+        
         if not self.isMinion(ctx):
+            logger.error('[Mod embed()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
         
-        logger.info('[Mod embed()] parsing args')
+        logger.info('[Mod embed()] minion confirmed')
         fields = []
         desc = ''
         arg = list(arg)
@@ -60,6 +62,12 @@ class Mod():
         logger.info('[Mod modspeak()] modspeack function detected by minion ' + str(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod embed()] invoking message deleted')
+
+        if not self.isMinion(ctx):
+            logger.error('[Mod modspeak()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
+
         msg = ''
         for wrd in arg:
             msg += wrd + ' '
