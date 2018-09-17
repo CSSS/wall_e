@@ -11,7 +11,7 @@ logger = logging.getLogger('wall_e')
 
 class HealthChecks():
 
-	def __init__(self, bot:commands.bot.Bot):
+	def __init__(self, bot):
 		logger.info("[Administration buildBot_Manager_list()] attempting to load bot managers from bot_mangers.json")
 		with open('commands_to_load/bot_managers.json') as f:
 			TheAdmins = json.load(f)
