@@ -1,6 +1,8 @@
 from discord.ext import commands
 import discord
 import logging
+from commands_to_load.Paginate import paginate
+
 logger = logging.getLogger('wall_e')
 from helper_files.embed import embed 
 import helper_files.settings as settings
@@ -128,6 +130,20 @@ class RoleCommands():
         logger.info("[RoleCommands whois()] following members were found in the role: "+str(logString))
         eObj = embed(title="Members belonging to role: `" + roleToCheck + '`', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=memberString)
         await ctx.send(embed=eObj)
+
+    @commands.command()
+    async def roles(self, ctx):
+        logger.info("[Misc poll()] roles command detected from user "+str(ctx.message.author))
+        guild = ctx.guild
+        rolesList = []
+        for role in guild.roles:
+            if role.name != "@everyone":
+                rolesList.append(str(role.name))
+        logger.info("[Misc poll()] rolesList array populated with the roles extracted from \"guild.roles\"")
+        rolesList = sorted(rolesList, key=str.lower)
+        logger.info("[Misc poll()] roles ion rolesList array sorted alphabetically")
+        #await ctx.author.send(rolesList)
+        await paginate(bot=self.bot,title="Roles Available" ,ctx=ctx,listToPaginate=rolesList, numOfPageEntries=10)
 
 def setup(bot):
     bot.add_cog(RoleCommands(bot))

@@ -11,6 +11,8 @@ import sys
 from helper_files.embed import embed 
 import helper_files.settings as settings
 import requests as req
+import helper_files.testenv
+
 
 logger = logging.getLogger('wall_e')
 

@@ -33,6 +33,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
     * `.outline cmpt300 d200`
     * `.outline cmpt300 spring`
     * `.outline cmpt300 summer d200`
+* `.roles` - displays all roles that exist on the server
 
 ## Local Setup
 

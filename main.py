@@ -7,6 +7,7 @@ import logging
 import datetime
 import pytz
 import json
+import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
@@ -67,7 +68,7 @@ def createLogFile(formatter,logger):
 ##################################################
 ## signals to all functions that use            ##
 ## "wait_until_ready" that the bot is now ready ##
-## to start performing background tasks         ## 
+## to start performing background tasks         ##
 ##################################################
 
 @bot.event
@@ -104,8 +105,16 @@ async def write_to_bot_log_channel():
             line = f.readline()
             while line:
                 if line.strip() != "":
+                    line="."+line
                     line=line.replace("@","[at]")
-                    await channel.send(line)
+                    output=line
+                    if len(line)>2000:
+                        prefix="truncated output="
+                        line = prefix+line
+                        length = len(line)- (len(line) - 2000) #taking length of just output into account
+                        length = length - len(prefix) #taking length of prefix into account
+                        output=line[:length]
+                    await channel.send(output)
                 line = f.readline()
             await asyncio.sleep(1)
 
@@ -115,8 +124,8 @@ async def write_to_bot_log_channel():
 ####################################################
 @bot.event
 async def on_command_error(ctx, error):
-    if not isinstance(error, commands.CheckFailure):
-        logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")        
+    if helper_files.testenv.TestCog.check_test_environment(ctx):
+        logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
         if isinstance(error, commands.MissingRequiredArgument):
             fmt = 'Missing argument: {0}'
             logger.error('[main.py on_command_error()] '+fmt.format(error.param))
@@ -146,7 +155,7 @@ if __name__ == "__main__":
         f = open(FILENAME+'.log', 'r')
         f.seek(0)
         bot.loop.create_task(write_to_bot_log_channel())
-        logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")        
+        logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
 

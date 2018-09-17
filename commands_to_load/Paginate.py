@@ -116,7 +116,9 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 
 
 async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, title=" "):
-    logger.info("[Paginate paginate()] added roles to rolesList and sorted them alphabetically")
+    logger.info("[Paginate paginate()] called with following argument: listToPaginate=" + str(
+        listToPaginate) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(
+        numOfPageEntries) + " and title=" + title)
     if numOfPages == 0:
         if numOfPageEntries == 0:
             logger.error("[Paginate paginate()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
@@ -128,19 +130,15 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
                 numOfPages = int(len(listToPaginate) / numOfPageEntries) + 1
     else:
         if numOfPageEntries != 0:
-            logger.error(
-                "[Paginate paginate()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
+            logger.error("[Paginate paginate()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
         else:
             if int(len(listToPaginate) / numOfPages) == len(listToPaginate) / numOfPages:
                 numOfPageEntries = int(len(listToPaginate) / numOfPages)
             else:
                 umOfPageEntries = int(len(listToPaginate) / numOfPages) + 1
 
-    logger.info(
-        "[Paginate paginate()] numOfPageEntries set to " + str(numOfPageEntries) + " and numOfPages set to " + str(
-            numOfPages))
-    listOfRoles = [[["" for z in range(len(listToPaginate[0]))] for x in range(numOfPageEntries)] for y in
-                   range(numOfPages)]
+    logger.info("[Paginate paginate()] numOfPageEntries set to " + str(numOfPageEntries) + " and numOfPages set to " + str(numOfPages))
+    listOfRoles = [["" for x in range(numOfPageEntries)] for y in range(numOfPages)]
     x, y = 0, 0;
     for roles in listToPaginate:
         listOfRoles[y][x] = roles
@@ -156,7 +154,7 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
         logger.info("[Paginate paginate()] loading page " + str(currentPage) + " with roles " + str(listOfRoles))
         output = title + "\n\n```"
         for x in listOfRoles[currentPage]:
-            if x != 0:
+            if x != '':
                 output += '\t\"' + str(x) + "\"\n"
         output += '```{}/{}'.format(str(currentPage + 1), str(numOfPages))
         logger.info("[Paginate paginate()] created and filled Embed with roles of the current page " + str(currentPage))
@@ -172,9 +170,9 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
             msg = await ctx.send(output)
             logger.info("[Paginate paginate()] sent message")
         else:
-            await msg.delete()
-            msg = await ctx.send(output)
-            logger.info("[Paginate paginate()] sent updated message with the next page of roles")
+            await msg.edit(content=output)
+            await msg.clear_reactions()
+            logger.info("[Paginate paginate()] edited message")
         for reaction in toReact:
             await msg.add_reaction(reaction)
 
@@ -183,7 +181,7 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
         def checkReaction(reaction, user):
             if not user.bot:
                 e = str(reaction.emoji)
-                logger.info("[Paginate paginate()] user reaction detected..." + str(e))
+                logger.info("[Paginate paginate()] reaction " + e + " detected from " + str(user))
                 return e.startswith(('⏪', '⏩', '✅'))
 
         userReacted = False
