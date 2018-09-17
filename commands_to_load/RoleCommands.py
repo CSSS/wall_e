@@ -10,7 +10,7 @@ class RoleCommands():
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=['newclass'])
     async def newrole(self, ctx, roleToAdd):
         logger.info("[RoleCommands newrole()] "+str(ctx.message.author)+" called newrole with following argument: roleToAdd="+roleToAdd)
         roleToAdd = roleToAdd.lower()
