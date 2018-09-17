@@ -6,10 +6,13 @@ import discord
 import logging
 import datetime
 import pytz
+import json
 import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
+import helper_files.settings as settings
+from helper_files.embed import embed
 
 ######################
 ## VARIABLES TO USE ##
@@ -35,7 +38,6 @@ FILENAME = None
 
 # setting up path hierarchy for commands to load
 commandFolder="commands_to_load."
-the_commands=[commandFolder+"HealthChecks", commandFolder+"Misc", commandFolder+"RoleCommands", commandFolder+"Administration"]
 
 ##################
 ## LOGGING SETUP ##
@@ -76,7 +78,11 @@ async def on_ready():
     logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
     logger.info('[main.py on_ready()] '+bot.user.name+' is now ready for commands')
-
+    
+    settings.BOT_NAME = bot.user.name
+    settings.BOT_AVATAR = bot.user.avatar_url
+    logger.info('[main.py on_ready()] BOT_NAME and BOT_AVATAR variables initialed in settings.py')
+    print("ZA WARUDOOO!!!!")
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
 ##################################################################################################
@@ -121,15 +127,12 @@ async def on_command_error(ctx, error):
     if helper_files.testenv.TestCog.check_test_environment(ctx):
         logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
         if isinstance(error, commands.MissingRequiredArgument):
-            fmt = '```Missing argument: {0}```'
+            fmt = 'Missing argument: {0}'
             logger.error('[main.py on_command_error()] '+fmt.format(error.param))
-            await ctx.send(fmt.format(error.param))
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
+            await ctx.send(embed=eObj)
         else:
-            author = ctx.author.nick or ctx.author.name
-
-            # Absolutely no reason to send a message when a command isn't recognized
-            #await ctx.send('Error:\n```Sorry '+author+', seems like the command doesn\'t exist :(```')
-            logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))
+            logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))        
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 ####################
@@ -160,18 +163,23 @@ if __name__ == "__main__":
     logger.info("[main.py] default help command being removed")
     bot.remove_command("help")
 
+    logger.info('[main.py] loading cog names from json file')
+    with open('commands_to_load/cogs.json') as f:
+        cogs = json.load(f)
+    cogs = cogs['cogs']
+
     ## tries to loads any commands specified in the_commands into the bot
-    for com in the_commands:
+    for cog in cogs:
         commandLoaded=True
         try:
-            logger.info("[main.py] attempting to load command "+com)
-            bot.load_extension(com)
+            logger.info("[main.py] attempting to load command "+cog['name'])
+            bot.load_extension(cog['folder'] + '.' + cog['name'])
         except Exception as e:
             commandLoaded=False
             exception = '{}: {}'.format(type(e).__name__, e)
-            logger.error('[main.py] Failed to load command {}\n{}'.format(com, exception))
+            logger.error('[main.py] Failed to load command {}\n{}'.format(cog['name'], exception))
         if commandLoaded:
-            logger.info("[main.py] "+com+" successfully loaded")
+            logger.info("[main.py] "+cog['name']+" successfully loaded")
     ##final step, running the bot with the passed in environment TOKEN variable
     TOKEN = os.environ['TOKEN']
     bot.run(TOKEN)
