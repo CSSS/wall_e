@@ -7,12 +7,12 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 ## Table of Contents
 - [CSSS Discord Bot (Wall-E)](#csss-discord-bot-wall-e)
-      - [Table of Contents](#table-of-contents)
-      - [Current Commands](#current-commands)
-      - [Local Setup](#local-setup)
-                  - [Current-Setup Info](#current-setup-info)
-            - [Part 1: Authentication](#part-1-authentication)
-            - [Part 2: Running the Bot](#part-2-running-the-bot)
+- [Table of Contents](#table-of-contents)
+- [Current Commands](#current-commands)
+- [Local Setup](#local-setup)
+- [Current-Setup Info](#current-setup-info)
+- [Part 1: Authentication](#part-1-authentication)
+- [Part 2: Running the Bot](#part-2-running-the-bot)
 
 ## Current Commands
 
