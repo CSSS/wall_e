@@ -13,9 +13,7 @@ class HealthChecks():
 		self.bot = bot
 
 	async def botManager(self, ctx):
-		role = discord.utils.get(ctx.guild.roles, name="Bot_manager")
-		membersOfRole = role.members
-		return ctx.message.author in membersOfRole
+		return ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members
 
 	@commands.command()
 	async def ping(self, ctx):
