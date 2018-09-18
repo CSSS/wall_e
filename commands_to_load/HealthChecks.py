@@ -12,9 +12,6 @@ class HealthChecks():
 	def __init__(self, bot):
 		self.bot = bot
 
-	async def botManager(self, ctx):
-		return ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members
-
 	@commands.command()
 	async def ping(self, ctx):
 		logger.info("[HealthChecks ping()] ping command detected from "+str(ctx.message.author))
@@ -39,7 +36,7 @@ class HealthChecks():
 		# determing the number of commands the user has access to.
 		numberOfCommands=0
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and await self.botManager(ctx):
+			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 				numberOfCommands += 1
 			elif entry['access'] == "public":
 				numberOfCommands += 1
@@ -48,7 +45,7 @@ class HealthChecks():
 		index=0
 		logger.info("[HealthChecks help()] tranferring dictionary to array")
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and await self.botManager(ctx):
+			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 				helpArr[index][0]=entry['name']
 				helpArr[index][1]=entry['description']
 			elif entry['access'] == "public":
