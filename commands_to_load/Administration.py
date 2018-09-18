@@ -11,9 +11,6 @@ class Administration():
 	def __init__(self, bot):
 		self.bot = bot
 
-	async def botManager(self, ctx):
-		return ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members
-
 	@commands.command()
 	async def load(self, ctx, name):
 		logger.info("[Administration load()] load command detected from "+str(ctx.message.author))
