@@ -35,7 +35,7 @@ FILENAME = None
 
 # setting up path hierarchy for commands to load
 commandFolder="commands_to_load."
-the_commands=[commandFolder+"HealthChecks", commandFolder+"Misc", commandFolder+"RoleCommands", commandFolder+"Administration"]
+the_commands=[commandFolder+"HealthChecks", commandFolder+"Misc", commandFolder+"RoleCommands", commandFolder+"Administration", commandFolder+"Reminders"]
 
 ##################
 ## LOGGING SETUP ##
