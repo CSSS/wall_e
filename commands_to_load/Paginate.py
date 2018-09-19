@@ -97,16 +97,19 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 
             if userReacted != False:
                 if '⏪' == userReacted[0].emoji:
-                    logger.info("[Paginate paginateEmbed()] user indicates they want to go back a page from " + str(
-                        currentPage) + " to " + str(currentPage - 1))
                     currentPage = currentPage - 1
+                    if currentPage < 0:
+                        currentPage = numOfPages-1
+                    logger.info("[Paginate paginateEmbed()] user indicates they want to go back a page from " + str(currentPage) + " to " + str(currentPage - 1))
+                    
                 elif '⏩' == userReacted[0].emoji:
-                    logger.info("[Paginate paginateEmbed()] user indicates they want to go forward a page from " + str(
-                        currentPage) + " to " + str(currentPage + 1))
                     currentPage = currentPage + 1
+                    if currentPage == numOfPages:
+                        currentPage = 0
+                    logger.info("[Paginate paginateEmbed()] user indicates they want to go forward a page from " + str(currentPage) + " to " + str(currentPage + 1))
+                    
                 elif '✅' == userReacted[0].emoji:
-                    logger.info(
-                        "[Paginate paginateEmbed()] user indicates they are done with the roles command, deleting roles message")
+                    logger.info("[Paginate paginateEmbed()] user indicates they are done with the roles command, deleting roles message")
                     await msg.delete()
                     return
             else:
