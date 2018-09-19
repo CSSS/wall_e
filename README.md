@@ -15,6 +15,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 ## Current Commands
 
+* `.help` - shows the list of available commands
 * `.ping` - returns `pong!`
 * `.echo <arg>` - returns `<arg>`
 * `.newrole <arg>` - creates role `<arg>`
@@ -22,12 +23,12 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.iam <arg>` - adds you to role `<arg>`
 * `.iamn <arg>` - removes you from role `<arg>`
 * `.whois <arg>` - returns everyone who has role `<arg>`
+* `.roles` - displays all roles that exist on the server
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
 * `.remindmein <arg0> to <arg1>` - created a reminder from `<arg0>` from now with the message `<arg1>`
 * `showreminders` - displays all of the invoking user's reminders and their corresponding messageID
 * `deletereminder <arg>` - deletes the reminder that the invoking user created that has the messageId `<arg>`
-* `.roles` - displays all roles that exist on the server
 
 ## Local Setup
 

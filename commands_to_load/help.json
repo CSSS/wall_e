@@ -1,10 +1,11 @@
 { "commands" : [
-		{ "access": "public", "name": "Category: HealthChecks", "description": "Class that Holds following commands:" },
+		{ "access": "bot_manager", "name": "Category: HealthChecks", "description": "Class that Holds following commands:" },
 		{ "access": "public", "name": ".help", "description": "shows this page" },
 		{ "access": "public", "name": ".ping", "description": "returns pong!" },
 		{ "access": "public", "name": ".echo <arg>", "description": "returns <arg>" },
 
-		{ "access": "public", "name": "Category: RoleCommands", "description": "Class that Holds following commands:" },
+		{ "access": "bot_manager", "name": "---", "description": "---" },
+		{ "access": "bot_manager", "name": "Category: RoleCommands", "description": "Class that Holds following commands:" },
 		{ "access": "public", "name": ".newrole <arg>", "description": "creates role <arg>"},
 		{ "access": "public", "name": ".deleterole <arg>", "description": "deletes role <arg>" },
 		{ "access": "public", "name": ".iam <arg>" , "description": "adds you to role <arg>" },
@@ -12,8 +13,8 @@
 		{ "access": "public", "name": ".whois <arg>", "description": "returns everyone who has role <arg>" },
 		{ "access": "public", "name": "roles", "description": "will display all the roles that exist"},
 
-
-		{ "access": "public", "name": "Category: Misc", "description": "Class that Holds following commands:" },
+		{ "access": "bot_manager", "name": "---", "description": "---" },
+		{ "access": "bot_manager", "name": "Category: Misc", "description": "Class that Holds following commands:" },
 		{ "access": "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
 		{ "access": "public", "name": ".poll <arg0> <arg1> <arg2> (up to 12 arguments)", "description": "starts a poll where <arg0> is the question and the remaining arguments are the options"},
 
@@ -22,7 +23,8 @@
 		{ "access": "public", "name": "showreminders", "description": "can be called like so: \".showreminders\" to show all your active reminders and their corresponding messageIDs" },
 		{ "access": "public", "name": "deletereminder", "description": "can be called like so: \".deletereminder <messageId>\" to delete a paricular reminder. the \"messageId\" can be obtained by using the \".showreminders\" command" },
 
-		{ "access": "public", "name": "Category: Administration", "description": "Class that Holds following commands:" },
+		{ "access": "bot_manager", "name": "---", "description": "---" },
+		{ "access": "bot_manager", "name": "Category: Administration", "description": "Class that Holds following commands:" },
 		{ "access": "bot_manager", "name": ".load <arg>", "description": "loads the commands in the class <arg>. The classes and their corresponding commands can be determined using the \".help\" command."},
 		{ "access": "bot_manager", "name": ".unload <arg>", "description": "unloads the commands in the class <arg>. The classes and their corresponding commands can be determined using the \".help\" command."},
 		{ "access": "bot_manager", "name": ".reload <arg>", "description": "reloads the commands in the class <arg>. The classes and their corresponding commands can be determined using the \".help\" command."},
