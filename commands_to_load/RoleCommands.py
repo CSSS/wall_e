@@ -115,7 +115,7 @@ class RoleCommands():
         rolesList = sorted(rolesList, key=str.lower)
         logger.info("[Misc poll()] roles ion rolesList array sorted alphabetically")
         #await ctx.author.send(rolesList)
-        await paginate(bot=self.bot,title="Roles Available" ,ctx=ctx,listToPaginate=rolesList, numOfPageEntries=3)
+        await paginate(bot=self.bot,title="Roles Available" ,ctx=ctx,listToPaginate=rolesList, numOfPageEntries=10)
 
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
