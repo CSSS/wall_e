@@ -99,8 +99,9 @@ async def write_to_bot_log_channel():
             line = f.readline()
             while line:
                 if line.strip() != "":
-                    line="."+line
                     line=line.replace("@","[at]")
+                    if line[0] == ' ':
+                        line = "." + line
                     output=line
                     if len(line)>2000:
                         prefix="truncated output="
