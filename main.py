@@ -10,6 +10,7 @@ import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
+import re
 
 ######################
 ## VARIABLES TO USE ##
@@ -120,18 +121,18 @@ async def write_to_bot_log_channel():
 @bot.event
 async def on_command_error(ctx, error):
     if helper_files.testenv.TestCog.check_test_environment(ctx):
-        logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
         if isinstance(error, commands.MissingRequiredArgument):
             fmt = '```Missing argument: {0}```'
             logger.error('[main.py on_command_error()] '+fmt.format(error.param))
             await ctx.send(fmt.format(error.param))
         else:
-            author = ctx.author.nick or ctx.author.name
-
-            # Absolutely no reason to send a message when a command isn't recognized
-            #await ctx.send('Error:\n```Sorry '+author+', seems like the command doesn\'t exist :(```')
-            logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            #only prints out an error to the log if the string that was entered doesnt contain just "."
+            pattern = r'[^\.]'
+            if re.search(pattern, str(error)[9:-14]):
+                    author = ctx.author.nick or ctx.author.name
+                    #await ctx.send('Error:\n```Sorry '+author+', seems like the command \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
+                    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                    return
 
 ####################
 ## STARTING POINT ##
