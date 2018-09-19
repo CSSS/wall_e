@@ -10,18 +10,7 @@ logger = logging.getLogger('wall_e')
 class HealthChecks():
 
 	def __init__(self, bot):
-		logger.info("[Administration buildBot_Manager_list()] attempting to load bot managers from bot_mangers.json")
-		with open('commands_to_load/bot_managers.json') as f:
-			TheAdmins = json.load(f)
-		logger.info("[HealthChecks help()] loaded bot_managers from bot_managers.json=\n"+str(json.dumps(TheAdmins, indent=3)))
 		self.bot = bot
-		self.admin = TheAdmins
-
-	async def botManager(self, ctx):
-		for manager in self.admin['BOT_MANAGERS']:
-			if str(ctx.message.author.id) in manager.values():
-				return True
-		return False
 
 	@commands.command()
 	async def ping(self, ctx):
@@ -47,7 +36,7 @@ class HealthChecks():
 		# determing the number of commands the user has access to.
 		numberOfCommands=0
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and await self.botManager(ctx):
+			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 				numberOfCommands += 1
 			elif entry['access'] == "public":
 				numberOfCommands += 1
@@ -56,7 +45,7 @@ class HealthChecks():
 		index=0
 		logger.info("[HealthChecks help()] tranferring dictionary to array")
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and await self.botManager(ctx):
+			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 				helpArr[index][0]=entry['name']
 				helpArr[index][1]=entry['description']
 			elif entry['access'] == "public":
