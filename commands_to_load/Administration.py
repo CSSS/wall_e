@@ -1,6 +1,6 @@
 from discord.ext import commands
+import discord
 from main import commandFolder
-import json
 import subprocess
 
 import logging
@@ -8,24 +8,13 @@ logger = logging.getLogger('wall_e')
 
 class Administration():
 
-	async def botManager(self, ctx):
-		for managers in self.admin_list['BOT_MANAGERS']:
-			if str(ctx.message.author.id) in managers.values():
-				return True
-		return False
-
 	def __init__(self, bot):
-		logger.info("[Administration __init__()] attempting to load bot managers from bot_mangers.json")
-		with open('commands_to_load/bot_managers.json') as f:
-			TheAdmins = json.load(f)
-		logger.info("[Administration __init__()] loaded bot_managers from bot_managers.json=\n"+str(json.dumps(TheAdmins, indent=3)))
-		self.admin_list = TheAdmins
 		self.bot = bot
 
 	@commands.command()
 	async def load(self, ctx, name):
 		logger.info("[Administration load()] load command detected from "+str(ctx.message.author))
-		if await self.botManager(ctx):
+		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 			try:
 				logger.info("[Administration load()] "+str(ctx.message.author)+" successfully authenticated")
 				self.bot.load_extension(commandFolder+name)
@@ -41,7 +30,7 @@ class Administration():
 	@commands.command()
 	async def unload(self, ctx, name):
 		logger.info("[Administration unload()] unload command detected from "+str(ctx.message.author))
-		if await self.botManager(ctx):
+		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 			logger.info("[Administration unload()] "+str(ctx.message.author)+" successfully authenticated")
 			self.bot.unload_extension(commandFolder+name)
 			await ctx.send("{} command unloaded".format(name))
@@ -53,7 +42,7 @@ class Administration():
 	@commands.command()
 	async def reload(self, ctx, name):
 		logger.info("[Administration reload()] reload command detected from "+str(ctx.message.author))
-		if await self.botManager(ctx):
+		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 			logger.info("[Administration reload()] "+str(ctx.message.author)+" successfully authenticated")
 			self.bot.unload_extension(commandFolder+name)
 			try:
@@ -71,7 +60,7 @@ class Administration():
 	@commands.command()
 	async def exc(self, ctx, *args):
 		logger.info("[Administration exc()] exc command detected from "+str(ctx.message.author) + "with arguments \""+" ".join(args)+"\"")
-		if await self.botManager(ctx):
+		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 			logger.info("[Administration exc()] "+str(ctx.message.author)+" successfully authenticated")
 			query = " ".join(args)
 			await ctx.send("```"+subprocess.getoutput(query)+"```")
