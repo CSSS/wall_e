@@ -3,9 +3,6 @@ import discord
 import logging
 from commands_to_load.Paginate import paginate
 
-from helper_files.embed import embed 
-import helper_files.settings as settings
-
 logger = logging.getLogger('wall_e')
 
 class RoleCommands():
@@ -108,17 +105,17 @@ class RoleCommands():
 
     @commands.command()
     async def roles(self, ctx):
-        logger.info("[Misc poll()] roles command detected from user "+str(ctx.message.author))
+        logger.info("[Misc roles()] roles command detected from user "+str(ctx.message.author))
         guild = ctx.guild
         rolesList = []
         selfAssignRoles = []
         for role in guild.roles:
             if role.name != "@everyone" and role.name[0] == role.name[0].lower():
                 selfAssignRoles.append(str(role.name))
-        logger.info("[Misc poll()] rolesList array populated with the roles extracted from \"guild.roles\"")
+        logger.info("[Misc roles()] rolesList array populated with the roles extracted from \"guild.roles\"")
 
         selfAssignRoles = sorted(selfAssignRoles, key=str.lower)
-        logger.info("[Misc poll()] roles in arrays sorted alphabetically")
+        logger.info("[Misc roles()] roles in arrays sorted alphabetically")
 
         for role in selfAssignRoles:
             rolesList.append(role)
@@ -127,7 +124,7 @@ class RoleCommands():
 
     @commands.command()
     async def Roles(self, ctx):
-        logger.info("[Misc poll()] roles command detected from user "+str(ctx.message.author))
+        logger.info("[Misc Roles()] roles command detected from user "+str(ctx.message.author))
         guild = ctx.guild
         rolesList = []
         assignedRoles = []
@@ -135,10 +132,10 @@ class RoleCommands():
             if role.name != "@everyone" and role.name[0] != role.name[0].lower():
                 assignedRoles.append(str(role.name))
 
-        logger.info("[Misc poll()] rolesList array populated with the roles extracted from \"guild.roles\"")
+        logger.info("[Misc Roles()] rolesList array populated with the roles extracted from \"guild.roles\"")
 
         assignedRoles = sorted(assignedRoles, key=str.lower)
-        logger.info("[Misc poll()] roles in arrays sorted alphabetically")
+        logger.info("[Misc Roles()] roles in arrays sorted alphabetically")
 
         for role in assignedRoles:
             rolesList.append(role)
