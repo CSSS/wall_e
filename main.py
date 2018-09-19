@@ -10,6 +10,7 @@ import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
+import re
 
 ######################
 ## VARIABLES TO USE ##
@@ -124,8 +125,9 @@ async def on_command_error(ctx, error):
             logger.error('[main.py on_command_error()] '+fmt.format(error.param))
             await ctx.send(fmt.format(error.param))
         else:
-            for letter in str(error)[9:-14]:
-                if letter != '.':
+            #only prints out an error to the log if the string that was entered doesnt contain just "."
+            pattern = r'[^\.]'
+            if re.search(pattern, str(error)[9:-14]):
                     author = ctx.author.nick or ctx.author.name
                     #await ctx.send('Error:\n```Sorry '+author+', seems like the command \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
                     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
