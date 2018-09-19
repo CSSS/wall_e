@@ -28,6 +28,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `showreminders` - displays all of the invoking user's reminders and their corresponding messageID
 * `deletereminder <arg>` - deletes the reminder that the invoking user created that has the messageId `<arg>`
 * `.roles` - displays all roles that exist on the server
+* `.urban <arg0>` - return definition from urban dictionary of `<arg0>`
 
 ## Local Setup
 

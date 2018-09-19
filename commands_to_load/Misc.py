@@ -1,5 +1,8 @@
 from discord.ext import commands
 import logging
+import requests as req
+from helper_files.embed import embed 
+import json
 
 logger = logging.getLogger('wall_e')
 
@@ -48,6 +51,42 @@ class Misc():
 				await pollPost.add_reaction(numbersUnicode[i])
 			logger.info("[Misc poll()] reactions added to multi-option poll message.")
 
+	@commands.command()
+	async def urban(self, ctx, *arg):
+		logger.info("[Misc urban()] urban command detected from user "+str(ctx.message.author))
+		logger.info("[Misc urban()] query string being contructed")
+		queryString = ''
+		for x in arg:
+			queryString += x
+
+		logger.info("[Misc urban()] url contructed for get request")
+		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
+		urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+
+		logger.info("[Misc urban()] Get request made")
+		res = req.get(url)
+		
+		if(res.status_code != 404):
+			logger.info("[Misc urban()] Get request successful")			
+			data = res.json()
+		else:
+			logger.error("[Misc urban()] Get request failed, 404 resulted")
+			data = ''
+
+		data = data['list']
+		if not data:
+			logger.error("[Misc urban()] sending message indicating 404 result")
+			eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
+			await ctx.send(embed=eObj)
+			return
+		else:
+			logger.info("[Misc urban()] constructing embed object with definition of " + queryString)
+			content = [
+				['Definition', data[1]['definition']], 
+				['Link', urbanUrl]
+				]
+			eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
+			await ctx.send(embed=eObj)
 
 def setup(bot):
 	bot.add_cog(Misc(bot))
