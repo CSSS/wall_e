@@ -3,6 +3,9 @@ import discord
 import logging
 from commands_to_load.Paginate import paginate
 
+from helper_files.embed import embed 
+import helper_files.settings as settings
+
 logger = logging.getLogger('wall_e')
 
 class RoleCommands():
@@ -108,14 +111,38 @@ class RoleCommands():
         logger.info("[Misc poll()] roles command detected from user "+str(ctx.message.author))
         guild = ctx.guild
         rolesList = []
+        selfAssignRoles = []
         for role in guild.roles:
-            if role.name != "@everyone":
-                rolesList.append(str(role.name))
+            if role.name != "@everyone" and role.name[0] == role.name[0].lower():
+                selfAssignRoles.append(str(role.name))
         logger.info("[Misc poll()] rolesList array populated with the roles extracted from \"guild.roles\"")
-        rolesList = sorted(rolesList, key=str.lower)
-        logger.info("[Misc poll()] roles ion rolesList array sorted alphabetically")
-        #await ctx.author.send(rolesList)
-        await paginate(bot=self.bot,title="Roles Available" ,ctx=ctx,listToPaginate=rolesList, numOfPageEntries=10)
 
+        selfAssignRoles = sorted(selfAssignRoles, key=str.lower)
+        logger.info("[Misc poll()] roles in arrays sorted alphabetically")
+
+        for role in selfAssignRoles:
+            rolesList.append(role)
+
+        await paginate(bot=self.bot,title="Self-Assignable Roles" ,ctx=ctx,listToPaginate=rolesList, numOfPageEntries=10)
+
+    @commands.command()
+    async def Roles(self, ctx):
+        logger.info("[Misc poll()] roles command detected from user "+str(ctx.message.author))
+        guild = ctx.guild
+        rolesList = []
+        assignedRoles = []
+        for role in guild.roles:
+            if role.name != "@everyone" and role.name[0] != role.name[0].lower():
+                assignedRoles.append(str(role.name))
+
+        logger.info("[Misc poll()] rolesList array populated with the roles extracted from \"guild.roles\"")
+
+        assignedRoles = sorted(assignedRoles, key=str.lower)
+        logger.info("[Misc poll()] roles in arrays sorted alphabetically")
+
+        for role in assignedRoles:
+            rolesList.append(role)
+
+        await paginate(bot=self.bot,title="Mod/Exec/XP Assigned Roles" ,ctx=ctx,listToPaginate=rolesList, numOfPageEntries=10)
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
