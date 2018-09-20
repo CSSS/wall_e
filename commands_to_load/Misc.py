@@ -2,6 +2,7 @@ from discord.ext import commands
 import logging
 import requests as req
 from helper_files.embed import embed 
+import helper_files.settings as settings
 import json
 
 logger = logging.getLogger('wall_e')
