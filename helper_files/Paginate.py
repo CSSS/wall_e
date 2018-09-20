@@ -58,12 +58,7 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
         logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
 
         # determining which reactions are needed
-        if currentPage == 0:
-            toReact = ['⏩', '✅']
-        elif currentPage == numOfPages - 1:
-            toReact = ['⏪', '✅']
-        else:
-            toReact = ['⏪', '⏩', '✅']
+        toReact = ['⏪', '⏩', '✅']
 
             # setting the content if it was the first run through or not.
         if firstRun == True:
@@ -97,16 +92,21 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 
             if userReacted != False:
                 if '⏪' == userReacted[0].emoji:
-                    logger.info("[Paginate paginateEmbed()] user indicates they want to go back a page from " + str(
-                        currentPage) + " to " + str(currentPage - 1))
+                    prevPage = currentPage
                     currentPage = currentPage - 1
+                    if currentPage < 0:
+                        currentPage = numOfPages-1
+                    logger.info("[Paginate paginateEmbed()] user indicates they want to go back a page from " + str(prevPage) + " to " + str(currentPage))
+                    
                 elif '⏩' == userReacted[0].emoji:
-                    logger.info("[Paginate paginateEmbed()] user indicates they want to go forward a page from " + str(
-                        currentPage) + " to " + str(currentPage + 1))
+                    prevPage = currentPage
                     currentPage = currentPage + 1
+                    if currentPage == numOfPages:
+                        currentPage = 0
+                    logger.info("[Paginate paginateEmbed()] user indicates they want to go forward a page from " + str(prevPage) + " to " + str(currentPage))
+                    
                 elif '✅' == userReacted[0].emoji:
-                    logger.info(
-                        "[Paginate paginateEmbed()] user indicates they are done with the roles command, deleting roles message")
+                    logger.info("[Paginate paginateEmbed()] user indicates they are done with the roles command, deleting roles message")
                     await msg.delete()
                     return
             else:
@@ -159,12 +159,7 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
                 output += '\t\"' + str(x) + "\"\n"
         output += '```{}/{}'.format(str(currentPage + 1), str(numOfPages))
         logger.info("[Paginate paginate()] created and filled Embed with roles of the current page " + str(currentPage))
-        if currentPage == 0:
-            toReact = ['⏩', '✅']
-        elif currentPage == numOfPages - 1:
-            toReact = ['⏪', '✅']
-        else:
-            toReact = ['⏪', '⏩', '✅']
+        toReact = ['⏪', '⏩', '✅']
 
         if firstRun == True:
             firstRun = False
@@ -194,13 +189,17 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
 
             if userReacted != False:
                 if '⏪' == userReacted[0].emoji:
-                    logger.info("[Paginate paginate()] user indicates they want to go back a page from" + str(
-                        currentPage) + " to " + str(currentPage - 1))
+                    prevPage = currentPage
                     currentPage = currentPage - 1
+                    if currentPage < 0:
+                        currentPage = numOfPages-1
+                    logger.info("[Paginate paginate()] user indicates they want to go back a page from " + str(prevPage) + " to " + str(currentPage))
                 elif '⏩' == userReacted[0].emoji:
-                    logger.info("[Paginate paginate()] user indicates they want to go forward a page from" + str(
-                        currentPage) + " to " + str(currentPage + 1))
+                    prevPage = currentPage
                     currentPage = currentPage + 1
+                    if currentPage == numOfPages:
+                        currentPage = 0
+                    logger.info("[Paginate paginate()] user indicates they want to go forward a page from " + str(prevPage) + " to " + str(currentPage))
                 elif '✅' == userReacted[0].emoji:
                     logger.info(
                         "[Paginate paginate()] user indicates they are done with the roles command, deleting roles message")
