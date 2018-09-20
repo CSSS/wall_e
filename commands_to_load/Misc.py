@@ -84,7 +84,7 @@ class Misc():
 			logger.info("[Misc urban()] constructing embed object with definition of " + queryString)
 			content = [
 				['Definition', data[1]['definition']], 
-				['Link', urbanUrl]
+				['Link', '[here](%s)' % urbanUrl]
 				]
 			eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
 			await ctx.send(embed=eObj)
