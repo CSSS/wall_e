@@ -40,17 +40,22 @@ class HealthChecks():
 			elif entry['access'] == "public":
 				numberOfCommands += 1
 
+		print("[HealthChecks help()] numberOfCommands set to "+str(numberOfCommands))
 		helpArr = [["" for x in range(2)] for y in range(numberOfCommands)] 
 		index=0
 		logger.info("[HealthChecks help()] tranferring dictionary to array")
 		for entry in helpDict['commands']:
 			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+				print("[HealthChecks help()] adding "+str(entry)+" to index "+str(index)+" of the helpArr")
 				helpArr[index][0]=entry['name']
 				helpArr[index][1]=entry['description']
+				index+=1
 			elif entry['access'] == "public":
+				print("[HealthChecks help()] adding "+str(entry)+" to index "+str(index)+" of the helpArr")
 				helpArr[index][0]=entry['name']
 				helpArr[index][1]=entry['description']
-			index+=1
+				index+=1
+			
 		logger.info("[HealthChecks help()] transfer successful")
 
 		#rolesList = sorted(rolesList, key=str.lower)
