@@ -54,19 +54,19 @@ class Misc():
 
 	@commands.command()
 	async def urban(self, ctx, *arg):
-		logger.info("[Misc urban()] urban command detected from user "+str(ctx.message.author))
+		logger.info("[Misc urban()] urban command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
 		logger.info("[Misc urban()] query string being contructed")
 		queryString = ''
 		for x in arg:
 			queryString += x + '%20'
 		queryString = queryString[:len(queryString)-3]
 		
-		logger.info("[Misc urban()] url contructed for query %s" % queryString)
 		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
-		urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+		logger.info("[Misc urban()] following url  constructed for get request =\""+str(url)+"\"")
+		
 
-		logger.info("[Misc urban()] Get request made")
 		res = req.get(url)
+		logger.info("[Misc urban()] Get request made =\""+str(res)+"\"")
 		
 		if(res.status_code != 404):
 			logger.info("[Misc urban()] Get request successful")			
@@ -82,7 +82,8 @@ class Misc():
 			await ctx.send(embed=eObj)
 			return
 		else:
-			logger.info("[Misc urban()] constructing embed object with definition of " + queryString)
+			logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
+			urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
 			content = [
 				['Definition', data[1]['definition']], 
 				['Link', '[here](%s)' % urbanUrl]
