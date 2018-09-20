@@ -58,9 +58,10 @@ class Misc():
 		logger.info("[Misc urban()] query string being contructed")
 		queryString = ''
 		for x in arg:
-			queryString += x
-
-		logger.info("[Misc urban()] url contructed for get request")
+			queryString += x + '%20'
+		queryString = queryString[:len(queryString)-3]
+		
+		logger.info("[Misc urban()] url contructed for query %s" % queryString)
 		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
 		urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
 
