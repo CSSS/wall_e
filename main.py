@@ -10,6 +10,7 @@ import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
+import helper_files.settings as settings
 import re
 
 ######################
@@ -77,7 +78,11 @@ async def on_ready():
     logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
     logger.info('[main.py on_ready()] '+bot.user.name+' is now ready for commands')
-
+    
+    settings.BOT_NAME = bot.user.name
+    settings.BOT_AVATAR = bot.user.avatar_url
+    logger.info('[main.py on_ready()] BOT_NAME and BOT_AVATAR variables initialized in settings.py')
+    
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
 ##################################################################################################
