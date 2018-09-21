@@ -7,59 +7,71 @@ from helper_files.embed import embed
 
 logger = logging.getLogger('wall_e')
 
-async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0, title=" ", add_field=False):
-	#logger.info("[Paginate paginateEmbed()] called with following argument: listToEmbed=" + str(listToEmbed) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + ", title=" + title+" and add_field="+str(add_field))
-	logger.info("[Paginate paginateEmbed()] called with following argument: numOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + ", title=" + title+" and add_field="+str(add_field)+"\n\nlistToEmbed=" + str(listToEmbed)+"\n\n")
+def determineNumOfPagesAndEntries(listToEmbed=None, numberOfEntriesToPaginate=None, numOfPages=0, numOfPageEntries=0):
+	if listToEmbed is not None and numberOfEntriesToPaginate is not None:
+		logger.info("[Paginate determineNumOfPagesAndEntries()] you specified both \"listToEmbed\" and \"numberOfEntriesToPaginate\", please only use one")
+
+	if listToEmbed is None and numberOfEntriesToPaginate is None:
+		logger.info("[Paginate determineNumOfPagesAndEntries()] you need to specify either \"listToEmbed\" or \"numberOfEntriesToPaginate\"")
+
 	if numOfPages == 0:
 		if numOfPageEntries == 0:
-			logger.error("[Paginate paginateEmbed()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
+			logger.error("[Paginate determineNumOfPagesAndEntries()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
 			return
 		else:
-			if int(len(listToEmbed) / numOfPageEntries) == len(listToEmbed) / numOfPageEntries:
-				numOfPages = int(len(listToEmbed) / numOfPageEntries)
+			if listToEmbed is not None:
+				if int(len(listToEmbed) / numOfPageEntries) == len(listToEmbed) / numOfPageEntries:
+					numOfPages = int(len(listToEmbed) / numOfPageEntries)
+				else:
+					numOfPages = int(len(listToEmbed) / numOfPageEntries) + 1
 			else:
-				numOfPages = int(len(listToEmbed) / numOfPageEntries) + 1
+				if int(numberOfEntriesToPaginate / numOfPageEntries) == numberOfEntriesToPaginate / numOfPageEntries:
+					numOfPages = int(numberOfEntriesToPaginate / numOfPageEntries)
+				else:
+					numOfPages = int(numberOfEntriesToPaginate / numOfPageEntries) + 1				
 
 	else:
 		if numOfPageEntries != 0:
-			logger.error(
-				"[Paginate paginateEmbed()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
+			logger.error("[Paginate determineNumOfPagesAndEntries()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
 		else:
-			if int(len(listToEmbed) / numOfPages) == len(listToEmbed) / numOfPages:
-				numOfPageEntries = int(len(listToEmbed) / numOfPages)
+			if listToEmbed is not None:
+				if int(len(listToEmbed) / numOfPages) == len(listToEmbed) / numOfPages:
+					numOfPageEntries = int(len(listToEmbed) / numOfPages)
+				else:
+					numOfPageEntries = int(len(listToEmbed) / numOfPages) + 1
 			else:
-				numOfPageEntries = int(len(listToEmbed) / numOfPages) + 1
-	logger.info("[Paginate paginateEmbed()] numOfPageEntries set to " + str(numOfPageEntries) + ", numOfPages set to " + str(numOfPages) + " and number of total entries is " + str(len(listToEmbed)) + ".")
+				if int(numberOfEntriesToPaginate / numOfPages) == numberOfEntriesToPaginate / numOfPages:
+					numOfPageEntries = int(numberOfEntriesToPaginate / numOfPages)
+				else:
+					numOfPageEntries = int(numberOfEntriesToPaginate / numOfPages) + 1
+	if listToEmbed is not None:
+		logger.info("[Paginate determineNumOfPagesAndEntries()] numOfPageEntries set to " + str(numOfPageEntries) + ", numOfPages set to " + str(numOfPages) + " and number of total entries is " + str(len(listToEmbed)) + ".")
+	else:
+		logger.info("[Paginate determineNumOfPagesAndEntries()] numOfPageEntries set to " + str(numOfPageEntries) + ", numOfPages set to " + str(numOfPages) + " and number of total entries is " + str(numberOfEntriesToPaginate) + ".")
+	return numOfPages, numOfPageEntries
 
-	listOfRoles=None
-	x, y = 0, 0;
-	listOfRoles = ["" for y in range(numOfPages)]
-	for roles in listToEmbed:
-		print("roles=["+str(roles)+"]")
-		if 'Class' in roles[0]:
-			listOfRoles[y]+="**"+str(roles[0])+"**\n"
-		else:
-			listOfRoles[y] += "*"+str(roles[0])+"*:\n"+str(roles[1])+"\n\n"
-		x+=1
-		if x == numOfPageEntries:
-			y+=1
-			x = 0
 
-	logger.info("[Paginate paginateEmbed()] listToEmbed added to roles matrix for pagination")
+async def paginateEmbed(bot, ctx, descriptionToEmbed, numOfPages, numOfPageEntries, title=" "):
+	logger.info("[Paginate paginateEmbed()] called with following argument: numOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + ", title=" + title+"\n\ndescriptionToEmbed=" + str(descriptionToEmbed)+"\n\n")
+
+	logger.info("[Paginate paginateEmbed()] descriptionToEmbed added to roles matrix for pagination")
 	currentPage = 0
 	firstRun = True
 	msg = None
 
 	while True:
 		logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
-		logger.info("[Paginate paginateEmbed()] loading roles " + str(listOfRoles[currentPage]))
+		logger.info("[Paginate paginateEmbed()] loading roles " + str(descriptionToEmbed[currentPage]))
 
 		embedObj=None
-		embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=listOfRoles[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
+		embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=descriptionToEmbed[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
 		logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
 
 		# determining which reactions are needed
-		toReact = ['⏪', '⏩', '✅']
+		if numOfPages == 1:
+			toReact = ['✅']
+		else:
+			toReact = ['⏪', '⏩', '✅']
 
 			# setting the content if it was the first run through or not.
 		if firstRun == True:
@@ -67,12 +79,13 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 			msg = await ctx.send(content=None, embed=embedObj)
 			logger.info("[Paginate paginateEmbed()] sent message")
 		else:
-			await msg.edit(embed=None)
+			await msg.edit(embed=None)#this is only here cause there seems to be a bug with editing embeds where it will still
+			##retain some traces of the former embed
 			await msg.edit(embed=embedObj)
 			await msg.clear_reactions()
 			logger.info("[Paginate paginateEmbed()] edited message")
 
-			# adding reactions deemed necessary to page
+		# adding reactions deemed necessary to page
 		for reaction in toReact:
 			await msg.add_reaction(reaction)
 
@@ -161,7 +174,12 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
 				output += '\t\"' + str(x) + "\"\n"
 		output += '```{}/{}'.format(str(currentPage + 1), str(numOfPages))
 		logger.info("[Paginate paginate()] created and filled Embed with roles of the current page " + str(currentPage))
-		toReact = ['⏪', '⏩', '✅']
+
+		# determining which reactions are needed
+		if numOfPages == 1:
+			toReact = ['✅']
+		else:
+			toReact = ['⏪', '⏩', '✅']
 
 		if firstRun == True:
 			firstRun = False
