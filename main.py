@@ -181,6 +181,7 @@ if __name__ == "__main__":
             logger.error('[main.py] Failed to load command {}\n{}'.format(com, exception))
         if commandLoaded:
             logger.info("[main.py] "+com+" successfully loaded")
+    
     ##final step, running the bot with the passed in environment TOKEN variable
     TOKEN = os.environ['TOKEN']
     bot.run(TOKEN)
