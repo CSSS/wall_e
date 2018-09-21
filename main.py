@@ -133,6 +133,22 @@ async def on_command_error(ctx, error):
                     #await ctx.send('Error:\n```Sorry '+author+', seems like the command \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
                     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
                     return
+@bot.event
+async def on_command(ctx):
+    stat_file = open("logs/stats_of_commands.csv", 'a+')
+    now = datetime.datetime.now()
+    index=0
+    argument=''
+    for arg in ctx.args:
+        if index > 1:
+            argument += arg+' '
+        index+=1
+    stat_file.write(now.strftime("%Y-%m-%d %H:%M")+", ")
+    stat_file.write(str(ctx.message.author)+", ")
+    stat_file.write(str(ctx.command)+", ")
+    stat_file.write(str(argument)+", ")
+    stat_file.write(str(ctx.invoked_with)+", ")
+    stat_file.write(str(ctx.invoked_subcommand)+"\n")
 
 ####################
 ## STARTING POINT ##
@@ -174,6 +190,17 @@ if __name__ == "__main__":
             logger.error('[main.py] Failed to load command {}\n{}'.format(com, exception))
         if commandLoaded:
             logger.info("[main.py] "+com+" successfully loaded")
+
+    from pathlib import Path
+    my_file = Path("logs/stats_of_commands.csv")
+    if my_file.is_file():
+        print("stats_of_commands.csv already exist")
+    else:
+        print("stats_of_commands.csv didn't exist, creating it now....")
+        stat_file = open("logs/stats_of_commands.csv", 'a+')
+        stat_file.write("Date-Time Stamp, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
+        stat_file.close()
+
     ##final step, running the bot with the passed in environment TOKEN variable
     TOKEN = os.environ['TOKEN']
     bot.run(TOKEN)
