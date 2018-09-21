@@ -219,4 +219,5 @@ if __name__ == "__main__":
     ##final step, running the bot with the passed in environment TOKEN variable
     print("final step")
     TOKEN = os.environ['TOKEN']
+    print("TOKEN has now been set to "+str(TOKEN))
     bot.run(TOKEN)
