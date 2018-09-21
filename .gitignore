@@ -152,6 +152,5 @@ fabric.properties
 token
 
 #my own files
-updates.txt
 token.txt
 setup.sh
