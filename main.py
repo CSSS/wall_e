@@ -11,6 +11,7 @@ from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
 import helper_files.settings as settings
+from helper_files.embed import embed
 import re
 
 ######################
@@ -129,9 +130,10 @@ async def write_to_bot_log_channel():
 async def on_command_error(ctx, error):
     if helper_files.testenv.TestCog.check_test_environment(ctx):
         if isinstance(error, commands.MissingRequiredArgument):
-            fmt = '```Missing argument: {0}```'
+            fmt = 'Missing argument: {0}'
             logger.error('[main.py on_command_error()] '+fmt.format(error.param))
-            await ctx.send(fmt.format(error.param))
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
+            await ctx.send(embed=eObj)
         else:
             #only prints out an error to the log if the string that was entered doesnt contain just "."
             pattern = r'[^\.]'
