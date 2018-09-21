@@ -209,15 +209,13 @@ if __name__ == "__main__":
     from pathlib import Path
     my_file = Path("logs/stats_of_commands.csv")
     if my_file.is_file():
-        print("stats_of_commands.csv already exist")
+        print("[main.py] stats_of_commands.csv already exist")
     else:
-        print("stats_of_commands.csv didn't exist, creating it now....")
+        print("[main.py] stats_of_commands.csv didn't exist, creating it now....")
         stat_file = open("logs/stats_of_commands.csv", 'a+')
         stat_file.write("Year, Month, Date, Hour, Channel Name, Channel ID, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
         stat_file.close()
 
     ##final step, running the bot with the passed in environment TOKEN variable
-    print("final step")
     TOKEN = os.environ['TOKEN']
-    print("TOKEN has now been set to "+str(TOKEN))
     bot.run(TOKEN)
