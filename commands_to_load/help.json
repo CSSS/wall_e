@@ -11,7 +11,8 @@
 		{ "access": "public", "name": ".iam <arg>" , "description": "adds you to role <arg>" },
 		{ "access": "public", "name": ".iamn <arg>", "description": "removes you from role <arg>" },
 		{ "access": "public", "name": ".whois <arg>", "description": "returns everyone who has role <arg>" },
-		{ "access": "public", "name": "roles", "description": "will display all the roles that exist"},
+		{ "access": "public", "name": "roles", "description": "will display all the self-assignable roles that exist"},
+		{ "access": "public", "name": "Roles", "description": "will display all the Mod/Exec/XP Assigned roles that exist"},
 
 		{ "access": "bot_manager", "name": "---", "description": "---" },
 		{ "access": "bot_manager", "name": "Category: Misc", "description": "Class that Holds following commands:" },
