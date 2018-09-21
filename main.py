@@ -157,7 +157,7 @@ async def on_command(ctx):
                 arg = arg.replace(',', '[comma]')
             argument += arg+' '
         index+=1
-    
+
     author=str(ctx.message.author)
     if ',' in author:
         author=author.replace(",","[comma]")
@@ -217,5 +217,6 @@ if __name__ == "__main__":
         stat_file.close()
 
     ##final step, running the bot with the passed in environment TOKEN variable
+    print("final step")
     TOKEN = os.environ['TOKEN']
     bot.run(TOKEN)
