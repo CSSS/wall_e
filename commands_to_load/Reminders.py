@@ -164,6 +164,10 @@ class Reminders():
 						msg = await chan.get_message(cid_mid_dct['mid'])
 						ctx = await self.bot.get_context(msg)
 						if ctx.valid and helper_files.testenv.TestCog.check_test_environment(ctx):
+							msg = ctx.message.content.split()[4:]
+							mssg = ''
+							for i in msg:
+								mssg += i + ' '
 							fmt = '<@{0}>\n {1}'
 							logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
 							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, mssg), footer='Reminder')
