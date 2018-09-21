@@ -16,24 +16,31 @@ class Misc():
 	@commands.command()
 	async def poll(self, ctx, *questions):
 		logger.info("[Misc poll()] poll command detected from user "+str(ctx.message.author))
+		name = ctx.author.display_name
+		ava = ctx.author.avatar_url
+
 		if len(questions) > 12:
 			logger.error("[Misc poll()] was called with too many options.")
-			await ctx.send("Poll Error:\n```Please only submit a maximum of 11 options for a multi-option question.```")
+			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please only submit a maximum of 11 options for a multi-option question.')
+			await ctx.send(embed=eObj)
 			return
 		elif len(questions) == 1:
 			logger.info("[Misc poll()] yes/no poll being constructed.")
-			post = await ctx.send("Poll:\n" + "```" + questions[0] + "```")
+			eObj = embed(title='Poll', author=name, avatar=ava, description=questions[0])
+			post = await ctx.send(embed=eObj)
 			await post.add_reaction(u"\U0001F44D")
 			await post.add_reaction(u"\U0001F44E")
 			logger.info("[Misc poll()] yes/no poll constructed and sent to server.")
 			return
 		if len(questions) == 2:
 			logger.error("[Misc poll()] poll with only 2 arguments detected.")
-			await ctx.send("Poll Error:\n```Please submit at least 2 options for a multi-option question.```")
+			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please submit at least 2 options for a multi-option question.')
+			await ctx.send(embed=eObj)
 			return
 		elif len(questions) == 0:
 			logger.error("[Misc poll()] poll with no arguments detected.")
-			await ctx.send('```Usage: .poll <Question> [Option A] [Option B] ...```')
+			embed(title='Usage', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='.poll <Question> [Option A] [Option B] ...')
+			await ctx.send(embed=eObj)
 			return
 		else:
 			logger.info("[Misc poll()] multi-option poll being constructed.")
@@ -46,7 +53,11 @@ class Misc():
 			for m, n in zip(numbersEmoji, questions):
 				optionString += m + ": " + n +"\n"
 				options += 1
-			pollPost = await ctx.send("Poll:\n```" + question + "```" + optionString)
+			
+			content = [['Options:', optionString]]
+			eObj = embed(title='Poll:', author=name, avatar=ava, description=question, content=content)
+			pollPost = await ctx.send(embed=eObj)
+
 			logger.info("[Misc poll()] multi-option poll message contructed and sent.")
 			for i in range(0, options):
 				await pollPost.add_reaction(numbersUnicode[i])
