@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 import logging
-from commands_to_load.Paginate import paginate
+from helper_files.Paginate import paginate
 
 logger = logging.getLogger('wall_e')
 
