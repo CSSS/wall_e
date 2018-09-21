@@ -161,17 +161,7 @@ async def on_command(ctx):
     year = now.year
     if ',' in author:
         author=author.replace(",","[comma]")
-    stat_file.write(str(now.year)+', ')
-    stat_file.write(str(now.month)+', ')
-    stat_file.write(str(now.day)+', ')
-    stat_file.write(str(now.hour)+', ')
-    stat_file.write(str(str(ctx.channel.id))+", ")
-    stat_file.write(str(str(ctx.channel))+", ")
-    stat_file.write(str(author)+", ")
-    stat_file.write(str(ctx.command)+", ")
-    stat_file.write(str(argument)+", ")
-    stat_file.write(str(ctx.invoked_with)+", ")
-    stat_file.write(str(ctx.invoked_subcommand)+"\n")
+    stat_file.write(str(now.year)+', '+str(now.month)+', '+str(now.day)+', '+str(now.hour)+', '+str(str(ctx.channel.id))+", "+str(str(ctx.channel))+", "+str(author)+", "+str(ctx.command)+", "+str(argument)+", "+str(ctx.invoked_with)+", "+str(ctx.invoked_subcommand)+"\n")
 
 ####################
 ## STARTING POINT ##
