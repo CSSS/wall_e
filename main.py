@@ -141,6 +141,30 @@ async def on_command_error(ctx, error):
                     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
                     return
 
+########################################################
+## Function that gets called whenever a commmand      ##
+## gets called, being use for data gathering purposes ##
+########################################################
+@bot.event
+async def on_command(ctx):
+    stat_file = open("logs/stats_of_commands.csv", 'a+')
+
+    index=0
+    argument=''
+    for arg in ctx.args:
+        if index > 1:
+            if ',' in arg:
+                arg = arg.replace(',', '[comma]')
+            argument += arg+' '
+        index+=1
+
+    author=str(ctx.message.author)
+    if ',' in author:
+        author=author.replace(",","[comma]")
+
+    now = datetime.datetime.now()
+    stat_file.write(str(now.year)+', '+str(now.month)+', '+str(now.day)+', '+str(now.hour)+', '+str(str(ctx.channel.id))+", "+str(str(ctx.channel))+", "+str(author)+", "+str(ctx.command)+", "+str(argument)+", "+str(ctx.invoked_with)+", "+str(ctx.invoked_subcommand)+"\n")
+
 ####################
 ## STARTING POINT ##
 ####################
@@ -182,6 +206,17 @@ if __name__ == "__main__":
         if commandLoaded:
             logger.info("[main.py] "+com+" successfully loaded")
     
+
+    from pathlib import Path
+    my_file = Path("logs/stats_of_commands.csv")
+    if my_file.is_file():
+        print("[main.py] stats_of_commands.csv already exist")
+    else:
+        print("[main.py] stats_of_commands.csv didn't exist, creating it now....")
+        stat_file = open("logs/stats_of_commands.csv", 'a+')
+        stat_file.write("Year, Month, Date, Hour, Channel Name, Channel ID, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
+        stat_file.close()
+
     ##final step, running the bot with the passed in environment TOKEN variable
     TOKEN = os.environ['TOKEN']
     bot.run(TOKEN)
