@@ -166,7 +166,7 @@ class Reminders():
 						if ctx.valid and helper_files.testenv.TestCog.check_test_environment(ctx):
 							fmt = '<@{0}>\n {1}'
 							logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
-							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, msg), footer='Reminder')
+							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
 							await ctx.send(embed=eObj)
 				except Exception as error:
 					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
