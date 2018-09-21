@@ -141,10 +141,15 @@ async def on_command(ctx):
     argument=''
     for arg in ctx.args:
         if index > 1:
+            if ',' in arg:
+                arg = arg.replace(',', '[comma]')
             argument += arg+' '
         index+=1
     stat_file.write(now.strftime("%Y-%m-%d %H:%M")+", ")
-    stat_file.write(str(ctx.message.author)+", ")
+    author=str(ctx.message.author)
+    if ',' in author:
+        author=author.replace(",","[comma]")
+    stat_file.write(str(author)+", ")
     stat_file.write(str(ctx.command)+", ")
     stat_file.write(str(argument)+", ")
     stat_file.write(str(ctx.invoked_with)+", ")
