@@ -140,6 +140,11 @@ async def on_command_error(ctx, error):
                     #await ctx.send('Error:\n```Sorry '+author+', seems like the command \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
                     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
                     return
+
+########################################################
+## Function that gets called whenever a commmand      ##
+## gets called, being use for data gathering purposes ##
+########################################################
 @bot.event
 async def on_command(ctx):
     stat_file = open("logs/stats_of_commands.csv", 'a+')
@@ -152,10 +157,16 @@ async def on_command(ctx):
                 arg = arg.replace(',', '[comma]')
             argument += arg+' '
         index+=1
-    stat_file.write(now.strftime("%Y-%m-%d %H:%M")+", ")
     author=str(ctx.message.author)
+    year = now.year
     if ',' in author:
         author=author.replace(",","[comma]")
+    stat_file.write(str(now.year)+', ')
+    stat_file.write(str(now.month)+', ')
+    stat_file.write(str(now.day)+', ')
+    stat_file.write(str(now.hour)+', ')
+    stat_file.write(str(str(ctx.channel.id))+", ")
+    stat_file.write(str(str(ctx.channel))+", ")
     stat_file.write(str(author)+", ")
     stat_file.write(str(ctx.command)+", ")
     stat_file.write(str(argument)+", ")
@@ -210,7 +221,7 @@ if __name__ == "__main__":
     else:
         print("stats_of_commands.csv didn't exist, creating it now....")
         stat_file = open("logs/stats_of_commands.csv", 'a+')
-        stat_file.write("Date-Time Stamp, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
+        stat_file.write("Year, Month, Date, Hour, Channel Name, Channel ID, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
         stat_file.close()
 
     ##final step, running the bot with the passed in environment TOKEN variable
