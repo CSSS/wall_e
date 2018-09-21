@@ -63,7 +63,13 @@ class Administration():
 		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 			logger.info("[Administration exc()] "+str(ctx.message.author)+" successfully authenticated")
 			query = " ".join(args)
-			await ctx.send("```"+subprocess.getoutput(query)+"```")
+			output = subprocess.getoutput(query)
+			prefix="truncated output=\n"
+            if len(output)>2000:
+                length = len(line)- (len(line) - 2000) #taking length of just output into account
+                length = length - len(prefix) #taking length of prefix into account
+                output=line[:length]
+			await ctx.send(prefix+"```"+output+"```")
 		else:
 			logger.error("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
