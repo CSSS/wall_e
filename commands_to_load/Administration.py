@@ -65,17 +65,20 @@ class Administration():
 			query = " ".join(args)
 
 			#this got implemented for cases when the output of the command is too big to send to the channel
-			output = subprocess.getoutput(query)
+			exitCode, output = subprocess.getstatusoutput(query)
 			prefix = "truncated output=\n"
 			if len(output)>2000 :
 				print("getting reduced")
 				length = len(output)- (len(output) - 2000) #taking length of just output into account
 				length = length - len(prefix) #taking length of prefix into account
 				length = length - 6 #taking length of prefix into account
+				length = length - 12 - len(str(exitCode)) #taking exit code info into account
 				output=output[:length]
-				await ctx.send(prefix+"```"+output+"```")
+				await ctx.send("Exit Code: "+str(exitCode)+"\n"+prefix+"```"+output+"```")
+			elif len(output) == 0:
+				await ctx.send("Exit Code: "+str(exitCode)+"\n")
 			else:
-				await ctx.send("```"+output+"```")
+				await ctx.send("Exit Code: "+str(exitCode)+"\n```"+output+"```")
 		else:
 			logger.error("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
