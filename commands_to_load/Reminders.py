@@ -29,7 +29,7 @@ class Reminders():
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when setting up redis connection\n{}".format(e))
 
-	@commands.command()
+	@commands.command(aliases=['rmi'])
 	async def remindmein(self, ctx, *args):
 		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
 		parsedTime=''
