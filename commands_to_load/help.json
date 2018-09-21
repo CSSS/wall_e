@@ -11,12 +11,14 @@
 		{ "access": "public", "name": ".iam <arg>" , "description": "adds you to role <arg>" },
 		{ "access": "public", "name": ".iamn <arg>", "description": "removes you from role <arg>" },
 		{ "access": "public", "name": ".whois <arg>", "description": "returns everyone who has role <arg>" },
-		{ "access": "public", "name": "roles", "description": "will display all the roles that exist"},
+		{ "access": "public", "name": "roles", "description": "will display all the self-assignable roles that exist"},
+		{ "access": "public", "name": "Roles", "description": "will display all the Mod/Exec/XP Assigned roles that exist"},
 
 		{ "access": "bot_manager", "name": "---", "description": "---" },
 		{ "access": "bot_manager", "name": "Category: Misc", "description": "Class that Holds following commands:" },
 		{ "access": "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
 		{ "access": "public", "name": ".poll <arg0> <arg1> <arg2> (up to 12 arguments)", "description": "starts a poll where <arg0> is the question and the remaining arguments are the options"},
+		{"access": "public", "name": "urban", "description": "returns definition from urban dictionary of <arg>"},
 
 		{ "access": "bot_manager", "name": "---", "description": "---" },
 		{ "access": "bot_manager", "name": "Category: Reminders", "description": "CLass that Holds following commands:" },
