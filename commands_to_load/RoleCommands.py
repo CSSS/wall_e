@@ -2,6 +2,8 @@ from discord.ext import commands
 import discord
 import logging
 from helper_files.Paginate import paginate
+import helper_files.settings as settings
+from helper_files.embed import embed
 
 logger = logging.getLogger('wall_e')
 
@@ -17,14 +19,15 @@ class RoleCommands():
         guild = ctx.guild
         for role in guild.roles:
             if role.name == roleToAdd:
-                await ctx.send("```" + "Role '" + roleToAdd + "' exists. Calling .iam " + roleToAdd +" will add you to it." + "```")
+                eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role '" + roleToAdd + "' exists. Calling .iam " + roleToAdd +" will add you to it.")
+                await ctx.send(embed=eObj)
                 logger.error("[RoleCommands newrole()] "+roleToAdd+" already exists")
                 return
         role = await guild.create_role(name=roleToAdd)
         await role.edit(mentionable=True)
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
 
-        eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nThe role has been given to you.")
+        eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\Calling `.iam "+roleToAdd+"` will hadd it to you.")
         await ctx.send(embed=eObj)
 
     @commands.command()
