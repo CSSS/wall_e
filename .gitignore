@@ -152,6 +152,5 @@ fabric.properties
 token
 
 #my own files
-setup.sh
-thumbnailsReference.txt
 token.txt
+setup.sh
