@@ -2,6 +2,8 @@ from discord.ext import commands
 import discord
 import logging
 from helper_files.Paginate import paginate
+from helper_files.embed import embed
+import helper_files.settings as settings
 
 logger = logging.getLogger('wall_e')
 
@@ -21,7 +23,11 @@ class RoleCommands():
                 logger.error("[RoleCommands newrole()] "+roleToAdd+" already exists")
                 return
         role = await guild.create_role(name=roleToAdd)
+        
+        #config the role and add to the user
         await role.edit(mentionable=True)
+        await ctx.author.add_roles(role)
+        
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
         await ctx.send("```" + "You have successfully created role '" + roleToAdd + "'. Calling .iam " + roleToAdd + " will add you to it." + "```")
 
