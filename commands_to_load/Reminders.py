@@ -91,11 +91,11 @@ class Reminders():
 						if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
 							if reminderCtx.message.author  == ctx.message.author:
 								logger.info("[Reminders showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-								reminders+=str(keyValue['mid'])+"   "+reminderCtx.message.content+"\n"
+								reminders+=str(keyValue['mid'])+"\t\t\t"+reminderCtx.message.content+"\n"
 				author = ctx.author.nick or ctx.author.name
 				if reminders != '':
 					logger.info("[Reminders showreminders()] sent off the list of reminders to "+str(ctx.message.author))
-					eObj = embed(title="Here are you reminders " + author, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=[["MessageID\t\t\tReminder", reminders]])
+					eObj = embed(title="Here are you reminders " + author, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=[["MessageID\t\t\t\t\t\t\tReminder", reminders]])
 					await ctx.send(embed=eObj)
 				else:
 					logger.info("[Reminders showreminders()] "+str(ctx.message.author)+" didnt seem to have any reminders.")
