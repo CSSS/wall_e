@@ -50,7 +50,7 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
     while True:
         logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
         logger.info("[Paginate paginateEmbed()] loading roles " + str(listOfRoles[currentPage]))
-        embed = discord.Embed(title=title, color=0x81e28d)
+        embed = discord.Embed(title=title, color=0x00bfbd)
         for x in listOfRoles[currentPage]:
             if x[0] != "":
                 embed.add_field(name=x[0], value=x[1], inline=False)
