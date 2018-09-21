@@ -64,9 +64,9 @@ class Administration():
 			logger.info("[Administration exc()] "+str(ctx.message.author)+" successfully authenticated")
 			query = " ".join(args)
 			output = subprocess.getoutput(query)
-			prefix="truncated output=\n"
-            if len(output)>2000:
-                length = len(output)- (len(output) - 2000) #taking length of just output into account
+			prefix = "truncated output=\n"
+			if len(output)>2000 :
+				length = len(output)- (len(output) - 2000) #taking length of just output into account
                 length = length - len(prefix) #taking length of prefix into account
                 output=output[:length]
                 await ctx.send(prefix+"```"+output+"```")
