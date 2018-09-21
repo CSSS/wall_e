@@ -148,7 +148,7 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_command(ctx):
     stat_file = open("logs/stats_of_commands.csv", 'a+')
-    now = datetime.datetime.now()
+
     index=0
     argument=''
     for arg in ctx.args:
@@ -157,10 +157,12 @@ async def on_command(ctx):
                 arg = arg.replace(',', '[comma]')
             argument += arg+' '
         index+=1
+    
     author=str(ctx.message.author)
-    year = now.year
     if ',' in author:
         author=author.replace(",","[comma]")
+
+    now = datetime.datetime.now()
     stat_file.write(str(now.year)+', '+str(now.month)+', '+str(now.day)+', '+str(now.hour)+', '+str(str(ctx.channel.id))+", "+str(str(ctx.channel))+", "+str(author)+", "+str(ctx.command)+", "+str(argument)+", "+str(ctx.invoked_with)+", "+str(ctx.invoked_subcommand)+"\n")
 
 ####################
