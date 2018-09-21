@@ -27,7 +27,7 @@ class RoleCommands():
         await role.edit(mentionable=True)
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
 
-        eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\Calling `.iam "+roleToAdd+"` will hadd it to you.")
+        eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nCalling `.iam "+roleToAdd+"` will add it to you.")
         await ctx.send(embed=eObj)
 
     @commands.command()
