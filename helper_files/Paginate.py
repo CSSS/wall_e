@@ -7,7 +7,6 @@ from helper_files.embed import embed
 
 logger = logging.getLogger('wall_e')
 
-
 async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0, title=" ", add_field=False):
 	logger.info("[Paginate paginateEmbed()] called with following argument: listToEmbed=" + str(listToEmbed) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + " and title=" + title)
 	if numOfPages == 0:
