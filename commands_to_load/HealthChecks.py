@@ -21,8 +21,11 @@ class HealthChecks():
 
 
 	@commands.command()
-	async def echo(self, ctx, arg):
+	async def echo(self, ctx, *args):
 		user = ctx.author.display_name
+		arg=''
+		for argument in args:
+			arg+=argument+' '
 		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
 		avatar = ctx.author.avatar_url
 		
