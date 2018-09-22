@@ -18,8 +18,11 @@ class HealthChecks():
 
 
 	@commands.command()
-	async def echo(self, ctx, arg):
+	async def echo(self, ctx, *args):
 		user = ctx.author.nick or ctx.author.name
+		arg=''
+		for argument in args:
+			arg+=argument+' '
 		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
 		await ctx.send(user + " says: " + arg)
 
