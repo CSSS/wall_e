@@ -2,8 +2,6 @@ from discord.ext import commands
 import discord.client
 import json
 from helper_files.Paginate import paginateEmbed, paginate
-from helper_files.embed import embed 
-import helper_files.settings as settings
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -16,18 +14,17 @@ class HealthChecks():
 	@commands.command()
 	async def ping(self, ctx):
 		logger.info("[HealthChecks ping()] ping command detected from "+str(ctx.message.author))
-		eObj = embed(description='Pong!', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
-		await ctx.send(embed=eObj)
+		await ctx.send('```pong!```')
 
 
 	@commands.command()
-	async def echo(self, ctx, arg):
-		user = ctx.author.display_name
+	async def echo(self, ctx, *args):
+		user = ctx.author.nick or ctx.author.name
+		arg=''
+		for argument in args:
+			arg+=argument+' '
 		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
-		avatar = ctx.author.avatar_url
-		
-		eObj = embed(author=user, avatar=avatar, description=arg)
-		await ctx.send(embed=eObj)
+		await ctx.send(user + " says: " + arg)
 
 	@commands.command()
 	async def help(self, ctx):
@@ -65,7 +62,7 @@ class HealthChecks():
 		logger.info("[HealthChecks help()] transfer successful")
 
 		#rolesList = sorted(rolesList, key=str.lower)
-		await paginateEmbed(bot=self.bot,title="Help Page" ,ctx=ctx,listToEmbed=helpArr, numOfPageEntries=5, add_field=True)
+		await paginateEmbed(bot=self.bot,title="Help Page" ,ctx=ctx,listToEmbed=helpArr, numOfPageEntries=5)
 
 
 def setup(bot):
