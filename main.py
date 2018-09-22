@@ -205,7 +205,6 @@ if __name__ == "__main__":
             logger.error('[main.py] Failed to load command {}\n{}'.format(com, exception))
         if commandLoaded:
             logger.info("[main.py] "+com+" successfully loaded")
-    
 
     from pathlib import Path
     my_file = Path("logs/stats_of_commands.csv")
