@@ -69,7 +69,10 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
         logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
 
         # determining which reactions are needed
-        toReact = ['⏪', '⏩', '✅']
+        if numOfPages == 1:
+            toReact = ['✅']
+        else:
+            toReact = ['⏪', '⏩', '✅']
 
             # setting the content if it was the first run through or not.
         if firstRun == True:
@@ -170,7 +173,11 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
                 output += '\t\"' + str(x) + "\"\n"
         output += '```{}/{}'.format(str(currentPage + 1), str(numOfPages))
         logger.info("[Paginate paginate()] created and filled Embed with roles of the current page " + str(currentPage))
-        toReact = ['⏪', '⏩', '✅']
+        # determining which reactions are needed
+        if numOfPages == 1:
+            toReact = ['✅']
+        else:
+            toReact = ['⏪', '⏩', '✅']
 
         if firstRun == True:
             firstRun = False
