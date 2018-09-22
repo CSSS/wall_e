@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 import logging
-from helper_files.Paginate import paginate
+from helper_files.Paginate import paginateEmbed
 import helper_files.settings as settings
 from helper_files.embed import embed
 
@@ -139,7 +139,7 @@ class RoleCommands():
         selfAssignRoles = sorted(selfAssignRoles, key=str.lower)
         logger.info("[Misc roles()] roles in arrays sorted alphabetically")
 
-        await paginate(bot=self.bot,title="Self-Assignable Roles" ,ctx=ctx,listToPaginate=selfAssignRoles, numOfPageEntries=10)
+        await paginateEmbed(bot=self.bot,title="Self-Assignable Roles" ,ctx=ctx,listToEmbed=selfAssignRoles, numOfPageEntries=30)
 
     @commands.command()
     async def Roles(self, ctx):
@@ -155,6 +155,6 @@ class RoleCommands():
         assignedRoles = sorted(assignedRoles, key=str.lower)
         logger.info("[Misc Roles()] roles in arrays sorted alphabetically")
 
-        await paginate(bot=self.bot,title="Mod/Exec/XP Assigned Roles" ,ctx=ctx,listToPaginate=assignedRoles, numOfPageEntries=10)
+        await paginateEmbed(bot=self.bot,title="Mod/Exec/XP Assigned Roles" ,ctx=ctx,listToEmbed=assignedRoles, numOfPageEntries=10)
 def setup(bot):
     bot.add_cog(RoleCommands(bot))

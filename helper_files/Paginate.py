@@ -2,6 +2,8 @@
 import discord
 import asyncio
 import logging
+import helper_files.settings as settings
+from helper_files.embed import embed
 
 logger = logging.getLogger('wall_e')
 
@@ -36,12 +38,23 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 
     x, y = 0, 0;
     for roles in listToEmbed:
+        print("roles="+str(roles))
         listOfRoles[y][x][0] = roles[0]
         listOfRoles[y][x][1] = roles[1]
         x += 1
         if x == numOfPageEntries:
             y += 1
             x = 0
+
+    x, y = 0, 0;
+    newListOfRoles = ["" for y in range(numOfPages)]
+    for roles in listToEmbed:
+        newListOfRoles[y] += roles+"\n"
+        x+=1
+        if x == numOfPageEntries:
+            y+=1
+            x = 0
+
     logger.info("[Paginate paginateEmbed()] listToEmbed added to roles matrix for pagination")
     currentPage = 0
     firstRun = True
@@ -49,12 +62,10 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 
     while True:
         logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
+        logger.info("[Paginate paginateEmbed()] loading roles " + str(newListOfRoles[currentPage]))        
         logger.info("[Paginate paginateEmbed()] loading roles " + str(listOfRoles[currentPage]))
-        embed = discord.Embed(title=title, color=0x81e28d)
-        for x in listOfRoles[currentPage]:
-            if x[0] != "":
-                embed.add_field(name=x[0], value=x[1], inline=False)
-        embed.set_footer(text='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
+
+        eObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=newListOfRoles[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
         logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
 
         # determining which reactions are needed
@@ -63,10 +74,10 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
             # setting the content if it was the first run through or not.
         if firstRun == True:
             firstRun = False
-            msg = await ctx.send(content=None, embed=embed)
+            msg = await ctx.send(content=None, embed=eObj)
             logger.info("[Paginate paginateEmbed()] sent message")
         else:
-            await msg.edit(embed=embed)
+            await msg.edit(embed=eObj)
             await msg.clear_reactions()
             logger.info("[Paginate paginateEmbed()] edited message")
 
