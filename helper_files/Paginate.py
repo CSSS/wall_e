@@ -7,223 +7,221 @@ from helper_files.embed import embed
 
 logger = logging.getLogger('wall_e')
 
+async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0, title=" ", add_field=False):
+	logger.info("[Paginate paginateEmbed()] called with following argument: listToEmbed=" + str(listToEmbed) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + " and title=" + title)
+	if numOfPages == 0:
+		if numOfPageEntries == 0:
+			logger.error("[Paginate paginateEmbed()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
+			return
+		else:
+			if int(len(listToEmbed) / numOfPageEntries) == len(listToEmbed) / numOfPageEntries:
+				numOfPages = int(len(listToEmbed) / numOfPageEntries)
+			else:
+				numOfPages = int(len(listToEmbed) / numOfPageEntries) + 1
 
-async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0, title=" "):
-    logger.info("[Paginate paginateEmbed()] called with following argument: listToEmbed=" + str(
-        listToEmbed) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(
-        numOfPageEntries) + " and title=" + title)
-    if numOfPages == 0:
-        if numOfPageEntries == 0:
-            logger.error("[Paginate paginateEmbed()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
-            return
-        else:
-            if int(len(listToEmbed) / numOfPageEntries) == len(listToEmbed) / numOfPageEntries:
-                numOfPages = int(len(listToEmbed) / numOfPageEntries)
-            else:
-                numOfPages = int(len(listToEmbed) / numOfPageEntries) + 1
+	else:
+		if numOfPageEntries != 0:
+			logger.error(
+				"[Paginate paginateEmbed()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
+		else:
+			if int(len(listToEmbed) / numOfPages) == len(listToEmbed) / numOfPages:
+				numOfPageEntries = int(len(listToEmbed) / numOfPages)
+			else:
+				numOfPageEntries = int(len(listToEmbed) / numOfPages) + 1
+	logger.info("[Paginate paginateEmbed()] numOfPageEntries set to " + str(numOfPageEntries) + ", numOfPages set to " + str(numOfPages) + " and number of total entries is " + str(len(listToEmbed)) + ".")
 
-    else:
-        if numOfPageEntries != 0:
-            logger.error(
-                "[Paginate paginateEmbed()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
-        else:
-            if int(len(listToEmbed) / numOfPages) == len(listToEmbed) / numOfPages:
-                numOfPageEntries = int(len(listToEmbed) / numOfPages)
-            else:
-                numOfPageEntries = int(len(listToEmbed) / numOfPages) + 1
-    logger.info(
-        "[Paginate paginateEmbed()] numOfPageEntries set to " + str(numOfPageEntries) + ", numOfPages set to " + str(
-            numOfPages) + " and number of total entries is " + str(len(listToEmbed)) + ".")
-    listOfRoles = [[["" for z in range(2)] for x in range(numOfPageEntries)] for y in range(numOfPages)]
+	listOfRoles=None
+	if add_field:
+		listOfRoles = [[["" for z in range(2)] for x in range(numOfPageEntries)] for y in range(numOfPages)]
+		x, y = 0, 0;
+		for roles in listToEmbed:
+			print("roles="+str(roles))
+			listOfRoles[y][x][0] = roles[0]
+			listOfRoles[y][x][1] = roles[1]
+			x += 1
+			if x == numOfPageEntries:
+				y += 1
+				x = 0
+	else:
+		x, y = 0, 0;
+		listOfRoles = ["" for y in range(numOfPages)]
+		for roles in listToEmbed:
+			print("type(roles)="+str(type(roles))+" type(listOfRoles[y])="+str(type(listOfRoles[y])))
+			listOfRoles[y] += str(roles)+"\n"
+			x+=1
+			if x == numOfPageEntries:
+				y+=1
+				x = 0
 
-    x, y = 0, 0;
-    for roles in listToEmbed:
-        print("roles="+str(roles))
-        listOfRoles[y][x][0] = roles[0]
-        listOfRoles[y][x][1] = roles[1]
-        x += 1
-        if x == numOfPageEntries:
-            y += 1
-            x = 0
+	logger.info("[Paginate paginateEmbed()] listToEmbed added to roles matrix for pagination")
+	currentPage = 0
+	firstRun = True
+	msg = None
 
-    x, y = 0, 0;
-    newListOfRoles = ["" for y in range(numOfPages)]
-    for roles in listToEmbed:
-        newListOfRoles[y] += roles+"\n"
-        x+=1
-        if x == numOfPageEntries:
-            y+=1
-            x = 0
+	while True:
+		logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
+		logger.info("[Paginate paginateEmbed()] loading roles " + str(listOfRoles[currentPage]))
 
-    logger.info("[Paginate paginateEmbed()] listToEmbed added to roles matrix for pagination")
-    currentPage = 0
-    firstRun = True
-    msg = None
+		embedObj=None
+		if add_field:
+			embedObj = discord.Embed(title=title, color=0x81e28d)
+			for x in listOfRoles[currentPage]:
+				if x[0] != "":
+					embedObj.add_field(name=x[0], value=x[1], inline=False)
+			embedObj.set_footer(text='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
+		else:
+			embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=listOfRoles[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
+		logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
 
-    while True:
-        logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
-        logger.info("[Paginate paginateEmbed()] loading roles " + str(newListOfRoles[currentPage]))        
-        logger.info("[Paginate paginateEmbed()] loading roles " + str(listOfRoles[currentPage]))
+		# determining which reactions are needed
+		toReact = ['⏪', '⏩', '✅']
 
-        eObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=newListOfRoles[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
-        logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
+			# setting the content if it was the first run through or not.
+		if firstRun == True:
+			firstRun = False
+			msg = await ctx.send(content=None, embed=embedObj)
+			logger.info("[Paginate paginateEmbed()] sent message")
+		else:
+			await msg.edit(embed=embedObj)
+			await msg.clear_reactions()
+			logger.info("[Paginate paginateEmbed()] edited message")
 
-        # determining which reactions are needed
-        if numOfPages == 1:
-            toReact = ['✅']
-        else:
-            toReact = ['⏪', '⏩', '✅']
+			# adding reactions deemed necessary to page
+		for reaction in toReact:
+			await msg.add_reaction(reaction)
 
-            # setting the content if it was the first run through or not.
-        if firstRun == True:
-            firstRun = False
-            msg = await ctx.send(content=None, embed=eObj)
-            logger.info("[Paginate paginateEmbed()] sent message")
-        else:
-            await msg.edit(embed=eObj)
-            await msg.clear_reactions()
-            logger.info("[Paginate paginateEmbed()] edited message")
+		logger.info("[Paginate paginateEmbed()] added all reactions to message")
 
-            # adding reactions deemed necessary to page
-        for reaction in toReact:
-            await msg.add_reaction(reaction)
+		def checkReaction(reaction, user):
+			if not user.bot:  ##just making sure the bot doesnt take its own reactions
+				##into consideration
+				e = str(reaction.emoji)
+				logger.info("[Paginate paginateEmbed()] reaction " + e + " detected from " + str(user))
+				return e.startswith(('⏪', '⏩', '✅'))
 
-        logger.info("[Paginate paginateEmbed()] added all reactions to message")
+		userReacted = False
+		while userReacted == False:
+			try:
+				userReacted = await bot.wait_for('reaction_add', timeout=20, check=checkReaction)
+			except asyncio.TimeoutError:
+				logger.info("[Paginate paginateEmbed()] timed out waiting for the user's reaction.")
 
-        def checkReaction(reaction, user):
-            if not user.bot:  ##just making sure the bot doesnt take its own reactions
-                ##into consideration
-                e = str(reaction.emoji)
-                logger.info("[Paginate paginateEmbed()] reaction " + e + " detected from " + str(user))
-                return e.startswith(('⏪', '⏩', '✅'))
-
-        userReacted = False
-        while userReacted == False:
-            try:
-                userReacted = await bot.wait_for('reaction_add', timeout=20, check=checkReaction)
-            except asyncio.TimeoutError:
-                logger.info("[Paginate paginateEmbed()] timed out waiting for the user's reaction.")
-
-            if userReacted != False:
-                if '⏪' == userReacted[0].emoji:
-                    prevPage = currentPage
-                    currentPage = currentPage - 1
-                    if currentPage < 0:
-                        currentPage = numOfPages-1
-                    logger.info("[Paginate paginateEmbed()] user indicates they want to go back a page from " + str(prevPage) + " to " + str(currentPage))
-                    
-                elif '⏩' == userReacted[0].emoji:
-                    prevPage = currentPage
-                    currentPage = currentPage + 1
-                    if currentPage == numOfPages:
-                        currentPage = 0
-                    logger.info("[Paginate paginateEmbed()] user indicates they want to go forward a page from " + str(prevPage) + " to " + str(currentPage))
-                    
-                elif '✅' == userReacted[0].emoji:
-                    logger.info("[Paginate paginateEmbed()] user indicates they are done with the roles command, deleting roles message")
-                    await msg.delete()
-                    return
-            else:
-                logger.info("[Paginate paginateEmbed()] deleting message")
-                await msg.delete()
-                return
+			if userReacted != False:
+				if '⏪' == userReacted[0].emoji:
+					prevPage = currentPage
+					currentPage = currentPage - 1
+					if currentPage < 0:
+						currentPage = numOfPages-1
+					logger.info("[Paginate paginateEmbed()] user indicates they want to go back a page from " + str(prevPage) + " to " + str(currentPage))
+					
+				elif '⏩' == userReacted[0].emoji:
+					prevPage = currentPage
+					currentPage = currentPage + 1
+					if currentPage == numOfPages:
+						currentPage = 0
+					logger.info("[Paginate paginateEmbed()] user indicates they want to go forward a page from " + str(prevPage) + " to " + str(currentPage))
+					
+				elif '✅' == userReacted[0].emoji:
+					logger.info("[Paginate paginateEmbed()] user indicates they are done with the roles command, deleting roles message")
+					await msg.delete()
+					return
+			else:
+				logger.info("[Paginate paginateEmbed()] deleting message")
+				await msg.delete()
+				return
 
 
 async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, title=" "):
-    logger.info("[Paginate paginate()] called with following argument: listToPaginate=" + str(
-        listToPaginate) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(
-        numOfPageEntries) + " and title=" + title)
-    if numOfPages == 0:
-        if numOfPageEntries == 0:
-            logger.error("[Paginate paginate()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
-            return
-        else:
-            if int(len(listToPaginate) / numOfPageEntries) == len(listToPaginate) / numOfPageEntries:
-                numOfPages = int(len(listToPaginate) / numOfPageEntries)
-            else:
-                numOfPages = int(len(listToPaginate) / numOfPageEntries) + 1
-    else:
-        if numOfPageEntries != 0:
-            logger.error("[Paginate paginate()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
-        else:
-            if int(len(listToPaginate) / numOfPages) == len(listToPaginate) / numOfPages:
-                numOfPageEntries = int(len(listToPaginate) / numOfPages)
-            else:
-                umOfPageEntries = int(len(listToPaginate) / numOfPages) + 1
+	logger.info("[Paginate paginate()] called with following argument: listToPaginate=" + str(
+		listToPaginate) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(
+		numOfPageEntries) + " and title=" + title)
+	if numOfPages == 0:
+		if numOfPageEntries == 0:
+			logger.error("[Paginate paginate()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
+			return
+		else:
+			if int(len(listToPaginate) / numOfPageEntries) == len(listToPaginate) / numOfPageEntries:
+				numOfPages = int(len(listToPaginate) / numOfPageEntries)
+			else:
+				numOfPages = int(len(listToPaginate) / numOfPageEntries) + 1
+	else:
+		if numOfPageEntries != 0:
+			logger.error("[Paginate paginate()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
+		else:
+			if int(len(listToPaginate) / numOfPages) == len(listToPaginate) / numOfPages:
+				numOfPageEntries = int(len(listToPaginate) / numOfPages)
+			else:
+				umOfPageEntries = int(len(listToPaginate) / numOfPages) + 1
 
-    logger.info("[Paginate paginate()] numOfPageEntries set to " + str(numOfPageEntries) + " and numOfPages set to " + str(numOfPages))
-    listOfRoles = [["" for x in range(numOfPageEntries)] for y in range(numOfPages)]
-    x, y = 0, 0;
-    for roles in listToPaginate:
-        listOfRoles[y][x] = roles
-        x += 1
-        if x == numOfPageEntries:
-            y += 1
-            x = 0
-    logger.info("[Paginate paginate()] list added to roles matrix for pagination")
-    currentPage = 0
-    firstRun = True
-    msg = None
-    while True:
-        logger.info("[Paginate paginate()] loading page " + str(currentPage))
-        logger.info("[Paginate paginate()] loading roles " + str(listOfRoles[currentPage]))
-        output = title + "\n\n```"
-        for x in listOfRoles[currentPage]:
-            if x != '':
-                output += '\t\"' + str(x) + "\"\n"
-        output += '```{}/{}'.format(str(currentPage + 1), str(numOfPages))
-        logger.info("[Paginate paginate()] created and filled Embed with roles of the current page " + str(currentPage))
-        # determining which reactions are needed
-        if numOfPages == 1:
-            toReact = ['✅']
-        else:
-            toReact = ['⏪', '⏩', '✅']
+	logger.info("[Paginate paginate()] numOfPageEntries set to " + str(numOfPageEntries) + " and numOfPages set to " + str(numOfPages))
+	listOfRoles = [["" for x in range(numOfPageEntries)] for y in range(numOfPages)]
+	x, y = 0, 0;
+	for roles in listToPaginate:
+		listOfRoles[y][x] = roles
+		x += 1
+		if x == numOfPageEntries:
+			y += 1
+			x = 0
+	logger.info("[Paginate paginate()] list added to roles matrix for pagination")
+	currentPage = 0
+	firstRun = True
+	msg = None
+	while True:
+		logger.info("[Paginate paginate()] loading page " + str(currentPage))
+		logger.info("[Paginate paginate()] loading roles " + str(listOfRoles[currentPage]))
+		output = title + "\n\n```"
+		for x in listOfRoles[currentPage]:
+			if x != '':
+				output += '\t\"' + str(x) + "\"\n"
+		output += '```{}/{}'.format(str(currentPage + 1), str(numOfPages))
+		logger.info("[Paginate paginate()] created and filled Embed with roles of the current page " + str(currentPage))
+		toReact = ['⏪', '⏩', '✅']
 
-        if firstRun == True:
-            firstRun = False
-            msg = await ctx.send(output)
-            logger.info("[Paginate paginate()] sent message")
-        else:
-            await msg.edit(content=output)
-            await msg.clear_reactions()
-            logger.info("[Paginate paginate()] edited message")
-        for reaction in toReact:
-            await msg.add_reaction(reaction)
+		if firstRun == True:
+			firstRun = False
+			msg = await ctx.send(output)
+			logger.info("[Paginate paginate()] sent message")
+		else:
+			await msg.edit(content=output)
+			await msg.clear_reactions()
+			logger.info("[Paginate paginate()] edited message")
+		for reaction in toReact:
+			await msg.add_reaction(reaction)
 
-        logger.info("[Paginate paginate()] added all reactions to message")
+		logger.info("[Paginate paginate()] added all reactions to message")
 
-        def checkReaction(reaction, user):
-            if not user.bot:
-                e = str(reaction.emoji)
-                logger.info("[Paginate paginate()] reaction " + e + " detected from " + str(user))
-                return e.startswith(('⏪', '⏩', '✅'))
+		def checkReaction(reaction, user):
+			if not user.bot:
+				e = str(reaction.emoji)
+				logger.info("[Paginate paginate()] reaction " + e + " detected from " + str(user))
+				return e.startswith(('⏪', '⏩', '✅'))
 
-        userReacted = False
-        while userReacted == False:
-            try:
-                userReacted = await bot.wait_for('reaction_add', timeout=20, check=checkReaction)
-            except asyncio.TimeoutError:
-                logger.info("[Paginate paginate()] timed out waiting for the user's reaction.")
+		userReacted = False
+		while userReacted == False:
+			try:
+				userReacted = await bot.wait_for('reaction_add', timeout=20, check=checkReaction)
+			except asyncio.TimeoutError:
+				logger.info("[Paginate paginate()] timed out waiting for the user's reaction.")
 
-            if userReacted != False:
-                if '⏪' == userReacted[0].emoji:
-                    prevPage = currentPage
-                    currentPage = currentPage - 1
-                    if currentPage < 0:
-                        currentPage = numOfPages-1
-                    logger.info("[Paginate paginate()] user indicates they want to go back a page from " + str(prevPage) + " to " + str(currentPage))
-                elif '⏩' == userReacted[0].emoji:
-                    prevPage = currentPage
-                    currentPage = currentPage + 1
-                    if currentPage == numOfPages:
-                        currentPage = 0
-                    logger.info("[Paginate paginate()] user indicates they want to go forward a page from " + str(prevPage) + " to " + str(currentPage))
-                elif '✅' == userReacted[0].emoji:
-                    logger.info(
-                        "[Paginate paginate()] user indicates they are done with the roles command, deleting roles message")
-                    await msg.delete()
-                    return
-            else:
-                logger.info("[Paginate paginate()] deleting message")
-                await msg.delete()
-                return
+			if userReacted != False:
+				if '⏪' == userReacted[0].emoji:
+					prevPage = currentPage
+					currentPage = currentPage - 1
+					if currentPage < 0:
+						currentPage = numOfPages-1
+					logger.info("[Paginate paginate()] user indicates they want to go back a page from " + str(prevPage) + " to " + str(currentPage))
+				elif '⏩' == userReacted[0].emoji:
+					prevPage = currentPage
+					currentPage = currentPage + 1
+					if currentPage == numOfPages:
+						currentPage = 0
+					logger.info("[Paginate paginate()] user indicates they want to go forward a page from " + str(prevPage) + " to " + str(currentPage))
+				elif '✅' == userReacted[0].emoji:
+					logger.info(
+						"[Paginate paginate()] user indicates they are done with the roles command, deleting roles message")
+					await msg.delete()
+					return
+			else:
+				logger.info("[Paginate paginate()] deleting message")
+				await msg.delete()
+				return
