@@ -13,6 +13,7 @@ from commands_to_load import Misc
 import helper_files.settings as settings
 from helper_files.embed import embed
 import re
+import json
 
 ######################
 ## VARIABLES TO USE ##
@@ -36,9 +37,10 @@ print("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)
 bot = commands.Bot(command_prefix='.')
 FILENAME = None
 
-# setting up path hierarchy for commands to load
-commandFolder="commands_to_load."
-the_commands=[commandFolder+"HealthChecks", commandFolder+"Misc", commandFolder+"RoleCommands", commandFolder+"Administration", commandFolder+"Reminders"]
+print('[main.py] loading cog names from json file')
+with open('commands_to_load/cogs.json') as c:
+    cogs = json.load(c)
+cogs = cogs['cogs']
 
 ##################
 ## LOGGING SETUP ##
@@ -196,17 +198,17 @@ if __name__ == "__main__":
     bot.remove_command("help")
 
     ## tries to loads any commands specified in the_commands into the bot
-    for com in the_commands:
+    for cog in cogs:
         commandLoaded=True
         try:
-            logger.info("[main.py] attempting to load command "+com)
-            bot.load_extension(com)
+            logger.info("[main.py] attempting to load command "+ cog["name"])
+            bot.load_extension(cog["folder"] + '.' + cog["name"])
         except Exception as e:
             commandLoaded=False
             exception = '{}: {}'.format(type(e).__name__, e)
-            logger.error('[main.py] Failed to load command {}\n{}'.format(com, exception))
+            logger.error('[main.py] Failed to load command {}\n{}'.format(cog["name"], exception))
         if commandLoaded:
-            logger.info("[main.py] "+com+" successfully loaded")
+            logger.info("[main.py] " + cog["name"] + " successfully loaded")
 
     from pathlib import Path
     my_file = Path("logs/stats_of_commands.csv")
