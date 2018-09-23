@@ -9,6 +9,8 @@ from time import mktime
 import helper_files.testenv
 import traceback
 import sys
+import helper_files.settings as settings
+from helper_files.embed import embed
 
 logger = logging.getLogger('wall_e')
 
@@ -44,11 +46,13 @@ class Reminders():
 		how_to_call_command="\nPlease call command like so:\nremindmein <time|minutes|hours|days> to <what to remind you about>\nExample: \".remindmein 10 minutes to turn in my assignment\""
 		if parsedTime == '':
 			logger.error("[Reminders remindme()] was unable to extract a time")
-			await ctx.send("RemindMeIn Error:\n```unable to extract a time"+str(how_to_call_command)+"```")
+			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a time"+str(how_to_call_command))
+			await ctx.send(embed=eObj)
 			return
 		if message == '':
 			logger.error("[Reminders remindme()] was unable to extract a message")
-			await ctx.send("RemindMeIn Error:\n```unable to extract a message"+str(how_to_call_command)+"```")
+			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a string"+str(how_to_call_command))
+			await ctx.send(embed=eObj)
 			return
 		timeUntil = str(parsedTime)
 		logger.info("[Reminders remindme()] extracted time is "+str(timeUntil))
@@ -56,14 +60,16 @@ class Reminders():
 		time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
 		if parse_status == 0:
 			logger.error("[Reminders remindme()] couldn't parse the time")
-			await ctx.send('RemindMeIn Error:\n```Could not parse time!'+how_to_call_command+'```')
+			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
+			await ctx.send(embed=eObj)
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
 		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
 		r = self.r
 		r.set(json_string, '', expire_seconds)
-		fmt = '```Reminder set for {0} seconds from now```'
-		await ctx.send(fmt.format(expire_seconds))
+		fmt = 'Reminder set for {0} seconds from now'
+		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
+		await ctx.send(embed=eObj)
 		logger.info("[Reminders remindme()] reminder has been contructed and sent.")
 
 	@commands.command()
@@ -85,16 +91,19 @@ class Reminders():
 						if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
 							if reminderCtx.message.author  == ctx.message.author:
 								logger.info("[Reminders showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-								reminders+=str(keyValue['mid'])+"   "+reminderCtx.message.content+"\n"
+								reminders+=str(keyValue['mid'])+"\t\t\t"+reminderCtx.message.content+"\n"
 				author = ctx.author.nick or ctx.author.name
 				if reminders != '':
 					logger.info("[Reminders showreminders()] sent off the list of reminders to "+str(ctx.message.author))
-					await ctx.send("Here are your reminders "+ author+"\n```"+"MessageID\t\t\tReminder\n"+reminders+"```")
+					eObj = embed(title="Here are you reminders " + author, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=[["MessageID\t\t\t\t\t\t\tReminder", reminders]])
+					await ctx.send(embed=eObj)
 				else:
 					logger.info("[Reminders showreminders()] "+str(ctx.message.author)+" didnt seem to have any reminders.")
-					await ctx.send("You dont seem to have any reminders "+ author)
+					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You don't seem to have any reminders " + author)
+					await ctx.send(embed=eObj)
 			except Exception as error:
-				await ctx.send("Something screwy seems to have happened, look at the logs for more info.")
+				eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Something screwy seems to have happened, look at the logs for more info.")
+				await ctx.send(embed=eObj)
 				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
 				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
@@ -123,13 +132,16 @@ class Reminders():
 									logger.info("[Reminders deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
 									reminder=reminderCtx.message.content
 									logger.info("[Reminders deletereminder()] following reminder was deleted = "+reminderCtx.message.content)
-									await ctx.send("deleteReminder\n```Following reminder has been deleted:\n"+reminder+"```")
+									eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Following reminder has been deleted:\n"+reminder)
+									await ctx.send(embed=eObj)
 									self.r.delete(key)
 								else:
-									await ctx.send("deleteReminder ERROR\n```You are trying to delete a reminder that is not yours```")
+									eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nYou are trying to delete a reminder that is not yours")
+									await ctx.send(embed=eObj)
 									logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(reminderCtx.message.author)+"'s reminder.")
 				if not reminderExists:
-					await ctx.send("deleteReminder ERROR\n```Specified reminder could not be found```")
+					eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nSpecified reminder could not be found")
+					await ctx.send(embed=eObj)
 					logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
 			except Exception as error:
 				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
@@ -152,9 +164,10 @@ class Reminders():
 						msg = await chan.get_message(cid_mid_dct['mid'])
 						ctx = await self.bot.get_context(msg)
 						if ctx.valid and helper_files.testenv.TestCog.check_test_environment(ctx):
-							fmt = '<@{0}> ```{1}```'
-							logger.info('[Reminders.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
-							await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+							fmt = '<@{0}>\n {1}'
+							logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
+							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
+							await ctx.send(embed=eObj)
 				except Exception as error:
 					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
 					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
