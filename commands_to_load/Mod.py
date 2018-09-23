@@ -33,7 +33,7 @@ class Mod():
     @commands.command(aliases=['em'])
     async def embed(self, ctx, *arg):
         logger.info('[Mod embed()] embed function detected by user ' + str(ctx.message.author))
-        if arg == '':
+        if not arg:
             logger.error("[Mod embed()] no args, so command ended")
             return
         await ctx.message.delete()
@@ -67,7 +67,8 @@ class Mod():
     @commands.command(aliases=['warn'])
     async def modspeak(self, ctx, *arg):
         logger.info('[Mod modspeak()] modspeack function detected by minion ' + str(ctx.message.author))
-        if arg == '':
+        
+        if not arg:
             logger.error("[Mod modspeak()] no args, so command ended")
             return
         await ctx.message.delete()
