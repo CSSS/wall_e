@@ -14,7 +14,7 @@ class Administration():
 	def validCog(self, cog):
 		for cog in cogs:
 			if cog["name"] == cog:
-				return True, name["folder"]
+				return True, cog["folder"]
 		return False, ''
 
 	@commands.command()
