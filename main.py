@@ -37,7 +37,10 @@ print("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)
 bot = commands.Bot(command_prefix='.')
 FILENAME = None
 
-commandFolder="commands_to_load."
+logger.info('[main.py] loading cog names from json file')
+    with open('commands_to_load/cogs.json') as c:
+        cogs = json.load(c)
+    cogs = cogs['cogs']
 
 ##################
 ## LOGGING SETUP ##
@@ -193,11 +196,6 @@ if __name__ == "__main__":
     #removing default help command to allow for custom help command
     logger.info("[main.py] default help command being removed")
     bot.remove_command("help")
-
-    logger.info('[main.py] loading cog names from json file')
-    with open('commands_to_load/cogs.json') as c:
-        cogs = json.load(c)
-    cogs = cogs['cogs']
 
     ## tries to loads any commands specified in the_commands into the bot
     for cog in cogs:
