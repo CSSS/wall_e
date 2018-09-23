@@ -37,7 +37,6 @@ print("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)
 bot = commands.Bot(command_prefix='.')
 FILENAME = None
 
-# setting up path hierarchy for commands to load
 commandFolder="commands_to_load."
 
 ##################
