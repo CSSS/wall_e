@@ -196,8 +196,8 @@ if __name__ == "__main__":
     bot.remove_command("help")
 
     logger.info('[main.py] loading cog names from json file')
-    with open('commands_to_load/cogs.json') as f:
-        cogs = json.load(f)
+    with open('commands_to_load/cogs.json') as c:
+        cogs = json.load(c)
     cogs = cogs['cogs']
 
     ## tries to loads any commands specified in the_commands into the bot
