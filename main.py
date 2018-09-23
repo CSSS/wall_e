@@ -204,7 +204,7 @@ if __name__ == "__main__":
     for cog in cogs:
         commandLoaded=True
         try:
-            logger.info("[main.py] attempting to load command "+com)
+            logger.info("[main.py] attempting to load command "+ cog["name"])
             bot.load_extension(cog["folder"] + '.' + cog["name"])
         except Exception as e:
             commandLoaded=False
