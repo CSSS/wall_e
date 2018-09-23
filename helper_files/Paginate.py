@@ -8,7 +8,8 @@ from helper_files.embed import embed
 logger = logging.getLogger('wall_e')
 
 async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0, title=" ", add_field=False):
-	logger.info("[Paginate paginateEmbed()] called with following argument: listToEmbed=" + str(listToEmbed) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + " and title=" + title)
+	#logger.info("[Paginate paginateEmbed()] called with following argument: listToEmbed=" + str(listToEmbed) + "\n\tnumOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + ", title=" + title+" and add_field="+str(add_field))
+	logger.info("[Paginate paginateEmbed()] called with following argument: numOfPages=" + str(numOfPages) + ", numOfPageEntries=" + str(numOfPageEntries) + ", title=" + title+" and add_field="+str(add_field)+"\n\nlistToEmbed=" + str(listToEmbed)+"\n\n")
 	if numOfPages == 0:
 		if numOfPageEntries == 0:
 			logger.error("[Paginate paginateEmbed()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
@@ -35,7 +36,6 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 		listOfRoles = [[["" for z in range(2)] for x in range(numOfPageEntries)] for y in range(numOfPages)]
 		x, y = 0, 0;
 		for roles in listToEmbed:
-			print("roles="+str(roles))
 			listOfRoles[y][x][0] = roles[0]
 			listOfRoles[y][x][1] = roles[1]
 			x += 1
@@ -46,7 +46,6 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 		x, y = 0, 0;
 		listOfRoles = ["" for y in range(numOfPages)]
 		for roles in listToEmbed:
-			print("type(roles)="+str(type(roles))+" type(listOfRoles[y])="+str(type(listOfRoles[y])))
 			listOfRoles[y] += str(roles)+"\n"
 			x+=1
 			if x == numOfPageEntries:
