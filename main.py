@@ -37,6 +37,7 @@ print("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)
 bot = commands.Bot(command_prefix='.')
 FILENAME = None
 
+print('[main.py] loading cog names from json file')
 with open('commands_to_load/cogs.json') as c:
     cogs = json.load(c)
 cogs = cogs['cogs']
