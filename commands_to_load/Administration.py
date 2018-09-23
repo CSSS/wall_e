@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from main import commandFolder
+from main import cogs
 import subprocess
 
 import logging
@@ -11,18 +11,29 @@ class Administration():
 	def __init__(self, bot):
 		self.bot = bot
 
+	def realCog(self, cog):
+		for name in cogs:
+			if name["name"] == cog:
+				return [True, name["folder"]]
+		return [False]
+
 	@commands.command()
 	async def load(self, ctx, name):
 		logger.info("[Administration load()] load command detected from "+str(ctx.message.author))
 		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+			folder = self.realCog(name)
+			if not folder[0]:
+				await ctx.send("```" + name + " isn't a real cog```")
+				logger.error("[Administration load()] " + str(ctx.message.author) + " tried loading " + name + " which doesn't exist.")
+				return
 			try:
 				logger.info("[Administration load()] "+str(ctx.message.author)+" successfully authenticated")
-				self.bot.load_extension(commandFolder+name)
+				self.bot.load_extension(folder[1] + '.' + name)
 				await ctx.send("{} command loaded.".format(name))
-				logger.info("[Administration load()] "+name+" has been successfully loaded")
+				logger.info("[Administration load()] " + name + " has been successfully loaded")
 			except(AttributeError, ImportError) as e:
 				await ctx.send("command load failed: {}, {}".format(type(e), str(e)))
-				logger.error("[Administration load()] loading "+name+" failed :"+str(type(e)) +", "+ str(e))
+				logger.error("[Administration load()] loading " + name + " failed :"+str(type(e)) +", "+ str(e))
 		else:
 			logger.error("[Administration load()] unauthorized command attempt detected from "+ ctx.message.author)
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
@@ -31,10 +42,16 @@ class Administration():
 	async def unload(self, ctx, name):
 		logger.info("[Administration unload()] unload command detected from "+str(ctx.message.author))
 		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+			folder = self.realCog(name)
+			if not folder[0]:
+				await ctx.send("```" + name + " isn't a real cog```")
+				logger.error("[Administration load()] " + str(ctx.message.author) + " tried loading " + name + " which doesn't exist.")
+				return
+
 			logger.info("[Administration unload()] "+str(ctx.message.author)+" successfully authenticated")
-			self.bot.unload_extension(commandFolder+name)
+			self.bot.unload_extension(folder[1] + '.' + name)
 			await ctx.send("{} command unloaded".format(name))
-			logger.info("[Administration unload()] "+name+" has been successfully loaded")
+			logger.info("[Administration unload()] " + name + " has been successfully loaded")
 		else:
 			logger.error("[Administration unload()] unauthorized command attempt detected from "+ ctx.message.author)
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
@@ -43,11 +60,17 @@ class Administration():
 	async def reload(self, ctx, name):
 		logger.info("[Administration reload()] reload command detected from "+str(ctx.message.author))
 		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+			folder = self.realCog(name)
+			if not folder[0]:
+				await ctx.send("```" + name + " isn't a real cog```")
+				logger.error("[Administration load()] " + str(ctx.message.author) + " tried loading " + name + " which doesn't exist.")
+				return
+			
 			logger.info("[Administration reload()] "+str(ctx.message.author)+" successfully authenticated")
-			self.bot.unload_extension(commandFolder+name)
+			self.bot.unload_extension(folder[1] + '.' + name)
 			try:
-				self.bot.load_extension(commandFolder + name)
-				await ctx.send("`{} command reloaded`".format(commandFolder+name))
+				self.bot.load_extension(folder[1] + '.' + name)
+				await ctx.send("`{} command reloaded`".format(folder[1] + '.' + name))
 				logger.info("[Administration reload()] "+name+" has been successfully reloaded")
 			except(AttributeError, ImportError) as e:
 				await ctx.send("Command load failed: {}, {}".format(type(e), str(e)))
