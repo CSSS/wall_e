@@ -154,4 +154,4 @@ token
 #my own files
 token.txt
 setup.sh
-logs/
+logs/*
