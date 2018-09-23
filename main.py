@@ -38,9 +38,9 @@ bot = commands.Bot(command_prefix='.')
 FILENAME = None
 
 logger.info('[main.py] loading cog names from json file')
-    with open('commands_to_load/cogs.json') as c:
-        cogs = json.load(c)
-    cogs = cogs['cogs']
+with open('commands_to_load/cogs.json') as c:
+    cogs = json.load(c)
+cogs = cogs['cogs']
 
 ##################
 ## LOGGING SETUP ##
