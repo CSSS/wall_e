@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord.client
 import json
-from helper_files.Paginate import paginateEmbed, paginate
+from helper_files.Paginate import paginateEmbed, determineNumOfPagesAndEntries
 from helper_files.embed import embed 
 import helper_files.settings as settings
 
@@ -45,30 +45,44 @@ class HealthChecks():
 		numberOfCommands=0
 		for entry in helpDict['commands']:
 			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-				numberOfCommands += 1
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1
 			elif entry['access'] == "public":
-				numberOfCommands += 1
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1
 
 		print("[HealthChecks help()] numberOfCommands set to "+str(numberOfCommands))
-		helpArr = [["" for x in range(2)] for y in range(numberOfCommands)] 
-		index=0
+
+
+		numOfPages, numOfPageEntries = determineNumOfPagesAndEntries(numberOfEntriesToPaginate=numberOfCommands, numOfPageEntries=5)
+		descriptionToEmbed = ["" for y in range(numOfPages)] 
 		logger.info("[HealthChecks help()] tranferring dictionary to array")
+		x, page = 0, 0;
 		for entry in helpDict['commands']:
 			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-				print("[HealthChecks help()] adding "+str(entry)+" to index "+str(index)+" of the helpArr")
-				helpArr[index][0]=entry['name']
-				helpArr[index][1]=entry['description']
-				index+=1
+				if 'Class' in entry['name']:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+				else:
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numOfPageEntries:
+						page+=1
+						x = 0
 			elif entry['access'] == "public":
-				print("[HealthChecks help()] adding "+str(entry)+" to index "+str(index)+" of the helpArr")
-				helpArr[index][0]=entry['name']
-				helpArr[index][1]=entry['description']
-				index+=1
-			
+				print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+				if 'Class' in entry['name']:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+				else:
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numOfPageEntries:
+						page+=1
+						x = 0
 		logger.info("[HealthChecks help()] transfer successful")
 
-		#rolesList = sorted(rolesList, key=str.lower)
-		await paginateEmbed(bot=self.bot,title="Help Page" ,ctx=ctx,listToEmbed=helpArr, numOfPageEntries=5, add_field=True)
+		await paginateEmbed(self.bot, ctx, descriptionToEmbed, numOfPages, numOfPageEntries, title="Help Page" )
 
 
 def setup(bot):
