@@ -10,14 +10,6 @@ logger = logging.getLogger('wall_e')
 
 class Mod():
 
-    def isMinion(self, ctx):
-        role = discord.utils.get(ctx.guild.roles, name='Minions')
-        membersOfRole = role.members
-        for members in membersOfRole:
-            if ctx.author.id == members.id:
-                return True
-        return False
-
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
@@ -39,7 +31,7 @@ class Mod():
         await ctx.message.delete()
         logger.info('[Mod embed()] invoking message deleted')
         
-        if not self.isMinion(ctx):
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
             logger.error('[Mod embed()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
@@ -74,7 +66,7 @@ class Mod():
         await ctx.message.delete()
         logger.info('[Mod embed()] invoking message deleted')
 
-        if not self.isMinion(ctx):
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
             logger.error('[Mod modspeak()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
