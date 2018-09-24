@@ -123,7 +123,8 @@ class RoleCommands():
             memberString += name + "\n"
             logString += name + '\t'
         logger.info("[RoleCommands whois()] following members were found in the role: "+str(logString))
-        await ctx.send("Members belonging to role `" + roleToCheck + "`:\n" + "```\n" + memberString + "```")
+        eObj = embed(title="Members belonging to role: `" + roleToCheck + '`', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=memberString)
+        await ctx.send(embed=eObj)
 
     @commands.command()
     async def roles(self, ctx):
