@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 import logging
-from helper_files.Paginate import paginateEmbed
+from helper_files.Paginate import paginateEmbed, determineNumOfPagesAndEntries
 import helper_files.settings as settings
 from helper_files.embed import embed
 
@@ -140,7 +140,21 @@ class RoleCommands():
         selfAssignRoles = sorted(selfAssignRoles, key=str.lower)
         logger.info("[Misc roles()] roles in arrays sorted alphabetically")
 
-        await paginateEmbed(bot=self.bot,title="Self-Assignable Roles" ,ctx=ctx,listToEmbed=selfAssignRoles, numOfPageEntries=30)
+        numOfPages, numOfPageEntries = determineNumOfPagesAndEntries(selfAssignRoles, numOfPageEntries=5)
+
+        rolesArr=[]
+        page=0
+        logger.info("[HealthChecks help()] tranferring dictionary to array")
+
+        x, y = 0, 0;
+        descriptionToEmbed = ["" for y in range(numOfPages)]
+        for roles in selfAssignRoles:
+            descriptionToEmbed[y]+=str(roles)+"\n"
+            x+=1
+            if x == numOfPageEntries:
+                y+=1
+                x = 0
+        await paginateEmbed(self.bot, ctx,descriptionToEmbed, numOfPages, numOfPageEntries, title="Self-Assignable Roles")
 
     @commands.command()
     async def Roles(self, ctx):
@@ -156,6 +170,20 @@ class RoleCommands():
         assignedRoles = sorted(assignedRoles, key=str.lower)
         logger.info("[Misc Roles()] roles in arrays sorted alphabetically")
 
-        await paginateEmbed(bot=self.bot,title="Mod/Exec/XP Assigned Roles" ,ctx=ctx,listToEmbed=assignedRoles, numOfPageEntries=10)
+        numOfPages, numOfPageEntries = determineNumOfPagesAndEntries(assignedRoles, numOfPageEntries=5)
+
+        rolesArr=[]
+        page=0
+        logger.info("[HealthChecks help()] tranferring dictionary to array")
+
+        x, y = 0, 0;
+        descriptionToEmbed = ["" for y in range(numOfPages)]
+        for roles in assignedRoles:
+            descriptionToEmbed[y]+=str(roles)+"\n"
+            x+=1
+            if x == numOfPageEntries:
+                y+=1
+                x = 0
+        await paginateEmbed(self.bot,ctx,descriptionToEmbed,numOfPages,numOfPageEntries, title="Mod/Exec/XP Assigned Roles")
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
