@@ -32,25 +32,18 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 	logger.info("[Paginate paginateEmbed()] numOfPageEntries set to " + str(numOfPageEntries) + ", numOfPages set to " + str(numOfPages) + " and number of total entries is " + str(len(listToEmbed)) + ".")
 
 	listOfRoles=None
-	if add_field:
-		listOfRoles = [[["" for z in range(2)] for x in range(numOfPageEntries)] for y in range(numOfPages)]
-		x, y = 0, 0;
-		for roles in listToEmbed:
-			listOfRoles[y][x][0] = roles[0]
-			listOfRoles[y][x][1] = roles[1]
-			x += 1
-			if x == numOfPageEntries:
-				y += 1
-				x = 0
-	else:
-		x, y = 0, 0;
-		listOfRoles = ["" for y in range(numOfPages)]
-		for roles in listToEmbed:
-			listOfRoles[y] += str(roles)+"\n"
-			x+=1
-			if x == numOfPageEntries:
-				y+=1
-				x = 0
+	x, y = 0, 0;
+	listOfRoles = ["" for y in range(numOfPages)]
+	for roles in listToEmbed:
+		print("roles=["+str(roles)+"]")
+		if 'Class' in roles[0]:
+			listOfRoles[y]+="**"+str(roles[0])+"**\n"
+		else:
+			listOfRoles[y] += "*"+str(roles[0])+"*:\n"+str(roles[1])+"\n\n"
+		x+=1
+		if x == numOfPageEntries:
+			y+=1
+			x = 0
 
 	logger.info("[Paginate paginateEmbed()] listToEmbed added to roles matrix for pagination")
 	currentPage = 0
@@ -62,14 +55,7 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 		logger.info("[Paginate paginateEmbed()] loading roles " + str(listOfRoles[currentPage]))
 
 		embedObj=None
-		if add_field:
-			embedObj = discord.Embed(title=title, color=0x81e28d)
-			for x in listOfRoles[currentPage]:
-				if x[0] != "":
-					embedObj.add_field(name=x[0], value=x[1], inline=False)
-			embedObj.set_footer(text='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
-		else:
-			embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=listOfRoles[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
+		embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=listOfRoles[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
 		logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
 
 		# determining which reactions are needed
@@ -81,6 +67,7 @@ async def paginateEmbed(bot, ctx, listToEmbed, numOfPages=0, numOfPageEntries=0,
 			msg = await ctx.send(content=None, embed=embedObj)
 			logger.info("[Paginate paginateEmbed()] sent message")
 		else:
+			await msg.edit(embed=None)
 			await msg.edit(embed=embedObj)
 			await msg.clear_reactions()
 			logger.info("[Paginate paginateEmbed()] edited message")
