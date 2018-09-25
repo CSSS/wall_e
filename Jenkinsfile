@@ -55,6 +55,7 @@ pipeline {
             script {
                 withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'URL')]) {
                     String webhookUrl = URL
+                    echo webhookUrl
                     discordSend description: BRANCH_NAME, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: true, title: 'Successful build', webhookURL: webhookUrl
                 }
             }
