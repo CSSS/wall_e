@@ -24,9 +24,9 @@ class Here():
         embed.color = discord.Color.blurple()
         embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
         if len(members) == 0:
-            string = "I couldnt find anyone."
+            string = "I couldnt find anyone.\n"
         elif len(members) > 50:
-            string = "There's a lot of people here."
+            string = "There's a lot of people here.\n"
         else:
             string =  "The following users have permission for this channel.\n---\n"
             for member in members:
