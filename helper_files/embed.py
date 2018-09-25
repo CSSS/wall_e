@@ -25,5 +25,5 @@ def embed(title='', content='', description='', author='', colour=0x00bfbd, link
     #embObj.url = link
     #parse content to add fields
     for x in content:
-        embObj.add_field(name=x[0], value=x[1], inline=True)
+        embObj.add_field(name=x[0], value=x[1], inline=False)
     return embObj
