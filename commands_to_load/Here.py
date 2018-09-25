@@ -15,8 +15,12 @@ class Here():
 
     def build_embed(members, channel):
         # build response
+
+        title = "Users in **" + channel.name + "**"
+
+        logger.info("[Here here()] creating an embed with title \"" + title + "\"")
         embed = discord.Embed(type = "rich")
-        embed.title = "Users in **" + channel.name + "**"
+        embed.title = title
         embed.color = discord.Color.blurple()
         embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
         if len(members) == 0:
@@ -24,7 +28,7 @@ class Here():
         elif len(members) > 50:
             string = "There's a lot of people here."
         else:
-            string =  "The following users have permission for this channel.\n"
+            string =  "The following users have permission for this channel.\n---\n"
             for member in members:
                 display = member.display_name + "   (" + str(member) + ")\n"
                 string += display
@@ -34,7 +38,7 @@ class Here():
 
     @commands.command()
     async def here(self, ctx, *search):
-        logger.info("[HereCommands here()] "
+        logger.info("[Here here()] "
             + str(ctx.message.author) + " called here with {} arguments: {}".format(len(search), ', '.join(search)))
 
         # find people in the channel
@@ -49,6 +53,8 @@ class Here():
                 if query.lower() in m.display_name.lower() or query.lower() in str(m).lower()])
                 > 0]
             members = allowed
+
+        logger.info("[Here here()] found " + str(len(members)) + " users in " + channel.name)
 
         embed = Here.build_embed(members, channel)
 
