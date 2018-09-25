@@ -14,6 +14,8 @@ import helper_files.settings as settings
 from helper_files.embed import embed
 import re
 import json
+import wolframalpha
+
 
 ######################
 ## VARIABLES TO USE ##
@@ -41,6 +43,13 @@ print('[main.py] loading cog names from json file')
 with open('commands_to_load/cogs.json') as c:
     cogs = json.load(c)
 cogs = cogs['cogs']
+
+print("[main.py] loading Wolfram Alpha API Environment Variable")
+if 'WOLFRAMAPI' not in os.environ:
+    print("[main.py] No environment variable \"WOLFRAMAPI\" seems to exist...read the README again")
+    exit(1)
+wolframAPI = os.environ['WOLFRAMAPI']
+wolframClient = wolframalpha.Client(wolframAPI)
 
 ##################
 ## LOGGING SETUP ##
