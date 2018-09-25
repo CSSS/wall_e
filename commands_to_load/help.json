@@ -17,6 +17,8 @@
 		{ "access": "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
 		{ "access": "public", "name": ".poll <arg0> <arg1> <arg2> (up to 12 arguments)", "description": "starts a poll where <arg0> is the question and the remaining arguments are the options"},
 		{"access": "public", "name": ".urban <arg>", "description": "returns definition from urban dictionary of <arg>"},
+		{"access": "public", "name": "urban", "description": "returns definition from urban dictionary of <arg>"},
+		{"access": "public", "name": "wolfram", "description": "returns the result of passing <arg> to Wolfram Alpha"},
 
 		{ "access": "Bot_manager", "name": "Class: Reminders"},
 		{ "access": "public", "name": ".remindmein <x minutes|hours|days> to <subject>", "description": "create a reminder" },
