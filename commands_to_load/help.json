@@ -32,6 +32,6 @@
 		{ "access": "Bot_manager", "name": "Class: Minions"},
 		{ "access": "Minions", "name": ".embed <arg0> <arg1> ...", "description": "Allows Minions to post embed messages.\nFor odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.\nFor even number there will be no description."},
 		{ "access": "Minions", "name": ".modspeak <arg>", "description": "Posts the warning message <arg> in embed format. No quotes required with message."},
-		{ "access": "public", "name": ".here <args> ...", "description": "Tells you who's here. Filters results if they do not match any args, or all users if no args are given."}
+		{ "access": "public", "name": ".here <filters> ...", "description": "Displays all users with permissions to view the current channel. Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."}
 	]
 }
