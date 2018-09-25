@@ -44,9 +44,12 @@ class HealthChecks():
 		# determing the number of commands the user has access to.
 		numberOfCommands=0
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+			if entry['access'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 				if 'Class' not in entry['name']:
 					numberOfCommands += 1
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1					
 			elif entry['access'] == "public":
 				if 'Class' not in entry['name']:
 					numberOfCommands += 1
@@ -59,11 +62,23 @@ class HealthChecks():
 		logger.info("[HealthChecks help()] tranferring dictionary to array")
 		x, page = 0, 0;
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+			if entry['access'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 				if 'Class' in entry['name']:
 					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
 					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
 				else:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numOfPageEntries:
+						page+=1
+						x = 0					
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				if 'Class' in entry['name']:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"					
+				else:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
 					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
 					x+=1
 					if x == numOfPageEntries:
@@ -80,6 +95,8 @@ class HealthChecks():
 					if x == numOfPageEntries:
 						page+=1
 						x = 0
+			else:
+				print("[HealthChecks help()] "+str(entry)+" has a wierd access level of "+str(entry['access'])+"....not sure how to handle it so not adding it to the descriptionToEmbed")
 		logger.info("[HealthChecks help()] transfer successful")
 
 		await paginateEmbed(self.bot, ctx, descriptionToEmbed, numOfPages, numOfPageEntries, title="Help Page" )
