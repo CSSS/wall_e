@@ -10,6 +10,7 @@ logger = logging.getLogger('wall_e')
 async def paginateEmbed(bot, ctx, descriptionToEmbed, title=" "):
 	numOfPages = len(descriptionToEmbed)
 	logger.info("[Paginate paginateEmbed()] called with following argument: title=" + title+"\n\ndescriptionToEmbed=" + str(descriptionToEmbed)+"\n\n")
+
 	currentPage = 0
 	firstRun = True
 	msg = None
