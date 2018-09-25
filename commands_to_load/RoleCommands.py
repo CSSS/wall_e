@@ -1,9 +1,10 @@
 from discord.ext import commands
 import discord
 import logging
-from helper_files.Paginate import paginateEmbed, determineNumOfPagesAndEntries
+from helper_files.Paginate import paginateEmbed
 import helper_files.settings as settings
 from helper_files.embed import embed
+from operator import itemgetter
 
 logger = logging.getLogger('wall_e')
 
@@ -128,62 +129,66 @@ class RoleCommands():
 
     @commands.command()
     async def roles(self, ctx):
-        logger.info("[Misc roles()] roles command detected from user "+str(ctx.message.author))
-        guild = ctx.guild
-        rolesList = []
+        numberOfRolesPerPage=5
+        logger.info("[RoleCommands roles()] roles command detected from user "+str(ctx.message.author))
+
+        #declares and populates selfAssignRoles with all self-assignable roles and how many people are in each role
         selfAssignRoles = []
-        for role in guild.roles:
+        for role in ctx.guild.roles:
             if role.name != "@everyone" and role.name[0] == role.name[0].lower():
-                selfAssignRoles.append(str(role.name))
-        logger.info("[Misc roles()] selfAssignRoles array populated with the roles extracted from \"guild.roles\"")
+                numberOfMembers = len(discord.utils.get(ctx.guild.roles, name=str(role.name)).members)
+                selfAssignRoles.append((str(role.name),numberOfMembers))
 
-        selfAssignRoles = sorted(selfAssignRoles, key=str.lower)
-        logger.info("[Misc roles()] roles in arrays sorted alphabetically")
+        logger.info("[RoleCommands roles()] selfAssignRoles array populated with the roles extracted from \"guild.roles\"")
+        
+        selfAssignRoles.sort(key=itemgetter(0))
+        logger.info("[RoleCommands roles()] roles in arrays sorted alphabetically")
 
-        numOfPages, numOfPageEntries = determineNumOfPagesAndEntries(selfAssignRoles, numOfPageEntries=5)
-
-        rolesArr=[]
-        page=0
-        logger.info("[HealthChecks help()] tranferring dictionary to array")
-
-        x, y = 0, 0;
-        descriptionToEmbed = ["" for y in range(numOfPages)]
+        logger.info("[RoleCommands roles()] tranferring array to description array")
+        x, currentIndex = 0, 0;
+        descriptionToEmbed = ["Roles - Number of People in Role\n"]
         for roles in selfAssignRoles:
-            descriptionToEmbed[y]+=str(roles)+"\n"
+            print("len(descriptionToEmbed)="+str(len(descriptionToEmbed))+" currentIndex="+str(currentIndex))
+            descriptionToEmbed[currentIndex]+=str(roles[0])+" - "+str(roles[1])+"\n"
             x+=1
-            if x == numOfPageEntries:
-                y+=1
+            if x == numberOfRolesPerPage: ##this determines how many entries there will be per page
+                descriptionToEmbed.append("Roles - Number of People in Role\n")
+                currentIndex+=1
                 x = 0
-        await paginateEmbed(self.bot, ctx,descriptionToEmbed, numOfPages, numOfPageEntries, title="Self-Assignable Roles")
+        logger.info("[RoleCommands roles()] transfer successful")
+
+        await paginateEmbed(self.bot, ctx,descriptionToEmbed, title="Self-Assignable Roles")
 
     @commands.command()
     async def Roles(self, ctx):
+        numberOfRolesPerPage=5
         logger.info("[Misc Roles()] roles command detected from user "+str(ctx.message.author))
-        guild = ctx.guild
-        assignedRoles = []
-        for role in guild.roles:
-            if role.name != "@everyone" and role.name[0] != role.name[0].lower():
-                assignedRoles.append(str(role.name))
 
+        #declares and populates assignedRoles with all self-assignable roles and how many people are in each role
+        assignedRoles = []
+        for role in ctx.guild.roles:
+            if role.name != "@everyone" and role.name[0] != role.name[0].lower():
+                numberOfMembers = len(discord.utils.get(ctx.guild.roles, name=str(role.name)).members)
+                assignedRoles.append((str(role.name),numberOfMembers))
+        
         logger.info("[Misc Roles()] assignedRoles array populated with the roles extracted from \"guild.roles\"")
 
-        assignedRoles = sorted(assignedRoles, key=str.lower)
+        assignedRoles.sort(key=itemgetter(0))
         logger.info("[Misc Roles()] roles in arrays sorted alphabetically")
 
-        numOfPages, numOfPageEntries = determineNumOfPagesAndEntries(assignedRoles, numOfPageEntries=5)
+        logger.info("[HealthChecks help()] tranferring array to description array")
 
-        rolesArr=[]
-        page=0
-        logger.info("[HealthChecks help()] tranferring dictionary to array")
-
-        x, y = 0, 0;
-        descriptionToEmbed = ["" for y in range(numOfPages)]
+        x, currentIndex = 0, 0;
+        descriptionToEmbed = ["Roles - Number of People in Role\n"]
         for roles in assignedRoles:
-            descriptionToEmbed[y]+=str(roles)+"\n"
+            descriptionToEmbed[currentIndex]+=str(roles[0])+" - "+str(roles[1])+"\n"
             x+=1
-            if x == numOfPageEntries:
-                y+=1
+            if x == numberOfRolesPerPage:
+                descriptionToEmbed.append("Roles - Number of People in Role\n")
+                currentIndex+=1
                 x = 0
-        await paginateEmbed(self.bot,ctx,descriptionToEmbed,numOfPages,numOfPageEntries, title="Mod/Exec/XP Assigned Roles")
+        logger.info("[RoleCommands roles()] transfer successful")
+
+        await paginateEmbed(self.bot,ctx,descriptionToEmbed, title="Mod/Exec/XP Assigned Roles")
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
