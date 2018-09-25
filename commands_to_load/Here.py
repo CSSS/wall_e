@@ -33,6 +33,7 @@ class Here():
                 display = member.display_name + "   (" + str(member) + ")\n"
                 string += display
 
+        string += "*This message will self-destruct in 5 minutes*\n"
         embed.description = string
         return embed
 
