@@ -53,7 +53,7 @@ pipeline {
     post {
         success {
             withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'URL')]) {
-                discordSend description: BRANCH_NAME, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: true, title: 'Successful build', webhookURL: "${URL}"
+                discordSend description: BRANCH_NAME, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: true, title: 'Successful build', webhookURL: "https://discordapp.com/api/webhooks/493989024080461824/vxcNkU0Wgk-aMbJpnilgRYTr4OR68QKO5tR6NBN7zTHM8unY8AkLGbVHg6pZes6KE7LW"
             }
         }
     }
