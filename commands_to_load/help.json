@@ -21,7 +21,7 @@
 
 		{ "access": "Bot_manager", "name": "Class: Reminders"},
 		{ "access": "public", "name": ".remindmein <x minutes|hours|days> to <subject>", "description": "create a reminder" },
-		{ "access": "public", "name": ".showreminders", "description": "can be called like so: \".showreminders\" to show all your active reminders and their corresponding messageIDs" },
+		{ "access": "public", "name": ".showreminders", "description": "Show all your active reminders and their corresponding messageIDs" },
 		{ "access": "public", "name": ".deletereminder <arg>", "description": "deletes a reminder that has a messageId of <arg>. the \"messageId\" can be obtained by using the \".showreminders\" command" },
 
 		{ "access": "Bot_manager", "name": "Class: Administration"},
