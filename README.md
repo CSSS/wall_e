@@ -30,6 +30,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `showreminders` - displays all of the invoking user's reminders and their corresponding messageID
 * `deletereminder <arg>` - deletes the reminder that the invoking user created that has the messageId `<arg>`
 * `.urban <arg0>` - return definition from urban dictionary of `<arg0>`
+* `.wolfram <arg>` - returns the result of passing `<arg>` to Wolfram Alpha
 
 ## Local Setup
 
@@ -90,6 +91,7 @@ From a command line
    1. Run `export ENVIRONMENT='localhost'`
    1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
    1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
+   1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)
    1. Run `python3.5 main.py`
 1. Testing on [CSSS Bot Test Server](https://discord.gg/c3MPjY5)
    1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server

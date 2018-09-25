@@ -4,6 +4,7 @@ import requests as req
 from helper_files.embed import embed 
 import helper_files.settings as settings
 import json
+from main import wolframAPI, wolframClient
 
 logger = logging.getLogger('wall_e')
 
@@ -101,6 +102,33 @@ class Misc():
 				]
 			eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
 			await ctx.send(embed=eObj)
+
+	@commands.command()
+	async def wolfram(self, ctx, arg):
+		logger.info("[Misc wolfram()] wolfram command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
+		logger.info("[Misc wolfram()] URL being contructed")
+
+		commandURL = arg.replace("+", "%2B")
+		commandURL = commandURL.replace(" ", "+")
+		wolframURL = 'https://www.wolframalpha.com/input/?i=%s' % commandURL
+
+		logger.info("[Misc wolfram()] querying WolframAlpha for %s" % arg)
+		res = wolframClient.query(arg)
+		try:
+			content = [
+				['Results from Wolfram Alpha', "`" + next(res.results).text + "`" + "\n\n[Link](%s)" % wolframURL]
+				]
+			eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xdd1100, content=content)
+			await ctx.send(embed=eObj)
+			logger.info("[Misc wolfram()] result found for %s" % arg)
+		except AttributeError:
+			content = [
+				['Results from Wolfram Alpha', "No results found. :thinking: \n\n[Link](%s)" % wolframURL], 
+				]
+			eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xdd1100, content=content)
+			await ctx.send(embed=eObj)
+			logger.info("[Misc wolfram()] result NOT found for %s" % arg)
+
 
 def setup(bot):
 	bot.add_cog(Misc(bot))
