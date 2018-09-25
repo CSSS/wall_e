@@ -24,6 +24,18 @@ pipeline {
                             sh "docker rm -f ${testContainerName} || true"
                             sh "docker run -d -e ${tokenEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
+                        sleep 20
+                        def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
+                        if (containerFailed) {
+                            def output = sh (
+                                    script: "docker logs ${testContainerName}",
+                                    returnStdout: true
+                            ).trim()
+                            withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                                discordSend description: BRANCH_NAME + '\n' + output, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: 'Failing build', webhookURL: "$WEBHOOKURL"
+                            }
+                            error output
+                        }
                     }
                 }
             }
