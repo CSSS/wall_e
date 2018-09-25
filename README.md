@@ -24,7 +24,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.iamn <arg>` - removes you from role `<arg>`
 * `.whois <arg>` - returns everyone who has role `<arg>`
 * `.roles` - displays all roles that exist on the server
-* `.here <args>` - displays all users with permissions to view the current channel. Filters results if they do not match any args, or all users if no args are given.
+* `.here [<filter>]` - displays all users with permissions to view the current channel. Results can be filtered by looking for users whose username or nickname on the server contains the substring indicated with any of the included `<filter>` strings or all users if no filters are given. Multiple `<filters>` may be entered.
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
 * `.remindmein <arg0> to <arg1>` - created a reminder from `<arg0>` from now with the message `<arg1>`
