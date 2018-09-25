@@ -35,7 +35,7 @@ class Administration():
 				await ctx.send("command load failed: {}, {}".format(type(e), str(e)))
 				logger.error("[Administration load()] loading " + name + " failed :"+str(type(e)) +", "+ str(e))
 		else:
-			logger.error("[Administration load()] unauthorized command attempt detected from "+ ctx.message.author)
+			logger.error("[Administration load()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
 
 	@commands.command()

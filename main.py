@@ -96,7 +96,7 @@ async def on_ready():
     logger.info('[main.py on_ready()] BOT_AVATAR initialized to '+str(settings.BOT_AVATAR)+ ' in settings.py')
 
     logger.info('[main.py on_ready()] '+bot.user.name+' is now ready for commands')
-    
+
 ##################################################################################################
 ## HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
 ##################################################################################################
