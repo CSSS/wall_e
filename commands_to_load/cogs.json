@@ -3,6 +3,7 @@
     {"folder":"commands_to_load", "name": "HealthChecks"}, 
     {"folder":"commands_to_load", "name": "Misc"}, 
     {"folder":"commands_to_load", "name": "RoleCommands"}, 
-    {"folder":"commands_to_load", "name": "Reminders"}
+    {"folder":"commands_to_load", "name": "Reminders"},
+    {"folder":"commands_to_load", "name": "Mod"}
 ]
 }

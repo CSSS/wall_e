@@ -46,6 +46,8 @@ class HealthChecks():
 		for entry in helpDict['commands']:
 			if entry['access'] == "bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 				numberOfCommands += 1
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				numberOfCommands += 1
 			elif entry['access'] == "public":
 				numberOfCommands += 1
 
@@ -58,6 +60,11 @@ class HealthChecks():
 				print("[HealthChecks help()] adding "+str(entry)+" to index "+str(index)+" of the helpArr")
 				helpArr[index][0]=entry['name']
 				helpArr[index][1]=entry['description']
+				index+=1
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				print("[HealthChecks help()] adding " + str(entry) + " to index " + str(index) + " of the helper")
+				helpArr[index][0] = entry['name']
+				helpArr[index][1] = entry['description']
 				index+=1
 			elif entry['access'] == "public":
 				print("[HealthChecks help()] adding "+str(entry)+" to index "+str(index)+" of the helpArr")
