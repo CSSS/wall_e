@@ -7,8 +7,8 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 ## Table of Contents
 - [Current Commands](#current-commands)  
-- [How to work on the bot](#local-setup)  
-- [How to become a Bot_manager](Working_on_the_Bot.md)
+- [How to work on the bot](Working_on_the_Bot.md)  
+- [How to become a Bot_manager](Being_a_Bot_manager.md)
 
 ## Current Commands
 
