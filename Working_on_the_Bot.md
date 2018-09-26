@@ -33,7 +33,7 @@ Follow the steps below setup your test discord guild, to run the bot and do deve
 9. Select the server you created and click `Authorize`  
 
 ### Part 2: Running the Bot
->If you encounter any errors doing the following commands, feel free to add it to the FAQs section at the end of the documentation for future reference :)
+>If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) at the end of the documentation for future reference :)
 
 Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.  
 
@@ -61,11 +61,11 @@ Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
       1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
       1. Run `python3.5 main.py`  
 1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
-   1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e) that follows the [below rules]() for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
+   1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
 ## Making a PR to master
 
-These are the things you need to ensure are cover in your PR, otherwise the CODEOWNERS will not approve your PR, not matter how much you ping them to do so on the Discord  
+These are the things you need to ensure are covered in your PR, otherwise the CODEOWNERS will not approve your PR, not matter how much you ping them to do so on the Discord  
  1. The description in the PR is a fair representation of what the PR is about.  
  1. The PR is fixing one thing and one thing only.  
  1. Logging. if you have N variables initialzed/used in your function, you should print all of them out to the log using logging module at least once or have a good reason why you arent.  
@@ -75,40 +75,40 @@ These are the things you need to ensure are cover in your PR, otherwise the CODE
     1. If the argument is called with any arguments.  
        1. If it is called with any arguments, please either provide a good enough explanation of the arg that a user can tell what it will do before using the command. adding an example of how to call it with the args is not necessary but good practice.  
  1. If you are making a new Class of commands, add the class to bot.json following the convention already there.  
- 1. Evidence of Testing. This one needs to be completed after the PR is opened, at that point, you will go on the channel on the CSSS Wall-E Test Server that was automatically created when the PR was opened and then test the following functionality. Once you had done so, you can leave a comment on the PR stating that you had done the necessary testing.  
- 1. Please provide ways to test whatever you just modified on the bot so that future PRs can be tested to ensure they dont break *your code* when merging to master  
+ 1. Evidence of Testing. This one needs to be completed after the PR is opened. At that point, you will go on the channel on the CSSS Wall-E Test Server that was automatically created when the PR was opened and then test the following functionality. Once you had done so, you can leave a comment on the PR stating that you had done the necessary testing.  
+ 1. Please provide ways to test whatever you just modified on the bot in the [Test Cases section below](#test-cases) so that future PRs can be tested to ensure they dont break *your code* when merging to master  
  
  ### Test Cases
- `.ping`  
- `.echo this is the test case`  
- `.help`  
-   Please ensure that the pagination is not effected by doing the following  
-      go to the last page and then hit next when on the last page to make sure it goes back to the beginning  
-      go to the last page from the first page by hitting previous  
-      make sure that the done emoji does delete the help output  
-`.here`  
-`.here k`  
-`.poll`  
-`.poll "question"`  
-`.poll question answer1 answer 2`  
-`.urban yo`  
-`.wolfram 1+1`  
-`.remindmein 20 seconds to test`  
-`.showreminders`  
-`.deletereminder <output from showreminder>`  
-`.remindmein 10 seconds to test`  
-   wait 10 seconds to ensure that it did delete  
-`.iam <whatever_name_you_want_to_use>`  
-`.newrole <whatever_name_you_want_to_use>`  
-`.whois <whatever_name_you_want_to_use>`  
-`.iam <whatever_name_you_want_to_use>`  
-`.whois <whatever_name_you_want_to_use>`  
-`.deleterole <whatever_name_you_want_to_use>`  
-`.iamn <whatever_name_you_want_to_use>`  
-`.whois <whatever_name_you_want_to_use>`  
-`.deleterole <whatever_name_you_want_to_use>`  
-`.roles`  
-`.Roles`  
+ 1. `.ping`  
+ 1. `.echo this is the test case`  
+ 1. `.help`  
+    1. Please ensure that the pagination is not effected by doing the following  
+       1. go to the last page and then hit next when on the last page to make sure it goes back to the beginning  
+       1. go to the last page from the first page by hitting previous  
+       1. make sure that the done emoji does delete the help output  
+1. `.here`  
+1. `.here k`  
+1. `.poll`  
+1. `.poll "question"`  
+1. `.poll question answer1 answer 2`  
+1. `.urban yo`  
+1. `.wolfram 1+1`  
+1. `.remindmein 20 seconds to test`  
+1. `.showreminders`  
+1. `.deletereminder <output from showreminder>`  
+1. `.remindmein 10 seconds to test`  
+   1. wait 10 seconds to ensure that it did delete  
+1. `.iam <whatever_name_you_want_to_use>`  
+1. `.newrole <whatever_name_you_want_to_use>`  
+1. `.whois <whatever_name_you_want_to_use>`  
+1. `.iam <whatever_name_you_want_to_use>`  
+1. `.whois <whatever_name_you_want_to_use>`  
+1. `.deleterole <whatever_name_you_want_to_use>`  
+1. `.iamn <whatever_name_you_want_to_use>`  
+1. `.whois <whatever_name_you_want_to_use>`  
+1. `.deleterole <whatever_name_you_want_to_use>`  
+1. `.roles`  
+1. `.Roles`  
  ## Reporting Issues
 
  If you come across issues that googling wont solve, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bots may not necessarily respond. Please over-provide rather than under-provide.
