@@ -2,7 +2,7 @@
 
 ## Local Setup
 
-Follow the steps below [Part 1] to run the bot and do development on your local machine.  
+Follow the steps below setup your test discord guild, to run the bot and do development on your local machine.  
 
 ### Part 1: Creating Bot and Attaching it to Development Server
 
@@ -35,13 +35,13 @@ Follow the steps below [Part 1] to run the bot and do development on your local 
 
 Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
 
-1. Fork the repo
+1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)
 1. From a command line
-1. Run `git clone https://github.com/CSSS/wall_e.git`
-2. cd into `wall_e` directory
-3. Run `python3.5 -m venv ENV`
-4. Run `. ENV/bin/activate`
-5. Run `python3.5 -m pip install -r requirements.txt`
+1. Run `git clone <the url of your forked repo>`
+1. cd into `wall_e` directory
+1. Run `python3.5 -m venv ENV`
+1. Run `. ENV/bin/activate`
+1. Run `python3.5 -m pip install -r requirements.txt`
 1. Redis Instructions
    1. Mac
       1. Run `brew install redis`
@@ -58,10 +58,9 @@ Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
    1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)
       1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]
    1. Run `python3.5 main.py`
-1. Testing on [CSSS Bot Test Server](https://discord.gg/c3MPjY5)
-   1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server
-9. Run `export TOKEN=token` with the `token` you obtained during the authentication step
-10. Run `python3.5 main.py`
+1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
+   1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.
+1. Run `python3.5 main.py`
 
 ## Making a PR to master
 
