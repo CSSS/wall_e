@@ -9,7 +9,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 - [Software Engineering and Process Document](Software%20Engineering%20and%20Process%20Document)
 - [Current Commands](#current-commands)  
 - [How to work on the bot](#local-setup)  
-- [How to become a Bot_manager]()
+- [How to become a Bot_manager](Working_on_the_Bot.md)
 
 ## Current Commands
 
