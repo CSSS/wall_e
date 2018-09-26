@@ -1,12 +1,12 @@
 # Working on the Bot
 
-- [Local Setup](Software%20Engineering%20and%20Process%20Document)
-  - [Part 1: Creating Bot and Attaching it to a Development Server](#current-commands)  
-  - [Part 2: Running the Bot](Working_on_the_Bot.md)  
-- [Making a PR to master](Being_a_Bot_manager.md)  
-- [Test Cases]  
-- [Reporting Issues]  
-- [FAQs]  
+- [Local Setup](#local-setup)
+  - [Part 1: Creating Bot and Attaching it to a Development Server](#part-1-creating-bot-and-attaching-it-to-development-server)  
+  - [Part 2: Running the Bot](#part-2-running-the-bot)  
+- [Making a PR to master](#making-a-pr-to-master)  
+- [Test Cases](#test-cases)  
+- [Reporting Issues](#reporting-issues)  
+- [FAQs](#faqs)  
 
 ## Local Setup  
 
