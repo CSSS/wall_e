@@ -15,7 +15,7 @@
 1. Checklist of what to look for before approving a PR to master  
    1. the description of the PR is a fair representation of what it is for  
    1. The PR is fixing only one thing.  
-   1. not enough logging, if tje code has N variables initialzed/used in the function, it should print all of them out to the log at least once or have a good reason why they arent arent.  
+   1. not enough logging, if the code has N variables initialized/used in the function, it should print all of them out to the log at least once or have a good reason why they arent arent.  
    1. If the PR is doing something like adding a new line or removing a new line, we reserve the right to ask that they undo that change unless it was for a specific reason.
    1. if the PR are adding a new command, documentation is needed of the following things
       1. the purpose of the command  
