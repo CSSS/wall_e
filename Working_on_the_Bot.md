@@ -1,7 +1,7 @@
 # Working on the Bot
 
 - [Local Setup](#local-setup)
-  - [Part 1: Creating Bot and Attaching it to a Development Server](#part-1-creating-bot-and-attaching-it-to-development-server)  
+  - [Part 1: Creating Bot and Attaching it to a Development Server](#part-1-creating-bot-and-attaching-it-to-a-development-server)  
   - [Part 2: Running the Bot](#part-2-running-the-bot)  
 - [Making a PR to master](#making-a-pr-to-master)  
 - [Test Cases](#test-cases)  
