@@ -108,7 +108,7 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
 1. `.showreminders`  
 1. `.deletereminder <output from showreminder>`  
 1. `.remindmein 10 seconds to test`  
-   1. wait 10 seconds to ensure that it did delete  
+   1. wait 10 seconds to ensure that the reminder did get sent
 1. `.iam <whatever_name_you_want_to_use>`  
 1. `.newrole <whatever_name_you_want_to_use>`  
 1. `.whois <whatever_name_you_want_to_use>`  
