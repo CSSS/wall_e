@@ -56,8 +56,60 @@ Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
    1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
    1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
    1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)
+      1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]
    1. Run `python3.5 main.py`
 1. Testing on [CSSS Bot Test Server](https://discord.gg/c3MPjY5)
    1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server
 9. Run `export TOKEN=token` with the `token` you obtained during the authentication step
 10. Run `python3.5 main.py`
+
+## Making a PR to master
+
+These are the things you need to ensure are cover in your PR, otherwise the CODEOWNERS will not approve your PR, not matter how much you ping them to do so on the Discord
+ 1. The description in the PR is a fair representation of what the PR is about.
+ 1. The PR is fixing one thing and one thing only.
+ 1. Logging. if you have N variables initialzed/used in your function, you should print all of them out to the log using logging module at least once or have a good reason why you arent.
+ 1. If your PR is doing something like adding a new line or removing a new line, CODEOWNERS reserve the right to ask that you undo that change unless it was for a specific reason.
+ 1. 
+ 1. If you are adding a new command....**document**. Document the following things on help.json and the README.md
+    1. The purpose of the command
+    1. If the argument is called with any arguments.
+       1. If it is called with any arguments, please either provide a good enough explanation of the arg that a user can tell what it will do before using the command. adding an example of how to call it with the args is not necessary but good practice.
+ 1. If you are making a new Class of commands, add the class to bot.json following the convention already there.
+ 1. Evidence of Testing. This one needs to be completed after the PR is opened, at that point, you will go on the channel on the CSSS Wall-E Test Server that was automatically created when the PR was opened and then test the following functionality. Once you had done so, you can leave a comment on the PR stating that you had done the necessary testing.
+ 1. Please provide ways to test whatever you just modified on the bot so that future PRs can be tested to ensure they dont break *your code* when merging to master
+ 
+ ### Test Cases
+ `.ping`
+ `.echo this is the test case`
+ `.help`
+   Please ensure that the pagination is not effected by doing the following
+      go to the last page and then hit next when on the last page to make sure it goes back to the beginning
+      go to the last page from the first page by hitting previous
+      make sure that the done emoji does delete the help output
+`.here`
+`.here k`
+`.poll`
+`.poll "question"`
+`.poll question answer1 answer 2`
+`.urban yo`
+`.wolfram 1+1`
+`.remindmein 20 seconds to test`
+`.showreminders`
+`.deletereminder <output from showreminder>`
+`.remindmein 10 seconds to test`  
+   wait 10 seconds to ensure that it did delete
+`.iam <whatever_name_you_want_to_use>`
+`.newrole <whatever_name_you_want_to_use>`
+`.whois <whatever_name_you_want_to_use>`
+`.iam <whatever_name_you_want_to_use>`
+`.whois <whatever_name_you_want_to_use>`
+`.deleterole <whatever_name_you_want_to_use>`
+`.iamn <whatever_name_you_want_to_use>`
+`.whois <whatever_name_you_want_to_use>`
+`.deleterole <whatever_name_you_want_to_use>`
+`.roles`
+`.Roles`
+ ## Reporting Issues
+
+ If you come across issues that googling wont solve, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bots may not necessarily respond. Please over-provide rather than under-provide.
