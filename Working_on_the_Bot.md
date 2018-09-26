@@ -37,13 +37,13 @@ Follow the steps below setup your test discord guild, to run the bot and do deve
 
 Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
 
-1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)
-1. From commandline, run following commands
-   1. Run `git clone <the url of your forked repo>`
-   1. cd into `wall_e` directory
-   1. Run `python3.5 -m venv ENV`
-   1. Run `. ENV/bin/activate`
-   1. Run `python3.5 -m pip install -r requirements.txt`
+1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
+1. From commandline, run following commands  
+   1. Run `git clone <the url of your forked repo>`  
+   1. cd into `wall_e` directory  
+   1. Run `python3.5 -m venv ENV`  
+   1. Run `. ENV/bin/activate`  
+   1. Run `python3.5 -m pip install -r requirements.txt`  
    1. Redis Instructions
       1. Mac
          1. Run `brew install redis`
