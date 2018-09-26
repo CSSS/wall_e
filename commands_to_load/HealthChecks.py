@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord.client
 import json
-from helper_files.Paginate import paginateEmbed, determineNumOfPagesAndEntries
+from helper_files.Paginate import paginateEmbed
 from helper_files.embed import embed 
 import helper_files.settings as settings
 
