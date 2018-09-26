@@ -10,8 +10,6 @@
 
 ## Local Setup  
 
-Follow the steps below setup your test discord guild, to run the bot and do development on your local machine.  
-
 ### Part 1: Creating Bot and Attaching it to a Development Server  
 
 >If the UI/steps for the following process gets changed by Discord, feel free to document the new steps and make a PR for it. We would greatly appreciate :)
@@ -68,7 +66,7 @@ Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
       1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
       1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server  
       1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
-      1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
+         1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
       1. Run `python3.5 main.py`  
 1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
@@ -85,7 +83,7 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
     1. If the argument is called with any arguments.  
        1. If it is called with any arguments, please either provide a good enough explanation of the arg that a user can tell what it will do before using the command. adding an example of how to call it with the args is not necessary but good practice.  
  1. If you are making a new Class of commands, add the class to bot.json following the convention already there.  
- 1. Evidence of Testing. This one needs to be completed after the PR is opened. At that point, you will go on the channel on the CSSS Wall-E Test Server that was automatically created when the PR was opened and then test the following functionality. Once you had done so, you can leave a comment on the PR stating that you had done the necessary testing.  
+ 1. Evidence of Testing. This one needs to be completed after the PR is opened. At that point, you will go on the channel on the CSSS Wall-E Test Server that was automatically created when the PR was opened and then test the [following functionality](#test-cases). Once you had done so, you can leave a comment on the PR stating that you had done the necessary testing.  
  1. Please provide ways to test whatever you just modified on the bot in the [Test Cases section below](#test-cases) so that future PRs can be tested to ensure they dont break *your code* when merging to master  
  
  ## Test Cases  
