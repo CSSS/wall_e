@@ -5,6 +5,7 @@
 Follow the steps below setup your test discord guild, to run the bot and do development on your local machine.  
 
 ### Part 1: Creating Bot and Attaching it to Development Server
+>If the UI/steps for the following process gets changed by Discord, feel free to document the new steps and make a PR for it. We would greatly appreciate :)
 
 1. Create your own Discord server for testing by
    1. Going to `https://discordapp.com/channels/@me`
@@ -32,35 +33,35 @@ Follow the steps below setup your test discord guild, to run the bot and do deve
 9. Select the server you created and click `Authorize`
 
 ### Part 2: Running the Bot
+>If you encounter any errors doing the following commands, feel free to add it to the FAQs section at the end of the documentation for future reference :)
 
 Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
 
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)
-1. From a command line
-1. Run `git clone <the url of your forked repo>`
-1. cd into `wall_e` directory
-1. Run `python3.5 -m venv ENV`
-1. Run `. ENV/bin/activate`
-1. Run `python3.5 -m pip install -r requirements.txt`
-1. Redis Instructions
-   1. Mac
-      1. Run `brew install redis`
-      1. Add `notify-keyspace-events "Ex"` to the end of `/usr/local/etc/redis.conf`
-      1. Run `brew services start|stop|restart redis` to start, stop and restart redis
-   1. Ubuntu
-      1. Run `sudo apt-get install -y redis-server`
-      1. Add `notify-keyspace-events "Ex"` to the end of `/etc/redis/redis.conf`
-      1. Run `sudo service redis-server start`
-1. Using Your Own Discord Test Server
-   1. Run `export ENVIRONMENT='localhost'`
-   1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
-   1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
-   1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)
+1. From commandline, run following commands
+   1. Run `git clone <the url of your forked repo>`
+   1. cd into `wall_e` directory
+   1. Run `python3.5 -m venv ENV`
+   1. Run `. ENV/bin/activate`
+   1. Run `python3.5 -m pip install -r requirements.txt`
+   1. Redis Instructions
+      1. Mac
+         1. Run `brew install redis`
+         1. Add `notify-keyspace-events "Ex"` to the end of `/usr/local/etc/redis.conf`
+         1. Run `brew services start|stop|restart redis` to start, stop and restart redis
+      1. Ubuntu
+         1. Run `sudo apt-get install -y redis-server`
+         1. Add `notify-keyspace-events "Ex"` to the end of `/etc/redis/redis.conf`
+         1. Run `sudo service redis-server start`
+   1. Using Your Own Discord Test Server
+      1. Run `export ENVIRONMENT='localhost'`
+      1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
+      1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
+      1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)
       1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]
-   1. Run `python3.5 main.py`
+      1. Run `python3.5 main.py`
 1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
-   1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.
-1. Run `python3.5 main.py`
+   1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e) that follows the [below rules]() for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.
 
 ## Making a PR to master
 
@@ -112,3 +113,5 @@ These are the things you need to ensure are cover in your PR, otherwise the CODE
  ## Reporting Issues
 
  If you come across issues that googling wont solve, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bots may not necessarily respond. Please over-provide rather than under-provide.
+
+ ## FAQs
