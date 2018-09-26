@@ -1,10 +1,19 @@
 # Working on the Bot
 
-## Local Setup
+- [Local Setup](Software%20Engineering%20and%20Process%20Document)
+  - [Part 1: Creating Bot and Attaching it to a Development Server](#current-commands)  
+  - [Part 2: Running the Bot](Working_on_the_Bot.md)  
+- [Making a PR to master](Being_a_Bot_manager.md)  
+- [Test Cases]  
+- [Reporting Issues]  
+- [FAQs]  
+
+## Local Setup  
 
 Follow the steps below setup your test discord guild, to run the bot and do development on your local machine.  
 
-### Part 1: Creating Bot and Attaching it to Development Server
+### Part 1: Creating Bot and Attaching it to a Development Server  
+
 >If the UI/steps for the following process gets changed by Discord, feel free to document the new steps and make a PR for it. We would greatly appreciate :)
 
 1. Create your own Discord server for testing by  
@@ -32,7 +41,8 @@ Follow the steps below setup your test discord guild, to run the bot and do deve
    * `YOUR_CLIENT_ID` is the `CLIENT ID` you recorded in Step 5  
 9. Select the server you created and click `Authorize`  
 
-### Part 2: Running the Bot
+### Part 2: Running the Bot  
+
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) at the end of the documentation for future reference :)
 
 Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.  
@@ -63,7 +73,7 @@ Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.
 1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
-## Making a PR to master
+## Making a PR to master  
 
 These are the things you need to ensure are covered in your PR, otherwise the CODEOWNERS will not approve your PR, not matter how much you ping them to do so on the Discord  
  1. The description in the PR is a fair representation of what the PR is about.  
@@ -78,7 +88,8 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
  1. Evidence of Testing. This one needs to be completed after the PR is opened. At that point, you will go on the channel on the CSSS Wall-E Test Server that was automatically created when the PR was opened and then test the following functionality. Once you had done so, you can leave a comment on the PR stating that you had done the necessary testing.  
  1. Please provide ways to test whatever you just modified on the bot in the [Test Cases section below](#test-cases) so that future PRs can be tested to ensure they dont break *your code* when merging to master  
  
- ### Test Cases
+ ## Test Cases  
+
  1. `.ping`  
  1. `.echo this is the test case`  
  1. `.help`  
@@ -109,8 +120,9 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
 1. `.deleterole <whatever_name_you_want_to_use>`  
 1. `.roles`  
 1. `.Roles`  
- ## Reporting Issues
+
+ ## Reporting Issues  
 
  If you come across issues that googling wont solve, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bots may not necessarily respond. Please over-provide rather than under-provide.
 
- ## FAQs
+ ## FAQs  
