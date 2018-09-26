@@ -16,7 +16,7 @@ class Here():
     def build_embed(members, channel):
         # build response
 
-        title = "Users in **" + channel.name + "**"
+        title = "Users in **#" + channel.name + "**"
 
         logger.info("[Here here()] creating an embed with title \"" + title + "\"")
         embed = discord.Embed(type = "rich")
@@ -28,12 +28,26 @@ class Here():
         elif len(members) > 50:
             string = "There's a lot of people here.\n"
         else:
-            string =  "The following users have permission for this channel.\n---\n"
+            string =  "The following users have permission for this channel.\n"
+            nicks = ""
+            names = ""
             for member in members:
-                display = member.display_name + "   (" + str(member) + ")\n"
-                string += display
+                nicks += member.display_name + "\n"
+                names += str(member) + "\n"
 
-        string += "---\n*This message will self-destruct in 5 minutes*\n"
+            embed.add_field(name = "Name", value = nicks, inline = True)
+            embed.add_field(name = "Account", value = names, inline = True)
+
+        roles = ""
+        for role in channel.changed_roles:
+            if roles == "":
+                roles += "@" + role.name
+            else:
+                roles += ", @" + role.name
+        if roles == "":
+            roles = "@everyone"
+        roles += "\n*This message will self-destruct in 5 minutes*\n"
+        embed.add_field(name = "Channel Roles", value = roles, inline = False)
         embed.description = string
         return embed
 
