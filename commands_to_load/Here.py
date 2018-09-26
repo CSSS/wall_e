@@ -46,7 +46,8 @@ class Here():
                 roles += ", @" + role.name
         if roles == "":
             roles = "@everyone"
-        embed.add_field(name = roles, value = "*This message will self-destruct in 5 minutes*\n", inline = False)
+        roles += "\n*This message will self-destruct in 5 minutes*\n"
+        embed.add_field(name = "Channel Roles", value = roles, inline = False)
         embed.description = string
         return embed
 
