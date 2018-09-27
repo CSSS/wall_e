@@ -22,7 +22,7 @@ class RoleCommands():
             if role.name == roleToAdd:
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role '" + roleToAdd + "' exists. Calling .iam " + roleToAdd +" will add you to it.")
                 await ctx.send(embed=eObj)
-                logger.error("[RoleCommands newrole()] "+roleToAdd+" already exists")
+                logger.info("[RoleCommands newrole()] "+roleToAdd+" already exists")
                 return
         role = await guild.create_role(name=roleToAdd)
         await role.edit(mentionable=True)
@@ -58,14 +58,14 @@ class RoleCommands():
         roleToAdd = roleToAdd.lower()
         role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
         if role == None:
-            logger.error("[RoleCommands iam()] role doesnt exist.")
+            logger.info("[RoleCommands iam()] role doesnt exist.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToAdd + "**` doesn't exist.\nCalling .newrole " + roleToAdd)
             await ctx.send(embed=eObj)
             return
         user = ctx.message.author
         membersOfRole = role.members
         if user in membersOfRole:
-            logger.error("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
+            logger.info("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAPH!!")            
             await ctx.send(embed=eObj)
         else:
@@ -84,7 +84,7 @@ class RoleCommands():
         roleToRemove = roleToRemove.lower()
         role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
         if role == None:
-            logger.error("[RoleCommands iam()] role doesnt exist.")
+            logger.info("[RoleCommands iam()] role doesnt exist.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToRemove + "`** doesn't exist.")
             await ctx.send(embed=eObj)
             return
@@ -98,7 +98,7 @@ class RoleCommands():
         else:
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Boop Beep??\n You don't have the role, so how am I gonna remove it????")
             await ctx.send(embed=eObj)
-            logger.error("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
+            logger.info("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
         
         
 
@@ -111,11 +111,11 @@ class RoleCommands():
         if role == None:
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="**`" + roleToCheck + "`** does not exist.")
             await ctx.send(embed=eObj)
-            logger.error("[RoleCommands whois()] role "+str(roleToCheck) + " doesnt exist")
+            logger.info("[RoleCommands whois()] role "+str(roleToCheck) + " doesnt exist")
             return
         membersOfRole = role.members
         if not membersOfRole:
-            logger.error("[RoleCommands whois()] there are no members in the role "+str(roleToCheck))
+            logger.info("[RoleCommands whois()] there are no members in the role "+str(roleToCheck))
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="No members in role **`" + roleToCheck + "`**.")
             await ctx.send(embed=eObj)
             return
