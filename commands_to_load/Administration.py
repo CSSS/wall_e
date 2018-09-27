@@ -91,7 +91,7 @@ class Administration():
 			exitCode, output = subprocess.getstatusoutput(query)
 			prefix = "truncated output=\n"
 			if len(output)>2000 :
-				print("getting reduced")
+				logger.info("getting reduced")
 				length = len(output)- (len(output) - 2000) #taking length of just output into account
 				length = length - len(prefix) #taking length of prefix into account
 				length = length - 6 #taking length of prefix into account
