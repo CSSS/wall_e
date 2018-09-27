@@ -148,7 +148,7 @@ class RoleCommands():
         x, currentIndex = 0, 0;
         descriptionToEmbed = ["Roles - Number of People in Role\n"]
         for roles in selfAssignRoles:
-            print("len(descriptionToEmbed)="+str(len(descriptionToEmbed))+" currentIndex="+str(currentIndex))
+            logger.info("len(descriptionToEmbed)="+str(len(descriptionToEmbed))+" currentIndex="+str(currentIndex))
             descriptionToEmbed[currentIndex]+=str(roles[0])+" - "+str(roles[1])+"\n"
             x+=1
             if x == numberOfRolesPerPage: ##this determines how many entries there will be per page
