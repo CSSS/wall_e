@@ -151,5 +151,11 @@ crashlytics-build.properties
 fabric.properties
 token
 
+# Logs
+
+logs/stats_of_commands.csv
+
 #my own files
-updates.txt
+token.txt
+setup.sh
+logs/stats_of_commands.csv

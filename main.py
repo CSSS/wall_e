@@ -10,6 +10,12 @@ import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 from commands_to_load import Misc
+import helper_files.settings as settings
+from helper_files.embed import embed
+import re
+import json
+import wolframalpha
+
 
 ######################
 ## VARIABLES TO USE ##
@@ -33,10 +39,17 @@ print("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)
 bot = commands.Bot(command_prefix='.')
 FILENAME = None
 
-# setting up path hierarchy for commands to load
-commandFolder="commands_to_load."
-the_commands=[commandFolder+"HealthChecks", commandFolder+"Misc", commandFolder+"RoleCommands", commandFolder+"Administration"]
+print('[main.py] loading cog names from json file')
+with open('commands_to_load/cogs.json') as c:
+    cogs = json.load(c)
+cogs = cogs['cogs']
 
+print("[main.py] loading Wolfram Alpha API Environment Variable")
+if 'WOLFRAMAPI' not in os.environ:
+    print("[main.py] No environment variable \"WOLFRAMAPI\" seems to exist...read the README again")
+    exit(1)
+wolframAPI = os.environ['WOLFRAMAPI']
+wolframClient = wolframalpha.Client(wolframAPI)
 
 ##################
 ## LOGGING SETUP ##
@@ -67,7 +80,7 @@ def createLogFile(formatter,logger):
 ##################################################
 ## signals to all functions that use            ##
 ## "wait_until_ready" that the bot is now ready ##
-## to start performing background tasks         ## 
+## to start performing background tasks         ##
 ##################################################
 
 @bot.event
@@ -76,6 +89,12 @@ async def on_ready():
     logger.info('[main.py on_ready()] '+bot.user.name)
     logger.info('[main.py on_ready()] '+str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
+
+    settings.BOT_NAME = bot.user.name
+    settings.BOT_AVATAR = bot.user.avatar_url
+    logger.info('[main.py on_ready()] BOT_NAME initialized to '+str(settings.BOT_NAME)+ ' in settings.py')
+    logger.info('[main.py on_ready()] BOT_AVATAR initialized to '+str(settings.BOT_AVATAR)+ ' in settings.py')
+
     logger.info('[main.py on_ready()] '+bot.user.name+' is now ready for commands')
 
 ##################################################################################################
@@ -101,7 +120,16 @@ async def write_to_bot_log_channel():
             while line:
                 if line.strip() != "":
                     line=line.replace("@","[at]")
-                    await channel.send(line)
+                    if line[0] == ' ':
+                        line = "." + line
+                    output=line
+                    if len(line)>2000:
+                        prefix="truncated output="
+                        line = prefix+line
+                        length = len(line)- (len(line) - 2000) #taking length of just output into account
+                        length = length - len(prefix) #taking length of prefix into account
+                        output=line[:length]
+                    await channel.send(output)
                 line = f.readline()
             await asyncio.sleep(1)
 
@@ -112,16 +140,43 @@ async def write_to_bot_log_channel():
 @bot.event
 async def on_command_error(ctx, error):
     if helper_files.testenv.TestCog.check_test_environment(ctx):
-        logger.error("[main.py on_command_error()] something that "+str(ctx.message.author)+" did isnt working....")
         if isinstance(error, commands.MissingRequiredArgument):
-            fmt = '```Missing argument: {0}```'
+            fmt = 'Missing argument: {0}'
             logger.error('[main.py on_command_error()] '+fmt.format(error.param))
-            await ctx.send(fmt.format(error.param))
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
+            await ctx.send(embed=eObj)
         else:
-            author = ctx.author.nick or ctx.author.name
-            await ctx.send('Error:\n```Sorry '+author+', seems like the command doesn\'t exist :(```')
-            logger.error('[main.py on_command_error()] Ignoring exception in command {}:'.format(ctx.command))
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            #only prints out an error to the log if the string that was entered doesnt contain just "."
+            pattern = r'[^\.]'
+            if re.search(pattern, str(error)[9:-14]):
+                    author = ctx.author.nick or ctx.author.name
+                    #await ctx.send('Error:\n```Sorry '+author+', seems like the command \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
+                    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                    return
+
+########################################################
+## Function that gets called whenever a commmand      ##
+## gets called, being use for data gathering purposes ##
+########################################################
+@bot.event
+async def on_command(ctx):
+    stat_file = open("logs/stats_of_commands.csv", 'a+')
+
+    index=0
+    argument=''
+    for arg in ctx.args:
+        if index > 1:
+            if ',' in arg:
+                arg = arg.replace(',', '[comma]')
+            argument += arg+' '
+        index+=1
+
+    author=str(ctx.message.author)
+    if ',' in author:
+        author=author.replace(",","[comma]")
+
+    now = datetime.datetime.now()
+    stat_file.write(str(now.year)+', '+str(now.month)+', '+str(now.day)+', '+str(now.hour)+', '+str(str(ctx.channel.id))+", "+str(str(ctx.channel))+", "+str(author)+", "+str(ctx.command)+", "+str(argument)+", "+str(ctx.invoked_with)+", "+str(ctx.invoked_subcommand)+"\n")
 
 @bot.listen()
 async def on_member_join(member):
@@ -164,7 +219,7 @@ if __name__ == "__main__":
         f = open(FILENAME+'.log', 'r')
         f.seek(0)
         bot.loop.create_task(write_to_bot_log_channel())
-        logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")        
+        logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
 
@@ -173,17 +228,28 @@ if __name__ == "__main__":
     bot.remove_command("help")
 
     ## tries to loads any commands specified in the_commands into the bot
-    for com in the_commands:
+    for cog in cogs:
         commandLoaded=True
         try:
-            logger.info("[main.py] attempting to load command "+com)
-            bot.load_extension(com)
+            logger.info("[main.py] attempting to load command "+ cog["name"])
+            bot.load_extension(cog["folder"] + '.' + cog["name"])
         except Exception as e:
             commandLoaded=False
             exception = '{}: {}'.format(type(e).__name__, e)
-            logger.error('[main.py] Failed to load command {}\n{}'.format(com, exception))
+            logger.error('[main.py] Failed to load command {}\n{}'.format(cog["name"], exception))
         if commandLoaded:
-            logger.info("[main.py] "+com+" successfully loaded")
+            logger.info("[main.py] " + cog["name"] + " successfully loaded")
+
+    from pathlib import Path
+    my_file = Path("logs/stats_of_commands.csv")
+    if my_file.is_file():
+        print("[main.py] stats_of_commands.csv already exist")
+    else:
+        print("[main.py] stats_of_commands.csv didn't exist, creating it now....")
+        stat_file = open("logs/stats_of_commands.csv", 'a+')
+        stat_file.write("Year, Month, Date, Hour, Channel Name, Channel ID, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
+        stat_file.close()
+
     ##final step, running the bot with the passed in environment TOKEN variable
     TOKEN = os.environ['TOKEN']
     bot.run(TOKEN)

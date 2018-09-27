@@ -1,8 +1,8 @@
 # CSSS Discord Bot (Wall-E)  
 
-![The One and Only, Lovable Wall-E](wall_e_pic.jpg) 
+![The One and Only, Lovable Wall-E](wall_e_pic.jpg)
 
-Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki/WALL-E), will hold all the scripts for the upcoming bot that will operate on the CSSS discord, located [here](https://discord.gg/Pf5Ncq3). This bot is owned by the CSSS and will be maintained by the current CSSS appointed Discord representative and the current bot development team. 
+Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki/WALL-E), will hold all the scripts for the upcoming bot that will operate on the CSSS discord, located [here](https://discord.gg/Pf5Ncq3). This bot is owned by the CSSS and will be maintained by the current CSSS appointed Discord representative and the current bot development team.
 
 
 ## Table of Contents
@@ -15,6 +15,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 
 ## Current Commands
 
+* `.help` - shows the list of available commands
 * `.ping` - returns `pong!`
 * `.echo <arg>` - returns `<arg>`
 * `.newrole <arg>` - creates role `<arg>`
@@ -22,8 +23,15 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.iam <arg>` - adds you to role `<arg>`
 * `.iamn <arg>` - removes you from role `<arg>`
 * `.whois <arg>` - returns everyone who has role `<arg>`
+* `.roles` - displays all roles that exist on the server
+* `.here [<filter>]` - displays all users with permissions to view the current channel. Results can be filtered by looking for users whose username or nickname on the server contains the substring indicated with any of the included `<filter>` strings or all users if no filters are given. Multiple `<filters>` may be entered.
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
+* `.remindmein <arg0> to <arg1>` - created a reminder from `<arg0>` from now with the message `<arg1>`
+* `showreminders` - displays all of the invoking user's reminders and their corresponding messageID
+* `deletereminder <arg>` - deletes the reminder that the invoking user created that has the messageId `<arg>`
+* `.urban <arg0>` - return definition from urban dictionary of `<arg0>`
+* `.wolfram <arg>` - returns the result of passing `<arg>` to Wolfram Alpha
 
 ## Local Setup
 
@@ -71,6 +79,7 @@ From a command line
    1. Run `export ENVIRONMENT='localhost'`
    1. Run `export TOKEN=token` with the `token` you obtained during the authentication step
    1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server
+   1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)
    1. Run `python3.5 main.py`
 1. Testing on [CSSS Bot Test Server](https://discord.gg/c3MPjY5)
    1. After you have tested on your own Discord Test Server, push your changes to [Wall-E](https://github.com/CSSS/wall_e). Pushing it will automatically load it into the CSSS Bot Test Server

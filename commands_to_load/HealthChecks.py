@@ -1,8 +1,9 @@
 from discord.ext import commands
-from commands_to_load.Administration import Administration 
 import discord.client
 import json
-from commands_to_load.Paginate import paginateEmbed, paginate
+from helper_files.Paginate import paginateEmbed
+from helper_files.embed import embed 
+import helper_files.settings as settings
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -10,62 +11,95 @@ logger = logging.getLogger('wall_e')
 class HealthChecks():
 
 	def __init__(self, bot):
-		logger.info("[Administration buildBot_Manager_list()] attempting to load bot managers from bot_mangers.json")
-		with open('commands_to_load/bot_managers.json') as f:
-			TheAdmins = json.load(f)
-		logger.info("[HealthChecks help()] loaded bot_managers from bot_managers.json"+str(TheAdmins))
 		self.bot = bot
-		self.admin = TheAdmins
-
-	async def botManager(self, ctx):
-		for manager in self.admin['BOT_MANAGERS']:
-			if str(ctx.message.author.id) in manager.values():
-				return True
-		return False
 
 	@commands.command()
 	async def ping(self, ctx):
 		logger.info("[HealthChecks ping()] ping command detected from "+str(ctx.message.author))
-		await ctx.send('```pong!```')
+		eObj = embed(description='Pong!', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
+		await ctx.send(embed=eObj)
 
 
 	@commands.command()
-	async def echo(self, ctx, arg):
-		user = ctx.author.nick or ctx.author.name
+	async def echo(self, ctx, *args):
+		user = ctx.author.display_name
+		arg=''
+		for argument in args:
+			arg+=argument+' '
 		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
-		await ctx.send(user + " says: " + arg)
+		avatar = ctx.author.avatar_url
+		eObj = embed(author=user, avatar=avatar, description=arg)
+		
+		await ctx.send(embed=eObj)
 
 	@commands.command()
 	async def help(self, ctx):
+		numberOfCommandsPerPage=5
+		await ctx.send("     help me.....")
 		logger.info("[HealthChecks help()] help command detected from "+str(ctx.message.author))
 		logger.info("[HealthChecks help()] attempting to load command info from help.json")
 		with open('commands_to_load/help.json') as f:
 			helpDict = json.load(f)
-		logger.info("[HealthChecks help()] loaded commands from help.json"+str(helpDict))
+		logger.info("[HealthChecks help()] loaded commands from help.json=\n"+str(json.dumps(helpDict, indent=3)))
 		
 		# determing the number of commands the user has access to.
 		numberOfCommands=0
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and await self.botManager(ctx):
-				numberOfCommands += 1
+			if entry['access'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1					
 			elif entry['access'] == "public":
-				numberOfCommands += 1
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1
 
-		helpArr = [["" for x in range(2)] for y in range(numberOfCommands)] 
-		index=0
-		logger.info("[HealthChecks help()] tranferring dictionary to array")
+		print("[HealthChecks help()] numberOfCommands set to "+str(numberOfCommands))
+		descriptionToEmbed=[""]
+		x, page = 0, 0;
 		for entry in helpDict['commands']:
-			if entry['access'] == "bot_manager" and await self.botManager(ctx):
-				helpArr[index][0]=entry['name']
-				helpArr[index][1]=entry['description']
+			if entry['access'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+				if 'Class' in entry['name']:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+				else:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numberOfCommandsPerPage:
+						descriptionToEmbed.append("")
+						page+=1
+						x = 0					
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				if 'Class' in entry['name']:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"					
+				else:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numberOfCommandsPerPage:
+						descriptionToEmbed.append("")
+						page+=1
+						x = 0
 			elif entry['access'] == "public":
-				helpArr[index][0]=entry['name']
-				helpArr[index][1]=entry['description']
-			index+=1
+				print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+				if 'Class' in entry['name']:
+					print("[HealthChecks help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+				else:
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numberOfCommandsPerPage:
+						descriptionToEmbed.append("")
+						page+=1
+						x = 0
+			else:
+				print("[HealthChecks help()] "+str(entry)+" has a wierd access level of "+str(entry['access'])+"....not sure how to handle it so not adding it to the descriptionToEmbed")
 		logger.info("[HealthChecks help()] transfer successful")
 
-		#rolesList = sorted(rolesList, key=str.lower)
-		await paginateEmbed(bot=self.bot,title="Help Page" ,ctx=ctx,listToEmbed=helpArr, numOfPageEntries=5)
+		await paginateEmbed(self.bot, ctx, descriptionToEmbed, title="Help Page" )
 
 
 def setup(bot):

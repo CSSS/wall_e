@@ -1,17 +1,39 @@
 { "commands" : [
+		{ "access": "Bot_manager", "name": "Class: HealthChecks"},
 		{ "access": "public", "name": ".help", "description": "shows this page" },
+		{ "access": "public", "name": ".ping", "description": "returns pong!" },
+		{ "access": "public", "name": ".echo <arg>", "description": "returns <arg>" },
+
+		{ "access": "Bot_manager", "name": "Class: RoleCommands"},
 		{ "access": "public", "name": ".newrole <arg>", "description": "creates role <arg>"},
 		{ "access": "public", "name": ".deleterole <arg>", "description": "deletes role <arg>" },
 		{ "access": "public", "name": ".iam <arg>" , "description": "adds you to role <arg>" },
 		{ "access": "public", "name": ".iamn <arg>", "description": "removes you from role <arg>" },
-		{ "access": "public", "name": ".ping", "description": "returns pong!" },
-		{ "access": "public", "name": ".echo <arg>", "description": "returns <arg>" },
+		{ "access": "public", "name": ".whois <arg>", "description": "returns everyone who has role <arg>" },
+		{ "access": "public", "name": ".roles", "description": "will display all the self-assignable roles that exist"},
+		{ "access": "public", "name": ".Roles", "description": "will display all the Mod/Exec/XP Assigned roles that exist"},
+
+		{ "access": "Bot_manager", "name": "Class: Misc"},
 		{ "access": "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
 		{ "access": "public", "name": ".poll <arg0> <arg1> <arg2> (up to 12 arguments)", "description": "starts a poll where <arg0> is the question and the remaining arguments are the options"},
-		{ "access": "public", "name": "remindmein", "description": "can be called like so: \".remindmein <2 hours> to <finish my assignment>\"" },
-		{ "access": "bot_manager", "name": ".load <arg>", "description": "loads the commands in the class <arg>"},
-		{ "access": "bot_manager", "name": ".unload <arg>", "description": "unloads the commands in the class <arg>"},
-		{ "access": "bot_manager", "name": ".reload <arg>", "description": "reloads the commands in the class <arg>"},
-		{ "access": "bot_manager", "name": ".exc <arg>", "description": "executes the command <arg> on the bot server"}
+		{"access": "public", "name": ".urban <arg>", "description": "returns definition from urban dictionary of <arg>"},
+
+		{ "access": "Bot_manager", "name": "Class: Reminders"},
+		{ "access": "public", "name": ".remindmein <x minutes|hours|days> to <subject>", "description": "create a reminder" },
+		{ "access": "public", "name": ".showreminders", "description": "Show all your active reminders and their corresponding messageIDs" },
+		{ "access": "public", "name": ".deletereminder <arg>", "description": "deletes a reminder that has a messageId of <arg>. the \"messageId\" can be obtained by using the \".showreminders\" command" },
+
+		{ "access": "Bot_manager", "name": "Class: Administration"},
+		{ "access": "Bot_manager", "name": ".load <arg>", "description": "loads the commands in the class <arg>. The classes and their corresponding commands can be determined using the \".help\" command."},
+		{ "access": "Bot_manager", "name": ".unload <arg>", "description": "unloads the commands in the class <arg>. The classes and their corresponding commands can be determined using the \".help\" command."},
+		{ "access": "Bot_manager", "name": ".reload <arg>", "description": "reloads the commands in the class <arg>. The classes and their corresponding commands can be determined using the \".help\" command."},
+		{ "access": "Bot_manager", "name": ".exc <arg>", "description": "executes the command <arg> on the bot server. The classes and their corresponding commands can be determined using the \".help\" command."},
+
+		{ "access": "Bot_manager", "name": "Class: Minions"},
+		{ "access": "Minions", "name": ".embed <arg0> <arg1> ...", "description": "Allows Minions to post embed messages.\nFor odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.\nFor even number there will be no description."},
+		{ "access": "Minions", "name": ".modspeak <arg>", "description": "Posts the warning message <arg> in embed format. No quotes required with message."},
+		
+		{"access": "Bot_manager", "name": "Class: Here"},
+		{ "access": "public", "name": ".here <filters> ...", "description": "Displays all users with permissions to view the current channel. Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."}
 	]
 }
