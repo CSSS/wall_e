@@ -26,13 +26,13 @@ class Mod():
     async def embed(self, ctx, *arg):
         logger.info('[Mod embed()] embed function detected by user ' + str(ctx.message.author))
         if not arg:
-            logger.error("[Mod embed()] no args, so command ended")
+            logger.info("[Mod embed()] no args, so command ended")
             return
         await ctx.message.delete()
         logger.info('[Mod embed()] invoking message deleted')
         
         if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
-            logger.error('[Mod embed()] unathorized command attempt detected. Being handled.')
+            logger.info('[Mod embed()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
         
@@ -61,13 +61,13 @@ class Mod():
         logger.info('[Mod modspeak()] modspeack function detected by minion ' + str(ctx.message.author))
         
         if not arg:
-            logger.error("[Mod modspeak()] no args, so command ended")
+            logger.info("[Mod modspeak()] no args, so command ended")
             return
         await ctx.message.delete()
         logger.info('[Mod embed()] invoking message deleted')
 
         if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
-            logger.error('[Mod modspeak()] unathorized command attempt detected. Being handled.')
+            logger.info('[Mod modspeak()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
 

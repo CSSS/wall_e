@@ -21,7 +21,7 @@ class Misc():
 		ava = ctx.author.avatar_url
 
 		if len(questions) > 12:
-			logger.error("[Misc poll()] was called with too many options.")
+			logger.info("[Misc poll()] was called with too many options.")
 			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please only submit a maximum of 11 options for a multi-option question.')
 			await ctx.send(embed=eObj)
 			return
@@ -34,12 +34,12 @@ class Misc():
 			logger.info("[Misc poll()] yes/no poll constructed and sent to server.")
 			return
 		if len(questions) == 2:
-			logger.error("[Misc poll()] poll with only 2 arguments detected.")
+			logger.info("[Misc poll()] poll with only 2 arguments detected.")
 			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please submit at least 2 options for a multi-option question.')
 			await ctx.send(embed=eObj)
 			return
 		elif len(questions) == 0:
-			logger.error("[Misc poll()] poll with no arguments detected.")
+			logger.info("[Misc poll()] poll with no arguments detected.")
 			eObj = embed(title='Usage', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='.poll <Question> [Option A] [Option B] ...')
 			await ctx.send(embed=eObj)
 			return
@@ -84,12 +84,12 @@ class Misc():
 			logger.info("[Misc urban()] Get request successful")			
 			data = res.json()
 		else:
-			logger.error("[Misc urban()] Get request failed, 404 resulted")
+			logger.info("[Misc urban()] Get request failed, 404 resulted")
 			data = ''
 
 		data = data['list']
 		if not data:
-			logger.error("[Misc urban()] sending message indicating 404 result")
+			logger.info("[Misc urban()] sending message indicating 404 result")
 			eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
 			await ctx.send(embed=eObj)
 			return
@@ -127,7 +127,7 @@ class Misc():
 				]
 			eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xdd1100, content=content)
 			await ctx.send(embed=eObj)
-			logger.info("[Misc wolfram()] result NOT found for %s" % arg)
+			logger.error("[Misc wolfram()] result NOT found for %s" % arg)
 
 
 def setup(bot):
