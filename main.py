@@ -201,7 +201,8 @@ async def on_member_join(member):
         output+="\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass cmpt316>\n"
         output+="\tPlease keep Academic Honesty in mind when discussing course material here.\n"
 
-        await member.send(output)
+        msg = await member.send(output)
+        await msq.delete()
         logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
 ####################
