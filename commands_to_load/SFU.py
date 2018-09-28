@@ -40,6 +40,17 @@ class SFU():
             courseCode = course[0]
             courseNum = course[1]
 
+        url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
+        logger.info('[SFU sfu()] url for get request constructed: %s' url)
+
+        res = req.get(url)
+        if(res.status_code != 404):
+            logger.info('[SFU sfu()] get request successful')
+            data = res.json()
+        else:
+            logger.info('[SFU sfu()] get resulted in 404')
+            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum))
+            await ctx.send(embed=eObj)
+            return
         
-def setup(bot):
     bot.add_cog(SFU(bot))
