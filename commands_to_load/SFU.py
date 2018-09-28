@@ -27,6 +27,19 @@ class SFU():
         else:
             term = 'fall'
         
+        # Check if arg needs to be manually split
+        if(len(course) == 1):
+            #split
+            crs = re.findall('(\d*\D+)', course[0])
+            if(len(crs) < 2):
+                crs = re.split('(\d+)', course[0])
+
+            courseCode = crs[0]
+            courseNum = crs[1]
+        else:
+            courseCode = course[0]
+            courseNum = course[1]
+
         
 def setup(bot):
     bot.add_cog(SFU(bot))
