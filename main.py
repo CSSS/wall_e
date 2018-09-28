@@ -181,7 +181,7 @@ async def on_command(ctx):
 @bot.listen()
 async def on_member_join(member):
 
-    from helper_files.embed import embed
+    from helper_files.embed import embed as imported_embed
 
     output="Hi, welcome to the SFU CSSS Discord Server.\n"
     output+="\tWe are a group of students who live to talk about classes and nerdy stuff.\n"
@@ -200,7 +200,7 @@ async def on_member_join(member):
     output+="\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass cmpt316>\n"
     output+="\tPlease keep Academic Honesty in mind when discussing course material here.\n"
 
-    eObj = embed(title="Welcome to the SFU CSSS's Discord Channel", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=output)
+    eObj = imported_embed(title="Welcome to the SFU CSSS's Discord Channel", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=output)
     await member.send(embed=eObj)
     logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
