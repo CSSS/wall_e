@@ -41,7 +41,7 @@ class SFU():
             courseNum = course[1]
 
         url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
-        logger.info('[SFU sfu()] url for get request constructed: %s' url)
+        logger.info('[SFU sfu()] url for get request constructed: %s' % url)
 
         res = req.get(url)
         if(res.status_code != 404):
