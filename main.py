@@ -184,7 +184,7 @@ async def on_member_join(member):
     if member is not None:
         from helper_files.embed import embed as imported_embed
 
-        output="Hi, welcome to the SFU CSSS Discord Server.\n"
+        output="Hi, welcome to the SFU CSSS Discord Server's"+str(os.environ['BRANCH'])+" branch.\n"
         output+="\tWe are a group of students who live to talk about classes and nerdy stuff.\n"
         output+="\tIf you need help, please ping any of our Execs, Execs at large, or First Year Reps.\n"
         output+="\n"
