@@ -92,7 +92,7 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
 		numOfPageEntries) + " and title=" + title)
 	if numOfPages == 0:
 		if numOfPageEntries == 0:
-			logger.error("[Paginate paginate()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
+			logger.info("[Paginate paginate()] you need to specify either \"numOfPages\" or \"numOfPageEntries\"")
 			return
 		else:
 			if int(len(listToPaginate) / numOfPageEntries) == len(listToPaginate) / numOfPageEntries:
@@ -101,7 +101,7 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
 				numOfPages = int(len(listToPaginate) / numOfPageEntries) + 1
 	else:
 		if numOfPageEntries != 0:
-			logger.error("[Paginate paginate()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
+			logger.info("[Paginate paginate()] you specified both \"numOfPages\" and \"numOfPageEntries\", please only use one")
 		else:
 			if int(len(listToPaginate) / numOfPages) == len(listToPaginate) / numOfPages:
 				numOfPageEntries = int(len(listToPaginate) / numOfPages)
