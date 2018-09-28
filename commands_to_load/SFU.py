@@ -53,4 +53,18 @@ class SFU():
             await ctx.send(embed=eObj)
             return
         
+        logger.info('[SFU sfu()] parsing json data returned from get request')
+        title = 'Results from SFU'
+        colour = 0xA6192E
+
+        sfuUrl='http://www.sfu.ca/students/calendar/%s/%s/courses/%s/%s.html' % (year, term, courseCode, courseNum)
+        link = '[here](%s)' % sfuUrl
+        footer = 'Written by VJ'
+
+        fields = [
+            [data['title'], data['description'], 
+            ["URL", link]
+        ]
+
+def setup(bot):
     bot.add_cog(SFU(bot))
