@@ -66,5 +66,9 @@ class SFU():
             ["URL", link]
         ]
 
+        embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=colour, footer=footer)
+        await ctx.send(embed=embedObj)
+        logger.info('[SFU sfu()] out sent to server')        
+
 def setup(bot):
     bot.add_cog(SFU(bot))
