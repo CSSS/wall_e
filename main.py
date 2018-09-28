@@ -202,6 +202,7 @@ async def on_member_join(member):
 
     eObj = embed(title="Welcome to the SFU CSSS's Discord Channel", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=output)
     await member.send(embed=eObj)
+    logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
 ####################
 ## STARTING POINT ##
