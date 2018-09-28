@@ -13,5 +13,9 @@ class SFU():
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command()
+    async def sfu(self, ctx, *course):
+        logger.info('[SFU sfu()] sfu command detected from user ' + str(ctx.message.author))
+        
 def setup(bot):
     bot.add_cog(SFU(bot))
