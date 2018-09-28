@@ -181,28 +181,29 @@ async def on_command(ctx):
 @bot.listen()
 async def on_member_join(member):
 
-    from helper_files.embed import embed as imported_embed
+    if member is not None:
+        from helper_files.embed import embed as imported_embed
 
-    output="Hi, welcome to the SFU CSSS Discord Server.\n"
-    output+="\tWe are a group of students who live to talk about classes and nerdy stuff.\n"
-    output+="\tIf you need help, please ping any of our Execs, Execs at large, or First Year Reps.\n"
-    output+="\n"
-    output+="\tOur general channels include some of the following:\n"
-    output+="\t#off-topic, where we discuss damn near anything.\n"
-    output+="\t#first-years, for students who are starting, or about to start their first year.\n"
-    output+="\t#discussion, for serious non-academic discussion. (Politics et al.)\n"
-    output+="\t#sfu-discussions, for all SFU related discussion.\n"
-    output+="\t#projects_and_dev, for non-academic tech/dev/project discussion.\n"
-    output+="\t#bot_commands_and_misc, for command testing to reduce spam on other channels.\n"
-    output+="\n"
-    output+="\n"
-    output+="\tWe also have a smattering of course specific Academic channels.\n"
-    output+="\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass cmpt316>\n"
-    output+="\tPlease keep Academic Honesty in mind when discussing course material here.\n"
+        output="Hi, welcome to the SFU CSSS Discord Server.\n"
+        output+="\tWe are a group of students who live to talk about classes and nerdy stuff.\n"
+        output+="\tIf you need help, please ping any of our Execs, Execs at large, or First Year Reps.\n"
+        output+="\n"
+        output+="\tOur general channels include some of the following:\n"
+        output+="\t#off-topic, where we discuss damn near anything.\n"
+        output+="\t#first-years, for students who are starting, or about to start their first year.\n"
+        output+="\t#discussion, for serious non-academic discussion. (Politics et al.)\n"
+        output+="\t#sfu-discussions, for all SFU related discussion.\n"
+        output+="\t#projects_and_dev, for non-academic tech/dev/project discussion.\n"
+        output+="\t#bot_commands_and_misc, for command testing to reduce spam on other channels.\n"
+        output+="\n"
+        output+="\n"
+        output+="\tWe also have a smattering of course specific Academic channels.\n"
+        output+="\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass cmpt316>\n"
+        output+="\tPlease keep Academic Honesty in mind when discussing course material here.\n"
 
-    eObj = imported_embed(title="Welcome to the SFU CSSS's Discord Channel", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=output)
-    await member.send(embed=eObj)
-    logger.info("[main.py on_member_join] embed sent to member "+str(member))
+        eObj = imported_embed(title="Welcome to the SFU CSSS's Discord Channel", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=output)
+        await member.send(embed=eObj,content=None)
+        logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
 ####################
 ## STARTING POINT ##
