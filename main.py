@@ -202,7 +202,7 @@ async def on_member_join(member):
         output+="\tPlease keep Academic Honesty in mind when discussing course material here.\n"
 
         msg = await member.send(output)
-        await msq.delete()
+        await msg.delete()
         logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
 ####################
