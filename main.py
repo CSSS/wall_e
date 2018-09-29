@@ -200,9 +200,8 @@ async def on_member_join(member):
         output+="\tWe also have a smattering of course specific Academic channels.\n"
         output+="\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass cmpt316>\n"
         output+="\tPlease keep Academic Honesty in mind when discussing course material here.\n"
-
-        msg = await member.send(output)
-        await msg.delete()
+        eObj = imported_embed(description=output, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
+        await member.send(embed=eObj)
         logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
 ####################
