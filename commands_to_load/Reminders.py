@@ -45,12 +45,12 @@ class Reminders():
 				message+=str(value)+" "
 		how_to_call_command="\nPlease call command like so:\nremindmein <time|minutes|hours|days> to <what to remind you about>\nExample: \".remindmein 10 minutes to turn in my assignment\""
 		if parsedTime == '':
-			logger.error("[Reminders remindme()] was unable to extract a time")
+			logger.info("[Reminders remindme()] was unable to extract a time")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a time"+str(how_to_call_command))
 			await ctx.send(embed=eObj)
 			return
 		if message == '':
-			logger.error("[Reminders remindme()] was unable to extract a message")
+			logger.info("[Reminders remindme()] was unable to extract a message")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a string"+str(how_to_call_command))
 			await ctx.send(embed=eObj)
 			return
@@ -59,7 +59,7 @@ class Reminders():
 		logger.info("[Reminders remindme()] extracted message is "+str(message))
 		time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
 		if parse_status == 0:
-			logger.error("[Reminders remindme()] couldn't parse the time")
+			logger.info("[Reminders remindme()] couldn't parse the time")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
 			await ctx.send(embed=eObj)
 			return
