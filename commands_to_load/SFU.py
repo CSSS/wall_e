@@ -20,6 +20,7 @@ class SFU():
         if(not course):
             eObj = embed(title='Result from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=[['Missing arguments', 'Usage: `.sfu <arg>`\nEx: `.sfu cmpt225`']], footer='SFU Error')
             await ctx.send(embed=eObj)
+            logger.info('[SFU sfu()] missing arguments, command ended')
             return
 
         year = time.localtime()[0]
@@ -82,6 +83,7 @@ class SFU():
         if(not course):
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=[['Missing arguments', 'Usage: `.outline <course> [<term> <section>]`\nEx: `.outline cmpt300 fall d200`\n <term> and <section> are optional arguments']], footer='SFU Outline Error')
             await ctx.send(embed=eObj)
+            logger.info('[SFU outline()] missing arguments, command ended')
             return
 
         year = time.localtime()[0]
