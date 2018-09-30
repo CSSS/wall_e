@@ -35,6 +35,11 @@
 		{ "access": "Minions", "name": ".modspeak <arg>", "description": "Posts the warning message <arg> in embed format. No quotes required with message."},
 		
 		{"access": "Bot_manager", "name": "Class: Here"},
-		{ "access": "public", "name": ".here <filters> ...", "description": "Displays all users with permissions to view the current channel. Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."}
+		{ "access": "public", "name": ".here <filters> ...", "description": "Displays all users with permissions to view the current channel. Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."},
+
+		{"access": "Bot_manager", "name":"Class: SFU"},
+		{"access": "public", "name": ".sfu <arg>", "description": "Returns the calendar description from current semester of <arg>"},
+		{"access": "public", "name": ".outline <arg0> [<arg1> <arg2>]", "description": "Returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`."}
+		
 	]
 }
