@@ -155,7 +155,7 @@ class SFU():
             tme = x['startTime'] + '-' + x['endTime']
             room = x['buildingCode'] + ' ' + x['roomNumber']
             campus = x['campus']
-            course = course + secCode + ' ' + days + ' ' + tme + ', ' + room + ', ' + campus + '\n'
+            crs = crs + secCode + ' ' + days + ' ' + tme + ', ' + room + ', ' + campus + '\n'
 
         classTimes = crs
 
