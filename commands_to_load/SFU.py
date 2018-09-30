@@ -8,6 +8,7 @@ from helper_files.embed import embed
 import helper_files.settings as settings
 
 logger = logging.getLogger('wall_e')
+sfuRed = 0xA6192E
 
 class SFU():
     def __init__(self, bot):
@@ -18,7 +19,7 @@ class SFU():
         logger.info('[SFU sfu()] sfu command detected from user ' + str(ctx.message.author))
 
         if(not course):
-            eObj = embed(title='Result from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=[['Missing arguments', 'Usage: `.sfu <arg>`\nEx: `.sfu cmpt225`']], footer='SFU Error')
+            eObj = embed(title='Result from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Missing arguments', 'Usage: `.sfu <arg>`\nEx: `.sfu cmpt225`']], footer='SFU Error')
             await ctx.send(embed=eObj)
             logger.info('[SFU sfu()] missing arguments, command ended')
             return
@@ -55,13 +56,13 @@ class SFU():
             data = res.json()
         else:
             logger.info('[SFU sfu()] get resulted in 404')
-            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
+            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
             await ctx.send(embed=eObj)
             return
         
         logger.info('[SFU sfu()] parsing json data returned from get request')
         title = 'Results from SFU'
-        colour = 0xA6192E
+        colour = sfuRed
 
         sfuUrl='http://www.sfu.ca/students/calendar/%s/%s/courses/%s/%s.html' % (year, term, courseCode, courseNum)
         link = '[here](%s)' % sfuUrl
@@ -81,7 +82,7 @@ class SFU():
         logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))
 
         if(not course):
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=[['Missing arguments', 'Usage: `.outline <course> [<term> <section>]`\nEx: `.outline cmpt300 fall d200`\n <term> and <section> are optional arguments']], footer='SFU Outline Error')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Missing arguments', 'Usage: `.outline <course> [<term> <section>]`\nEx: `.outline cmpt300 fall d200`\n <term> and <section> are optional arguments']], footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             logger.info('[SFU outline()] missing arguments, command ended')
             return
@@ -127,7 +128,7 @@ class SFU():
             else:
                 # Send something saying be in this order
                 logger.error('[SFU outline] args out of order or wrong')
-                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=0xA6192E, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
+                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
                 await ctx.send(embed=eObj)
                 return
         
@@ -149,7 +150,7 @@ class SFU():
             data = res.json()
         else:
             logger.error('[SFU outline()] get resulted in 404')
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()), footer='SFU Outline Error')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()), footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
 
@@ -215,7 +216,7 @@ class SFU():
         ]
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
 
-        eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, thumbnail=img, content=fields, footer='Written by VJ')
+        eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, thumbnail=img, content=fields, footer='Written by VJ')
         await ctx.send(embed=eObj)
 
 def setup(bot):
