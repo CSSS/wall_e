@@ -125,6 +125,21 @@ class SFU():
 
         courseCode = crs[0]
         courseNum = crs[1]
+
+        # Set up url for get
+        url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
+        logger.info('[SFU outline()] url for get constructed: ' + url)
+
+        res = req.get(url)
+        if(res.status_code != 404):
+            logger.info('[SFU outline()] get request successful')
+            data = res.json()
+        else:
+            logger.error('[SFU outline()] get resulted in 404')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()))
+            await ctx.send(embed=eObj)
+            return
+
         
 def setup(bot):
     bot.add_cog(SFU(bot))
