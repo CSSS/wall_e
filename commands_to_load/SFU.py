@@ -62,13 +62,16 @@ class SFU():
         footer = 'Written by VJ'
 
         fields = [
-            [data['title'], data['description'], 
+            [data['title'], data['description']], 
             ["URL", link]
         ]
 
-        embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=colour, footer=footer)
+        embedObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=colour, footer=footer)
         await ctx.send(embed=embedObj)
         logger.info('[SFU sfu()] out sent to server')        
 
+    @commands.command()
+    async def outline(self, ctx, *course):
+        logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))
 def setup(bot):
     bot.add_cog(SFU(bot))
