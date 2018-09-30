@@ -182,6 +182,25 @@ class SFU():
         details = data['info']['courseDetails'][:200] + '\n(...)'
         prerequisites  = data['info']['prerequisites']
 
+        url = 'http://www.sfu.ca/outlines.html?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
+        
+        logger.info('[SFU outline()] finished parsing data for: %s/%s/%s/%s/%s' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()))
+        
+        # Make tuple of the data for the fields
+        fields = [
+            ['Outline', outline], 
+            ['Title', title], 
+            ['Instructor', instructor], 
+            ['Class Times', classTimes], 
+            ['Exam Times', examTimes], 
+            ['Description', description], 
+            ['Details', details], 
+            ['Prerequisites', prerequisites], 
+            ['URL', '[here](%s)' % url]
+        ]
+
+        eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=fields, footer='Written by VJ')
+        await ctx.send(embed=eObj)
 
 def setup(bot):
     bot.add_cog(SFU(bot))
