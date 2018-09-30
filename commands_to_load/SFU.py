@@ -87,5 +87,44 @@ class SFU():
         else:
             term = 'fall'
         
+        logger.info('[SFU outline()] parsing args')
+        argNum = len(course)
+
+        # Course and term or section is specified
+        if(argNum == 2):
+            # Figure out if section or term was given
+            temp = course[1].lower()
+
+            if(len(temp) == 4):
+                if(temp != 'fall'):
+                    section = temp
+                else:
+                    term = temp
+            elif(temp == 'summer'):
+                term = temp
+            elif(temp == 'spring'):
+                term = temp
+        
+        # Course, term, and section is specified
+        elif(argNum == 3):
+            # Check iff last arg is section
+            if(len(course[2] == 4 and course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer')):
+                term = course[1].lower()
+                section = course[2].lower()
+            else:
+                # Send something saying be in this order
+                logger.error('[SFU outline] args out of order or wrong')
+                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=0xA6192E, description='Make sure your arg\'s are in the following order:\n<course> <term> <section>\nexample: .outline cmpt300 fall d200\n term and section are optional args')
+                await ctx.send(embed=eObj)
+                return
+        
+        # split course[0] into parts
+        crs = re.findall('(\d*\D+)', course[0])
+        if(len(crs) < 2):
+            crs = re.split('(\d+)', course[0]) # this incase the course num doesnt end in a letter, need to split with different regex
+
+        courseCode = crs[0]
+        courseNum = crs[1]
+        
 def setup(bot):
     bot.add_cog(SFU(bot))
