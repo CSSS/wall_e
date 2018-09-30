@@ -104,6 +104,21 @@ class SFU():
         logger.info('[SFU outline()] parsing args')
         argNum = len(course)
 
+        if(course[1][:len(course[1])-1].isdigit()):
+            # User gave course in two parts
+            courseCode = course[0].lower()
+            courseNum = course[1].lower()
+            course = course[:1] + course[2:]
+            argNum = len(course)
+        else:
+            # Split course[0] into parts
+            crs = re.findall('(\d*\D+)', course[0])
+            if(len(crs) < 2):
+                crs = re.split('(\d+)', course[0]) # this incase the course num doesnt end in a letter, need to split with different regex
+
+            courseCode = crs[0]
+            courseNum = crs[1]
+
         # Course and term or section is specified
         if(argNum == 2):
             # Figure out if section or term was given
@@ -122,7 +137,7 @@ class SFU():
         # Course, term, and section is specified
         elif(argNum == 3):
             # Check iff last arg is section
-            if(len(course[2] == 4 and course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer')):
+            if(len(course[2]) == 4 and (course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer')):
                 term = course[1].lower()
                 section = course[2].lower()
             else:
@@ -132,13 +147,7 @@ class SFU():
                 await ctx.send(embed=eObj)
                 return
         
-        # split course[0] into parts
-        crs = re.findall('(\d*\D+)', course[0])
-        if(len(crs) < 2):
-            crs = re.split('(\d+)', course[0]) # this incase the course num doesnt end in a letter, need to split with different regex
-
-        courseCode = crs[0]
-        courseNum = crs[1]
+        
 
         # Set up url for get
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
