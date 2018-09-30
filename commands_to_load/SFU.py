@@ -140,6 +140,48 @@ class SFU():
             await ctx.send(embed=eObj)
             return
 
+        logger.info('[SFU outline()] parsing data from get request')
+        outline = data['info']['outlinePath'].upper()
+        title = data['info']['title']
+        instructor = data['instructor'][0]['name'] + '\n(' + data['instructor'][0]['email'] + ')'
         
+        # Course schedule info
+        schedule = data['courseSchedule']
+        crs = ''
+        for x in schedule:
+            # [LEC] days time, room, campus
+            secCode = '[' + x['sectionCode'] + ']'
+            days = x['days']
+            tme = x['startTime'] + '-' + x['endTime']
+            room = x['buildingCode'] + ' ' + x['roomNumber']
+            campus = x['campus']
+            course = course + secCode + ' ' + days + ' ' + tme + ', ' + room + ', ' + campus + '\n'
+
+        classTimes = crs
+
+        # Exam info
+        tim = data['examSchedule'][0]['startTime'] + '-' + data['examSchedule'][0]['endTime']
+        date = data['examSchedule'][0]['startDate'].split()
+        date = date[0] + ' ' + date[1] + ' ' + date[2]
+        roomInfo = ''
+
+        try:
+            # See if room info is available
+            roomInfo = data['examSchedule'][0]['buildingCode'] + ' ' + data['schedule']['roomNumber'] + ', ' + data['examSchedule'][0]['campus']
+        except KeyError:
+            pass
+
+        if(not roomInfo):
+            examTimes = tim + ' ' + date
+        else:
+            examTimes = tim + ' ' + date + '\n' + roomInfo
+
+        # Other details
+        # need to cap len for details
+        description = data['info']['description']
+        details = data['info']['courseDetails'][:200] + '\n(...)'
+        prerequisites  = data['info']['prerequisites']
+
+
 def setup(bot):
     bot.add_cog(SFU(bot))
