@@ -55,7 +55,7 @@ class SFU():
             data = res.json()
         else:
             logger.info('[SFU sfu()] get resulted in 404')
-            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum))
+            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
             await ctx.send(embed=eObj)
             return
         
@@ -127,7 +127,7 @@ class SFU():
             else:
                 # Send something saying be in this order
                 logger.error('[SFU outline] args out of order or wrong')
-                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=0xA6192E, description='Make sure your arg\'s are in the following order:\n<course> <term> <section>\nexample: .outline cmpt300 fall d200\n term and section are optional args')
+                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=0xA6192E, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
                 await ctx.send(embed=eObj)
                 return
         
@@ -149,7 +149,7 @@ class SFU():
             data = res.json()
         else:
             logger.error('[SFU outline()] get resulted in 404')
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()))
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()), footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
 
@@ -213,7 +213,6 @@ class SFU():
             ['Prerequisites', prerequisites], 
             ['URL', '[here](%s)' % url]
         ]
-        print(fields)
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
 
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, thumbnail=img, content=fields, footer='Written by VJ')
