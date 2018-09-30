@@ -160,27 +160,29 @@ class SFU():
         classTimes = crs
 
         # Exam info
-        tim = data['examSchedule'][0]['startTime'] + '-' + data['examSchedule'][0]['endTime']
-        date = data['examSchedule'][0]['startDate'].split()
-        date = date[0] + ' ' + date[1] + ' ' + date[2]
+        examTimes = 'N/A'
         roomInfo = ''
-
+        tim = ''
+        date = ''
         try:
-            # See if room info is available
-            roomInfo = data['examSchedule'][0]['buildingCode'] + ' ' + data['schedule']['roomNumber'] + ', ' + data['examSchedule'][0]['campus']
-        except KeyError:
-            pass
+            # Course might not have an exam
+            tim = data['examSchedule'][0]['startTime'] + '-' + data['examSchedule'][0]['endTime']
+            date = data['examSchedule'][0]['startDate'].split()
+            date = date[0] + ' ' + date[1] + ' ' + date[2]
 
-        if(not roomInfo):
             examTimes = tim + ' ' + date
-        else:
-            examTimes = tim + ' ' + date + '\n' + roomInfo
-
+           
+            # Room info much later
+            roomInfo = data['examSchedule'][0]['buildingCode'] + ' ' + data['schedule']['roomNumber'] + ', ' + data['examSchedule'][0]['campus']
+            examTimes += '\n' + roomInfo
+        except Exception:
+            pass
+        
         # Other details
         # need to cap len for details
         description = data['info']['description']
         details = data['info']['courseDetails'][:200] + '\n(...)'
-        prerequisites  = data['info']['prerequisites']
+        prerequisites  = data['info']['prerequisites'] or "None"
 
         url = 'http://www.sfu.ca/outlines.html?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         
@@ -198,6 +200,7 @@ class SFU():
             ['Prerequisites', prerequisites], 
             ['URL', '[here](%s)' % url]
         ]
+        print(fields)
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
 
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, thumbnail=img, content=fields, footer='Written by VJ')
