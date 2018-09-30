@@ -198,8 +198,9 @@ class SFU():
             ['Prerequisites', prerequisites], 
             ['URL', '[here](%s)' % url]
         ]
+        img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
 
-        eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, content=fields, footer='Written by VJ')
+        eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xA6192E, thumbnail=img, content=fields, footer='Written by VJ')
         await ctx.send(embed=eObj)
 
 def setup(bot):
