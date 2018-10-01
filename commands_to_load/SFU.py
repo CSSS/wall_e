@@ -81,8 +81,8 @@ class SFU():
     async def outline(self, ctx, *course):
         logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))
         usage = [
-                [Usage', '`.outline <course> [<term> <section>]`'], 
-                ['Example', '`.outline cmpt300 fall d200`\n*<term> and <section> are optional arguments*']
+                ['Usage', '`.outline <course> [<term> <section>]`\n*<term> and <section> are optional arguments*'], 
+                ['Example', '`.outline cmpt300 fall d200`']
             ]
         if(not course):
             eObj = embed(title='Missing Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=usage, footer='SFU Outline Error')
