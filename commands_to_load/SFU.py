@@ -80,9 +80,12 @@ class SFU():
     @commands.command()
     async def outline(self, ctx, *course):
         logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))
-
+        usage = [
+                [Usage', '`.outline <course> [<term> <section>]`'], 
+                ['Example', '`.outline cmpt300 fall d200`\n*<term> and <section> are optional arguments*']
+            ]
         if(not course):
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Missing arguments', 'Usage: `.outline <course> [<term> <section>]`\nEx: `.outline cmpt300 fall d200`\n <term> and <section> are optional arguments']], footer='SFU Outline Error')
+            eObj = embed(title='Missing Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=usage, footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             logger.info('[SFU outline()] missing arguments, command ended')
             return
@@ -118,11 +121,11 @@ class SFU():
 
             if(len(crs) < 2):
                 # Bad args
-                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Bad arguments', 'Usage: `.outline <course> [<term> <section>]`\nEx: `.outline cmpt300 fall d200`\n <term> and <section> are optional arguments']], footer='SFU Outline Error')
+                eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=usage, footer='SFU Outline Error')
                 await ctx.send(embed=eObj)
                 logger.info('[SFU outline()] bad arguments, command ended')
                 return
-                
+
             courseCode = crs[0]
             courseNum = crs[1]
 
@@ -150,7 +153,7 @@ class SFU():
             else:
                 # Send something saying be in this order
                 logger.error('[SFU outline] args out of order or wrong')
-                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
+                eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
                 await ctx.send(embed=eObj)
                 return
 
