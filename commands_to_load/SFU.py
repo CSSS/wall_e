@@ -41,6 +41,13 @@ class SFU():
             if(len(crs) < 2):
                 crs = re.split('(\d+)', course[0])
 
+            if(len(crs) < 2):
+                # Bad args
+                eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Usage', '`.sfu <arg>`'],['Example', '`.sfu cmpt300`']], footer='SFU Outline Error')
+                await ctx.send(embed=eObj)
+                logger.info('[SFU outline()] bad arguments, command ended')
+                return
+            
             courseCode = crs[0]
             courseNum = crs[1]
         else:
