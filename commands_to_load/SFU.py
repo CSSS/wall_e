@@ -104,7 +104,7 @@ class SFU():
         logger.info('[SFU outline()] parsing args')
         argNum = len(course)
 
-        if(course[1][:len(course[1])-1].isdigit()):
+        if(argNum > 1 and course[1][:len(course[1])-1].isdigit()):
             # User gave course in two parts
             courseCode = course[0].lower()
             courseNum = course[1].lower()
@@ -116,6 +116,13 @@ class SFU():
             if(len(crs) < 2):
                 crs = re.split('(\d+)', course[0]) # this incase the course num doesnt end in a letter, need to split with different regex
 
+            if(len(crs) < 2):
+                # Bad args
+                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Bad arguments', 'Usage: `.outline <course> [<term> <section>]`\nEx: `.outline cmpt300 fall d200`\n <term> and <section> are optional arguments']], footer='SFU Outline Error')
+                await ctx.send(embed=eObj)
+                logger.info('[SFU outline()] bad arguments, command ended')
+                return
+                
             courseCode = crs[0]
             courseNum = crs[1]
 
@@ -146,8 +153,6 @@ class SFU():
                 eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
                 await ctx.send(embed=eObj)
                 return
-        
-        
 
         # Set up url for get
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
