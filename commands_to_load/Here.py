@@ -28,7 +28,7 @@ class Here():
         elif len(members) > 50:
             string = "There's a lot of people here.\n"
         else:
-            string =  "The following users have permission for this channel.\n"
+            string =  "The following (" + str(len(members)) + ") users have permission for this channel.\n"
             nicks = ""
             names = ""
             for member in members:
@@ -38,13 +38,9 @@ class Here():
             embed.add_field(name = "Name", value = nicks, inline = True)
             embed.add_field(name = "Account", value = names, inline = True)
 
-        roles = ""
-        for role in channel.changed_roles:
-            if roles == "":
-                roles += "@" + role.name
-            else:
-                roles += ", @" + role.name
-        if roles == "":
+        roles = "@" + ", @".join([role.name
+            for role in channel.changed_roles if role.name != "@everyone"])
+        if not channel.changed_roles:
             roles = "@everyone"
         roles += "\n*This message will self-destruct in 5 minutes*\n"
         embed.add_field(name = "Channel Roles", value = roles, inline = False)
