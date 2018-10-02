@@ -220,7 +220,7 @@ class SFU():
         # Other details
         # need to cap len for details
         description = data['info']['description']
-        details = data['info']['courseDetails'][:200] + '\n(...)'
+        details = data['info']['courseDetails']
         if(details[0] == '<'):
             details = bs(details, 'html.parser').get_text().split('\n')
             deets = ''
@@ -228,7 +228,8 @@ class SFU():
                 if(i != ""):
                     deets += i + '\n'
             details = deets
-
+        details = details[:200] + '\n(...)'
+        
         prerequisites  = data['info']['prerequisites'] or "None"
 
         url = 'http://www.sfu.ca/outlines.html?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
