@@ -6,7 +6,7 @@ import requests as req
 import re
 from helper_files.embed import embed 
 import helper_files.settings as settings
-from bs4 import BeautifulSoup as bs
+import html
 
 logger = logging.getLogger('wall_e')
 sfuRed = 0xA6192E
@@ -220,15 +220,10 @@ class SFU():
         # Other details
         # need to cap len for details
         description = data['info']['description']
-        details = data['info']['courseDetails']
-        if(details[0] == '<'):
-            details = bs(details, 'html.parser').get_text().split('\n')
-            deets = ''
-            for i in details:
-                if(i != ""):
-                    deets += i + '\n'
-            details = deets
-        details = details[:200] + '\n(...)'
+        details = html.unescape(data['info']['courseDetails'])
+        details = re.sub('<[^<]+?>', '', details)
+        if(len(details) > 200):
+            details = details[:200] + '\n(...)'
         
         prerequisites  = data['info']['prerequisites'] or "None"
 
