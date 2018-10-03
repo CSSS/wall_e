@@ -121,6 +121,9 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
 
  ## Reporting Issues  
 
- If you come across issues that googling wont solve, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bots may not necessarily respond. Please over-provide rather than under-provide.
+ If you come across issues, follow these sets of steps, if you jump straigh to the last one with an issue that the Bot_manager recognize as not worth their time, they are in their full right to delete your email.
+  1. **Google**, and spend more than 5 minutes and maybe just maybe, go onto the next page.
+  1. Ask around on the [#projects_and_dev](https://discordapp.com/channels/228761314644852736/293120981067890691) channel on our Discord. Note that if your question is something really elementary that could have been solved by Google, people on there will most likely tell you to do just that.
+  1. If absolutely necessary, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bot managers may not necessarily respond. Please over-provide with regards to what the error is, how it happened and any logs and etc rather than under-provide.
 
  ## FAQs  
