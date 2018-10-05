@@ -103,11 +103,16 @@ class Misc():
 			await ctx.send(embed=eObj)
 
 	@commands.command()
-	async def wolfram(self, ctx, arg):
+	async def wolfram(self, ctx, *arg):
+		arg = " ".join(arg)
 		logger.info("[Misc wolfram()] wolfram command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
 		logger.info("[Misc wolfram()] URL being contructed")
 
 		commandURL = arg.replace("+", "%2B")
+		commandURL = commandURL.replace("(", "%28")
+		commandURL = commandURL.replace(")", "%29")
+		commandURL = commandURL.replace("[", "%5B")
+		commandURL = commandURL.replace("]", "%5D")
 		commandURL = commandURL.replace(" ", "+")
 		wolframURL = 'https://www.wolframalpha.com/input/?i=%s' % commandURL
 
@@ -120,7 +125,7 @@ class Misc():
 			eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xdd1100, content=content)
 			await ctx.send(embed=eObj)
 			logger.info("[Misc wolfram()] result found for %s" % arg)
-		except AttributeError:
+		except (AttributeError, StopIteration):
 			content = [
 				['Results from Wolfram Alpha', "No results found. :thinking: \n\n[Link](%s)" % wolframURL], 
 				]
