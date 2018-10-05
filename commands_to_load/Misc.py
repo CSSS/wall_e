@@ -83,11 +83,11 @@ class Misc():
 		if(res.status_code != 404):
 			logger.info("[Misc urban()] Get request successful")			
 			data = res.json()
+			data = data['list']
 		else:
 			logger.info("[Misc urban()] Get request failed, 404 resulted")
 			data = ''
 
-		data = data['list']
 		if not data:
 			logger.info("[Misc urban()] sending message indicating 404 result")
 			eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
@@ -95,10 +95,9 @@ class Misc():
 			return
 		else:
 			logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
-			urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
 			content = [
-				['Definition', data[1]['definition']], 
-				['Link', '[here](%s)' % urbanUrl]
+				['Definition', data[0]['definition'][:200] + '\n(...)'], 
+				['Link', '[here](%s)' % data[0]['permalink']]
 				]
 			eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
 			await ctx.send(embed=eObj)
