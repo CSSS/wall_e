@@ -182,7 +182,7 @@ class SFU():
         logger.info('[SFU outline()] parsing data from get request')
         outline = data['info']['outlinePath'].upper()
         title = data['info']['title']
-        instructor = data['instructor'][0]['name'] + '\n(' + data['instructor'][0]['email'] + ')'
+        instructor = data['instructor'][0]['name'] + '\n[' + data['instructor'][0]['email'] + ']'
         
         # Course schedule info
         schedule = data['courseSchedule']
