@@ -20,7 +20,7 @@ class SFU():
         logger.info('[SFU sfu()] sfu command detected from user ' + str(ctx.message.author))
 
         if(not course):
-            eObj = embed(title='Result from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Missing arguments', 'Usage: `.sfu <arg>`\nEx: `.sfu cmpt225`']], footer='SFU Error')
+            eObj = embed(title='Missing Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Usage', '`.sfu <arg>`'],['Example', '`.sfu cmpt300`']], footer='SFU Error')
             await ctx.send(embed=eObj)
             logger.info('[SFU sfu()] missing arguments, command ended')
             return
@@ -44,7 +44,7 @@ class SFU():
 
             if(len(crs) < 2):
                 # Bad args
-                eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Usage', '`.sfu <arg>`'],['Example', '`.sfu cmpt300`']], footer='SFU Outline Error')
+                eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Usage', '`.sfu <arg>`'],['Example', '`.sfu cmpt300`']], footer='SFU Error')
                 await ctx.send(embed=eObj)
                 logger.info('[SFU outline()] bad arguments, command ended')
                 return
