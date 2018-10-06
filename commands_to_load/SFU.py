@@ -88,29 +88,24 @@ class SFU():
     @commands.command()
     async def outline(self, ctx, *course):
         logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))
+        
         usage = [
                 ['Usage', '`.outline <course> [<term> <section>]`\n*<term> and <section> are optional arguments*'], 
                 ['Example', '`.outline cmpt300 fall d200`']
             ]
+
         if(not course):
             eObj = embed(title='Missing Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=usage, footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             logger.info('[SFU outline()] missing arguments, command ended')
             return
 
-        year = time.localtime()[0]
-        term = time.localtime()[1]
+        year = 'current'
+        term = 'registration'
 
         courseCode = ''
         courseNum = ''
         section = 'd100'
-
-        if(term <= 4):
-            term = 'spring'
-        elif(term >= 5 and term <= 8):
-            term = 'summer'
-        else:
-            term = 'fall'
         
         logger.info('[SFU outline()] parsing args')
         argNum = len(course)
@@ -175,7 +170,7 @@ class SFU():
             data = res.json()
         else:
             logger.error('[SFU outline()] get resulted in 404')
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/%s' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()), footer='SFU Outline Error')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode + ' ' + courseNum + '`', footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
 
@@ -227,9 +222,9 @@ class SFU():
         
         prerequisites  = data['info']['prerequisites'] or "None"
 
-        url = 'http://www.sfu.ca/outlines.html?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
+        url = 'http://www.sfu.ca/outlines.html?%s' % data['info']['outlinePath']
         
-        logger.info('[SFU outline()] finished parsing data for: %s/%s/%s/%s/%s' % (year, term.upper(), courseCode.upper(), courseNum, section.upper()))
+        logger.info('[SFU outline()] finished parsing data for: %s' % data['info']['outlinePath'])
         
         # Make tuple of the data for the fields
         fields = [
