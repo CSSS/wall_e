@@ -16,7 +16,6 @@ import re
 import json
 import wolframalpha
 
-
 ######################
 ## VARIABLES TO USE ##
 ######################
