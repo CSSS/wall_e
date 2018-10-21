@@ -5,4 +5,5 @@ discord-rewrite==1.0.0
 yarl<1.2
 requests
 wolframalpha
-matplotlib
+matplotlib==3.0.0
+numpy==1.15.2
