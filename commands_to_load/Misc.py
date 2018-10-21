@@ -2,9 +2,11 @@ from discord.ext import commands
 import logging
 import requests as req
 from helper_files.embed import embed 
+from helper_files.Paginate import paginateEmbed
 import helper_files.settings as settings
 import json
 from main import wolframAPI, wolframClient
+import discord.client
 
 logger = logging.getLogger('wall_e')
 
@@ -134,6 +136,74 @@ class Misc():
 			await ctx.send(embed=eObj)
 			logger.error("[Misc wolfram()] result NOT found for %s" % arg)
 
+	@commands.command()
+	async def help(self, ctx):
+		numberOfCommandsPerPage=5
+		await ctx.send("     help me.....")
+		logger.info("[Misc help()] help command detected from "+str(ctx.message.author))
+		logger.info("[Misc help()] attempting to load command info from help.json")
+		with open('commands_to_load/help.json') as f:
+			helpDict = json.load(f)
+		logger.info("[Misc help()] loaded commands from help.json=\n"+str(json.dumps(helpDict, indent=3)))
+		
+		# determing the number of commands the user has access to.
+		numberOfCommands=0
+		for entry in helpDict['commands']:
+			if entry['access'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1					
+			elif entry['access'] == "public":
+				if 'Class' not in entry['name']:
+					numberOfCommands += 1
+
+		logger.info("[Misc help()] numberOfCommands set to "+str(numberOfCommands))
+		descriptionToEmbed=[""]
+		x, page = 0, 0;
+		for entry in helpDict['commands']:
+			if entry['access'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+				if 'Class' in entry['name']:
+					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+				else:
+					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numberOfCommandsPerPage:
+						descriptionToEmbed.append("")
+						page+=1
+						x = 0					
+			elif entry['access'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+				if 'Class' in entry['name']:
+					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"					
+				else:
+					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numberOfCommandsPerPage:
+						descriptionToEmbed.append("")
+						page+=1
+						x = 0
+			elif entry['access'] == "public":
+				logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+				if 'Class' in entry['name']:
+					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+				else:
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numberOfCommandsPerPage:
+						descriptionToEmbed.append("")
+						page+=1
+						x = 0
+			else:
+				logger.info("[Misc help()] "+str(entry)+" has a wierd access level of "+str(entry['access'])+"....not sure how to handle it so not adding it to the descriptionToEmbed")
+		logger.info("[Misc help()] transfer successful")
+
+		await paginateEmbed(self.bot, ctx, descriptionToEmbed, title="Help Page" )
 
 def setup(bot):
 	bot.add_cog(Misc(bot))
