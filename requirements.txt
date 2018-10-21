@@ -1,9 +1,9 @@
-pytz
-redis
-parsedatetime
+pytz==2018.5
+redis==2.10.6
+parsedatetime==2.4
 discord-rewrite==1.0.0
 yarl<1.2
-requests
-wolframalpha
+requests==2.19.1
+wolframalpha==3.0.1
 numpy==1.15.2
 matplotlib==3.0.0
