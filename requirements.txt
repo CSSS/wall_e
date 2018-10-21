@@ -1,4 +1,3 @@
-freetype
 png
 qhull
 aiohttp==2.2.5
