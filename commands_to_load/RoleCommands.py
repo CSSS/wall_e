@@ -65,7 +65,7 @@ class RoleCommands():
         user = ctx.message.author
         membersOfRole = role.members
         if user in membersOfRole:
-            logger.error("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
+            logger.info("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAPH!!")
             await ctx.send(embed=eObj)
         else:
@@ -105,7 +105,7 @@ class RoleCommands():
         else:
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Boop Beep??\n You don't have the role, so how am I gonna remove it????")
             await ctx.send(embed=eObj)
-            logger.error("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
+            logger.info("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
 
 
 
@@ -202,6 +202,18 @@ class RoleCommands():
     @commands.command()
     async def purgeroles(self, ctx):
         logger.info("[Misc purgeroles()] purgeroles command detected from user " + str(ctx.message.author))
+
+        embed = discord.Embed(type = "rich")
+        embed.color = discord.Color.blurple()
+        embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
+
+        # only people with manage_roles can call
+        if not ctx.author.permissions_in(ctx.channel).manage_roles:
+            embed.title = "You don't have permissions to manage roles. :("
+            await ctx.send(embed=embed)
+            return
+
+
         guild = ctx.guild
         softRoles = []
         for role in guild.roles:
@@ -216,9 +228,6 @@ class RoleCommands():
                 deleted.append(role.name)
                 await role.delete()
 
-        embed = discord.Embed(type = "rich")
-        embed.color = discord.Color.blurple()
-        embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
 
         if not deleted:
             embed.title="No empty roles to delete."
