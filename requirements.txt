@@ -1,3 +1,6 @@
+freetype
+png
+qhull
 aiohttp==2.2.5
 async-timeout==2.0.1
 certifi==2018.8.24
