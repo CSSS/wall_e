@@ -11,9 +11,9 @@ class Administration():
 	def __init__(self, bot):
 		self.bot = bot
 
-	def validCog(self, cog):
+	def validCog(self, name):
 		for cog in cogs:
-			if cog["name"] == cog:
+			if cog["name"] == name:
 				return True, cog["folder"]
 		return False, ''
 
