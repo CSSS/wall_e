@@ -168,13 +168,15 @@ async def on_command(ctx):
 	stat_file.write(str(now.year)+', '+str(now.month)+', '+str(now.day)+', '+str(now.hour)+', '+str(str(ctx.channel.id))+", "+str(str(ctx.channel))+", "+str(author)+", "+str(ctx.command)+", "+str(argument)+", "+str(ctx.invoked_with)+", "+str(ctx.invoked_subcommand)+"\n")
 
 ########################################################
-## Function that gets called whenever someone DMS the ##
-## bot												  ##
+## Function that gets called any input or output from ##
+## the script										  ##
 ########################################################
 @bot.event
 async def on_message(message):
 	if message.guild is None and message.author != bot.user:
 		await message.author.send("DM has been detected \nUnfortunately none of my developers are smart enough to make me an AI capable of holding a conversation and no one else has volunteered :( \nAll I can say is Harry Potter for live and Long Live Windows Vista!")
+	else:
+		await bot.process_commands(message)
 
 ####################
 ## STARTING POINT ##
