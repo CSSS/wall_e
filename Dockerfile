@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt ./
 
-RUN apk add --update alpine-sdk && apk add libfreetype6-dev && pip install --no-cache-dir -r requirements.txt
+RUN apk add --update alpine-sdk && apk add freetype-dev && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
