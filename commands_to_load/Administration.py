@@ -127,40 +127,33 @@ class Administration():
 		return dict_list
 
 	def CommandFrequency(self,csv, filters=None):
+		logger.info("[Administration CommandFrequency()] trying to create a dictionary from "+str(csv)+" with the filters "+str(filters))
 		channels = {}
-		if filters is None:
-			for line in csv:
-				command_invoked=line['command']
-				if line['command'] not in channels:#see if channel dic key exists yet
-					channels[command_invoked]=1	
-				else:
-					channels[command_invoked]+=1
-		else:
-			for line in csv:
-				entry = line[filters[0]]
-				index=0
-				for theFilter in filters:
-					if index > 0:
-						entry+="_"+line[theFilter]
-					index+=1
-				if entry not in channels:
-					channels[entry]=1
-				else:
-					channels[entry]+=1
-
+		for line in csv:
+			entry = line[filters[0]]
+			for theFilter in filters[1:]:
+				entry+="_"+line[theFilter]
+			logger.info("[Administration CommandFrequency()] entry "+str(entry)+" found in csv" )				
+			if entry not in channels:
+				logger.info("[Administration CommandFrequency()] entry "+str(entry)+" was not in dictionary, initializing it" )				
+				channels[entry]=1
+			else:
+				logger.info("[Administration CommandFrequency()] entry "+str(entry)+" in dictionary is being incremented to "+str(channels[entry]) )				
+				channels[entry]+=1
 		return channels
 
 	@commands.command()
 	async def frequency(self, ctx, *args):
+		logger.info("[Administration frequency()] frequency command detected from "+str(ctx.message.author)+" with arguments ["+str(args)+"]")
 		if len(args) == 0:
 			await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headers())))
 		else:
 			dicResult = self.CommandFrequency(self.getCSVFILE(), args)
 
 		dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
-		labels = [i[0] for i in dicResult][:50]
-		numbers = [i[1] for i in dicResult][:50]
+		logger.info("[Administration frequency()] sorted dicResults by value")
 		if len(dicResult) <= 50:
+			logger.info("[Administration frequency()] dicResults's length is <= 50")
 			labels = [i[0] for i in dicResult]
 			numbers = [i[1] for i in dicResult]
 			plt.rcdefaults()
@@ -178,15 +171,19 @@ class Administration():
 			#ax.set_title(title)
 			fig.set_size_inches(18.5, 10.5)
 			fig.savefig('image.png')
+			logger.info("[Administration frequency()] graph created and saved")
 			plt.close(fig)
 			await ctx.send(file=discord.File('image.png'))
+			logger.info("[Administration frequency()] graph image file has been sent")
 		else:
+			logger.info("[Administration frequency()] dicResults's length is > 50")
 			numberOfPages = int(len(dicResult) / 50)
 			if len(dicResult) % 50 != 0:
 				numberOfPages+=1
 			numOfBarsPerPage = int(len(dicResult) / numberOfPages )+1
 			firstIndex, lastIndex= 0, numOfBarsPerPage
 			while firstIndex < len(dicResult):
+				logger.info("[Administration frequency()] creating a graph with entries "+str(firstIndex)+" to "+str(lastIndex))
 				labels = [i[0] for i in dicResult][firstIndex:lastIndex]
 				numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
 				plt.rcdefaults()
@@ -204,10 +201,14 @@ class Administration():
 				#ax.set_title(title)
 				fig.set_size_inches(18.5, 10.5)
 				fig.savefig('image.png')
+				logger.info("[Administration frequency()] graph created and saved")
 				plt.close(fig)
 				await ctx.send(file=discord.File('image.png'))
+				logger.info("[Administration frequency()] graph image file has been sent")
 				firstIndex+=numOfBarsPerPage
 				lastIndex+=numOfBarsPerPage
+				logger.info("[Administration frequency()] updating firstIndex and lastIndex to "+str(firstIndex)+" to "+str(lastIndex)+" respectively")
+
 
 def setup(bot):
 	bot.add_cog(Administration(bot))
