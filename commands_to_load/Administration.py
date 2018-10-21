@@ -111,11 +111,11 @@ class Administration():
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
 
 	def get_column_headers(self):
-		csvFile = csv.DictReader(open('stats_of_commands.csv', 'r'))
+		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
 		return [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
 
 	def getCSVFILE(self):
-		csvFile = csv.DictReader(open('stats_of_commands.csv', 'r'))
+		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
 		csvFile.fieldnames = [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
 		dict_list = []
 		for line in csvFile:
