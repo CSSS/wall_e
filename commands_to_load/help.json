@@ -12,6 +12,7 @@
 		{ "access": "public", "name": ".whois <arg>", "description": "returns everyone who has role <arg>" },
 		{ "access": "public", "name": ".roles", "description": "will display all the self-assignable roles that exist"},
 		{ "access": "public", "name": ".Roles", "description": "will display all the Mod/Exec/XP Assigned roles that exist"},
+		{ "access": "Minions", "name": ".purgeroles", "description": "deletes all empty self-assignable roles"},
 
 		{ "access": "Bot_manager", "name": "Class: Misc"},
 		{ "access": "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
@@ -32,7 +33,7 @@
 		{ "access": "Bot_manager", "name": "Class: Minions"},
 		{ "access": "Minions", "name": ".embed <arg0> <arg1> ...", "description": "Allows Minions to post embed messages.\nFor odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.\nFor even number there will be no description."},
 		{ "access": "Minions", "name": ".modspeak <arg>", "description": "Posts the warning message <arg> in embed format. No quotes required with message."},
-		
+
 		{"access": "Bot_manager", "name": "Class: Here"},
 		{ "access": "public", "name": ".here <filters> ...", "description": "Displays all users with permissions to view the current channel. Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."}
 	]
