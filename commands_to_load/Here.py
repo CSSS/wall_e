@@ -38,6 +38,7 @@ class Here():
             embed.add_field(name = "Name", value = nicks, inline = True)
             embed.add_field(name = "Account", value = names, inline = True)
 
+        # build list of roles allowed.
         roles = "@" + ", @".join([role.name
             for role in channel.changed_roles if role.name != "@everyone"])
         if not channel.changed_roles:
