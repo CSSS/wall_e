@@ -79,5 +79,30 @@ class Mod():
         eObj = em(title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         await ctx.send(embed=eObj)
 
+    @commands.command()
+    async def propigatemute(self, ctx):
+        """Ensures all channels have the muted role as part of its permissions.""" 
+        ## Avoid the admin category of channels and rules and announcments channel since nobody can talk in there anyway
+
+        logger.info('[Mod propigatemute()] embed function detected by user ' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod propigatemute()] invoking message deleted')
+        
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod propigatemute()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
+
+        # get guild
+
+        # get admin category and channels in it
+
+        # set up the perms overwrite
+
+        # loop through channels and change the perms
+
+    #TODO: slowmode, createchannel, lock commands
+
+
 def setup(bot):
     bot.add_cog(Mod(bot))
