@@ -1,6 +1,5 @@
 { "commands" : [
 		{ "access": "Bot_manager", "name": "Class: HealthChecks"},
-		{ "access": "public", "name": ".help", "description": "shows this page" },
 		{ "access": "public", "name": ".ping", "description": "returns pong!" },
 		{ "access": "public", "name": ".echo <arg>", "description": "returns <arg>" },
 
@@ -14,6 +13,7 @@
 		{ "access": "public", "name": ".Roles", "description": "will display all the Mod/Exec/XP Assigned roles that exist"},
 
 		{ "access": "Bot_manager", "name": "Class: Misc"},
+		{ "access": "public", "name": ".help", "description": "shows this page" },
 		{ "access": "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
 		{ "access": "public", "name": ".poll <arg0> <arg1> <arg2> (up to 12 arguments)", "description": "starts a poll where <arg0> is the question and the remaining arguments are the options"},
 		{"access": "public", "name": "wolfram", "description": "returns the result of passing <arg> to Wolfram Alpha"},
