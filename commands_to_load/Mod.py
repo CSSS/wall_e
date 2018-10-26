@@ -117,7 +117,7 @@ class Mod():
         overwrite.send_messages = False
         overwrite.manage_messages = False
         overwrite.manage_channels = False
-        overwrite.manage_server = False
+        overwrite.manage_guild = False
         overwrite.manage_nicknames = False
         overwrite.manage_roles = False
         
