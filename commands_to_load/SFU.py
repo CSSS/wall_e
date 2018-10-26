@@ -64,7 +64,7 @@ class SFU():
             logger.info('[SFU sfu()] get request successful')
             data = res.json()
         else:
-            logger.info('[SFU sfu()] get resulted in' + str(res.status_code))
+            logger.info('[SFU sfu()] get resulted in ' + str(res.status_code))
             eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
             await ctx.send(embed=eObj)
             return
@@ -171,7 +171,7 @@ class SFU():
             logger.info('[SFU outline()] get request successful')
             data = res.json()
         else:
-            logger.error('[SFU outline()] get resulted in 404')
+            logger.error('[SFU outline()] get resulted in '+ str(res.status_code))
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode + ' ' + courseNum + '`', footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
