@@ -99,7 +99,7 @@ class Mod():
                 MUTED_ROLE = role
                 break
 
-        adminChannels = [
+        ignoreChannels = [
                         417758181784158239, # rules
                         228767328106446860, # announcements
                         228766474972430336, # execs
@@ -130,7 +130,7 @@ class Mod():
         
         # loop through channels and change the perms
         for channel in channels: 
-            if channel.id not in adminChannels:
+            if channel.id not in ignoreChannels:
                 print(str(channel.id) + ' ' + channel.name)
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
