@@ -59,7 +59,7 @@ class SFU():
         logger.info('[SFU sfu()] url for get request constructed: %s' % url)
 
         res = req.get(url)
-        if(res.status_code != 404):
+        if(res.status_code == 200):
             logger.info('[SFU sfu()] get request successful')
             data = res.json()
         else:
@@ -165,7 +165,7 @@ class SFU():
         logger.info('[SFU outline()] url for get constructed: ' + url)
 
         res = req.get(url)
-        if(res.status_code != 404):
+        if(res.status_code == 200):
             logger.info('[SFU outline()] get request successful')
             data = res.json()
         else:
