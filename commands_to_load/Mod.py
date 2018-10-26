@@ -92,8 +92,21 @@ class Mod():
             logger.info('[Mod propigatemute()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
+        
+        # # MUTED_ROLE = g.get_role(338575090847580160)
+        # MUTED_ROLE = discord.utils.get(ctx.guild.get_role, id=338575090847580160)
 
-        MUTED_ROLE = ctx.guild.get_role(338575090847580160)
+        # if(not MUTED_ROLE):
+        #     #MUTED_ROLE = ctx.guild.get_role(505409200302718996)
+        #     MUTED_ROLE = discord.utils.get(ctx.guild.get_role, id=505409200302718996)
+
+        roles = ctx.guild.roles
+        for role in roles: 
+            if role.id == 338575090847580160:
+                MUTED_ROLE = role
+                break
+                
+        print(MUTED_ROLE.id)
         adminChannels = [
                         228766474972430336, # execs
                         303276909054132242, # council
@@ -124,7 +137,8 @@ class Mod():
         # loop through channels and change the perms
         for channel in channels: 
             if channel.id not in adminChannels:
-                channel.set_permissions(MUTED_ROLE, overwrite)
+                print(str(channel.id) + ' ' + channel.name)
+                await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
         
 #TODO: slowmode, createchannel, lock commands
