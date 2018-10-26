@@ -113,6 +113,13 @@ class Mod():
         # get guild
         
         # set up the perms overwrite
+        overwrite = discord.PermissionOverwrite()
+        overwrite.send_messages = False
+        overwrite.manage_messages = False
+        overwrite.manage_channels = False
+        overwrite.manage_server = False
+        overwrite.manage_nicknames = False
+        overwrite.manage_roles = False
         
         # loop through channels and change the perms
 
