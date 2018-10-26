@@ -18,6 +18,7 @@ class SFU():
     @commands.command()
     async def sfu(self, ctx, *course):
         logger.info('[SFU sfu()] sfu command detected from user ' + str(ctx.message.author))
+        logger.info('[SFU sfu()] arguments given: ' + str(course))
 
         if(not course):
             eObj = embed(title='Missing Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Usage', '`.sfu <arg>`'],['Example', '`.sfu cmpt300`']], footer='SFU Error')
@@ -88,6 +89,7 @@ class SFU():
     @commands.command()
     async def outline(self, ctx, *course):
         logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))
+        logger.info('[SFU outline()] arguments given: ' + str(course))
         
         usage = [
                 ['Usage', '`.outline <course> [<term> <section>]`\n*<term> and <section> are optional arguments*'], 
