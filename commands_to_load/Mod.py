@@ -92,22 +92,16 @@ class Mod():
             logger.info('[Mod propigatemute()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
-        
-        # # MUTED_ROLE = g.get_role(338575090847580160)
-        # MUTED_ROLE = discord.utils.get(ctx.guild.get_role, id=338575090847580160)
-
-        # if(not MUTED_ROLE):
-        #     #MUTED_ROLE = ctx.guild.get_role(505409200302718996)
-        #     MUTED_ROLE = discord.utils.get(ctx.guild.get_role, id=505409200302718996)
 
         roles = ctx.guild.roles
         for role in roles: 
             if role.id == 338575090847580160:
                 MUTED_ROLE = role
                 break
-                
-        print(MUTED_ROLE.id)
+
         adminChannels = [
+                        417758181784158239, # rules
+                        228767328106446860, # announcements
                         228766474972430336, # execs
                         303276909054132242, # council
                         478776321808269322, # bot_logs
