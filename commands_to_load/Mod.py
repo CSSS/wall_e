@@ -79,7 +79,7 @@ class Mod():
         eObj = em(title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         await ctx.send(embed=eObj)
 
-    @commands.command()
+    @commands.command(aliases=['propm'])
     async def propigatemute(self, ctx):
         """Ensures all channels have the muted role as part of its permissions.""" 
         ## Avoid the admin category of channels and rules and announcments channel since nobody can talk in there anyway
@@ -93,15 +93,30 @@ class Mod():
             await self.rekt(ctx)
             return
 
+        MUTED_ID = 338575090847580160
+        adminChannels = [
+                        228766474972430336, # execs
+                        303276909054132242, # council
+                        478776321808269322, # bot_logs
+                        440742806475112448, # deepexec
+                        229508956664496130, # meetingroom
+                        466734608726229005, # bot-mangement
+                        415337971387203585, # sv18
+                        444040481677246464, # execs-academicplan
+                        420698199712595968 # froshweek-volunteers
+                        ]
+        # mute role id: <@&338575090847580160>
+        # have list of admin channel id's dont get them dynamically in code
+        #  waste of cycles, only case for needing it in code if channels get added
+        #  however admin channels are rare to be made
+
         # get guild
-
-        # get admin category and channels in it
-
+        
         # set up the perms overwrite
-
+        
         # loop through channels and change the perms
 
-    #TODO: slowmode, createchannel, lock commands
+#TODO: slowmode, createchannel, lock commands
 
 
 def setup(bot):
