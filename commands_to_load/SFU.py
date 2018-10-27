@@ -2,11 +2,11 @@ from discord.ext import commands
 import logging
 import time
 import json # dont need since requests has built in json encoding and decoding
-import requests as req
 import re
 from helper_files.embed import embed 
 import helper_files.settings as settings
 import html
+import aiohttp
 
 logger = logging.getLogger('wall_e')
 sfuRed = 0xA6192E
@@ -59,12 +59,14 @@ class SFU():
         url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
         logger.info('[SFU sfu()] url for get request constructed: %s' % url)
 
-        res = req.get(url)
-        if(res.status_code == 200):
+        async with aiohttp.ClientSession() as req:
+            res = await req.get(url)
+
+        if(res.status == 200):
             logger.info('[SFU sfu()] get request successful')
-            data = res.json()
+            data = await res.json()
         else:
-            logger.info('[SFU sfu()] get resulted in ' + str(res.status_code))
+            logger.info('[SFU sfu()] get resulted in ' + str(res.status))
             eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
             await ctx.send(embed=eObj)
             return
@@ -166,12 +168,14 @@ class SFU():
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         logger.info('[SFU outline()] url for get constructed: ' + url)
 
-        res = req.get(url)
-        if(res.status_code == 200):
+        async with aiohttp.ClientSession() as req:
+            res = await req.get(url)
+
+        if(res.status == 200):
             logger.info('[SFU outline()] get request successful')
-            data = res.json()
+            data = await res.json()
         else:
-            logger.error('[SFU outline()] get resulted in '+ str(res.status_code))
+            logger.error('[SFU outline()] get resulted in '+ str(res.status))
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode + ' ' + courseNum + '`', footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
