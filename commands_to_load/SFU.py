@@ -221,10 +221,13 @@ class SFU():
         # Other details
         # need to cap len for details
         description = data['info']['description']
-        details = html.unescape(data['info']['courseDetails'])
-        details = re.sub('<[^<]+?>', '', details)
-        if(len(details) > 200):
-            details = details[:200] + '\n(...)'
+        try:
+            details = html.unescape(data['info']['courseDetails'])
+            details = re.sub('<[^<]+?>', '', details)
+            if(len(details) > 200):
+                details = details[:200] + '\n(...)'
+        except Exception:
+            details = 'None'
         
         prerequisites  = data['info']['prerequisites'] or "None"
 
