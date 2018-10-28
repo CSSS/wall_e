@@ -43,8 +43,15 @@
 
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) at the end of the documentation for future reference :)
 
-Pre-requisites: `git`, `python3`, `python3-venv`, and `python3-pip`.  
+Pre-requisites: `git`.  
 
+1. Python3.5 Instructions
+   1. Mac
+      1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)
+      1. Run `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+      1. Run `python3.5 get-pip.py`
+   1. Ubuntu
+      1. Run `sudo apt-get install -y python 3.5`
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 1. From commandline, run following commands  
    1. Run `git clone <the url of your forked repo>`  
@@ -117,7 +124,19 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
 1. `.whois <whatever_name_you_want_to_use>`  
 1. `.deleterole <whatever_name_you_want_to_use>`  
 1. `.roles`  
-1. `.Roles`  
+1. `.Roles`
+1. `.sfu cmpt 300`
+1. `.sfu cmpt300`
+1. `.sfu cmpt666`
+1. `.sfu blah`
+1. `.sfu`
+1. `.outline cmpt300`
+1. `.outline cmpt 300`
+1. `.outline cmpt300 spring d200`
+1. `.outline cmpt 300 spring d200`
+1. `.outline cmpt666`
+1. `.outline blah`
+1. `.outline`
 
  ## Reporting Issues  
 
