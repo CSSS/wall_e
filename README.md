@@ -31,3 +31,10 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.urban <arg0>` - return definition from urban dictionary of `<arg0>`
 * `.wolfram <arg>` - returns the result of passing `<arg>` to Wolfram Alpha
 * `.urban <arg>` - returns defintion of `<arg>` along with a link to the definition on urban dictionary
+* `.sfu <arg0>` - returns calendar description from current semesters calendar of `<arg0>`
+* `.outline <arg0> [<arg1> <arg2>]` - returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`. 
+    * Usage examples:
+    * `.outline cmpt300`
+    * `.outline cmpt300 d200`
+    * `.outline cmpt300 spring`
+    * `.outline cmpt300 summer d200`
