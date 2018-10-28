@@ -124,7 +124,19 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
 1. `.whois <whatever_name_you_want_to_use>`  
 1. `.deleterole <whatever_name_you_want_to_use>`  
 1. `.roles`  
-1. `.Roles`  
+1. `.Roles`
+1. `.sfu cmpt 300`
+1. `.sfu cmpt300`
+1. `.sfu cmpt666`
+1. `.sfu blah`
+1. `.sfu`
+1. `.outline cmpt300`
+1. `.outline cmpt 300`
+1. `.outline cmpt300 spring d200`
+1. `.outline cmpt 300 spring d200`
+1. `.outline cmpt666`
+1. `.outline blah`
+1. `.outline`
 
  ## Reporting Issues  
 
