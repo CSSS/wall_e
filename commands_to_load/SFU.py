@@ -105,7 +105,7 @@ class SFU():
             return
 
         year = 'current'
-        term = 'registration'
+        term = 'current'
 
         courseCode = ''
         courseNum = ''
