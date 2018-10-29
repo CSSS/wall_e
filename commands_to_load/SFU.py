@@ -94,8 +94,8 @@ class SFU():
         logger.info('[SFU outline()] arguments given: ' + str(course))
         
         usage = [
-                ['Usage', '`.outline <course> [<term> <section>]`\n*<term> and <section> are optional arguments*'], 
-                ['Example', '`.outline cmpt300 fall d200`']
+                ['Usage', '`.outline <course> [<term> <section> <next>]`\n*<term> and <section> are optional arguments*\nInclude the keyword `next` at the end to look at the next semester, this is for course registration purposes.'], 
+                ['Example', '`.outline cmpt300\n cmpt300 fall\n cmpt300  d200`']
             ]
 
         if(not course):
@@ -103,11 +103,11 @@ class SFU():
             await ctx.send(embed=eObj)
             logger.info('[SFU outline()] missing arguments, command ended')
             return
-
+        course = list(course)
         if 'next' in course:
             year = 'registration'
             term = 'registration'
-            course = course[:len(course) - 1]
+            course.remove('next')
         else:
             year = 'current'
             term = 'current'
@@ -138,36 +138,37 @@ class SFU():
                 logger.info('[SFU outline()] bad arguments, command ended')
                 return
 
-            courseCode = crs[0]
+            courseCode = crs[0].lower()
             courseNum = crs[1]
 
         # Course and term or section is specified
         if(argNum == 2):
             # Figure out if section or term was given
             temp = course[1].lower()
-
-            if(len(temp) == 4):
-                if(temp != 'fall'):
-                    section = temp
-                else:
+            if temp[3].isdigit():
+                section = temp
+            elif term != 'registration':
+                if(temp == 'fall'):
                     term = temp
-            elif(temp == 'summer'):
-                term = temp
-            elif(temp == 'spring'):
-                term = temp
+                elif(temp == 'summer'):
+                    term = temp
+                elif(temp == 'spring'):
+                    term = temp
         
         # Course, term, and section is specified
         elif(argNum == 3):
-            # Check iff last arg is section
-            if(len(course[2]) == 4 and (course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer')):
-                term = course[1].lower()
+            # Check if last arg is section
+            if course[2][3].isdigit():
                 section = course[2].lower()
-            else:
-                # Send something saying be in this order
-                logger.error('[SFU outline] args out of order or wrong')
-                eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
-                await ctx.send(embed=eObj)
-                return
+            if term != 'registration':
+                if course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer':
+                    term = course[1].lower()
+                else:
+                    # Send something saying be in this order
+                    logger.error('[SFU outline] args out of order or wrong')
+                    eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
+                    await ctx.send(embed=eObj)
+                    return
 
         # Set up url for get
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
