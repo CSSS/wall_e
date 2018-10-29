@@ -104,8 +104,13 @@ class SFU():
             logger.info('[SFU outline()] missing arguments, command ended')
             return
 
-        year = 'current'
-        term = 'current'
+        if 'next' in course:
+            year = 'registration'
+            term = 'registration'
+            course = course[:len(course) - 1]
+        else:
+            year = 'current'
+            term = 'current'
 
         courseCode = ''
         courseNum = ''
