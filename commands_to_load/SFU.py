@@ -246,6 +246,10 @@ class SFU():
         except Exception:
             prerequisites = 'None'
 
+        try:
+            corequisites  = data['info']['corequisites'] or 'None'
+        except Exception:
+            corequisites = ''
 
         url = 'http://www.sfu.ca/outlines.html?%s' % data['info']['outlinePath']
         
@@ -260,9 +264,13 @@ class SFU():
             ['Exam Times', examTimes], 
             ['Description', description], 
             ['Details', details], 
-            ['Prerequisites', prerequisites], 
-            ['URL', '[here](%s)' % url]
+            ['Prerequisites', prerequisites]
         ]
+
+        if corequisites:
+            fields.append(['Corequisites', corequisites])
+        fields.append(['URL', '[here](%s)' % url])
+        
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
 
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, thumbnail=img, content=fields, footer='Written by VJ')
