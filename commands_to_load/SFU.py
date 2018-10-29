@@ -50,10 +50,10 @@ class SFU():
                 logger.info('[SFU outline()] bad arguments, command ended')
                 return
             
-            courseCode = crs[0]
+            courseCode = crs[0].lower()
             courseNum = crs[1]
         else:
-            courseCode = course[0]
+            courseCode = course[0].lower()
             courseNum = course[1]
 
         url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
