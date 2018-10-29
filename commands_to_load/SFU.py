@@ -241,7 +241,15 @@ class SFU():
         except Exception:
             details = 'None'
         
-        prerequisites  = data['info']['prerequisites'] or "None"
+        try:
+            prerequisites  = data['info']['prerequisites'] or "None" # try catch this and check for coreq's
+        except Exception:
+            prerequisites = "None"
+
+        try:
+            corequisites  = data['info']['corequisites'] or "None" # try catch this and check for coreq's
+        except Exception:
+            corequisites = ""
 
         url = 'http://www.sfu.ca/outlines.html?%s' % data['info']['outlinePath']
         
