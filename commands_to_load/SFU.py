@@ -94,7 +94,7 @@ class SFU():
         logger.info('[SFU outline()] arguments given: ' + str(course))
         
         usage = [
-                ['Usage', '`.outline <course> [<term> <section> <next>]`\n*<term> and <section> are optional arguments*\nInclude the keyword `next` at the end to look at the next semester, this is for course registration purposes.'], 
+                ['Usage', '`.outline <course> [<term> <section> <next>]`\n*<term> and <section> are optional arguments*\nInclude the keyword `next` to look at the next semester\'s outline, this is for course registration purposes.'], 
                 ['Example', '`.outline cmpt300\n cmpt300 fall\n cmpt300  d200`']
             ]
 
@@ -177,14 +177,20 @@ class SFU():
         async with aiohttp.ClientSession() as req:
             res = await req.get(url)
 
-        if(res.status == 200):
-            logger.info('[SFU outline()] get request successful')
-            data = await res.json()
-        else:
-            logger.error('[SFU outline()] get resulted in '+ str(res.status))
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode + ' ' + courseNum + '`', footer='SFU Outline Error')
-            await ctx.send(embed=eObj)
-            return
+            if(res.status == 200):
+                logger.info('[SFU outline()] get request successful')
+                data = ''
+                while True:
+                    chunk = await res.content.read(10)
+                    if not chunk:
+                        break
+                    data += str(chunk.decode())
+                data = json.loads(data)
+            else:
+                logger.error('[SFU outline()] get resulted in '+ str(res.status))
+                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode.upper() + ' ' + str(courseNum).upper() + '`', footer='SFU Outline Error')
+                await ctx.send(embed=eObj)
+                return
 
         logger.info('[SFU outline()] parsing data from get request')
         outline = data['info']['outlinePath'].upper()
