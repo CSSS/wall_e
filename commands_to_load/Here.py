@@ -28,26 +28,24 @@ class Here():
         elif len(members) > 50:
             string = "There's a lot of people here.\n"
         else:
-            string =  "The following users have permission for this channel.\n"
-            nicks = ""
-            names = ""
-            for member in members:
-                nicks += member.display_name + "\n"
-                names += str(member) + "\n"
+            string =  "The following (" + str(len(members)) + ") users have permission for this channel.\n"
+
+            # newline separated lists of members and their nicknames
+            nicks = "\n".join([member.display_name for member in members])
+            names = "\n".join([str(member) for member in members])
 
             embed.add_field(name = "Name", value = nicks, inline = True)
             embed.add_field(name = "Account", value = names, inline = True)
 
-        roles = ""
-        for role in channel.changed_roles:
-            if roles == "":
-                roles += "@" + role.name
-            else:
-                roles += ", @" + role.name
-        if roles == "":
-            roles = "@everyone"
+        # comma separated list of role names for each role in the channel
+        # if they can read messages
+        # like how it says...
+        roles = ", ".join([role.name
+            for role in channel.changed_roles
+            if role.permissions.read_messages])
         roles += "\n*This message will self-destruct in 5 minutes*\n"
-        embed.add_field(name = "Channel Roles", value = roles, inline = False)
+
+        embed.add_field(name = "Channel Specific Roles", value = roles, inline = False)
         embed.description = string
         return embed
 
