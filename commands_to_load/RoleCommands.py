@@ -46,7 +46,7 @@ class RoleCommands():
             deleteRole = await role.delete()
             logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** deleted.")
-            await ctx.send(embed=eObj)        
+            await ctx.send(embed=eObj)
         else:
             logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** has members. Cannot delete.")
@@ -66,18 +66,18 @@ class RoleCommands():
         membersOfRole = role.members
         if user in membersOfRole:
             logger.info("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
-            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAPH!!")            
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAPH!!")
             await ctx.send(embed=eObj)
         else:
             await user.add_roles(role)
             logger.info("[RoleCommands iam()] user " + str(user) + " added to role " + str(roleToAdd) + ".")
-            
+
             if(roleToAdd == 'froshee'):
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="**WELCOME TO SFU!!!!**\nYou have successfully been added to role **`" + roleToAdd + "`**.")
             else:
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully been added to role **`" + roleToAdd + "`**.")
             await ctx.send(embed=eObj)
-        
+
     @commands.command()
     async def iamn(self, ctx, roleToRemove):
         logger.info("[RoleCommands iamn()] "+str(ctx.message.author)+" called iamn with role "+str(roleToRemove))
@@ -95,12 +95,19 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully been removed from role **`" + roleToRemove + "`**.")
             await ctx.send(embed=eObj)
             logger.info("[RoleCommands iamn()] " + str(user) + " has been removed from role " + str(roleToRemove) )
+            # delete role if last person
+            membersOfRole = role.members
+            if not membersOfRole:
+                deleteRole = await role.delete()
+                logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
+                eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + role.name + "`** deleted.")
+                await ctx.send(embed=eObj)
         else:
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Boop Beep??\n You don't have the role, so how am I gonna remove it????")
             await ctx.send(embed=eObj)
             logger.info("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
-        
-        
+
+
 
     @commands.command()
     async def whois(self, ctx, roleToCheck):
@@ -140,7 +147,7 @@ class RoleCommands():
                 selfAssignRoles.append((str(role.name),numberOfMembers))
 
         logger.info("[RoleCommands roles()] selfAssignRoles array populated with the roles extracted from \"guild.roles\"")
-        
+
         selfAssignRoles.sort(key=itemgetter(0))
         logger.info("[RoleCommands roles()] roles in arrays sorted alphabetically")
 
@@ -170,7 +177,7 @@ class RoleCommands():
             if role.name != "@everyone" and role.name[0] != role.name[0].lower():
                 numberOfMembers = len(discord.utils.get(ctx.guild.roles, name=str(role.name)).members)
                 assignedRoles.append((str(role.name),numberOfMembers))
-        
+
         logger.info("[Misc Roles()] assignedRoles array populated with the roles extracted from \"guild.roles\"")
 
         assignedRoles.sort(key=itemgetter(0))
@@ -190,5 +197,49 @@ class RoleCommands():
         logger.info("[RoleCommands roles()] transfer successful")
 
         await paginateEmbed(self.bot,ctx,descriptionToEmbed, title="Mod/Exec/XP Assigned Roles")
+
+
+    @commands.command()
+    async def purgeroles(self, ctx):
+        logger.info("[Misc purgeroles()] purgeroles command detected from user " + str(ctx.message.author))
+
+        embed = discord.Embed(type = "rich")
+        embed.color = discord.Color.blurple()
+        embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
+
+        # only people with manage_roles can call
+        if not ctx.author.permissions_in(ctx.channel).manage_roles:
+            embed.title = "You don't have permissions to manage roles. :("
+            await ctx.send(embed=embed)
+            return
+
+
+        guild = ctx.guild
+        softRoles = []
+        for role in guild.roles:
+            if role.name != "@everyone" and role.name == role.name.lower():
+                softRoles.append(role)
+
+        deleted = []
+        for role in softRoles:
+            membersInRole = role.members
+            if not membersInRole:
+                logger.info("[Misc purgeroles()] deleting empty role @" + role.name)
+                deleted.append(role.name)
+                await role.delete()
+
+
+        if not deleted:
+            embed.title="No empty roles to delete."
+            await ctx.send(embed=embed)
+            return
+        deleted.sort(key=itemgetter(0))
+        description = "\n".join(deleted)
+        embed.title = "Purging " + str(len(deleted)) + " empty roles!"
+
+        embed.description = description
+
+        await ctx.send(embed = embed)
+
 def setup(bot):
     bot.add_cog(RoleCommands(bot))
