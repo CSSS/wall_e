@@ -2,7 +2,7 @@
 
 ![The One and Only, Lovable Wall-E](wall_e_pic.jpg)
 
-Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki/WALL-E), is the CSSS Discord Bot. This bot is owned by the CSSS and will be maintained by the current CSSS appointed Discord Manager and Bot_manager team. 
+Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki/WALL-E), is the CSSS Discord Bot. This bot is owned by the CSSS and will be maintained by the current CSSS appointed Discord Manager and Bot_manager team.
 
 
 ## Table of Contents
@@ -22,6 +22,7 @@ Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki
 * `.iamn <arg>` - removes you from role `<arg>`
 * `.whois <arg>` - returns everyone who has role `<arg>`
 * `.roles` - displays all roles that exist on the server
+* `.purgeroles` - purges empty self-assignable roles
 * `.here [<filter>]` - displays all users with permissions to view the current channel. Results can be filtered by looking for users whose username or nickname on the server contains the substring indicated with any of the included `<filter>` strings or all users if no filters are given. Multiple `<filters>` may be entered.
 * `.poll <arg>` - starts a yes/no poll where `<arg>` is the question
 * `.poll <arg0> <arg1> <arg2>` (up to 12 arguments) - starts a poll where `<arg0>` is the question and the remaining arguments are the options
