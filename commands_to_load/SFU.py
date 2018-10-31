@@ -62,14 +62,20 @@ class SFU():
         async with aiohttp.ClientSession() as req:
             res = await req.get(url)
 
-        if(res.status == 200):
-            logger.info('[SFU sfu()] get request successful')
-            data = await res.json()
-        else:
-            logger.info('[SFU sfu()] get resulted in ' + str(res.status))
-            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
-            await ctx.send(embed=eObj)
-            return
+            if(res.status == 200):
+                logger.info('[SFU sfu()] get request successful')
+                data = ''
+                while True:
+                    chunk = await res.content.read(10)
+                    if not chunk:
+                        break
+                    data += str(chunk.decode())
+                data = json.loads(data)
+            else:
+                logger.info('[SFU sfu()] get resulted in ' + str(res.status))
+                eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
+                await ctx.send(embed=eObj)
+                return
         
         logger.info('[SFU sfu()] parsing json data returned from get request')
         title = 'Results from SFU'
