@@ -38,9 +38,9 @@
 		{"access": "role", "role" : "Bot_manager", "name": "Class: Here"},
 		{ "access": "role", "role" : "public", "name": ".here <filters> ...", "description": "Displays all users with permissions to view the current channel. Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."},
 
-		{"access": "Bot_manager", "name":"Class: SFU"},
-		{"access": "public", "name": ".sfu <arg>", "description": "Returns the calendar description from current semester of <arg>"},
-		{"access": "public", "name": ".outline <arg0> [<arg1> <arg2> <next>]", "description": "Returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`. Adding keyword `next` will look at next semesters oultine for `<arg0>`;Note this will return error if it is not registration time."}
+		{"access": "role", "role" : "Bot_manager", "name":"Class: SFU"},
+		{"access": "role", "role" : "public", "name": ".sfu <arg>", "description": "Returns the calendar description from current semester of <arg>"},
+		{"access": "role", "role" : "public", "name": ".outline <arg0> [<arg1> <arg2>]", "description": "Returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`."}
 		
 	]
 }
