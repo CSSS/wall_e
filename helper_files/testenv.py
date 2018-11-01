@@ -19,7 +19,7 @@ class TestCog:
     def check_test_environment(ctx):
         if ENVIRONMENT == 'TEST':
             branch = os.environ['BRANCH'].lower()
-            if ctx.channel.name != branch:
+            if ctx.message.guild is not None and ctx.channel.name != branch:
                 return False
         return True
 
