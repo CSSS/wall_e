@@ -100,7 +100,7 @@ class SFU():
         logger.info('[SFU outline()] arguments given: ' + str(course))
         
         usage = [
-                ['Usage', '`.outline <course> [<term> <section> <next>]`\n*<term>, <section>, and <next> are optional arguments*\nInclude the keyword `next` to look at the next semester\'s outline. Note: `next` is used for course registration purposes and if the next semester info isn\'t available it\'ll return an error.'], 
+                ['Usage', '`.outline <course> [<term> <section> next]`\n*<term>, <section>, and next are optional arguments*\nInclude the keyword `next` to look at the next semester\'s outline. Note: `next` is used for course registration purposes and if the next semester info isn\'t available it\'ll return an error.'], 
                 ['Example', '`.outline cmpt300\n .outline cmpt300 fall\n .outline cmpt300 d200\n .outline cmpt300 spring d200\n .outline cmpt300 next`']
             ]
 

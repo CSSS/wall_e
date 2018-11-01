@@ -40,7 +40,7 @@
 
 		{"access": "role", "role" : "Bot_manager", "name":"Class: SFU"},
 		{"access": "role", "role" : "public", "name": ".sfu <arg>", "description": "Returns the calendar description from current semester of <arg>"},
-		{"access": "role", "role" : "public", "name": ".outline <arg0> [<arg1> <arg2> <next>]", "description": "Returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`. Added keyword `next` will look at next semesters oultine for `<arg0>`;Note this will return error if it is not registration time."}
+		{"access": "role", "role" : "public", "name": ".outline <arg0> [<arg1> <arg2> next]", "description": "Returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`. Added keyword `next` will look at next semesters oultine for `<arg0>`;Note `next` will return error if it is not registration time."}
 		
 	]
 }
