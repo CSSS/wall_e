@@ -134,6 +134,9 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
 1. `.outline cmpt 300`
 1. `.outline cmpt300 spring d200`
 1. `.outline cmpt 300 spring d200`
+1. `.outline cmpt300 next`
+1. `.outline cmpt300 d200 next`
+1. `.outline cmpt300 summer d200 next`
 1. `.outline cmpt666`
 1. `.outline blah`
 1. `.outline`
