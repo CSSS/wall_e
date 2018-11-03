@@ -15,7 +15,7 @@ class Misc():
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.session = aiohttp.ClientSession()
+		self.session = aiohttp.ClientSession(loop=bot.loop)
 
 	@commands.command()
 	async def poll(self, ctx, *questions):
