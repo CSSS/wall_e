@@ -97,7 +97,7 @@ class Misc():
 				logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
 				urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
 				content = [
-					['Definition', data[1]['definition']],
+					['Definition', data[0]['definition']],
 					['Link', '[here](%s)' % urbanUrl]
 					]
 				eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
