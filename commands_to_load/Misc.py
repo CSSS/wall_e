@@ -15,6 +15,7 @@ class Misc():
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.session = aiohttp.ClientSession()
 
 	@commands.command()
 	async def poll(self, ctx, *questions):
@@ -78,7 +79,7 @@ class Misc():
 		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
 		logger.info("[Misc urban()] following url  constructed for get request =\""+str(url)+"\"")
 
-		async with aiohttp.ClientSession().get(url) as res:
+		async with self.session.get(url) as res:
 			data = ''
 			if res.status == 200:
 				logger.info("[Misc urban()] Get request successful")
