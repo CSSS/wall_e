@@ -85,7 +85,6 @@ class Misc():
 			if res.status == 200:
 				logger.info("[Misc urban()] Get request successful")
 				data = await res.json()
-				data = json.loads(data)
 			else:
 				logger.info("[Misc urban()] Get request failed resulted in " + str(res.status))
 
