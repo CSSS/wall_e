@@ -1,6 +1,6 @@
 from discord.ext import commands
 import logging
-import requests as req
+import aiohttp
 from helper_files.embed import embed 
 from helper_files.Paginate import paginateEmbed
 import helper_files.settings as settings
@@ -77,17 +77,21 @@ class Misc():
 		
 		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
 		logger.info("[Misc urban()] following url  constructed for get request =\""+str(url)+"\"")
-		
 
-		res = req.get(url)
-		logger.info("[Misc urban()] Get request made =\""+str(res)+"\"")
-		
-		if(res.status_code != 404):
+		async with aiohttp.ClientSession() as req:
+			res = await req.get(url)
+
+		data = ''
+		if res.status == 200:
 			logger.info("[Misc urban()] Get request successful")			
-			data = res.json()
+			while True:
+				chunk = await res.content.read(10)
+				if not chunk:
+					break
+				data += str(chunk.decode())
+			data = json.loads(data)
 		else:
-			logger.info("[Misc urban()] Get request failed, 404 resulted")
-			data = ''
+			logger.info("[Misc urban()] Get request failed resulted in " + str(res.status))
 
 		data = data['list']
 		if not data:
@@ -167,7 +171,7 @@ class Misc():
 
 		logger.info("[Misc help()] numberOfCommands set to "+str(numberOfCommands))
 		descriptionToEmbed=[""]
-		x, page = 0, 0;
+		x, page = 0, 0
 		for entry in helpDict['commands']:
 			if entry['access'] == "role":
 				if entry['role'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
