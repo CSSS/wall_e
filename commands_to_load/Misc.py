@@ -219,5 +219,8 @@ class Misc():
 
 		await paginateEmbed(self.bot, ctx, descriptionToEmbed, title="Help Page" )
 
+	def __del__(self):
+		self.session.close()
+
 def setup(bot):
 	bot.add_cog(Misc(bot))
