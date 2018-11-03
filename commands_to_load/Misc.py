@@ -81,33 +81,29 @@ class Misc():
 		async with aiohttp.ClientSession() as req:
 			res = await req.get(url)
 
-		data = ''
-		if res.status == 200:
-			logger.info("[Misc urban()] Get request successful")			
-			while True:
-				chunk = await res.content.read(10)
-				if not chunk:
-					break
-				data += str(chunk.decode())
-			data = json.loads(data)
-		else:
-			logger.info("[Misc urban()] Get request failed resulted in " + str(res.status))
+			data = ''
+			if res.status == 200:
+				logger.info("[Misc urban()] Get request successful")
+				data = await res.json()
+				data = json.loads(data)
+			else:
+				logger.info("[Misc urban()] Get request failed resulted in " + str(res.status))
 
-		data = data['list']
-		if not data:
-			logger.info("[Misc urban()] sending message indicating 404 result")
-			eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
-			await ctx.send(embed=eObj)
-			return
-		else:
-			logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
-			urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
-			content = [
-				['Definition', data[1]['definition']], 
-				['Link', '[here](%s)' % urbanUrl]
-				]
-			eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
-			await ctx.send(embed=eObj)
+			data = data['list']
+			if not data:
+				logger.info("[Misc urban()] sending message indicating 404 result")
+				eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
+				await ctx.send(embed=eObj)
+				return
+			else:
+				logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
+				urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+				content = [
+					['Definition', data[1]['definition']],
+					['Link', '[here](%s)' % urbanUrl]
+					]
+				eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
+				await ctx.send(embed=eObj)
 
 	@commands.command()
 	async def wolfram(self, ctx, *arg):
