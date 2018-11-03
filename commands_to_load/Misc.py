@@ -78,9 +78,7 @@ class Misc():
 		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
 		logger.info("[Misc urban()] following url  constructed for get request =\""+str(url)+"\"")
 
-		async with aiohttp.ClientSession() as req:
-			res = await req.get(url)
-
+		async with aiohttp.ClientSession().get(url) as res:
 			data = ''
 			if res.status == 200:
 				logger.info("[Misc urban()] Get request successful")
