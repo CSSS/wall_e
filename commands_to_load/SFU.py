@@ -121,7 +121,7 @@ class SFU():
 
         courseCode = ''
         courseNum = ''
-        section = 'd100'
+        section = ''
         
         logger.info('[SFU outline()] parsing args')
         argNum = len(course)
@@ -186,11 +186,10 @@ class SFU():
         if(res.status == 200):
             logger.info('[SFU outline()] get request successful')
             data = ''
-            while True:
-                chunk = await res.content.read(10)
-                if not chunk:
-                    break
+            while not res.content.at_eof():
+                chunk = await res.content.readchunk()
                 data += str(chunk.decode())
+
             data = json.loads(data)
         else:
             logger.error('[SFU outline()] get resulted in '+ str(res.status))
