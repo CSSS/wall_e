@@ -14,6 +14,7 @@ sfuRed = 0xA6192E
 class SFU():
     def __init__(self, bot):
         self.bot = bot
+        self.req = aiohttp.ClientSession(loop=bot.loop)
 
     @commands.command()
     async def sfu(self, ctx, *course):
@@ -180,23 +181,22 @@ class SFU():
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         logger.info('[SFU outline()] url for get constructed: ' + url)
 
-        async with aiohttp.ClientSession() as req:
-            res = await req.get(url)
+        res = await self.req.get(url)
 
-            if(res.status == 200):
-                logger.info('[SFU outline()] get request successful')
-                data = ''
-                while True:
-                    chunk = await res.content.read(10)
-                    if not chunk:
-                        break
-                    data += str(chunk.decode())
-                data = json.loads(data)
-            else:
-                logger.error('[SFU outline()] get resulted in '+ str(res.status))
-                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode.upper() + ' ' + str(courseNum).upper() + '`', footer='SFU Outline Error')
-                await ctx.send(embed=eObj)
-                return
+        if(res.status == 200):
+            logger.info('[SFU outline()] get request successful')
+            data = ''
+            while True:
+                chunk = await res.content.read(10)
+                if not chunk:
+                    break
+                data += str(chunk.decode())
+            data = json.loads(data)
+        else:
+            logger.error('[SFU outline()] get resulted in '+ str(res.status))
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode.upper() + ' ' + str(courseNum).upper() + '`', footer='SFU Outline Error')
+            await ctx.send(embed=eObj)
+            return
 
         logger.info('[SFU outline()] parsing data from get request')
         outline = data['info']['outlinePath'].upper()
@@ -281,6 +281,9 @@ class SFU():
 
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, thumbnail=img, content=fields, footer='Written by VJ')
         await ctx.send(embed=eObj)
+
+    def __del__(self):
+        self.req.close()
 
 def setup(bot):
     bot.add_cog(SFU(bot))
