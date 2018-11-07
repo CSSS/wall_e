@@ -79,8 +79,6 @@ class SFU():
                 return
         
         logger.info('[SFU sfu()] parsing json data returned from get request')
-        title = 'Results from SFU'
-        colour = sfuRed
 
         sfuUrl='http://www.sfu.ca/students/calendar/%s/%s/courses/%s/%s.html' % (year, term, courseCode, courseNum)
         link = '[here](%s)' % sfuUrl
@@ -91,7 +89,7 @@ class SFU():
             ["URL", link]
         ]
 
-        embedObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=colour, footer=footer)
+        embedObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=sfuRed, footer=footer)
         await ctx.send(embed=embedObj)
         logger.info('[SFU sfu()] out sent to server')        
 
