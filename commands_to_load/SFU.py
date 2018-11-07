@@ -214,12 +214,31 @@ class SFU():
             return
 
         logger.info('[SFU outline()] parsing data from get request')
-        outline = data['info']['outlinePath'].upper()
-        title = data['info']['title']
-        instructor = data['instructor'][0]['name'] + '\n[' + data['instructor'][0]['email'] + ']'
+        try:
+            # Main course information 
+            info = data['info']
+
+            # Course schedule information
+            schedule = data['courseSchedule']
+        except Exception:
+            logger.info('[SFU outline()] info keys didn\'t exist')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
+            await ctx.send(embed=eObj)
+            return
+
+        outline = info['outlinePath'].upper()
+        title = info['title']
+        try:
+            #instructor = data['instructor'][0]['name'] + '\n[' + data['instructor'][0]['email'] + ']'
+            instructor = ''
+            instructors = data['instructor']
+            for prof in instructors:
+                instructor += prof['name'] 
+                instructor += ' [%s]\n' % prof['email']
+        except Exception:
+            instructor = 'TBA'
         
-        # Course schedule info
-        schedule = data['courseSchedule']
+        # Course schedule info parsing
         crs = ''
         for x in schedule:
             # [LEC] days time, room, campus
@@ -233,7 +252,7 @@ class SFU():
         classTimes = crs
 
         # Exam info
-        examTimes = 'N/A'
+        examTimes = 'TBA'
         roomInfo = ''
         tim = ''
         date = ''
