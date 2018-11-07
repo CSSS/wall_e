@@ -178,6 +178,22 @@ class SFU():
                     return
 
         # Set up url for get
+        if section == '':
+            # get req the section
+            logger.info('[SFU outline()] getting section')
+            res = await self.req.get('http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s' % (year, term, courseCode, courseNum))
+            if(res.status == 200):
+                data = ''
+                while not res.content.at_eof():
+                    chunk = await res.content.readchunk()
+                    data += str(chunk.decode())
+                res = json.loads(data)
+                logger.info('[SFU outline()] parsing section data')
+                for x in res:
+                    if x['sectionCode'] in ['LEC', 'LAB', 'TUT']:
+                        section = x['value']
+                        break
+
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         logger.info('[SFU outline()] url for get constructed: ' + url)
 
@@ -193,7 +209,7 @@ class SFU():
             data = json.loads(data)
         else:
             logger.error('[SFU outline()] get resulted in '+ str(res.status))
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode.upper() + ' ' + str(courseNum).upper() + '`', footer='SFU Outline Error')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
 
@@ -252,7 +268,7 @@ class SFU():
             prerequisites = 'None'
 
         try:
-            corequisites  = data['info']['corequisites'] or 'None'
+            corequisites  = data['info']['corequisites']
         except Exception:
             corequisites = ''
 
@@ -277,7 +293,7 @@ class SFU():
         fields.append(['URL', '[here](%s)' % url])
         
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
-
+        
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, thumbnail=img, content=fields, footer='Written by VJ')
         await ctx.send(embed=eObj)
 
