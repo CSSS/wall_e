@@ -96,8 +96,10 @@ class Misc():
 			else:
 				logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
 				urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+				# truncate to fit in embed, field values must be 1024 or fewer in length, picked max len of 903
+				definition = data[0]['definition'][:900] + '...' if len(data) > 903 else data[0]['definition']
 				content = [
-					['Definition', data[0]['definition']],
+					['Definition', definition],
 					['Link', '[here](%s)' % urbanUrl]
 					]
 				eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
