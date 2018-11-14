@@ -19,6 +19,7 @@
 		{ "access": "role", "role" : "public", "name": ".poll <arg>", "description": "starts a yes/no poll where <arg> is the question" },
 		{ "access": "role", "role" : "public", "name": ".poll <arg0> <arg1> <arg2> (up to 12 arguments)", "description": "starts a poll where <arg0> is the question and the remaining arguments are the options"},
 		{"access": "role", "role" : "public", "name": ".urban <arg>", "description": "returns definition from urban dictionary of <arg>"},
+		{"access": "role", "role" : "public", "name": ".wolfram <arg>", "description": "returns the result of passing <arg> to Wolfram Alpha"},
 
 		{ "access": "role", "role" : "Bot_manager", "name": "Class: Reminders"},
 		{ "access": "role", "role" : "public", "name": ".remindmein <x minutes|hours|days> to <subject>", "description": "create a reminder" },
@@ -40,7 +41,7 @@
 
 		{"access": "role", "role" : "Bot_manager", "name":"Class: SFU"},
 		{"access": "role", "role" : "public", "name": ".sfu <arg>", "description": "Returns the calendar description from current semester of <arg>"},
-		{"access": "role", "role" : "public", "name": ".outline <arg0> [<arg1> <arg2>]", "description": "Returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`."}
+		{"access": "role", "role" : "public", "name": ".outline <arg0> [<arg1> <arg2> next]", "description": "Returns outline details of course `<arg0>`. Defaults to current term and section d100. Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`. Added keyword `next` will look at next semesters oultine for `<arg0>`;Note `next` will return error if it is not registration time."}
 		
 	]
 }

@@ -14,6 +14,7 @@ sfuRed = 0xA6192E
 class SFU():
     def __init__(self, bot):
         self.bot = bot
+        self.req = aiohttp.ClientSession(loop=bot.loop)
 
     @commands.command()
     async def sfu(self, ctx, *course):
@@ -50,10 +51,10 @@ class SFU():
                 logger.info('[SFU outline()] bad arguments, command ended')
                 return
             
-            courseCode = crs[0]
+            courseCode = crs[0].lower()
             courseNum = crs[1]
         else:
-            courseCode = course[0]
+            courseCode = course[0].lower()
             courseNum = course[1]
 
         url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
@@ -62,18 +63,22 @@ class SFU():
         async with aiohttp.ClientSession() as req:
             res = await req.get(url)
 
-        if(res.status == 200):
-            logger.info('[SFU sfu()] get request successful')
-            data = await res.json()
-        else:
-            logger.info('[SFU sfu()] get resulted in ' + str(res.status))
-            eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
-            await ctx.send(embed=eObj)
-            return
+            if(res.status == 200):
+                logger.info('[SFU sfu()] get request successful')
+                data = ''
+                while True:
+                    chunk = await res.content.read(10)
+                    if not chunk:
+                        break
+                    data += str(chunk.decode())
+                data = json.loads(data)
+            else:
+                logger.info('[SFU sfu()] get resulted in ' + str(res.status))
+                eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
+                await ctx.send(embed=eObj)
+                return
         
         logger.info('[SFU sfu()] parsing json data returned from get request')
-        title = 'Results from SFU'
-        colour = sfuRed
 
         sfuUrl='http://www.sfu.ca/students/calendar/%s/%s/courses/%s/%s.html' % (year, term, courseCode, courseNum)
         link = '[here](%s)' % sfuUrl
@@ -84,7 +89,7 @@ class SFU():
             ["URL", link]
         ]
 
-        embedObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=colour, footer=footer)
+        embedObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=sfuRed, footer=footer)
         await ctx.send(embed=embedObj)
         logger.info('[SFU sfu()] out sent to server')        
 
@@ -94,8 +99,8 @@ class SFU():
         logger.info('[SFU outline()] arguments given: ' + str(course))
         
         usage = [
-                ['Usage', '`.outline <course> [<term> <section>]`\n*<term> and <section> are optional arguments*'], 
-                ['Example', '`.outline cmpt300 fall d200`']
+                ['Usage', '`.outline <course> [<term> <section> next]`\n*<term>, <section>, and next are optional arguments*\nInclude the keyword `next` to look at the next semester\'s outline. Note: `next` is used for course registration purposes and if the next semester info isn\'t available it\'ll return an error.'], 
+                ['Example', '`.outline cmpt300\n .outline cmpt300 fall\n .outline cmpt300 d200\n .outline cmpt300 spring d200\n .outline cmpt300 next`']
             ]
 
         if(not course):
@@ -103,13 +108,18 @@ class SFU():
             await ctx.send(embed=eObj)
             logger.info('[SFU outline()] missing arguments, command ended')
             return
-
-        year = 'current'
-        term = 'registration'
+        course = list(course)
+        if 'next' in course:
+            year = 'registration'
+            term = 'registration'
+            course.remove('next')
+        else:
+            year = 'current'
+            term = 'current'
 
         courseCode = ''
         courseNum = ''
-        section = 'd100'
+        section = ''
         
         logger.info('[SFU outline()] parsing args')
         argNum = len(course)
@@ -133,60 +143,100 @@ class SFU():
                 logger.info('[SFU outline()] bad arguments, command ended')
                 return
 
-            courseCode = crs[0]
+            courseCode = crs[0].lower()
             courseNum = crs[1]
 
         # Course and term or section is specified
         if(argNum == 2):
             # Figure out if section or term was given
             temp = course[1].lower()
-
-            if(len(temp) == 4):
-                if(temp != 'fall'):
-                    section = temp
-                else:
+            if temp[3].isdigit():
+                section = temp
+            elif term != 'registration':
+                if(temp == 'fall'):
                     term = temp
-            elif(temp == 'summer'):
-                term = temp
-            elif(temp == 'spring'):
-                term = temp
+                elif(temp == 'summer'):
+                    term = temp
+                elif(temp == 'spring'):
+                    term = temp
         
         # Course, term, and section is specified
         elif(argNum == 3):
-            # Check iff last arg is section
-            if(len(course[2]) == 4 and (course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer')):
-                term = course[1].lower()
+            # Check if last arg is section
+            if course[2][3].isdigit():
                 section = course[2].lower()
-            else:
-                # Send something saying be in this order
-                logger.error('[SFU outline] args out of order or wrong')
-                eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_NAME, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
-                await ctx.send(embed=eObj)
-                return
+            if term != 'registration':
+                if course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer':
+                    term = course[1].lower()
+                else:
+                    # Send something saying be in this order
+                    logger.error('[SFU outline] args out of order or wrong')
+                    eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
+                    await ctx.send(embed=eObj)
+                    return
 
         # Set up url for get
+        if section == '':
+            # get req the section
+            logger.info('[SFU outline()] getting section')
+            res = await self.req.get('http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s' % (year, term, courseCode, courseNum))
+            if(res.status == 200):
+                data = ''
+                while not res.content.at_eof():
+                    chunk = await res.content.readchunk()
+                    data += str(chunk.decode())
+                res = json.loads(data)
+                logger.info('[SFU outline()] parsing section data')
+                for x in res:
+                    if x['sectionCode'] in ['LEC', 'LAB', 'TUT']:
+                        section = x['value']
+                        break
+
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         logger.info('[SFU outline()] url for get constructed: ' + url)
 
-        async with aiohttp.ClientSession() as req:
-            res = await req.get(url)
+        res = await self.req.get(url)
 
         if(res.status == 200):
             logger.info('[SFU outline()] get request successful')
-            data = await res.json()
+            data = ''
+            while not res.content.at_eof():
+                chunk = await res.content.readchunk()
+                data += str(chunk.decode())
+
+            data = json.loads(data)
         else:
             logger.error('[SFU outline()] get resulted in '+ str(res.status))
-            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n`' + courseCode + ' ' + courseNum + '`', footer='SFU Outline Error')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
 
         logger.info('[SFU outline()] parsing data from get request')
-        outline = data['info']['outlinePath'].upper()
-        title = data['info']['title']
-        instructor = data['instructor'][0]['name'] + '\n[' + data['instructor'][0]['email'] + ']'
+        try:
+            # Main course information 
+            info = data['info']
+
+            # Course schedule information
+            schedule = data['courseSchedule']
+        except Exception:
+            logger.info('[SFU outline()] info keys didn\'t exist')
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
+            await ctx.send(embed=eObj)
+            return
+
+        outline = info['outlinePath'].upper()
+        title = info['title']
+        try:
+            #instructor = data['instructor'][0]['name'] + '\n[' + data['instructor'][0]['email'] + ']'
+            instructor = ''
+            instructors = data['instructor']
+            for prof in instructors:
+                instructor += prof['name'] 
+                instructor += ' [%s]\n' % prof['email']
+        except Exception:
+            instructor = 'TBA'
         
-        # Course schedule info
-        schedule = data['courseSchedule']
+        # Course schedule info parsing
         crs = ''
         for x in schedule:
             # [LEC] days time, room, campus
@@ -200,7 +250,7 @@ class SFU():
         classTimes = crs
 
         # Exam info
-        examTimes = 'N/A'
+        examTimes = 'TBA'
         roomInfo = ''
         tim = ''
         date = ''
@@ -221,12 +271,23 @@ class SFU():
         # Other details
         # need to cap len for details
         description = data['info']['description']
-        details = html.unescape(data['info']['courseDetails'])
-        details = re.sub('<[^<]+?>', '', details)
-        if(len(details) > 200):
-            details = details[:200] + '\n(...)'
+        try:
+            details = html.unescape(data['info']['courseDetails'])
+            details = re.sub('<[^<]+?>', '', details)
+            if(len(details) > 200):
+                details = details[:200] + '\n(...)'
+        except Exception:
+            details = 'None'
         
-        prerequisites  = data['info']['prerequisites'] or "None"
+        try:
+            prerequisites  = data['info']['prerequisites'] or 'None'
+        except Exception:
+            prerequisites = 'None'
+
+        try:
+            corequisites  = data['info']['corequisites']
+        except Exception:
+            corequisites = ''
 
         url = 'http://www.sfu.ca/outlines.html?%s' % data['info']['outlinePath']
         
@@ -241,13 +302,20 @@ class SFU():
             ['Exam Times', examTimes], 
             ['Description', description], 
             ['Details', details], 
-            ['Prerequisites', prerequisites], 
-            ['URL', '[here](%s)' % url]
+            ['Prerequisites', prerequisites]
         ]
-        img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
 
+        if corequisites:
+            fields.append(['Corequisites', corequisites])
+        fields.append(['URL', '[here](%s)' % url])
+        
+        img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
+        
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, thumbnail=img, content=fields, footer='Written by VJ')
         await ctx.send(embed=eObj)
+
+    def __del__(self):
+        self.req.close()
 
 def setup(bot):
     bot.add_cog(SFU(bot))
