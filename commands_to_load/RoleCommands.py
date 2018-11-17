@@ -66,7 +66,7 @@ class RoleCommands():
         membersOfRole = role.members
         if user in membersOfRole:
             logger.info("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
-            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAPH!!")
+            eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAHP!!")
             await ctx.send(embed=eObj)
         else:
             await user.add_roles(role)
