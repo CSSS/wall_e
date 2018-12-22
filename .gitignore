@@ -158,7 +158,7 @@ logs/stats_of_commands.csv
 #my own files
 token.txt
 setup.sh
-
+@eaDir
 logs/stats_of_commands.csv
 
 runner.sh
