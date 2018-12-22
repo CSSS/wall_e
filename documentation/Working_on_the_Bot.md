@@ -64,11 +64,11 @@ Pre-requisites: `git`.
          1. `sudo pacman -U python35-3.5.6-1-x86_64.pkg.tar.xz`
          1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
          1. `sudo -H python3.5 get-pip.py`
-         1. `sudo -H python3.5 -m pip install virtualenv`
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 1. From commandline, run following commands  
    1. Run `git clone <the url of your forked repo>`  
    1. cd into `wall_e` directory  
+   1. Run `sudo -H python3.5 -m pip install virtualenv`
    1. Run `python3.5 -m venv ENV`  
    1. Run `. ENV/bin/activate`  
    1. Run `python3.5 -m pip install -r requirements.txt`  
