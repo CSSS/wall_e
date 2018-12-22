@@ -222,18 +222,10 @@ class RoleCommands():
         
 
         ##determine if user who is calling the command is able to delete the roles
-        author_delete_roles=False
         sorted_list_of_authors_roles = sorted(ctx.author.roles, key = lambda x: int(x.position),reverse=True)
         author_highestRole = sorted_list_of_authors_roles[0]
-        
-        print("User permissions manage_roles="+str(ctx.author.guild_permissions.manage_roles)+" or administrator="+str(ctx.author.guild_permissions.administrator))
-        for role in ctx.author.roles:
-            if author_highestRole < role:
-                author_highestRole = role
-            if role.permissions.manage_roles or role.permissions.administrator:
-                author_delete_roles = True
 
-        if not author_delete_roles:
+        if not (ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator):
             embed.title = "You don't have permissions to delete roles. :("
             await ctx.send(embed=embed)
             return
