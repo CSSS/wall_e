@@ -218,7 +218,7 @@ class RoleCommands():
             embed.title = "It seems that the bot don't have permissions to delete roles. :("
             await ctx.send(embed=embed)
             return
-        logger.info("[Misc purgeroles()] bot's highest role is " + str(bot_highestRole) +" and its ability to delete roles is " +str(bot_delete_roles_perm))
+        logger.info("[Misc purgeroles()] bot's highest role is " + str(bot_highestRole) +" and its ability to delete roles is " +str(ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator))
         
 
         ##determine if user who is calling the command is able to delete the roles
@@ -229,7 +229,7 @@ class RoleCommands():
             embed.title = "You don't have permissions to delete roles. :("
             await ctx.send(embed=embed)
             return
-        logger.info("[Misc purgeroles()] user's highest role is " + str(author_highestRole) +" and its ability to delete roles is " +str(author_delete_roles))
+        logger.info("[Misc purgeroles()] user's highest role is " + str(author_highestRole) +" and its ability to delete roles is " +str(ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator))
 
 
         guild = ctx.guild
