@@ -207,18 +207,60 @@ class RoleCommands():
         embed.color = discord.Color.blurple()
         embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
 
-        # only people with manage_roles can call
-        if not ctx.author.permissions_in(ctx.channel).manage_roles:
-            embed.title = "You don't have permissions to manage roles. :("
+        #getting member instance of the bot
+        bot_user = None
+        for member in ctx.guild.members:
+            if member.id == ctx.bot.user.id:
+                bot_user = member
+                break
+
+
+        ##determine if bot is able to delete the roles
+        bot_delete_roles_perm=False #this is used to determine if any of the roles that the bot has, has 
+        #the necessary role to be able to delete other roles
+        bot_highestRole=bot_user.roles[0] #this is used to determine the highest role that the bot is assigned to
+        
+        for role in bot_user.roles:
+            if bot_highestRole < role:
+                bot_highestRole = role
+
+            if role.permissions.manage_roles or role.permissions.administrator:
+                bot_delete_roles_perm = True
+
+        if not bot_delete_roles_perm:
+            embed.title = "It seems that the bot don't have permissions to delete roles. :("
             await ctx.send(embed=embed)
             return
+        logger.info("[Misc purgeroles()] bot's highest role is " + str(bot_highestRole) +" and its ability to delete roles is " +str(bot_delete_roles_perm))
+        
+
+        ##determine if user who is calling the command is able to delete the roles
+        author_delete_roles=False
+        author_highestRole=ctx.author.roles[0]
+        for role in ctx.author.roles:
+            if author_highestRole < role:
+                author_highestRole = role
+            if role.permissions.manage_roles or role.permissions.administrator:
+                author_delete_roles = True
+
+        if not author_delete_roles:
+            embed.title = "You don't have permissions to delete roles. :("
+            await ctx.send(embed=embed)
+            return
+        logger.info("[Misc purgeroles()] user's highest role is " + str(author_highestRole) +" and its ability to delete roles is " +str(author_delete_roles))
 
 
         guild = ctx.guild
         softRoles = []
+        undeletableRoles = []
         for role in guild.roles:
             if role.name != "@everyone" and role.name == role.name.lower():
-                softRoles.append(role)
+                if author_highestRole >= role and bot_highestRole >= role:
+                    softRoles.append(role)
+                else:
+                    undeletableRoles.append(role.name)
+        logger.info("[Misc purgeroles()] Located all the empty roles that both the user and the bot can delete")
+        logger.info("[Misc purgeroles()] the ones it can't are: "+str(', '.join(undeletableRoles)))
 
         deleted = []
         for role in softRoles:
@@ -227,6 +269,7 @@ class RoleCommands():
                 logger.info("[Misc purgeroles()] deleting empty role @" + role.name)
                 deleted.append(role.name)
                 await role.delete()
+                logger.info("[Misc purgeroles()] deleted empty role @" + role.name)
 
 
         if not deleted:
