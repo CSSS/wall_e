@@ -46,9 +46,9 @@
 Pre-requisites: `git`.  
 
 1. Python3.5 Instructions  
-  i. Mac  
-    a. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)  
-    b. Run  
+  1. Mac  
+    1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)  
+    1. Run  
 ```shell
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3.5 get-pip.py
