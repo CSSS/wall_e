@@ -208,11 +208,7 @@ class RoleCommands():
         embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
 
         #getting member instance of the bot
-        bot_user = None
-        for member in ctx.guild.members:
-            if member.id == ctx.bot.user.id:
-                bot_user = member
-                break
+        bot_user = ctx.guild.get_member(ctx.bot.user.id)
 
 
         ##determine if bot is able to delete the roles
