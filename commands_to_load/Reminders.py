@@ -11,7 +11,6 @@ import traceback
 import sys
 import helper_files.settings as settings
 from helper_files.embed import embed
-
 logger = logging.getLogger('wall_e')
 
 class Reminders():
@@ -64,7 +63,20 @@ class Reminders():
 			await ctx.send(embed=eObj)
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
-		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
+
+		bot_commands_channel = None
+		for channel in ctx.guild.text_channels:
+			if channel.name == 'bot_commands_and_misc':
+				bot_commands_channel = channel
+				break
+
+		if bot_commands_channel is None:
+			logger.info("[Reminders remindme()] couldn't find the channel \"bot_commands_and_misc\" to output the reminder to")
+			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="couldn't find the channel \"bot_commands_and_misc\" to output the reminder to!")
+			await ctx.send(embed=eObj)
+			return
+
+		json_string = json.dumps({'cid': bot_commands_channel.id, 'message': message.strip(), 'author_id': ctx.author.id, 'author_name': ctx.author.name})
 		r = self.r
 		r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
@@ -160,13 +172,16 @@ class Reminders():
 				try:
 					cid_mid_dct = json.loads(message['data'])
 					chan = self.bot.get_channel(cid_mid_dct['cid'])
+					msg = cid_mid_dct['message']
+					author_id = cid_mid_dct['author_id']
+					author_name = cid_mid_dct['author_name']
 					if chan is not None:
-						msg = await chan.get_message(cid_mid_dct['mid'])
-						ctx = await self.bot.get_context(msg)
-						if ctx.valid and helper_files.testenv.TestCog.check_test_environment(ctx):
-							fmt = '<@{0}>\n {1}'
-							logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
-							await ctx.send(fmt.format(ctx.message.author.id, ctx.message.content))
+						fmt = '<@{0}>\n This is your reminder to "{1}"'
+						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
+						await chan.send(fmt.format(author_id, msg))
+					else:
+						logger.info('[Misc.py get_message()] can\'t find the channel by the id ="'+str(cid_mid_dct['cid'])+'" to send the reminder to '+str(author_name)+ ' about "'+msg+'"')
+
 				except Exception as error:
 					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
 					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
