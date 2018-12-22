@@ -210,7 +210,6 @@ class RoleCommands():
         #getting member instance of the bot
         bot_user = ctx.guild.get_member(ctx.bot.user.id)
 
-
         ##determine if bot is able to delete the roles
         sorted_list_of_authors_roles = sorted(bot_user.roles, key = lambda x: int(x.position),reverse=True)
         bot_highestRole = sorted_list_of_authors_roles[0]
@@ -224,7 +223,9 @@ class RoleCommands():
 
         ##determine if user who is calling the command is able to delete the roles
         author_delete_roles=False
-        author_highestRole=ctx.author.roles[0]
+        sorted_list_of_authors_roles = sorted(ctx.author.roles, key = lambda x: int(x.position),reverse=True)
+        author_highestRole = sorted_list_of_authors_roles[0]
+        
         print("User permissions manage_roles="+str(ctx.author.guild_permissions.manage_roles)+" or administrator="+str(ctx.author.guild_permissions.administrator))
         for role in ctx.author.roles:
             if author_highestRole < role:
