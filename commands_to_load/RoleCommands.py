@@ -212,11 +212,8 @@ class RoleCommands():
 
 
         ##determine if bot is able to delete the roles
-        bot_highestRole=bot_user.roles[0] #this is used to determine the highest role that the bot is assigned to
-        
-        for role in bot_user.roles:
-            if bot_highestRole < role:
-                bot_highestRole = role
+        sorted_list_of_authors_roles = sorted(bot_user.roles, key = lambda x: int(x.position),reverse=True)
+        bot_highestRole = sorted_list_of_authors_roles[0]
 
         if not (bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator):
             embed.title = "It seems that the bot don't have permissions to delete roles. :("
