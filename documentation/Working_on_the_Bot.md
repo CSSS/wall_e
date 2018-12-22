@@ -46,29 +46,30 @@
 Pre-requisites: `git`.  
 
 1. Python3.5 Instructions
-   1. Mac
-      1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)
+   i. Mac
+      a. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)
+      b. Run
 ```shell
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3.5 get-pip.py
 ```
-   1. Ubuntu
+   i. Ubuntu
 ```shell
 sudo apt-get install -y python 3.5
 ```
-1. Arch
+i. Arch
 ```shell
-wget https://aur.archlinux.org/cgit/aur.git/snapshot/python35.tar.gz`
-tar xvf python35.tar.gz`
-cd python35`
-sudo pacman -S tk valgrind`
-makepkg`
+wget https://aur.archlinux.org/cgit/aur.git/snapshot/python35.tar.gz
+tar xvf python35.tar.gz
+cd python35
+sudo pacman -S tk valgrind
+makepkg
 sudo pacman -U python35-3.5.6-1-x86_64.pkg.tar.xz
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 sudo -H python3.5 get-pip.py
 sudo -H python3.5 -m pip install virtualenv
 ```
-1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
+2. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 1. From commandline, run following commands  
    1. Run `git clone <the url of your forked repo>`  
    1. cd into `wall_e` directory  
