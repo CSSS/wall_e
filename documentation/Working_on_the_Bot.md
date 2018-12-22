@@ -53,7 +53,7 @@ Pre-requisites: `git`.
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3.5 get-pip.py
 ```
-   i. Ubuntu  
+      1. Ubuntu  
 ```shell
 sudo apt-get install -y python 3.5
 ```
