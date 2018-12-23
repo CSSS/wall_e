@@ -21,13 +21,20 @@ class Reminders():
 
 		#setting up database connection
 		try:
-			self.r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
-			self.message_subscriber = self.r.pubsub(ignore_subscribe_messages=True)
-			self.message_subscriber.subscribe('__keyevent@0__:expired')
-			self.bot.loop.create_task(self.get_messages())
+			#self.r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
+			#self.message_subscriber = self.r.pubsub(ignore_subscribe_messages=True)
+			#self.message_subscriber.subscribe('__keyevent@0__:expired')
+			#self.bot.loop.create_task(self.get_messages())
 			logger.info("[Reminders __init__] redis connection established")
+
+			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='localhost' password='3fon49h23GPk3!r$'")
+			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+			self.curs = conn.cursor()
+			curs.execute("DROP TABLE IF EXISTS Reminders;")
+			curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp,  channel_id varchar(500), message varchar(2000), author_id varchar(500) );")
+			logger.info("[Reminders __init__] PostgreSQL connection established")
 		except Exception as e:
-			logger.error("[Reminders __init__] enountered following exception when setting up redis connection\n{}".format(e))
+			logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
 
 	@commands.command()
 	async def remindmein(self, ctx, *args):
@@ -155,22 +162,28 @@ class Reminders():
 	async def get_messages(self):
 		await self.bot.wait_until_ready()
 		while True:
-			message = self.message_subscriber.get_message()
-			if message is not None and message['type'] == 'message':
-				try:
-					cid_mid_dct = json.loads(message['data'])
-					chan = self.bot.get_channel(cid_mid_dct['cid'])
-					if chan is not None:
-						msg = await chan.get_message(cid_mid_dct['mid'])
-						ctx = await self.bot.get_context(msg)
-						if ctx.valid and helper_files.testenv.TestCog.check_test_environment(ctx):
-							fmt = '<@{0}>\n {1}'
-							logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
-							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
-							await ctx.send(embed=eObj)
-				except Exception as error:
-					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
-					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+			dt = datetime.datetime.now()
+			self.curs.execute("SELECT * FROM Reminders where reminder_date <= TIMESTAMP '"+str(dt)+"';")
+			for row in curs.fetchall():
+				print(row)
+				curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
+
+#			message = self.message_subscriber.get_message()
+#			if message is not None and message['type'] == 'message':
+#				try:
+#					cid_mid_dct = json.loads(message['data'])
+#					chan = self.bot.get_channel(cid_mid_dct['cid'])
+#					if chan is not None:
+#						msg = await chan.get_message(cid_mid_dct['mid'])
+#						ctx = await self.bot.get_context(msg)
+#						if ctx.valid and helper_files.testenv.TestCog.check_test_environment(ctx):
+#							fmt = '<@{0}>\n {1}'
+#							logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
+#							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
+#							await ctx.send(embed=eObj)
+#				except Exception as error:
+#					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
+#					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 			await asyncio.sleep(2)
 
 def setup(bot):
