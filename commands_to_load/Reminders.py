@@ -13,6 +13,7 @@ import helper_files.settings as settings
 from helper_files.embed import embed
 import psycopg2
 import os
+import datetime
 
 logger = logging.getLogger('wall_e')
 REMINDER_CHANNEL_ID = os.environ['REMINDER_CHANNEL_ID']
@@ -24,9 +25,6 @@ class Reminders():
 
 		#setting up database connection
 		try:
-			#self.r = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
-			#self.message_subscriber = self.r.pubsub(ignore_subscribe_messages=True)
-			#self.message_subscriber.subscribe('__keyevent@0__:expired')
 			#self.bot.loop.create_task(self.get_messages())
 			logger.info("[Reminders __init__] redis connection established")
 
@@ -73,9 +71,13 @@ class Reminders():
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
 			await ctx.send(embed=eObj)
 			return
+
 		expire_seconds = int(mktime(time_struct) - time.time())
+		dt = datetime.datetime.now()
+		b = dt + datetime.timedelta(seconds=expire_seconds) # days, seconds, then other fields.
+
 		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
-		sqlCommand="INSERT INTO TABLE Reminders (  reminder_date, message, author_id) VALUES ("+str(expire_seconds)+", '"+message+"', '"+str(ctx.author.id)+"');"
+		sqlCommand="INSERT INTO TABLE Reminders (  reminder_date, message, author_id) VALUES (TIMESTAMP '"+str(b)+"', '"+message+"', '"+str(ctx.author.id)+"');"
 		logger.info("[Reminders remindme()] sqlCommand=["+sqlCommand+"]")
 		self.curs.execute(sqlCommand)
 
