@@ -34,7 +34,7 @@ class Reminders():
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
 			self.curs.execute("DROP TABLE IF EXISTS Reminders;")
-			self.curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp,  channel_id varchar(500), message varchar(2000), author_id varchar(500) );")
+			self.curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp, message varchar(2000), author_id varchar(500) );")
 			logger.info("[Reminders __init__] PostgreSQL connection established")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
