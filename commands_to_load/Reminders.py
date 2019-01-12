@@ -41,6 +41,8 @@ class Reminders():
 			else:
 				branch = os.environ['BRANCH'].lower()
 				logger.info("[Reminders __init__] branch is =["+branch+"]")
+				guild_server = bot.get_guild(GUILD_ID)
+				print("guild_server="+str(guild_server))
 				reminder_channel = discord.utils.get(bot.get_guild(GUILD_ID).channels, name=branch + '_reminder_channel')
 				if reminder_channel is None:
 					guild_server = bot.get_guild(GUILD_ID)
