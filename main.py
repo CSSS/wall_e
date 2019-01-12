@@ -50,6 +50,12 @@ if 'WOLFRAMAPI' not in os.environ:
 wolframAPI = os.environ['WOLFRAMAPI']
 wolframClient = wolframalpha.Client(wolframAPI)
 
+if 'GUILD_ID' not in os.environ:
+	print("[main.py] No environment variable \"GUILD_ID\" seems to exist...read the README again")
+	exit(1)
+GUILD_ID= os.environ['GUILD_ID']
+print("[main.py] variable \"GUILD_ID\" is set to \""+int(GUILD_ID)+"\"")
+
 REMINDER_CHANNEL=None
 ##################
 ## LOGGING SETUP ##
@@ -264,7 +270,6 @@ if __name__ == "__main__":
 	except Exception as e:
 		logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
 
-	create_reminder_channel(bot)
 	#removing default help command to allow for custom help command
 	logger.info("[main.py] default help command being removed")
 	bot.remove_command("help")
