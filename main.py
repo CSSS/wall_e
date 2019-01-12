@@ -53,8 +53,8 @@ wolframClient = wolframalpha.Client(wolframAPI)
 if 'GUILD_ID' not in os.environ:
 	print("[main.py] No environment variable \"GUILD_ID\" seems to exist...read the README again")
 	exit(1)
-GUILD_ID= os.environ['GUILD_ID']
-print("[main.py] variable \"GUILD_ID\" is set to \""+int(GUILD_ID)+"\"")
+GUILD_ID= int(os.environ['GUILD_ID'])
+print("[main.py] variable \"GUILD_ID\" is set to \""+str(GUILD_ID)+"\"")
 
 REMINDER_CHANNEL=None
 ##################
