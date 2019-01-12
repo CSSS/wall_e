@@ -173,11 +173,11 @@ class Reminders():
 		ENVIRONMENT = os.environ['ENVIRONMENT']
 		if ENVIRONMENT == 'TEST':
 			branch = os.environ['BRANCH'].lower()
-			reminder_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_reminder_channel')
+			reminder_channel = discord.utils.get(self.bot.guilds[0].channels, name=branch + '_reminder_channel')
 			if reminder_channel is None:
 				reminder_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
 			REMINDER_CHANNEL = reminder_channel.id
-		channel = bot.get_channel(REMINDER_CHANNEL) # channel ID goes here
+		channel = self.bot.get_channel(REMINDER_CHANNEL) # channel ID goes here
 		while True:
 			message = self.message_subscriber.get_message()
 			if message is not None and message['type'] == 'message':
