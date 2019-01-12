@@ -221,30 +221,6 @@ async def on_member_join(member):
 		await member.send(embed=eObj)
 		logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
-def create_reminder_channel(bot):
-	try:
-		await bot.wait_until_ready()
-		global ENVIRONMENT
-		global REMINDER_CHANNEL
-		if ENVIRONMENT != 'TEST':
-			if 'REMINDER_CHANNEL_ID' not in os.environ:
-				logger.info("[main.py create_reminder_channel()] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
-				exit(1)
-			else:
-				REMINDER_CHANNEL_ID = int(os.environ['REMINDER_CHANNEL_ID'])            
-		else:
-			branch = os.environ['BRANCH'].lower()
-			logger.info("[main.py create_reminder_channel()] branch is =["+branch+"]")
-			reminder_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_reminder_channel')
-			if reminder_channel is None:
-				reminder_channel = await bot.guilds[0].create_text_channel(branch + '_reminder_channel')
-			REMINDER_CHANNEL_ID = reminder_channel.id
-		REMINDER_CHANNEL = bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
-		logger.info("[main.py create_reminder_channel()] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
-	except Exception as e:
-		logger.error("[main.py create_reminder_channel()] enountered following exception when connecting to reminder chnanel\n{}".format(e))
-
-
 
 ####################
 ## STARTING POINT ##
