@@ -217,6 +217,7 @@ async def on_member_join(member):
 
 def create_reminder_channel(bot):
 	try:
+		await bot.wait_until_ready()
 		global ENVIRONMENT
 		global REMINDER_CHANNEL
 		if ENVIRONMENT != 'TEST':
