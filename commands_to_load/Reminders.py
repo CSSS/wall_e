@@ -179,8 +179,8 @@ class Reminders():
 					print(row)
 					#fmt = '<@{0}>\n {1}'
 					fmt = '{0}'
-					reminder_message = row.message
-					author_id = row.author_id
+					reminder_message = row[2]
+					author_id = row[3]
 					reminder_channel = ctx.guild.get_channel(REMINDER_CHANNEL_ID)
 					logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
 					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
