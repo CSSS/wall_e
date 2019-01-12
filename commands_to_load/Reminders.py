@@ -45,11 +45,13 @@ class Reminders():
 				print("self="+str(dir(self)))
 				print("self.bot="+str(dir(self.bot)))
 				print("self.bot.guilds="+str(dir(self.bot.guilds)))
-				print("self.bot.guilds.add="+str(dir(self.bot.guilds.add)))
+				print("self.bot.guilds.add="+str(dir(self.bot.guilds)))
+				guilds = self.bot.guilds
+				print("bot's guilds="+str(guilds))
 				reminder_channel = discord.utils.get(self.bot.guilds[0].channels, name=branch + '_reminder_channel')
 				if reminder_channel is None:
 					print("this works")
-				#reminder_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
+				reminder_channel = await self.bot.guilds.create_text_channel(branch + '_reminder_channel')
 				REMINDER_CHANNEL_ID = reminder_channel.id
 			self.channel = self.bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
 			logger.info("[Reminders __init__] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
