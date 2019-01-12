@@ -263,6 +263,7 @@ if __name__ == "__main__":
 	except Exception as e:
 		logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
 
+	create_reminder_channel()
 	#removing default help command to allow for custom help command
 	logger.info("[main.py] default help command being removed")
 	bot.remove_command("help")
