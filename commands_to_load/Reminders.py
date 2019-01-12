@@ -74,6 +74,7 @@ class Reminders():
 		expire_seconds = int(mktime(time_struct) - time.time())
 		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
 		self.curs.execute("INSERT TABLE Reminders (  reminder_date, message, author_id) VALUES ('"+expire_seconds+"', '"+message+"'', '"ctx.author.id"');")
+
 		#r = self.r
 		#r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
