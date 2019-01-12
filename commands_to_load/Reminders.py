@@ -173,11 +173,22 @@ class Reminders():
 		await self.bot.wait_until_ready()
 		while True:			
 			dt = datetime.datetime.now()
-			self.curs.execute("SELECT * FROM Reminders where reminder_date <= TIMESTAMP '"+str(dt)+"';")
-			for row in self.curs.fetchall():
-				print(row)
-				self.curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
-
+			try:
+				self.curs.execute("SELECT * FROM Reminders where reminder_date <= TIMESTAMP '"+str(dt)+"';")
+				for row in self.curs.fetchall():
+					print(row)
+					#fmt = '<@{0}>\n {1}'
+					fmt = '{0}'
+					reminder_message = row.message
+					author_id = row.author_id
+					reminder_channel = ctx.guild.get_channel(REMINDER_CHANNEL_ID)
+					logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
+					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
+					self.curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
+					await reminder_channel.send('<@'+author_id+'>',embed=eObj)
+				except Exception as error:
+					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
+					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 #			message = self.message_subscriber.get_message()
 #			if message is not None and message['type'] == 'message':
 #				try:
