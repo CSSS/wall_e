@@ -175,21 +175,21 @@ class Reminders():
 			reminder_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_reminder_channel')
 			if reminder_channel is None:
 				reminder_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
-			BOT_LOG_CHANNEL = reminder_channel.id
-		channel = bot.get_channel(BOT_LOG_CHANNEL) # channel ID goes here
+			REMINDER_CHANNEL = reminder_channel.id
+		channel = bot.get_channel(REMINDER_CHANNEL) # channel ID goes here
 		while True:
 			message = self.message_subscriber.get_message()
 			if message is not None and message['type'] == 'message':
 				try:
 					reminder_dct = json.loads(message['data'])
-					chan = self.bot.get_channel(int(REMINDER_CHANNEL_ID))
+					channel = self.bot.get_channel(int(REMINDER_CHANNEL_ID))
 					msg = reminder_dct['message']
 					author_id = reminder_dct['author_id']
 					author_name = reminder_dct['author_name']
-					if chan is not None:
+					if channel is not None:
 						fmt = '<@{0}>\n This is your reminder to "{1}"'
 						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
-						await chan.send(fmt.format(author_id, msg))
+						await channel.send(fmt.format(author_id, msg))
 					else:
 						logger.info('[Misc.py get_message()] can\'t find the channel by the id ="'+str(reminder_dct['cid'])+'" to send the reminder to '+str(author_name)+ ' about "'+msg+'"')
 
