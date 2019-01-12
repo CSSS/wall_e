@@ -181,7 +181,7 @@ class Reminders():
 					fmt = '{0}'
 					reminder_message = row[2]
 					author_id = row[3]
-					logger.info('[Misc.py get_message()] obtained the message of ['+reminder_message='] for author with id ['+author_id+'] for REMINDER_CHANNEL ['+REMINDER_CHANNEL_ID+']')
+					logger.info('[Misc.py get_message()] obtained the message of ['+reminder_message+'] for author with id ['+author_id+'] for REMINDER_CHANNEL ['+REMINDER_CHANNEL_ID+']')
 					reminder_channel = self.bot.get_channel(REMINDER_CHANNEL_ID)
 					logger.info('[Misc.py get_message()] sent off reminder to '+str(author_id)+" about \""+reminder_message+"\"")
 					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(author_id, reminder_message), footer='Reminder')
