@@ -43,10 +43,10 @@ class Reminders():
 				branch = os.environ['BRANCH'].lower()
 				logger.info("[Reminders __init__] branch is =["+branch+"]")
 				print("self="+str(dir(self)))
-				print("self.bot="+str(dir(self.bot)))
-				print("self.bot.guilds="+str(dir(self.bot.guilds)))
-				print("self.bot.guilds.add="+str(dir(self.bot.guilds)))
-				guilds = self.bot.guilds
+				print("bot="+str(dir(bot)))
+				print("bot.guilds="+str(dir(bot.guilds)))
+				print("bot.guilds.add="+str(dir(bot.guilds)))
+				guilds = bot.guilds
 				print("bot's guilds="+str(guilds))
 				reminder_channel = discord.utils.get(self.bot.guilds[0].channels, name=branch + '_reminder_channel')
 				if reminder_channel is None:
