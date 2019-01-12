@@ -13,7 +13,7 @@ import sys
 import helper_files.settings as settings
 from helper_files.embed import embed
 import os
-
+from main import REMINDER_CHANNEL
 logger = logging.getLogger('wall_e')
 
 class Reminders():
@@ -30,34 +30,6 @@ class Reminders():
 			logger.info("[Reminders __init__] redis connection established")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when setting up redis connection\n{}".format(e))
-
-		try:
-			ENVIRONMENT = os.environ['ENVIRONMENT']
-			if ENVIRONMENT != 'TEST':
-				if 'REMINDER_CHANNEL_ID' not in os.environ:
-					logger.info("[Reminders __init__] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
-					exit(1)
-				else:
-					REMINDER_CHANNEL_ID = int(os.environ['REMINDER_CHANNEL_ID'])			
-			else:
-				branch = os.environ['BRANCH'].lower()
-				logger.info("[Reminders __init__] branch is =["+branch+"]")
-				print("self="+str(dir(self)))
-				print("bot="+str(dir(bot)))
-				print("bot.guilds="+str(dir(bot.guilds)))
-				print("bot.guilds.add="+str(dir(bot.guilds)))
-				guilds = bot.guilds
-				print("bot's guilds="+str(guilds))
-				reminder_channel = discord.utils.get(self.bot.guilds[0].channels, name=branch + '_reminder_channel')
-				if reminder_channel is None:
-					print("this works")
-				#reminder_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
-				REMINDER_CHANNEL_ID = reminder_channel.id
-			self.channel = self.bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
-			logger.info("[Reminders __init__] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
-		except Exception as e:
-			logger.error("[Reminders __init__] enountered following exception when connecting to reminder chnanel\n{}".format(e))
-
 
 	@commands.command()
 	async def remindmein(self, ctx, *args):
@@ -193,12 +165,12 @@ class Reminders():
 					msg = reminder_dct['message']
 					author_id = reminder_dct['author_id']
 					author_name = reminder_dct['author_name']
-					if self.channel is not None:
+					if REMINDER_CHANNEL is not None:
 						fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
 						fmt = 'This is your reminder to "{0}"'
 						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
 						eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
-						await self.channel.send("<@"+str(author_id)+">",embed=eObj)
+						await REMINDER_CHANNEL.send("<@"+str(author_id)+">",embed=eObj)
 					else:
 						logger.info('[Misc.py get_message()] can\'t find the channel by the id ="'+str(reminder_dct['cid'])+'" to send the reminder to '+str(author_name)+ ' about "'+msg+'"')
 
