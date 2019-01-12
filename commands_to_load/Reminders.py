@@ -175,8 +175,10 @@ class Reminders():
 					author_id = reminder_dct['author_id']
 					author_name = reminder_dct['author_name']
 					if channel is not None:
-						fmt = '<@{0}>\n This is your reminder to "{1}"'
+						fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
+						fmt = 'This is your reminder to "{0}"'
 						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
+						eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.content), footer='Reminder')
 						await channel.send(fmt.format(author_id, msg))
 					else:
 						logger.info('[Misc.py get_message()] can\'t find the channel by the id ="'+str(reminder_dct['cid'])+'" to send the reminder to '+str(author_name)+ ' about "'+msg+'"')
