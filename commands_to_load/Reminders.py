@@ -179,7 +179,7 @@ class Reminders():
 						fmt = 'This is your reminder to "{0}"'
 						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
 						eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
-						await channel.send("<@"+author_id+">",embed=eObj)
+						await channel.send("<@"+str(author_id)+">",embed=eObj)
 					else:
 						logger.info('[Misc.py get_message()] can\'t find the channel by the id ="'+str(reminder_dct['cid'])+'" to send the reminder to '+str(author_name)+ ' about "'+msg+'"')
 
