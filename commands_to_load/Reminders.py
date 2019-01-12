@@ -13,6 +13,7 @@ import helper_files.settings as settings
 from helper_files.embed import embed
 import psycopg2
 logger = logging.getLogger('wall_e')
+REMINDER_CHANNEL_ID = os.environ['REMINDER_CHANNEL_ID']
 
 class Reminders():
 
@@ -72,8 +73,9 @@ class Reminders():
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
 		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
-		r = self.r
-		r.set(json_string, '', expire_seconds)
+		self.curs.execute("INSERT TABLE Reminders (  reminder_date, message, author_id) VALUES ('"+expire_seconds+"', '"+message+"'', '"ctx.author.id"');")
+		#r = self.r
+		#r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
 		await ctx.send(embed=eObj)
