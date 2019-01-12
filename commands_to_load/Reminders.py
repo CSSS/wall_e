@@ -34,22 +34,24 @@ class Reminders():
 		try:
 			if ENVIRONMENT != 'TEST':
 				if 'REMINDER_CHANNEL_ID' not in os.environ:
-					logger.info("[main.py create_reminder_channel()] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
+					logger.info("[Reminders __init__] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
 					exit(1)
 				else:
 					REMINDER_CHANNEL_ID = int(os.environ['REMINDER_CHANNEL_ID'])            
 			else:
 				branch = os.environ['BRANCH'].lower()
-				logger.info("[main.py create_reminder_channel()] branch is =["+branch+"]")
+				logger.info("[Reminders __init__] branch is =["+branch+"]")
 				reminder_channel = discord.utils.get(bot.get_guild(GUILD_ID).channels, name=branch + '_reminder_channel')
 				if reminder_channel is None:
 					guild_server = bot.get_guild(GUILD_ID)
+					if guild_server is None:
+						logger.info("[Reminders __init__] unable to get the guild_server")
 					reminder_channel = await guild_server.create_text_channel(branch + '_reminder_channel')
 				REMINDER_CHANNEL_ID = reminder_channel.id
 			REMINDER_CHANNEL = bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
-			logger.info("[main.py create_reminder_channel()] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
+			logger.info("[Reminders __init__] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 		except Exception as e:
-			logger.error("[main.py create_reminder_channel()] enountered following exception when connecting to reminder chnanel\n{}".format(e))
+			logger.error("[Reminders __init__] enountered following exception when connecting to reminder chnanel\n{}".format(e))
 
 
 	@commands.command()
