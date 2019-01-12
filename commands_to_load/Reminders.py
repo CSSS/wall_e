@@ -13,7 +13,7 @@ import sys
 import helper_files.settings as settings
 from helper_files.embed import embed
 import os
-from main import GUILD_ID
+from main import GUILD_ID, ENVIRONMENT
 logger = logging.getLogger('wall_e')
 
 class Reminders():
