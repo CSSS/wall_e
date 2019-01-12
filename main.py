@@ -215,11 +215,10 @@ async def on_member_join(member):
 		await member.send(embed=eObj)
 		logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
-def create_reminder_channel():
+def create_reminder_channel(bot):
 	try:
 		global ENVIRONMENT
 		global REMINDER_CHANNEL
-		global bot
 		if ENVIRONMENT != 'TEST':
 			if 'REMINDER_CHANNEL_ID' not in os.environ:
 				logger.info("[main.py create_reminder_channel()] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
@@ -264,7 +263,7 @@ if __name__ == "__main__":
 	except Exception as e:
 		logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to following error"+str(e))
 
-	create_reminder_channel()
+	create_reminder_channel(bot)
 	#removing default help command to allow for custom help command
 	logger.info("[main.py] default help command being removed")
 	bot.remove_command("help")
