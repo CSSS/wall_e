@@ -77,7 +77,8 @@ class Reminders():
 		b = dt + datetime.timedelta(seconds=expire_seconds) # days, seconds, then other fields.
 
 		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
-		sqlCommand="INSERT INTO TABLE Reminders (  reminder_date, message, author_id) VALUES (TIMESTAMP '"+str(b)+"', '"+message+"', '"+str(ctx.author.id)+"');"
+		sqlCommand="INSERT INTO Reminders (  reminder_date, message, author_id) VALUES (TIMESTAMP '"+str(b)+"', '"+message+"', '"+str(ctx.author.id)+"');"
+
 		logger.info("[Reminders remindme()] sqlCommand=["+sqlCommand+"]")
 		self.curs.execute(sqlCommand)
 
