@@ -5,4 +5,4 @@ discord-rewrite==1.0.0
 yarl<1.2
 wolframalpha
 bs4
-psycopg2
+psycopg2-binary"
