@@ -49,10 +49,10 @@ class Reminders():
 						exit(1)
 					else:
 						print("guild_server="+str(guild_server))
-					reminder_channel = await guild_server.create_text_channel(branch + '_reminder_channel')
-				REMINDER_CHANNEL_ID = reminder_channel.id
-			REMINDER_CHANNEL = bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
-			logger.info("[Reminders __init__] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
+						reminder_channel = await guild_server.create_text_channel(branch + '_reminder_channel')
+						REMINDER_CHANNEL_ID = reminder_channel.id
+						REMINDER_CHANNEL = bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
+						logger.info("[Reminders __init__] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when connecting to reminder chnanel\n{}".format(e))
 
