@@ -25,7 +25,7 @@ class Reminders():
 
 		#setting up database connection
 		try:
-			#self.bot.loop.create_task(self.get_messages())
+			self.bot.loop.create_task(self.get_messages())
 			logger.info("[Reminders __init__] redis connection established")
 
 			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='localhost' password='@J6n2FIlEllYouiz'")
@@ -171,11 +171,7 @@ class Reminders():
 #########################################
 	async def get_messages(self):
 		await self.bot.wait_until_ready()
-		while True:
-			self.curs.execute("SELECT * FROM Reminders;");
-			for row in self.curs.fetchall():
-				print("all rows = ["+row+"]")
-			
+		while True:			
 			dt = datetime.datetime.now()
 			self.curs.execute("SELECT * FROM Reminders where reminder_date <= TIMESTAMP '"+str(dt)+"';")
 			for row in self.curs.fetchall():
