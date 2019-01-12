@@ -45,29 +45,49 @@
 
 Pre-requisites: `git`.  
 
-1. Python3.5 Instructions
-   1. Mac
-      1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)
-      1. Run `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
-      1. Run `python3.5 get-pip.py`
-   1. Ubuntu
-      1. Run `sudo apt-get install -y python 3.5`
+1. Python3.5 Instructions  
+   1. Mac  
+      1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)  
+      1. Run following commands: 
+         1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+         1. `python3.5 get-pip.py`
+   1. Ubuntu  
+      1. Run following commands:
+         1. `sudo apt-get install -y python 3.5`
+   1. Arch  
+      1. Run following commands:
+         1. `wget https://aur.archlinux.org/cgit/aur.git/snapshot/python35.tar.gz`
+         1. `tar xvf python35.tar.gz`
+         1. `cd python35`
+         1. `sudo pacman -S tk valgrind`
+         1. `makepkg`
+         1. `sudo pacman -U python35-3.5.6-1-x86_64.pkg.tar.xz`
+         1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+         1. `sudo -H python3.5 get-pip.py`
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 1. From commandline, run following commands  
-   1. Run `git clone <the url of your forked repo>`  
-   1. cd into `wall_e` directory  
-   1. Run `python3.5 -m venv ENV`  
-   1. Run `. ENV/bin/activate`  
-   1. Run `python3.5 -m pip install -r requirements.txt`  
+   1. `git clone <the url of your forked repo>`  
+   1. `cd wall_e`
+   1. `sudo -H python3.5 -m pip install virtualenv`
+   1. `python3.5 -m venv ENV`  
+   1. `. ENV/bin/activate`  
+   1. `python3.5 -m pip install -r requirements.txt`  
    1. Redis Instructions  
       1. Mac  
-         1. Run `brew install redis`  
-         1. Add `notify-keyspace-events "Ex"` to the end of `/usr/local/etc/redis.conf`  
-         1. Run `brew services start|stop|restart redis` to start, stop and restart redis  
+         1. Run
+            1. `brew install redis`  
+            1. `echo 'notify-keyspace-events "Ex"' >> /usr/local/etc/redis.conf`  
+            1. `brew services start|stop|restart redis` to start, stop and restart redis  
       1. Ubuntu  
-         1. Run `sudo apt-get install -y redis-server`  
-         1. Add `notify-keyspace-events "Ex"` to the end of `/etc/redis/redis.conf`  
-         1. Run `sudo service redis-server start`  
+         1. Run
+            1. `sudo apt-get install -y redis-server`  
+            1. `echo 'notify-keyspace-events "Ex"' >> /etc/redis/redis.conf`
+            1. `sudo service redis-server start|stop|restart`  to start, stop and restart redis  
+      1. Arch
+         1. Run
+            1. `sudo pacman -S redis`
+            1. `echo 'notify-keyspace-events "Ex"' >> /etc/redis.conf`
+            1. `sudo systemctl status|stop|restart|status redis` to start, stop and restart redis  
    1. Using Your Own Discord Test Server  
       1. Run `export ENVIRONMENT='localhost'`  
       1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  

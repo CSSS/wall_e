@@ -158,6 +158,10 @@ logs/stats_of_commands.csv
 #Jace's files
 envSetup.sh
 token.txt
+setup.sh
+@eaDir
+logs/stats_of_commands.csv
+runner.sh
 .DS_Store
 unit_test.py
 .pytest_cache/

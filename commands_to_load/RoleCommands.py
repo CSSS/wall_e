@@ -207,18 +207,42 @@ class RoleCommands():
         embed.color = discord.Color.blurple()
         embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
 
-        # only people with manage_roles can call
-        if not ctx.author.permissions_in(ctx.channel).manage_roles:
-            embed.title = "You don't have permissions to manage roles. :("
+        #getting member instance of the bot
+        bot_user = ctx.guild.get_member(ctx.bot.user.id)
+
+        ##determine if bot is able to delete the roles
+        sorted_list_of_authors_roles = sorted(bot_user.roles, key = lambda x: int(x.position),reverse=True)
+        bot_highestRole = sorted_list_of_authors_roles[0]
+
+        if not (bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator):
+            embed.title = "It seems that the bot don't have permissions to delete roles. :("
             await ctx.send(embed=embed)
             return
+        logger.info("[Misc purgeroles()] bot's highest role is " + str(bot_highestRole) +" and its ability to delete roles is " +str(bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator))
+        
+
+        ##determine if user who is calling the command is able to delete the roles
+        sorted_list_of_authors_roles = sorted(ctx.author.roles, key = lambda x: int(x.position),reverse=True)
+        author_highestRole = sorted_list_of_authors_roles[0]
+
+        if not (ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator):
+            embed.title = "You don't have permissions to delete roles. :("
+            await ctx.send(embed=embed)
+            return
+        logger.info("[Misc purgeroles()] user's highest role is " + str(author_highestRole) +" and its ability to delete roles is " +str(ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator))
 
 
         guild = ctx.guild
         softRoles = []
+        undeletableRoles = []
         for role in guild.roles:
             if role.name != "@everyone" and role.name == role.name.lower():
-                softRoles.append(role)
+                if author_highestRole >= role and bot_highestRole >= role:
+                    softRoles.append(role)
+                else:
+                    undeletableRoles.append(role.name)
+        logger.info("[Misc purgeroles()] Located all the empty roles that both the user and the bot can delete")
+        logger.info("[Misc purgeroles()] the ones it can't are: "+str(', '.join(undeletableRoles)))
 
         deleted = []
         for role in softRoles:
@@ -227,6 +251,7 @@ class RoleCommands():
                 logger.info("[Misc purgeroles()] deleting empty role @" + role.name)
                 deleted.append(role.name)
                 await role.delete()
+                logger.info("[Misc purgeroles()] deleted empty role @" + role.name)
 
 
         if not deleted:
