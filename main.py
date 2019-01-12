@@ -219,6 +219,7 @@ def create_reminder_channel():
 	try:
 		global ENVIRONMENT
 		global REMINDER_CHANNEL
+		global bot
 		if ENVIRONMENT != 'TEST':
 			if 'REMINDER_CHANNEL_ID' not in os.environ:
 				logger.info("[main.py create_reminder_channel()] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
