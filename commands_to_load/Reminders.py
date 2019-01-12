@@ -73,7 +73,7 @@ class Reminders():
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
 		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
-		sqlCommand="INSERT TABLE Reminders (  reminder_date, message, author_id) VALUES ('"+expire_seconds+"', '"+message+"'', '"ctx.author.id"');"
+		sqlCommand="INSERT TABLE Reminders (  reminder_date, message, author_id) VALUES ('"+expire_seconds+"', '"+message+"'', '"+ctx.author.id+"');"
 		logger.info("[Reminders remindme()] sqlCommand=["+sqlCommand+"]")
 		self.curs.execute(sqlCommand)
 
