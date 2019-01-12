@@ -67,18 +67,6 @@ class Reminders():
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
 
-		bot_commands_channel = None
-		for channel in ctx.guild.text_channels:
-			if channel.name == 'bot_commands_and_misc':
-				bot_commands_channel = channel
-				break
-
-		if bot_commands_channel is None:
-			logger.info("[Reminders remindme()] couldn't find the channel \"bot_commands_and_misc\" to output the reminder to")
-			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="couldn't find the channel \"bot_commands_and_misc\" to output the reminder to!")
-			await ctx.send(embed=eObj)
-			return
-
 		json_string = json.dumps({'message': message.strip(), 'author_id': ctx.author.id, 'author_name': ctx.author.name})
 		r = self.r
 		r.set(json_string, '', expire_seconds)
