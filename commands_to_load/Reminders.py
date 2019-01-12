@@ -43,6 +43,7 @@ class Reminders():
 				branch = os.environ['BRANCH'].lower()
 				reminder_channel = discord.utils.get(self.bot.guilds[0].channels, name=branch + '_reminder_channel')
 				if reminder_channel is None:
+					log_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
 					reminder_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
 				REMINDER_CHANNEL_ID = reminder_channel.id
 			self.channel = self.bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
