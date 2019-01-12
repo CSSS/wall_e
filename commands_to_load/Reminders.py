@@ -11,7 +11,9 @@ import traceback
 import sys
 import helper_files.settings as settings
 from helper_files.embed import embed
+import os
 logger = logging.getLogger('wall_e')
+REMINDER_CHANNEL_ID = os.environ['REMINDER_CHANNEL_ID']
 
 class Reminders():
 
@@ -76,7 +78,7 @@ class Reminders():
 			await ctx.send(embed=eObj)
 			return
 
-		json_string = json.dumps({'cid': bot_commands_channel.id, 'message': message.strip(), 'author_id': ctx.author.id, 'author_name': ctx.author.name})
+		json_string = json.dumps({'message': message.strip(), 'author_id': ctx.author.id, 'author_name': ctx.author.name})
 		r = self.r
 		r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
@@ -170,17 +172,17 @@ class Reminders():
 			message = self.message_subscriber.get_message()
 			if message is not None and message['type'] == 'message':
 				try:
-					cid_mid_dct = json.loads(message['data'])
-					chan = self.bot.get_channel(cid_mid_dct['cid'])
-					msg = cid_mid_dct['message']
-					author_id = cid_mid_dct['author_id']
-					author_name = cid_mid_dct['author_name']
+					reminder_dct = json.loads(message['data'])
+					chan = self.bot.get_channel(int(REMINDER_CHANNEL_ID))
+					msg = reminder_dct['message']
+					author_id = reminder_dct['author_id']
+					author_name = reminder_dct['author_name']
 					if chan is not None:
 						fmt = '<@{0}>\n This is your reminder to "{1}"'
 						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
 						await chan.send(fmt.format(author_id, msg))
 					else:
-						logger.info('[Misc.py get_message()] can\'t find the channel by the id ="'+str(cid_mid_dct['cid'])+'" to send the reminder to '+str(author_name)+ ' about "'+msg+'"')
+						logger.info('[Misc.py get_message()] can\'t find the channel by the id ="'+str(reminder_dct['cid'])+'" to send the reminder to '+str(author_name)+ ' about "'+msg+'"')
 
 				except Exception as error:
 					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
