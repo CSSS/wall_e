@@ -179,7 +179,7 @@ class Reminders():
 					REMINDER_CHANNEL = bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
 					logger.info("[Reminders get_messages()] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 		except Exception as e:
-			logger.error("[Reminders __init__] enountered following exception when connecting to reminder chnanel\n{}".format(e))
+			logger.error("[Reminders get_messages()] enountered following exception when connecting to reminder chnanel\n{}".format(e))
 
 		while True:
 			message = self.message_subscriber.get_message()
