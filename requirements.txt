@@ -3,7 +3,6 @@ redis
 parsedatetime
 discord-rewrite==1.0.0
 yarl<1.2
-requests
 wolframalpha
 bs4
 psycopg2
