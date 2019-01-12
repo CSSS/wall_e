@@ -184,7 +184,7 @@ class Reminders():
 					logger.info('[Misc.py get_message()] obtained the message of ['+reminder_message+'] for author with id ['+author_id+'] for REMINDER_CHANNEL ['+REMINDER_CHANNEL_ID+']')
 					reminder_channel = self.bot.get_channel(int(REMINDER_CHANNEL_ID))
 					logger.info('[Misc.py get_message()] sent off reminder to '+str(author_id)+" about \""+reminder_message+"\"")
-					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(reminder_message), footer='Reminder')
+					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="This is your reminder to "+reminder_message, footer='Reminder')
 					self.curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
 					await reminder_channel.send('<@'+author_id+'>',embed=eObj)
 			except Exception as error:
