@@ -35,19 +35,20 @@ class Reminders():
 			ENVIRONMENT = os.environ['ENVIRONMENT']
 			if ENVIRONMENT != 'TEST':
 				if 'REMINDER_CHANNEL_ID' not in os.environ:
-					logger.info("[main.py] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
+					logger.info("[Reminders __init__] No environment variable \"REMINDER_CHANNEL_ID\" seems to exist...read the README again")
 					exit(1)
 				else:
 					REMINDER_CHANNEL_ID = int(os.environ['REMINDER_CHANNEL_ID'])			
 			else:
 				branch = os.environ['BRANCH'].lower()
+				logger.info("[Reminders __init__] branch is =["+branch+"]")
 				reminder_channel = discord.utils.get(self.bot.guilds[0].channels, name=branch + '_reminder_channel')
 				if reminder_channel is None:
 					log_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
 					reminder_channel = await self.bot.guilds[0].create_text_channel(branch + '_reminder_channel')
 				REMINDER_CHANNEL_ID = reminder_channel.id
 			self.channel = self.bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
-			logger.info("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
+			logger.info("[Reminders __init__] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when connecting to reminder chnanel\n{}".format(e))
 
