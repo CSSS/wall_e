@@ -12,6 +12,8 @@ import sys
 import helper_files.settings as settings
 from helper_files.embed import embed
 import psycopg2
+import os
+
 logger = logging.getLogger('wall_e')
 REMINDER_CHANNEL_ID = os.environ['REMINDER_CHANNEL_ID']
 
