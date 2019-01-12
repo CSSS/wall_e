@@ -182,7 +182,6 @@ class Reminders():
 			if message is not None and message['type'] == 'message':
 				try:
 					reminder_dct = json.loads(message['data'])
-					channel = self.bot.get_channel(int(REMINDER_CHANNEL_ID))
 					msg = reminder_dct['message']
 					author_id = reminder_dct['author_id']
 					author_name = reminder_dct['author_name']
