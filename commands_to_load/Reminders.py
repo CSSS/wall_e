@@ -46,6 +46,7 @@ class Reminders():
 					guild_server = bot.get_guild(GUILD_ID)
 					if guild_server is None:
 						logger.info("[Reminders __init__] unable to get the guild_server")
+						exit(1)
 					reminder_channel = await guild_server.create_text_channel(branch + '_reminder_channel')
 				REMINDER_CHANNEL_ID = reminder_channel.id
 			REMINDER_CHANNEL = bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
