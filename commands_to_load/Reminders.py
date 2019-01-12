@@ -30,8 +30,8 @@ class Reminders():
 			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='localhost' password='@J6n2FIlEllYouiz'")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
-			curs.execute("DROP TABLE IF EXISTS Reminders;")
-			curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp,  channel_id varchar(500), message varchar(2000), author_id varchar(500) );")
+			self.curs.execute("DROP TABLE IF EXISTS Reminders;")
+			self.curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp,  channel_id varchar(500), message varchar(2000), author_id varchar(500) );")
 			logger.info("[Reminders __init__] PostgreSQL connection established")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
@@ -164,9 +164,9 @@ class Reminders():
 		while True:
 			dt = datetime.datetime.now()
 			self.curs.execute("SELECT * FROM Reminders where reminder_date <= TIMESTAMP '"+str(dt)+"';")
-			for row in curs.fetchall():
+			for row in self.curs.fetchall():
 				print(row)
-				curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
+				self.curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
 
 #			message = self.message_subscriber.get_message()
 #			if message is not None and message['type'] == 'message':
