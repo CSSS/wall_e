@@ -181,7 +181,7 @@ class Reminders():
 					fmt = '{0}'
 					reminder_message = row[2]
 					author_id = row[3]
-					reminder_channel = ctx.guild.get_channel(REMINDER_CHANNEL_ID)
+					reminder_channel = self.bot.get_channel(REMINDER_CHANNEL_ID)
 					logger.info('[Misc.py get_message()] sent off reminder to '+str(ctx.message.author)+" about \""+ctx.message.content+"\"")
 					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
 					self.curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
