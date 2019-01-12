@@ -11,7 +11,7 @@ import traceback
 import sys
 import helper_files.settings as settings
 from helper_files.embed import embed
-
+import psycopg2
 logger = logging.getLogger('wall_e')
 
 class Reminders():
