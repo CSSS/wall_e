@@ -168,6 +168,7 @@ class Reminders():
 	async def get_messages(self):
 		await self.bot.wait_until_ready()
 
+		from main import ENVIRONMENT
 		if ENVIRONMENT == 'TEST':
 			branch = os.environ['BRANCH'].lower()
 			reminder_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_reminder_channel')
