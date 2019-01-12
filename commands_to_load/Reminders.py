@@ -12,6 +12,8 @@ import traceback
 import sys
 import helper_files.settings as settings
 from helper_files.embed import embed
+import os
+
 logger = logging.getLogger('wall_e')
 
 class Reminders():
@@ -168,7 +170,7 @@ class Reminders():
 	async def get_messages(self):
 		await self.bot.wait_until_ready()
 
-		from main import ENVIRONMENT
+		ENVIRONMENT = os.environ['ENVIRONMENT']
 		if ENVIRONMENT == 'TEST':
 			branch = os.environ['BRANCH'].lower()
 			reminder_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_reminder_channel')
