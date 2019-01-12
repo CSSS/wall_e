@@ -186,9 +186,9 @@ class Reminders():
 					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(ctx.message.author.id, ctx.message.content), footer='Reminder')
 					self.curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
 					await reminder_channel.send('<@'+author_id+'>',embed=eObj)
-				except Exception as error:
-					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
-					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+			except Exception as error:
+				logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
+				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 #			message = self.message_subscriber.get_message()
 #			if message is not None and message['type'] == 'message':
 #				try:
