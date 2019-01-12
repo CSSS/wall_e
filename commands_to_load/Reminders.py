@@ -45,7 +45,7 @@ class Reminders():
 				print("self="+str(dir(self)))
 				print("self.bot="+str(dir(self.bot)))
 				print("self.bot.guilds="+str(dir(self.bot.guilds)))
-				print("self.bot.guilds[0]="+str(dir(self.bot.guilds[0])))
+				print("self.bot.guilds.add="+str(dir(self.bot.guilds.add)))
 				reminder_channel = discord.utils.get(self.bot.guilds[0].channels, name=branch + '_reminder_channel')
 				if reminder_channel is None:
 					print("this works")
