@@ -95,23 +95,24 @@ class Reminders():
 				logger.info("[Reminders showreminders()] iterating through all the keys in the database")
 				for key in self.r.scan_iter("*"):
 					keyValue = json.loads(key)
-					logger.info("[Reminders showreminders()] acquired key "+str(keyValue))
-					print("ctx.message.author=["+str(ctx.message.author)+"]")
-					print("ENVIRONMENT=["+str(ENVIRONMENT)+"]")
-					print("os.environ['BRANCH'].lower()=["+os.environ['BRANCH'].lower()+"]")
-					msg = keyValue['message']
-					env = keyValue['env']
-					branch = keyValue['branch']
-					author_name = keyValue['author_name']
-					
-					validAuthor = str(ctx.message.author) == str(author_name)
-					validDiscordGuild = ENVIRONMENT == env
-					validBranch = branch == os.environ['BRANCH'].lower()
+					if 'env' in keyValue:
+						logger.info("[Reminders showreminders()] acquired key "+str(keyValue))
+						print("ctx.message.author=["+str(ctx.message.author)+"]")
+						print("ENVIRONMENT=["+str(ENVIRONMENT)+"]")
+						print("os.environ['BRANCH'].lower()=["+os.environ['BRANCH'].lower()+"]")
+						msg = keyValue['message']
+						env = keyValue['env']
+						branch = keyValue['branch']
+						author_name = keyValue['author_name']
+						
+						validAuthor = str(ctx.message.author) == str(author_name)
+						validDiscordGuild = ENVIRONMENT == env
+						validBranch = branch == os.environ['BRANCH'].lower()
 
-					validEnv = ( str(ENVIRONMENT) == str(env) ) or str(ENVIRONMENT) == str( os.environ['BRANCH'].lower() )
-					if 	validAuthor and validDiscordGuild and validBranch:
-						logger.info("[Reminders showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-						reminders+=str(keyValue['message_id'])+"\t\t\t"+msg+"\n"
+						validEnv = ( str(ENVIRONMENT) == str(env) ) or str(ENVIRONMENT) == str( os.environ['BRANCH'].lower() )
+						if 	validAuthor and validDiscordGuild and validBranch:
+							logger.info("[Reminders showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
+							reminders+=str(keyValue['message_id'])+"\t\t\t"+msg+"\n"
 				author = ctx.author.nick or ctx.author.name
 				if reminders != '':
 					logger.info("[Reminders showreminders()] sent off the list of reminders to "+str(ctx.message.author))
