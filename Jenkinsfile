@@ -16,8 +16,7 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
-                            "BRANCH=${BRANCH_NAME}",
-                            "GUILD_ID=465036366699429888"
+                            "BRANCH=${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
@@ -27,7 +26,7 @@ pipeline {
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
                             sh "docker rm -f ${testContainerName} || true"
-                            sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH -e GUILD_ID --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
+                            sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
                         sleep 20
                         def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
