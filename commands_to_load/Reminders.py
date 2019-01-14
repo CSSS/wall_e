@@ -138,33 +138,34 @@ class Reminders():
 				logger.info("[Reminders deletereminder()] iterating through all the keys in the database")
 				for key in self.r.scan_iter("*"):
 					keyValue = json.loads(key)
-					logger.info("[Reminders deletereminder()] acquired key "+str(keyValue))
-					msg = keyValue['message']
-					env = keyValue['env']
-					author_name = keyValue['author_name']
-					author_id = keyValue['author_id']
-					message_id = keyValue['message_id']
-					branch = keyValue['branch']
-					if message_id == int(messageId):
-						reminderExists = True
-						logger.info("[Reminders deletereminder()] determined that it was the key the user wants to delete")
-						
-						validAuthor = str(ctx.message.author) == str(author_name)
-						validDiscordGuild = ENVIRONMENT == env
-						validBranch = branch == os.environ['BRANCH'].lower()
-						if validAuthor:
-							if validDiscordGuild and validBranch:
-								logger.info("[Reminders deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-								logger.info("[Reminders deletereminder()] following reminder was deleted = "+msg)
-								eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Following reminder has been deleted:\n"+msg)
-								await ctx.send(embed=eObj)
-								self.r.delete(key)
+					if 'env' in keyValue:
+						logger.info("[Reminders deletereminder()] acquired key "+str(keyValue))
+						msg = keyValue['message']
+						env = keyValue['env']
+						author_name = keyValue['author_name']
+						author_id = keyValue['author_id']
+						message_id = keyValue['message_id']
+						branch = keyValue['branch']
+						if message_id == int(messageId):
+							reminderExists = True
+							logger.info("[Reminders deletereminder()] determined that it was the key the user wants to delete")
+							
+							validAuthor = str(ctx.message.author) == str(author_name)
+							validDiscordGuild = ENVIRONMENT == env
+							validBranch = branch == os.environ['BRANCH'].lower()
+							if validAuthor:
+								if validDiscordGuild and validBranch:
+									logger.info("[Reminders deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
+									logger.info("[Reminders deletereminder()] following reminder was deleted = "+msg)
+									eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Following reminder has been deleted:\n"+msg)
+									await ctx.send(embed=eObj)
+									self.r.delete(key)
+								else:
+									logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to a reminder from another environment or branch.")								
 							else:
-								logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to a reminder from another environment or branch.")								
-						else:
-							eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nYou are trying to delete a reminder that is not yours")
-							await ctx.send(embed=eObj)
-							logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(author_name)+"'s reminder.")
+								eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nYou are trying to delete a reminder that is not yours")
+								await ctx.send(embed=eObj)
+								logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(author_name)+"'s reminder.")
 				if not reminderExists:
 					eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nSpecified reminder could not be found")
 					await ctx.send(embed=eObj)
@@ -224,17 +225,18 @@ class Reminders():
 			if message is not None and message['type'] == 'message':
 				try:
 					reminder_dct = json.loads(message['data'])
-					msg = reminder_dct['message']
-					author_id = reminder_dct['author_id']
-					author_name = reminder_dct['author_name']
-					if REMINDER_CHANNEL is not None:
-						#fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
-						fmt = 'This is your reminder to "{0}"'
-						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
-						eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
-						await REMINDER_CHANNEL.send("<@"+str(author_id)+">",embed=eObj)
-					else:
-						logger.info('[Misc.py get_message()] It seems that "REMINDER_CHANNEL" ='+str(REMINDER_CHANNEL)+' doesn\'t exist so I can\'t send the reminder to "'+str(author_name)+'" about "'+msg+'"')
+					if 'env' in reminder_dct:
+						msg = reminder_dct['message']
+						author_id = reminder_dct['author_id']
+						author_name = reminder_dct['author_name']
+						if REMINDER_CHANNEL is not None:
+							#fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
+							fmt = 'This is your reminder to "{0}"'
+							logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
+							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
+							await REMINDER_CHANNEL.send("<@"+str(author_id)+">",embed=eObj)
+						else:
+							logger.info('[Misc.py get_message()] It seems that "REMINDER_CHANNEL" ='+str(REMINDER_CHANNEL)+' doesn\'t exist so I can\'t send the reminder to "'+str(author_name)+'" about "'+msg+'"')
 
 				except Exception as error:
 					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
