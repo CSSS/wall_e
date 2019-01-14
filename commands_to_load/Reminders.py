@@ -68,7 +68,7 @@ class Reminders():
 			return
 		expire_seconds = int(mktime(time_struct) - time.time())
 
-		json_string = json.dumps({'message': message.strip(), 'author_id': ctx.author.id, 'author_name': ctx.author.name})
+		json_string = json.dumps({'message': message.strip(), 'author_id': ctx.author.id, 'author_name': str(ctx.message.author)})
 		r = self.r
 		r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
@@ -206,7 +206,7 @@ class Reminders():
 					author_id = reminder_dct['author_id']
 					author_name = reminder_dct['author_name']
 					if REMINDER_CHANNEL is not None:
-						fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
+						#fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
 						fmt = 'This is your reminder to "{0}"'
 						logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
 						eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
