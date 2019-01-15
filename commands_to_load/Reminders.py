@@ -107,7 +107,7 @@ class Reminders():
 						logger.info("[Reminders showreminders()] acquired reminder=["+str(keyValue)+"]")
 						logger.info("[Reminders showreminders()] ctx.message.author=["+str(ctx.message.author)+"]")
 						logger.info("[Reminders showreminders()] ENVIRONMENT=["+str(ENVIRONMENT)+"]")
-						logger.info("[Reminders showreminders()] os.environ['BRANCH'].lower()=["+os.environ['BRANCH'].lower()+"]")
+						
 						
 						msg = keyValue['message']
 						env = keyValue['env']
@@ -121,6 +121,7 @@ class Reminders():
 						if ENVIRONMENT == 'TEST':
 						#checks to make sure that the branch that the reminder is relevant to is the current branch
 						#this check is only relevant in the test discord guild
+							logger.info("[Reminders showreminders()] os.environ['BRANCH'].lower()=["+os.environ['BRANCH'].lower()+"]")
 							validBranch = branch == os.environ['BRANCH'].lower() 
 
 						validEnv = ( str(ENVIRONMENT) == str(env) ) or str(ENVIRONMENT) == str( os.environ['BRANCH'].lower() )
@@ -244,11 +245,11 @@ class Reminders():
 					reminder_chan = await self.bot.guilds[0].create_text_channel('reminders')
 					REMINDER_CHANNEL_ID = reminder_chan.id
 					if REMINDER_CHANNEL_ID is None:
-						logger.info("[Reminders get_messages()] the channel designated for reminders [reminders] in "+str(branch)+" does not exist and I was unable to create it, exiting now....")
+						logger.info("[Reminders get_messages()] the channel designated for reminders [reminders] does not exist and I was unable to create it, exiting now....")
 						exit(1)
 					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
 				else:
-					logger.info("[Reminders get_messages()] reminder channel exists in "+str(branch)+" and was detected.")
+					logger.info("[Reminders get_messages()] reminder channel exists and was detected.")
 					REMINDER_CHANNEL_ID = reminder_chan.id
 		except Exception as e:
 			logger.error("[Reminders get_messages()] enountered following exception when connecting to reminder channel\n{}".format(e))
