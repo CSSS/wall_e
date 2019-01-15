@@ -34,7 +34,7 @@ class Reminders():
 
 	@commands.command()
 	async def remindmein(self, ctx, *args):
-		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
+		logger.info("[Reminders remindmein()] remindme command detected from user "+str(ctx.message.author))
 		parsedTime=''
 		message=''
 		parseTime=True
@@ -48,21 +48,21 @@ class Reminders():
 				message+=str(value)+" "
 		how_to_call_command="\nPlease call command like so:\nremindmein <time|minutes|hours|days> to <what to remind you about>\nExample: \".remindmein 10 minutes to turn in my assignment\""
 		if parsedTime == '':
-			logger.info("[Reminders remindme()] was unable to extract a time")
+			logger.info("[Reminders remindmein()] was unable to extract a time")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a time"+str(how_to_call_command))
 			await ctx.send(embed=eObj)
 			return
 		if message == '':
-			logger.info("[Reminders remindme()] was unable to extract a message")
+			logger.info("[Reminders remindmein()] was unable to extract a message")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a string"+str(how_to_call_command))
 			await ctx.send(embed=eObj)
 			return
 		timeUntil = str(parsedTime)
-		logger.info("[Reminders remindme()] extracted time is "+str(timeUntil))
-		logger.info("[Reminders remindme()] extracted message is "+str(message))
+		logger.info("[Reminders remindmein()] extracted time is "+str(timeUntil))
+		logger.info("[Reminders remindmein()] extracted message is "+str(message))
 		time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
 		if parse_status == 0:
-			logger.info("[Reminders remindme()] couldn't parse the time")
+			logger.info("[Reminders remindmein()] couldn't parse the time")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
 			await ctx.send(embed=eObj)
 			return
@@ -89,7 +89,7 @@ class Reminders():
 
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
 		await ctx.send(embed=eObj)
-		logger.info("[Reminders remindme()] reminder has been contructed and sent.")
+		logger.info("[Reminders remindmein()] reminder has been contructed and sent.")
 
 	@commands.command()
 	async def showreminders(self, ctx):
@@ -155,7 +155,7 @@ class Reminders():
 					if 'message' in keyValue and 'author_id' in keyValue and 'author_name' in keyValue and 'message_id' in keyValue and 'env' in keyValue and 'branch' in keyValue:
 					#this test is done in case there are any reminders still in the database that use the old format
 					# this check will make sure that they are ignored
-						logger.info("[Reminders showreminders()] acquired reminder=["+str(keyValue)+"]")
+						logger.info("[Reminders deletereminder()] acquired reminder=["+str(keyValue)+"]")
 						msg = keyValue['message']
 						env = keyValue['env']
 						author_name = keyValue['author_name']
@@ -194,7 +194,7 @@ class Reminders():
 					await ctx.send(embed=eObj)
 					logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
 			except Exception as error:
-				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
+				logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
 				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 #########################################
@@ -267,11 +267,11 @@ class Reminders():
 						if REMINDER_CHANNEL is not None:
 							#fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
 							fmt = 'This is your reminder to "{0}"'
-							logger.info('[Misc.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
+							logger.info('[Reminders.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
 							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
 							await REMINDER_CHANNEL.send("<@"+str(author_id)+">",embed=eObj)
 						else:
-							logger.info('[Misc.py get_message()] It seems that "REMINDER_CHANNEL" ='+str(REMINDER_CHANNEL)+' doesn\'t exist so I can\'t send the reminder to "'+str(author_name)+'" about "'+msg+'"')
+							logger.info('[Reminders.py get_message()] It seems that "REMINDER_CHANNEL" ='+str(REMINDER_CHANNEL)+' doesn\'t exist so I can\'t send the reminder to "'+str(author_name)+'" about "'+msg+'"')
 
 				except Exception as error:
 					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
