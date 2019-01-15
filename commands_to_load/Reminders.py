@@ -66,16 +66,21 @@ class Reminders():
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
 			await ctx.send(embed=eObj)
 			return
+
+		#sets when the reminder should expire
 		expire_seconds = int(mktime(time_struct) - time.time())
 
 
 		env = None
-		if ENVIRONMENT == 'PRODUCTION': #main guild
+		if ENVIRONMENT == 'PRODUCTION': #main discord guild
 			env = 'PRODUCTION'
 			branch = ''
-		else: #test guild
+		elif ENVIRONMENT == 'TEST': #test dscord guild
 			env = 'TEST'
 			branch = os.environ['BRANCH'].lower()
+		else: #user's personal discord guild
+			env = ENVIRONMENT
+			branch = ENVIRONMENT
 
 		json_string = json.dumps({'message': message.strip(), 'author_id': ctx.author.id, 'author_name': str(ctx.message.author), 'message_id': ctx.message.id, 'env': env, 'branch': branch})
 		r = self.r
@@ -95,19 +100,28 @@ class Reminders():
 				logger.info("[Reminders showreminders()] iterating through all the keys in the database")
 				for key in self.r.scan_iter("*"):
 					keyValue = json.loads(key)
-					if 'env' in keyValue:
-						logger.info("[Reminders showreminders()] acquired key "+str(keyValue))
-						print("ctx.message.author=["+str(ctx.message.author)+"]")
-						print("ENVIRONMENT=["+str(ENVIRONMENT)+"]")
-						print("os.environ['BRANCH'].lower()=["+os.environ['BRANCH'].lower()+"]")
+					if 'message' in keyValue and 'author_id' in keyValue and 'author_name' in keyValue and 'message_id' in keyValue and 'env' in keyValue and 'branch' in keyValue:
+					#this test is done in case there are any reminders still in the database that use the old format
+					# this check will make sure that they are ignored
+						
+						logger.info("[Reminders showreminders()] acquired reminder=["+str(keyValue)+"]")
+						logger.info("[Reminders showreminders()] ctx.message.author=["+str(ctx.message.author)+"]")
+						logger.info("[Reminders showreminders()] ENVIRONMENT=["+str(ENVIRONMENT)+"]")
+						logger.info("[Reminders showreminders()] os.environ['BRANCH'].lower()=["+os.environ['BRANCH'].lower()+"]")
+						
 						msg = keyValue['message']
 						env = keyValue['env']
 						branch = keyValue['branch']
 						author_name = keyValue['author_name']
 						
-						validAuthor = str(ctx.message.author) == str(author_name)
-						validDiscordGuild = ENVIRONMENT == env
-						validBranch = branch == os.environ['BRANCH'].lower()
+						validAuthor = str(ctx.message.author) == str(author_name) #check to ensure that the current reminder its going through belongs to the person who called the command
+						validDiscordGuild = ENVIRONMENT == env #checks to make sure that the guild indicate by the reminder is the guild that the command was called from
+						
+						validBranch = True
+						if ENVIRONMENT == 'TEST':
+						#checks to make sure that the branch that the reminder is relevant to is the current branch
+						#this check is only relevant in the test discord guild
+							validBranch = branch == os.environ['BRANCH'].lower() 
 
 						validEnv = ( str(ENVIRONMENT) == str(env) ) or str(ENVIRONMENT) == str( os.environ['BRANCH'].lower() )
 						if 	validAuthor and validDiscordGuild and validBranch:
@@ -138,21 +152,30 @@ class Reminders():
 				logger.info("[Reminders deletereminder()] iterating through all the keys in the database")
 				for key in self.r.scan_iter("*"):
 					keyValue = json.loads(key)
-					if 'env' in keyValue:
-						logger.info("[Reminders deletereminder()] acquired key "+str(keyValue))
+					if 'message' in keyValue and 'author_id' in keyValue and 'author_name' in keyValue and 'message_id' in keyValue and 'env' in keyValue and 'branch' in keyValue:
+					#this test is done in case there are any reminders still in the database that use the old format
+					# this check will make sure that they are ignored
+						logger.info("[Reminders showreminders()] acquired reminder=["+str(keyValue)+"]")
 						msg = keyValue['message']
 						env = keyValue['env']
 						author_name = keyValue['author_name']
 						author_id = keyValue['author_id']
 						message_id = keyValue['message_id']
 						branch = keyValue['branch']
+						
 						if message_id == int(messageId):
 							reminderExists = True
 							logger.info("[Reminders deletereminder()] determined that it was the key the user wants to delete")
+
+							validAuthor = str(ctx.message.author) == str(author_name) #check to ensure that the current reminder its going through belongs to the person who called the command
+							validDiscordGuild = ENVIRONMENT == env #checks to make sure that the guild indicate by the reminder is the guild that the command was called from
 							
-							validAuthor = str(ctx.message.author) == str(author_name)
-							validDiscordGuild = ENVIRONMENT == env
-							validBranch = branch == os.environ['BRANCH'].lower()
+							validBranch = True
+							if ENVIRONMENT == 'TEST':
+							#checks to make sure that the branch that the reminder is relevant to is the current branch
+							#this check is only relevant in the test discord guild
+								validBranch = branch == os.environ['BRANCH'].lower() 
+
 							if validAuthor:
 								if validDiscordGuild and validBranch:
 									logger.info("[Reminders deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
@@ -201,7 +224,7 @@ class Reminders():
 					logger.info("[Reminders get_messages()] reminder channel exists in PRODUCTION and was detected.")
 					REMINDER_CHANNEL_ID = reminder_chan.id
        
-			else:
+			elif ENVIRONMENT == 'TEST':
 				branch = os.environ['BRANCH'].lower()
 				logger.info("[Reminders get_messages()] branch is =["+branch+"]")
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=branch+'_reminders')
@@ -210,6 +233,18 @@ class Reminders():
 					REMINDER_CHANNEL_ID = reminder_chan.id
 					if REMINDER_CHANNEL_ID is None:
 						logger.info("[Reminders get_messages()] the channel designated for reminders ["+branch+"_reminders] in "+str(branch)+" does not exist and I was unable to create it, exiting now....")
+						exit(1)
+					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
+				else:
+					logger.info("[Reminders get_messages()] reminder channel exists in "+str(branch)+" and was detected.")
+					REMINDER_CHANNEL_ID = reminder_chan.id
+			else:
+				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='reminders')
+				if reminder_chan is None:
+					reminder_chan = await self.bot.guilds[0].create_text_channel('reminders')
+					REMINDER_CHANNEL_ID = reminder_chan.id
+					if REMINDER_CHANNEL_ID is None:
+						logger.info("[Reminders get_messages()] the channel designated for reminders [reminders] in "+str(branch)+" does not exist and I was unable to create it, exiting now....")
 						exit(1)
 					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
 				else:
