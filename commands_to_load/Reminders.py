@@ -46,7 +46,7 @@ class Reminders():
 		logger.info("[Reminders remindme()] offline message has been sent.")
 
 	@commands.command()
-	async def deletereminder(self,ctx,messageID):
+	async def deletereminder(self,ctx):
 		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
 		fmt = 'I am offline, sorry.'
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt)
