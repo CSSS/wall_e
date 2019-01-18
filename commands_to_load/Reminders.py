@@ -34,169 +34,27 @@ class Reminders():
 
 	@commands.command()
 	async def remindmein(self, ctx, *args):
-		logger.info("[Reminders remindmein()] remindme command detected from user "+str(ctx.message.author))
-		parsedTime=''
-		message=''
-		parseTime=True
-		for index, value in enumerate(args):
-			if parseTime == True:
-				if value == 'to':
-					parseTime = False
-				else:
-					parsedTime+=str(value)+" "
-			else:
-				message+=str(value)+" "
-		how_to_call_command="\nPlease call command like so:\nremindmein <time|minutes|hours|days> to <what to remind you about>\nExample: \".remindmein 10 minutes to turn in my assignment\""
-		if parsedTime == '':
-			logger.info("[Reminders remindmein()] was unable to extract a time")
-			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a time"+str(how_to_call_command))
-			await ctx.send(embed=eObj)
-			return
-		if message == '':
-			logger.info("[Reminders remindmein()] was unable to extract a message")
-			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a string"+str(how_to_call_command))
-			await ctx.send(embed=eObj)
-			return
-		timeUntil = str(parsedTime)
-		logger.info("[Reminders remindmein()] extracted time is "+str(timeUntil))
-		logger.info("[Reminders remindmein()] extracted message is "+str(message))
-		time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
-		if parse_status == 0:
-			logger.info("[Reminders remindmein()] couldn't parse the time")
-			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
-			await ctx.send(embed=eObj)
-			return
-
-		#sets when the reminder should expire
-		expire_seconds = int(mktime(time_struct) - time.time())
-
-
-		env = None
-		if ENVIRONMENT == 'PRODUCTION': #main discord guild
-			env = 'PRODUCTION'
-			branch = ''
-		elif ENVIRONMENT == 'TEST': #test dscord guild
-			env = 'TEST'
-			branch = os.environ['BRANCH'].lower()
-		else: #user's personal discord guild
-			env = ENVIRONMENT
-			branch = ENVIRONMENT
-
-		json_string = json.dumps({'message': message.strip(), 'author_id': ctx.author.id, 'author_name': str(ctx.message.author), 'message_id': ctx.message.id, 'env': env, 'branch': branch})
-		r = self.r
-		r.set(json_string, '', expire_seconds)
-		fmt = 'Reminder set for {0} seconds from now'
-
-		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
+		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
+		fmt = 'I am offline, sorry.'
+		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt)
 		await ctx.send(embed=eObj)
-		logger.info("[Reminders remindmein()] reminder has been contructed and sent.")
+		logger.info("[Reminders remindme()] offline message has been sent.")
 
 	@commands.command()
 	async def showreminders(self, ctx):
-		logger.info("[Reminders showreminders()] remindme command detected from user "+str(ctx.message.author))
-		if self.r is not None:
-			try:
-				reminders=''
-				logger.info("[Reminders showreminders()] iterating through all the keys in the database")
-				for key in self.r.scan_iter("*"):
-					keyValue = json.loads(key)
-					if 'message' in keyValue and 'author_id' in keyValue and 'author_name' in keyValue and 'message_id' in keyValue and 'env' in keyValue and 'branch' in keyValue:
-					#this test is done in case there are any reminders still in the database that use the old format
-					# this check will make sure that they are ignored
-						
-						logger.info("[Reminders showreminders()] acquired reminder=["+str(keyValue)+"]")
-						logger.info("[Reminders showreminders()] ctx.message.author=["+str(ctx.message.author)+"]")
-						logger.info("[Reminders showreminders()] ENVIRONMENT=["+str(ENVIRONMENT)+"]")
-						
-						
-						msg = keyValue['message']
-						env = keyValue['env']
-						branch = keyValue['branch']
-						author_name = keyValue['author_name']
-						
-						validAuthor = str(ctx.message.author) == str(author_name) #check to ensure that the current reminder its going through belongs to the person who called the command
-						validDiscordGuild = ENVIRONMENT == env #checks to make sure that the guild indicate by the reminder is the guild that the command was called from
-						
-						validBranch = True
-						if ENVIRONMENT == 'TEST':
-						#checks to make sure that the branch that the reminder is relevant to is the current branch
-						#this check is only relevant in the test discord guild
-							logger.info("[Reminders showreminders()] os.environ['BRANCH'].lower()=["+os.environ['BRANCH'].lower()+"]")
-							validBranch = branch == os.environ['BRANCH'].lower() 
-
-						validEnv = ( str(ENVIRONMENT) == str(env) ) or str(ENVIRONMENT) == str( os.environ['BRANCH'].lower() )
-						if 	validAuthor and validDiscordGuild and validBranch:
-							logger.info("[Reminders showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-							reminders+=str(keyValue['message_id'])+"\t\t\t"+msg+"\n"
-				author = ctx.author.nick or ctx.author.name
-				if reminders != '':
-					logger.info("[Reminders showreminders()] sent off the list of reminders to "+str(ctx.message.author))
-					eObj = embed(title="Here are you reminders " + author, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=[["MessageID\t\t\t\t\t\t\tReminder", reminders]])
-					await ctx.send(embed=eObj)
-				else:
-					logger.info("[Reminders showreminders()] "+str(ctx.message.author)+" didnt seem to have any reminders.")
-					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You don't seem to have any reminders " + author)
-					await ctx.send(embed=eObj)
-			except Exception as error:
-				eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Something screwy seems to have happened, look at the logs for more info.")
-				await ctx.send(embed=eObj)
-				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
-				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
+		fmt = 'I am offline, sorry.'
+		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt)
+		await ctx.send(embed=eObj)
+		logger.info("[Reminders remindme()] offline message has been sent.")
 
 	@commands.command()
 	async def deletereminder(self,ctx,messageId):
-		logger.info("[Reminders deletereminder()] deletereminder command detected from user "+str(ctx.message.author))
-		if self.r is not None:
-			reminderExists=False
-			try:
-				reminder=''
-				logger.info("[Reminders deletereminder()] iterating through all the keys in the database")
-				for key in self.r.scan_iter("*"):
-					keyValue = json.loads(key)
-					if 'message' in keyValue and 'author_id' in keyValue and 'author_name' in keyValue and 'message_id' in keyValue and 'env' in keyValue and 'branch' in keyValue:
-					#this test is done in case there are any reminders still in the database that use the old format
-					# this check will make sure that they are ignored
-						logger.info("[Reminders deletereminder()] acquired reminder=["+str(keyValue)+"]")
-						msg = keyValue['message']
-						env = keyValue['env']
-						author_name = keyValue['author_name']
-						author_id = keyValue['author_id']
-						message_id = keyValue['message_id']
-						branch = keyValue['branch']
-						
-						if message_id == int(messageId):
-							reminderExists = True
-							logger.info("[Reminders deletereminder()] determined that it was the key the user wants to delete")
-
-							validAuthor = str(ctx.message.author) == str(author_name) #check to ensure that the current reminder its going through belongs to the person who called the command
-							validDiscordGuild = ENVIRONMENT == env #checks to make sure that the guild indicate by the reminder is the guild that the command was called from
-							
-							validBranch = True
-							if ENVIRONMENT == 'TEST':
-							#checks to make sure that the branch that the reminder is relevant to is the current branch
-							#this check is only relevant in the test discord guild
-								validBranch = branch == os.environ['BRANCH'].lower() 
-
-							if validAuthor:
-								if validDiscordGuild and validBranch:
-									logger.info("[Reminders deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-									logger.info("[Reminders deletereminder()] following reminder was deleted = "+msg)
-									eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Following reminder has been deleted:\n"+msg)
-									await ctx.send(embed=eObj)
-									self.r.delete(key)
-								else:
-									logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to a reminder from another environment or branch.")								
-							else:
-								eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nYou are trying to delete a reminder that is not yours")
-								await ctx.send(embed=eObj)
-								logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(author_name)+"'s reminder.")
-				if not reminderExists:
-					eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nSpecified reminder could not be found")
-					await ctx.send(embed=eObj)
-					logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
-			except Exception as error:
-				logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
-				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
+		fmt = 'I am offline, sorry.'
+		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt)
+		await ctx.send(embed=eObj)
+		logger.info("[Reminders remindme()] offline message has been sent.")
 
 #########################################
 ## Background function that determines ##
