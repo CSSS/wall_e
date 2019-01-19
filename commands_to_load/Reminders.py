@@ -43,7 +43,7 @@ class Reminders():
 	@commands.command()
 	async def showreminders(self, ctx):
 		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
-		fmt = 'I am offline, sorry.'
+		fmt = 'This command is offline, sorry.'
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt)
 		await ctx.send(embed=eObj)
 		logger.info("[Reminders remindme()] offline message has been sent.")
@@ -51,7 +51,7 @@ class Reminders():
 	@commands.command()
 	async def deletereminder(self,ctx):
 		logger.info("[Reminders remindme()] remindme command detected from user "+str(ctx.message.author))
-		fmt = 'I am offline, sorry.'
+		fmt = 'This command is offline, sorry.'
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt)
 		await ctx.send(embed=eObj)
 		logger.info("[Reminders remindme()] offline message has been sent.")
