@@ -28,7 +28,7 @@ class Reminders():
 			self.message_subscriber.subscribe('__keyevent@0__:expired')
 
 			self.env=ENVIRONMENT
-			if 'branch' in os.environ:
+			if 'BRANCH' in os.environ:
 				self.branch=os.environ['BRANCH'].lower()
 			else:
 				self.branch = ''
