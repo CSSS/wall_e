@@ -245,18 +245,33 @@ class Reminders():
 			if message is not None and message['type'] == 'message':
 				try:
 					reminder_dct = json.loads(message['data'])
-					if 'env' in reminder_dct:
+					if 'message' in reminder_dct and 'author_id' in reminder_dct and 'author_name' in reminder_dct and 'message_id' in reminder_dct and 'env' in reminder_dct and 'branch' in reminder_dct:
 						msg = reminder_dct['message']
 						author_id = reminder_dct['author_id']
 						author_name = reminder_dct['author_name']
-						if REMINDER_CHANNEL is not None:
-							#fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
-							fmt = 'This is your reminder to "{0}"'
-							logger.info('[Reminders.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
-							eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
-							await REMINDER_CHANNEL.send("<@"+str(author_id)+">",embed=eObj)
-						else:
-							logger.info('[Reminders.py get_message()] It seems that "REMINDER_CHANNEL" ='+str(REMINDER_CHANNEL)+' doesn\'t exist so I can\'t send the reminder to "'+str(author_name)+'" about "'+msg+'"')
+
+						logger.info("[Reminders showreminders()] acquired reminder=["+str(reminder_dct)+"]")
+						logger.info("[Reminders showreminders()] reminder is meant for =["+str(author_name)+"]")
+						logger.info("[Reminders showreminders()] ENVIRONMENT=["+str(reminder_dct['env'])+"]")
+						
+						
+						env = reminder_dct['env']
+						branch = reminder_dct['branch']
+						
+						validDiscordGuild = self.env == env #checks to make sure that the guild indicate by the reminder is the guild that the command was called from
+						
+						validBranch = branch == self.branch
+
+						validEnv = ( str(ENVIRONMENT) == str(env) )
+						if 	validDiscordGuild and validBranch:
+							if REMINDER_CHANNEL is not None:
+								#fmt = '<@{0}>\n This is your reminder to ```"{1}"```'
+								fmt = 'This is your reminder to "{0}"'
+								logger.info('[Reminders.py get_message()] sent off reminder to '+str(author_name)+" about \""+msg+"\"")
+								eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(msg), footer='Reminder')
+								await REMINDER_CHANNEL.send("<@"+str(author_id)+">",embed=eObj)
+							else:
+								logger.info('[Reminders.py get_message()] It seems that "REMINDER_CHANNEL" ='+str(REMINDER_CHANNEL)+' doesn\'t exist so I can\'t send the reminder to "'+str(author_name)+'" about "'+msg+'"')
 
 				except Exception as error:
 					logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
