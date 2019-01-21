@@ -252,13 +252,11 @@ class Reminders():
 
 						logger.info("[Reminders showreminders()] acquired reminder=["+str(reminder_dct)+"]")
 						logger.info("[Reminders showreminders()] reminder is meant for =["+str(author_name)+"]")
-						logger.info("[Reminders showreminders()] ENVIRONMENT=["+str(keyValue['env'])+"]")
+						logger.info("[Reminders showreminders()] ENVIRONMENT=["+str(reminder_dct['env'])+"]")
 						
 						
-						msg = keyValue['message']
-						env = keyValue['env']
-						branch = keyValue['branch']
-						author_name = keyValue['author_name']
+						env = reminder_dct['env']
+						branch = reminder_dct['branch']
 						
 						validDiscordGuild = self.env == env #checks to make sure that the guild indicate by the reminder is the guild that the command was called from
 						
