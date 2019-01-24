@@ -1,6 +1,7 @@
 #!/bin/sh
 # wait-for-postgres.sh
 
+# aquired from https://docs.docker.com/compose/startup-order/
 set -e
 
 host="$1"
