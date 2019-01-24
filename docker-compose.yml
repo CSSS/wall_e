@@ -1,7 +1,6 @@
 version: '3' #docker-compose version
-services:  #Services are your different containers
-    wall_e: #First Container, containing nodejs serveer
-        #network_mode: "host"
+services:  #Services that are needed for the wall_e app
+    wall_e: #the wall_e app
         build: . #Saying that all of my source files are at the root path
         environment:
             - ENVIRONMENT
@@ -11,13 +10,11 @@ services:  #Services are your different containers
         volumes: #volume are for hot reload for exemple
             - "./app:/src/app"
             #- "${COMPOSE_PROJECT_NAME}_logs:/usr/src/app/logs"
-        depends_on:   #Linking the first service with the named mongo service (see below)
+        depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
-    db: #declaration of the mongodb container
-        image: postgres:alpine #using mongo image
-        #ports:  #port binding for mongodb is required
-        #    - "27017:27017"
-        volumes:
+    db: #declaration of the postgres container
+        image: postgres:alpine #using postgres image
+        volumes: #used to pass the folder that contains the configuration for the database
             - ./db_init:/docker-entrypoint-initdb.d
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
