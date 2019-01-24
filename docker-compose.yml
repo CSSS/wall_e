@@ -1,0 +1,23 @@
+version: '3' #docker-compose version
+services:  #Services are your different containers
+    wall_e: #First Container, containing nodejs serveer
+        #network_mode: "host"
+        build: . #Saying that all of my source files are at the root path
+        environment:
+            - ENVIRONMENT
+            - BOT_LOG_CHANNEL_ID
+            - WOLFRAMAPI
+            - TOKEN
+        volumes: #volume are for hot reload for exemple
+            - "./app:/src/app"
+            #- "${COMPOSE_PROJECT_NAME}_logs:/usr/src/app/logs"
+        depends_on:   #Linking the first service with the named mongo service (see below)
+            - "db"
+        container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
+    db: #declaration of the mongodb container
+        image: postgres:alpine #using mongo image
+        #ports:  #port binding for mongodb is required
+        #    - "27017:27017"
+        volumes:
+            - ./db_init:/docker-entrypoint-initdb.d
+        container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
