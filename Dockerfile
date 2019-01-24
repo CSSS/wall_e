@@ -8,4 +8,5 @@ RUN apk add --update alpine-sdk && apk add postgresql-dev && pip install --no-ca
 
 COPY . .
 
-CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
+#CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
+CMD ["python", "./main.py" ]
