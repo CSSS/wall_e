@@ -4,8 +4,8 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt ./
 
-RUN apk add --update alpine-sdk && apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt
+RUN apk add --update alpine-sdk && apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt &&  apk --update add postgresql-client
 
 COPY . .
 
-CMD [ "python", "./main.py" ]
+CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
