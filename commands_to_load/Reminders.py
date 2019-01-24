@@ -1,7 +1,7 @@
 from discord.ext import commands
+import discord
 import json
 import logging
-import redis
 import asyncio
 import parsedatetime
 import time
@@ -14,9 +14,8 @@ from helper_files.embed import embed
 import psycopg2
 import os
 import datetime
-
+from main import ENVIRONMENT
 logger = logging.getLogger('wall_e')
-REMINDER_CHANNEL_ID = os.environ['REMINDER_CHANNEL_ID']
 
 class Reminders():
 
@@ -26,13 +25,11 @@ class Reminders():
 		#setting up database connection
 		try:
 			self.bot.loop.create_task(self.get_messages())
-			logger.info("[Reminders __init__] redis connection established")
-
-			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='localhost' password='@J6n2FIlEllYouiz'")
+			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='dev_wall_e_db' password='@J6n2FIlEllYouiz'")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
 			self.curs.execute("DROP TABLE IF EXISTS Reminders;")
-			self.curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp, message varchar(2000), author_id varchar(500) );")
+			self.curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp, message varchar(2000), author_id varchar(500), author_name varchar(500), message_id varchar(200));")
 			logger.info("[Reminders __init__] PostgreSQL connection established")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
@@ -76,14 +73,11 @@ class Reminders():
 		dt = datetime.datetime.now()
 		b = dt + datetime.timedelta(seconds=expire_seconds) # days, seconds, then other fields.
 
-		json_string = json.dumps({'cid': ctx.channel.id, 'mid': ctx.message.id})
-		sqlCommand="INSERT INTO Reminders (  reminder_date, message, author_id) VALUES (TIMESTAMP '"+str(b)+"', '"+message+"', '"+str(ctx.author.id)+"');"
+		sqlCommand="INSERT INTO Reminders (  reminder_date, message, author_id, author_name, message_id) VALUES (TIMESTAMP '"+str(b)+"', '"+message+"', '"+str(ctx.author.id)+"', '"+str(ctx.message.author)+"',  '"+str(ctx.message.id)+"');"
 
 		logger.info("[Reminders remindme()] sqlCommand=["+sqlCommand+"]")
 		self.curs.execute(sqlCommand)
 
-		#r = self.r
-		#r.set(json_string, '', expire_seconds)
 		fmt = 'Reminder set for {0} seconds from now'
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
 		await ctx.send(embed=eObj)
@@ -92,23 +86,15 @@ class Reminders():
 	@commands.command()
 	async def showreminders(self, ctx):
 		logger.info("[Reminders showreminders()] remindme command detected from user "+str(ctx.message.author))
-		if self.r is not None:
+		if self.curs is not None:
 			try:
 				reminders=''
-				logger.info("[Reminders showreminders()] iterating through all the keys in the database")
-				for key in self.r.scan_iter("*"):
-					keyValue = json.loads(key)
-					logger.info("[Reminders showreminders()] acquired key "+str(keyValue))
-					chan = self.bot.get_channel(keyValue['cid'])
-					if chan is not None:
-						logger.info("[Reminders showreminders()] acquired valid channel "+str(chan))
-						msg = await chan.get_message(keyValue['mid'])
-						logger.info("[Reminders showreminders()] acquired the messsage "+str(msg))
-						reminderCtx = await self.bot.get_context(msg)
-						if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
-							if reminderCtx.message.author  == ctx.message.author:
-								logger.info("[Reminders showreminders()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-								reminders+=str(keyValue['mid'])+"\t\t\t"+reminderCtx.message.content+"\n"
+				sqlCommand = "SELECT * FROM Reminders WHERE author_id = '"+str(ctx.author.id)+"';"
+				self.curs.execute(sqlCommand)
+				logger.info("[Reminders showreminders()] retrieved all reminders belonging to user "+str(ctx.message.author))
+				for row in self.curs.fetchall():
+					logger.info("[Reminders showreminders()] dealing with reminder ["+str(row)+"]")
+					reminders+=str(row[5])+"\t\t\t"+str(row[2])+"\n"
 				author = ctx.author.nick or ctx.author.name
 				if reminders != '':
 					logger.info("[Reminders showreminders()] sent off the list of reminders to "+str(ctx.message.author))
@@ -127,42 +113,31 @@ class Reminders():
 	@commands.command()
 	async def deletereminder(self,ctx,messageId):
 		logger.info("[Reminders deletereminder()] deletereminder command detected from user "+str(ctx.message.author))
-		if self.r is not None:
-			reminderExists=False
-			try:
-				reminder=''
-				logger.info("[Reminders deletereminder()] iterating through all the keys in the database")
-				for key in self.r.scan_iter("*"):
-					keyValue = json.loads(key)
-					logger.info("[Reminders deletereminder()] acquired key "+str(keyValue))
-					if keyValue['mid'] == int(messageId):
-						reminderExists = True
-						logger.info("[Reminders deletereminder()] determined that it was the key the user wants to delete")
-						chan = self.bot.get_channel(keyValue['cid'])
-						if chan is not None:
-							logger.info("[Reminders deletereminder()] acquired valid channel "+str(chan))
-							msg = await chan.get_message(keyValue['mid'])
-							logger.info("[Reminders deletereminder()] acquired the messsage "+str(msg))
-							reminderCtx = await self.bot.get_context(msg)
-							if reminderCtx.valid and helper_files.testenv.TestCog.check_test_environment(reminderCtx):
-								if reminderCtx.message.author  == ctx.message.author:
-									logger.info("[Reminders deletereminder()] determined that message did originate with "+str(ctx.message.author)+", adding to list of reminders")
-									reminder=reminderCtx.message.content
-									logger.info("[Reminders deletereminder()] following reminder was deleted = "+reminderCtx.message.content)
-									eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Following reminder has been deleted:\n"+reminder)
-									await ctx.send(embed=eObj)
-									self.r.delete(key)
-								else:
-									eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nYou are trying to delete a reminder that is not yours")
-									await ctx.send(embed=eObj)
-									logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(reminderCtx.message.author)+"'s reminder.")
-				if not reminderExists:
+		try:
+			if self.curs is not None:
+				sqlCommand = "SELECT * FROM Reminders WHERE message_id = '"+str(messageId)+"';"
+				self.curs.execute(sqlCommand)
+				result = self.curs.fetchone()
+				print("result="+str(result))
+				if result is None:
 					eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nSpecified reminder could not be found")
 					await ctx.send(embed=eObj)
 					logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
-			except Exception as error:
-				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
-				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+				else:
+					if str(result[4]) == str(ctx.message.author):
+					##check to make sure its the right author
+						sqlCommand = "DELETE FROM Reminders WHERE message_id = '"+str(messageId)+"';"
+						self.curs.execute(sqlCommand)
+						logger.info("[Reminders deletereminder()] following reminder was deleted = "+str(result))
+						eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Following reminder has been deleted:\n"+str(result[2]))
+						await ctx.send(embed=eObj)
+					else:
+						eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nYou are trying to delete a reminder that is not yours")
+						await ctx.send(embed=eObj)
+						logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(result[4])+"'s reminder.")						
+		except Exception as error:
+			logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
+			traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 #########################################
 ## Background function that determines ##
@@ -171,6 +146,54 @@ class Reminders():
 #########################################
 	async def get_messages(self):
 		await self.bot.wait_until_ready()
+
+		REMINDER_CHANNEL_ID=None
+		##determines the channel to send the reminder on
+		try:
+			if ENVIRONMENT == 'PRODUCTION':
+				logger.info("[Reminders get_messages()] branch is =["+self.branch+"]")
+				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='bot_commands_and_misc')
+				if reminder_chan is None:
+					logger.info("[Reminders get_messages()] reminder channel does not exist in PRODUCTION.")
+					reminder_chan = await self.bot.guilds[0].create_text_channel('bot_commands_and_misc')
+					REMINDER_CHANNEL_ID = reminder_chan.id
+					if REMINDER_CHANNEL_ID is None:
+						logger.info("[Reminders get_messages()] the channel designated for reminders [bot_commands_and_misc] in PRODUCTION does not exist and I was unable to create it, exiting now....")
+						exit(1)
+					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
+				else:
+					logger.info("[Reminders get_messages()] reminder channel exists in PRODUCTION and was detected.")
+					REMINDER_CHANNEL_ID = reminder_chan.id
+       
+			elif ENVIRONMENT == 'TEST':
+				logger.info("[Reminders get_messages()] branch is =["+self.branch+"]")
+				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=self.branch+'_reminders')
+				if reminder_chan is None:
+					reminder_chan = await self.bot.guilds[0].create_text_channel(self.branch+'_reminders')
+					REMINDER_CHANNEL_ID = reminder_chan.id
+					if REMINDER_CHANNEL_ID is None:
+						logger.info("[Reminders get_messages()] the channel designated for reminders ["+self.branch+"_reminders] in "+str(self.branch)+" does not exist and I was unable to create it, exiting now....")
+						exit(1)
+					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
+				else:
+					logger.info("[Reminders get_messages()] reminder channel exists in "+str(self.branch)+" and was detected.")
+					REMINDER_CHANNEL_ID = reminder_chan.id
+			else:
+				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='reminders')
+				if reminder_chan is None:
+					reminder_chan = await self.bot.guilds[0].create_text_channel('reminders')
+					REMINDER_CHANNEL_ID = reminder_chan.id
+					if REMINDER_CHANNEL_ID is None:
+						logger.info("[Reminders get_messages()] the channel designated for reminders [reminders] does not exist and I was unable to create it, exiting now....")
+						exit(1)
+					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
+				else:
+					logger.info("[Reminders get_messages()] reminder channel exists and was detected.")
+					REMINDER_CHANNEL_ID = reminder_chan.id
+		except Exception as e:
+			logger.error("[Reminders get_messages()] enountered following exception when connecting to reminder channel\n{}".format(e))
+		
+		REMINDER_CHANNEL = self.bot.get_channel(REMINDER_CHANNEL_ID) # channel ID goes here
 		while True:			
 			dt = datetime.datetime.now()
 			try:
@@ -181,7 +204,7 @@ class Reminders():
 					fmt = '{0}'
 					reminder_message = row[2]
 					author_id = row[3]
-					logger.info('[Misc.py get_message()] obtained the message of ['+reminder_message+'] for author with id ['+author_id+'] for REMINDER_CHANNEL ['+REMINDER_CHANNEL_ID+']')
+					logger.info('[Misc.py get_message()] obtained the message of ['+str(reminder_message)+'] for author with id ['+str(author_id)+'] for REMINDER_CHANNEL ['+str(REMINDER_CHANNEL_ID)+']')
 					reminder_channel = self.bot.get_channel(int(REMINDER_CHANNEL_ID))
 					logger.info('[Misc.py get_message()] sent off reminder to '+str(author_id)+" about \""+reminder_message+"\"")
 					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="This is your reminder to "+reminder_message, footer='Reminder')
