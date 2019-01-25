@@ -134,8 +134,22 @@ class Mod():
                 print(str(channel.id) + ' ' + channel.name)
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
-        
-#TODO: slowmode, createchannel, lock commands
+    @commands.command()
+    async def slowmode(self, ctx, time): 
+        logger.info('[Mod slowmode()] mute function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod slowmode()] invoking message deleted')
+
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod slowmode()] unathoriezed command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
+         
+         # permission overwrite
+
+         # check if time given otherwise set to 5 mins 5*60 = 300 seconds
+
+#TODO: slowmode, createchannel, lock commands, dm warn/other kind of dm'd info etc
 
 
 def setup(bot):
