@@ -164,7 +164,6 @@ class Reminders():
 
 		##determines the channel to send the reminder on
 		try:
-			if BRANCH is not None:
 			if ENVIRONMENT == 'PRODUCTION':
 				logger.info("[Reminders get_messages()] branch is =["+BRANCH+"]")
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='bot_commands_and_misc')
