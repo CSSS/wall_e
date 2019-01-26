@@ -156,16 +156,16 @@ class Reminders():
 
 		REMINDER_CHANNEL_ID=None
 		BRANCH = os.environ['BRANCH']
-		if ( ENVIRONMENT == 'PRODUCTION' or ENVIRONMENT == 'TEST' ) and 'BRANCH' not in os.environ:
-			print("[Reminders.py get_messages()] No environment variable \"BRANCH\" seems to exist and this is a ENVIRONMENT is either PRODUCTION or TEST guild...read the README again")
+		if ENVIRONMENT == 'TEST' and 'BRANCH' not in os.environ:
+			print("[Reminders.py get_messages()] No environment variable \"BRANCH\" seems to exist and this is the discord TEST guild...read the README again")
 			exit(1)	
-		elif ( ENVIRONMENT == 'PRODUCTION' or ENVIRONMENT == 'TEST' ) and 'BRANCH' in os.environ:
+		elif ENVIRONMENT == 'TEST'  and 'BRANCH' in os.environ:
 			BRANCH = os.environ['BRANCH']
 
 		##determines the channel to send the reminder on
 		try:
 			if ENVIRONMENT == 'PRODUCTION':
-				logger.info("[Reminders get_messages()] branch is =["+BRANCH+"]")
+				logger.info("[Reminders get_messages()] environment is =["+ENVIRONMENT+"]")
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='bot_commands_and_misc')
 				if reminder_chan is None:
 					logger.info("[Reminders get_messages()] reminder channel does not exist in PRODUCTION.")
