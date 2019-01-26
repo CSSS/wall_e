@@ -21,6 +21,7 @@ pipeline {
                         ]) {
                             sh "docker rm -f ${testContainerName} || true"
                             sh "whoami"
+                            
                             sh "docker-compose up -d"
                             //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
