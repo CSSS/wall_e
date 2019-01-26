@@ -9,7 +9,7 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
-                            "BRANCH=${BRANCH_NAME}"
+                            "BRANCH=${BRANCH_NAME}",
                             "COMPOSE_PROJECT_NAME=${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
