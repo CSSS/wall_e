@@ -7,6 +7,7 @@ services:  #Services that are needed for the wall_e app
             - BOT_LOG_CHANNEL_ID
             - WOLFRAMAPI
             - TOKEN
+            - COMPOSE_PROJECT_NAME
         volumes: #volume are for hot reload for exemple
             - "./app:/src/app"
             #- "${COMPOSE_PROJECT_NAME}_logs:/usr/src/app/logs"
@@ -16,5 +17,5 @@ services:  #Services that are needed for the wall_e app
     db: #declaration of the postgres container
         image: postgres:alpine #using postgres image
         volumes: #used to pass the folder that contains the configuration for the database
-            - ./db_init:/docker-entrypoint-initdb.d
+            - ./notes/db_init:/docker-entrypoint-initdb.d
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
