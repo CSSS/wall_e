@@ -15,19 +15,31 @@ pipeline {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
+                        GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
-                            sh "docker rm -f ${testContainerName} || true"                            
+                            sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"                            
                             sh "docker-compose up -d"
                             //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
                         sleep 20
                         def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
+                        def containerDBFailed = sh script: "docker ps -a -f name=${testContainerDBName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
                         if (containerFailed) {
                             def output = sh (
                                     script: "docker logs ${testContainerName}",
+                                    returnStdout: true
+                            ).trim()
+                            withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                                discordSend description: BRANCH_NAME + '\n' + output, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: 'Failing build', webhookURL: "$WEBHOOKURL"
+                            }
+                            error output
+                        }
+                        if (containerDBFailed){
+                            def output = sh (
+                                    script: "docker logs ${testContainerDBName}",
                                     returnStdout: true
                             ).trim()
                             withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
