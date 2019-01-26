@@ -4,19 +4,13 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Build') {
-            steps {
-                script {
-                    docker.build("wall-e:${env.BUILD_ID}")
-                }
-            }
-        }
         stage('Test') {
             steps {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
                             "BRANCH=${BRANCH_NAME}"
+                            "COMPOSE_PROJECT_NAME=${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
@@ -26,7 +20,8 @@ pipeline {
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
                             sh "docker rm -f ${testContainerName} || true"
-                            sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
+                            sh "docker-compose up -d"
+                            //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
                         sleep 20
                         def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
