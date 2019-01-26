@@ -181,6 +181,8 @@ class Reminders():
 	   
 			elif ENVIRONMENT == 'TEST':
 				logger.info("[Reminders get_messages()] branch is =["+BRANCH+"]")
+				print("printing out all the channels in test ENVIRONMENT")
+				print(self.bot.guilds[0].channels)
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=BRANCH+'_reminders')
 				if reminder_chan is None:
 					reminder_chan = await self.bot.guilds[0].create_text_channel(BRANCH+'_reminders')
