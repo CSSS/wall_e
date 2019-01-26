@@ -17,6 +17,11 @@ import os
 import datetime
 from main import ENVIRONMENT
 logger = logging.getLogger('wall_e')
+if 'COMPOSE_PROJECT_NAME' not in os.environ:
+    print("[main.py] No environment variable \"COMPOSE_PROJECT_NAME\" seems to exist...read the README again")
+    exit(1)
+COMPOSE_PROJECT_NAME = os.environ['COMPOSE_PROJECT_NAME']
+print("[main.py] variable \"COMPOSE_PROJECT_NAME\" is set to \""+str(COMPOSE_PROJECT_NAME)+"\"")
 
 class Reminders():
 
@@ -25,12 +30,12 @@ class Reminders():
 
 		#setting up database connection
 		try:
-			self.bot.loop.create_task(self.get_messages())
-			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='dev_wall_e_db' password='@J6n2FIlEllYouiz'")
+			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+COMPOSE_PROJECT_NAME+"_wall_e_db' password='@J6n2FIlEllYouiz'")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
 			self.curs.execute("DROP TABLE IF EXISTS Reminders;")
 			self.curs.execute("CREATE TABLE Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp, message varchar(2000), author_id varchar(500), author_name varchar(500), message_id varchar(200));")
+			self.bot.loop.create_task(self.get_messages())
 			logger.info("[Reminders __init__] PostgreSQL connection established")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
@@ -97,7 +102,7 @@ class Reminders():
 				for row in self.curs.fetchall():
 					logger.info("[Reminders showreminders()] dealing with reminder ["+str(row)+"]")
 					reminders+=str(row[5])+"\t\t\t"+str(row[2])+"\n"
-        author = ctx.author.nick or ctx.author.name
+				author = ctx.author.nick or ctx.author.name
 				if reminders != '':
 					logger.info("[Reminders showreminders()] sent off the list of reminders to "+str(ctx.message.author))
 					eObj = embed(title="Here are you reminders " + author, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=[["MessageID\t\t\t\t\t\t\tReminder", reminders]])
