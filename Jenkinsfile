@@ -23,7 +23,6 @@ pipeline {
                             sh "docker image rm -f ${testContainerName.toLowerCase()} postgres || true"          
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"                            
                             sh "docker-compose up -d"
-                            //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
                         sleep 20
                         def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
@@ -58,18 +57,24 @@ pipeline {
             }
             steps {
                 script {
-                    withEnv(['ENVIRONMENT=PRODUCTION']) {
+                    withEnv([
+                            'ENVIRONMENT=PRODUCTION',
+                            "COMPOSE_PROJECT_NAME=PRODUCTION"
+                    ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
                         String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
-                        String productionContainerName = 'wall-e'
+                        GString productionContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
+                        GString productionContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
                         withCredentials([
                                 string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
                                 string(credentialsId: 'BOT_LOG_CHANNEL_ID', variable: "${logChannelEnv}")
                         ]) {
+                            sh "docker image rm -f ${productionContainerName.toLowerCase()} || true"                                      
                             sh "docker rm -f ${productionContainerName} || true"
-                            sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ${logChannelEnv} -e ENVIRONMENT --net=host --name ${productionContainerName} --mount source=logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
+                            sh "docker-compose up -d"
+                            //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ${logChannelEnv} -e ENVIRONMENT --net=host --name ${productionContainerName} --mount source=logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
                     }
                 }
