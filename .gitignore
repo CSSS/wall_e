@@ -165,3 +165,4 @@ runner.sh
 .DS_Store
 unit_test.py
 .pytest_cache/
+notes/
