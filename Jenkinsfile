@@ -14,12 +14,12 @@ pipeline {
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
-                        GString testContainerName = "wall-e-test-${BRANCH_NAME}"
+                        GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
-                            sh "docker rm -f ${testContainerName} || true"
+                            sh "docker rm -f {testContainerName} || true"
                             sh "whoami"
                             
                             sh "docker-compose up -d"
