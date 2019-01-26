@@ -19,7 +19,8 @@ pipeline {
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
-                            sh "docker rm -f {testContainerName} || true"
+                            sh "echo testContainerName =${testContainerName}"
+                            sh "docker rm -f ${testContainerName} || true"
                             sh "whoami"
                             
                             sh "docker-compose up -d"
