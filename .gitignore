@@ -166,3 +166,4 @@ runner.sh
 unit_test.py
 .pytest_cache/
 notes/
+sftp-config.json
