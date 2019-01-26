@@ -19,10 +19,7 @@ pipeline {
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
-                            sh "echo testContainerName =${testContainerName}"
-                            sh "docker rm -f ${testContainerName} || true"
-                            sh "whoami"
-                            
+                            sh "docker rm -f ${testContainerName} || true"                            
                             sh "docker-compose up -d"
                             //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
