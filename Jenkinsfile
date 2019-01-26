@@ -20,7 +20,7 @@ pipeline {
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
-                            sh "docker image rm -f ${testContainerName} postgres || true"          
+                            sh "docker image rm -f ${testContainerName.toLowerCase()} postgres || true"          
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"                            
                             sh "docker-compose up -d"
                             //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
