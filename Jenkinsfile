@@ -20,8 +20,9 @@ pipeline {
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
                             sh "docker rm -f ${testContainerName} || true"
+                            sh "whoami"
                             sh "docker-compose up -d"
-                            // sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
+                            //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ENVIRONMENT -e BRANCH --net=host --name ${testContainerName} --mount source=${BRANCH_NAME}_logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
                         sleep 20
                         def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
