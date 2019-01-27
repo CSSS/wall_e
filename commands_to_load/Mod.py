@@ -121,12 +121,12 @@ class Mod():
         channels = ctx.guild.channels
         # set up the perms overwrite
         overwrite = discord.PermissionOverwrite()
-        overwrite.send_messages = False
-        overwrite.manage_messages = False
-        overwrite.manage_channels = False
-        overwrite.manage_guild = False
-        overwrite.manage_nicknames = False
-        overwrite.manage_roles = False
+        setattr(overwrite, 'send_messages', False)
+        setattr(overwrite, 'manage_messages', False)
+        setattr(overwrite, 'manage_channels', False)
+        setattr(overwrite, 'manage_guild', False)
+        setattr(overwrite, 'manage_nicknames', False)
+        setattr(overwrite, 'manage_roles', False)
         
         # loop through channels and change the perms
         for channel in channels: 
