@@ -135,8 +135,8 @@ class Mod():
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
     @commands.command()
-    async def slowmode(self, ctx, time): 
-        logger.info('[Mod slowmode()] mute function detected by user' + str(ctx.message.author))
+    async def slowmode(self, ctx, time = 10): 
+        logger.info('[Mod slowmode()] slowmode function detected by user' + str(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod slowmode()] invoking message deleted')
 
@@ -145,11 +145,10 @@ class Mod():
             await self.rekt(ctx)
             return
          
-         # permission overwrite
+        await ctx.message.channel.edit(slowmode_delay=time, reason=None)
+        logger.info('[Mod slowmode()] slowmode enable on channel: ' + str(ctx.message.channel) + ', time between messages set to ' + str(time))
 
-         # check if time given otherwise set to 5 mins 5*60 = 300 seconds
-
-#TODO: slowmode, createchannel, lock commands, dm warn/other kind of dm'd info etc
+#TODO: createchannel, lock commands, dm warn/other kind of dm'd info etc
 
 
 def setup(bot):
