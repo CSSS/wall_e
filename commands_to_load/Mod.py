@@ -148,6 +148,17 @@ class Mod():
         await ctx.message.channel.edit(slowmode_delay=time, reason=None)
         logger.info('[Mod slowmode()] slowmode enable on channel: ' + str(ctx.message.channel) + ', time between messages set to ' + str(time))
 
+    @commands.command()
+    async def makechannel(self, ctx):
+        logger.info('[Mod makechannel()] makechannel function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod makechannel()] invoking command deleted')
+
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod makechannel()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
+
 #TODO: createchannel, lock commands, dm warn/other kind of dm'd info etc
 
 
