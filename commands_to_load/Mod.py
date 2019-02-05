@@ -203,7 +203,7 @@ class Mod():
         eObj = em(description=str(ctx.author) + ' made channel: `' + name + '`', footer='Moderator action')
         await council.send(embed=eObj)
 
-#TODO: createchannel, lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
+#TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
 def setup(bot):
