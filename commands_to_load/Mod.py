@@ -205,6 +205,14 @@ class Mod():
 
     @commands.command()
     async def lock(self, ctx):
+        logger.info('[Mod lock()] lock function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod lock()] invoking message deleted')
+
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod lock()] unauthorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
         # Lock will set @everyone send messages permission to false
         # Might have ot set @Minions to be able to talk (also Omnipotent)
         # then send a message to council 
