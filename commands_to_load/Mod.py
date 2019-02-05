@@ -203,20 +203,6 @@ class Mod():
         eObj = em(description=str(ctx.author) + ' made channel: `' + name + '`', footer='Moderator action')
         await council.send(embed=eObj)
 
-    @commands.command()
-    async def lock(self, ctx):
-        # Lock will set @everyone send messages permission to false
-        # Might have ot set @Minions to be able to talk (also Omnipotent)
-        # then send a message to council 
-        MINIONS_ROLE = discord.utils.get(ctx.guild.roles, name='Minions')
-
-        channel = ctx.message.channel
-        await channel.set_permissions(ctx.guild.default_role, send_messages=False)
-        await channel.set_permissions(MINIONS_ROLE, send_messages=True)
-
-        eObj = em(description='Channel locked until the mods stop abusing their power', colour=0xff0000, footer='Moderator Action')
-        await ctx.send(embed=eObj)
-
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
