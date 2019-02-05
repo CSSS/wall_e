@@ -186,17 +186,20 @@ class Mod():
         setattr(overwrite[MUTED_ROLE], 'manage_nicknames', False)
         setattr(overwrite[MUTED_ROLE], 'manage_roles', False)
 
+        logger.info('[Mod makechannel()] channel permissions created')
 
         # Check if making secret channel the append those perms
         # If yes then make perms and add to overwrite dict
         # read messages = false, manage messages = false, mention everyone = true
 
-        # Verify args [needs to be moved up]
-
         # Create channel
         ch = await ctx.guild.create_text_channel(name, overwrites=overwrite)
+        logger.info('[Mod makechannel()] channel "' + name + '" made by ' + str(ctx.author))
 
         # Send message to council about channel made 
+        council = discord.utils.get(ctx.guild.channels, name="council")
+        eObj = em(description=str(ctx.author) + ' made channel: `' + name + '`', footer='Moderator action')
+        council.send(embed=eObj)
 
 #TODO: createchannel, lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
