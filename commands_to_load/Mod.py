@@ -221,9 +221,11 @@ class Mod():
         channel = ctx.message.channel
         await channel.set_permissions(ctx.guild.default_role, send_messages=False)
         await channel.set_permissions(MINIONS_ROLE, send_messages=True)
+        logger.info('[Mod lock()] channel "' + str(ctx.message.channel.name) + '" locked')
 
         eObj = em(description='Channel locked until the mods stop abusing their power', colour=0xff0000, footer='Moderator Action')
         await ctx.send(embed=eObj)
+        logger.info('[Mod lock()] message sent to indicate locked channel')
 
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
