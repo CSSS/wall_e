@@ -149,7 +149,7 @@ class Mod():
         logger.info('[Mod slowmode()] slowmode enable on channel: ' + str(ctx.message.channel) + ', time between messages set to ' + str(time))
 
     @commands.command()
-    async def makechannel(self, ctx):
+    async def makechannel(self, ctx, name):
         logger.info('[Mod makechannel()] makechannel function detected by user' + str(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod makechannel()] invoking command deleted')
@@ -159,7 +159,46 @@ class Mod():
             await self.rekt(ctx)
             return
 
-#TODO: createchannel, lock commands, dm warn/other kind of dm'd info etc
+        # Verify args
+        if not name: 
+            eObj = em(description='Missing arguments', footer='Error in makechannel command')
+            ctx.send(embed=eObj)
+            return
+
+        # Get the MUTED role
+        roles = ctx.guild.roles
+        for role in roles: 
+            # if role.id == 338575090847580160: # convert to envVar
+            if role.id == 505409200302718996:
+                MUTED_ROLE = role
+                break
+
+        overwrite = {
+            ctx.guild.default_role : discord.PermissionOverwrite(mention_everyone=False),
+            MUTED_ROLE : discord.PermissionOverwrite()
+        }
+        
+        # Set the Muted roles permissions
+        setattr(overwrite[MUTED_ROLE], 'send_messages', False)
+        setattr(overwrite[MUTED_ROLE], 'manage_messages', False)
+        setattr(overwrite[MUTED_ROLE], 'manage_channels', False)
+        setattr(overwrite[MUTED_ROLE], 'manage_guild', False)
+        setattr(overwrite[MUTED_ROLE], 'manage_nicknames', False)
+        setattr(overwrite[MUTED_ROLE], 'manage_roles', False)
+
+
+        # Check if making secret channel the append those perms
+        # If yes then make perms and add to overwrite dict
+        # read messages = false, manage messages = false, mention everyone = true
+
+        # Verify args [needs to be moved up]
+
+        # Create channel
+        ch = await ctx.guild.create_text_channel(name, overwrites=overwrite)
+
+        # Send message to council about channel made 
+
+#TODO: createchannel, lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
 def setup(bot):
