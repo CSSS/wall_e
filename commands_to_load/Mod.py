@@ -149,7 +149,7 @@ class Mod():
         logger.info('[Mod slowmode()] slowmode enable on channel: ' + str(ctx.message.channel) + ', time between messages set to ' + str(time))
 
     @commands.command()
-    async def makechannel(self, ctx, name):
+    async def makechannel(self, ctx, name, secret = 0):
         logger.info('[Mod makechannel()] makechannel function detected by user' + str(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod makechannel()] invoking command deleted')
@@ -188,9 +188,11 @@ class Mod():
 
         logger.info('[Mod makechannel()] channel permissions created')
 
-        # Check if making secret channel the append those perms
-        # If yes then make perms and add to overwrite dict
-        # read messages = false, manage messages = false, mention everyone = true
+        # Check if making secret channel then append those perms
+        if secret: 
+            setattr(overwrite[ctx.guild.default_role], 'read_messages', False)
+            setattr(overwrite[ctx.guild.default_role], 'manage_messages', False)
+            setattr(overwrite[ctx.guild.default_role], 'mention_everyone', True)
 
         # Create channel
         ch = await ctx.guild.create_text_channel(name, overwrites=overwrite)
