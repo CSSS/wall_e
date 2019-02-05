@@ -227,6 +227,11 @@ class Mod():
         await ctx.send(embed=eObj)
         logger.info('[Mod lock()] message sent to indicate locked channel')
 
+        # Send message to council about channel made 
+        council = discord.utils.get(ctx.guild.channels, name="council")
+        eObj = em(description=str(ctx.author) + ' locked `' + str(ctx.message.channel.name) + '`', footer='Moderator action')
+        await council.send(embed=eObj)
+
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
