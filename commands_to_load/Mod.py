@@ -203,6 +203,38 @@ class Mod():
         eObj = em(description=str(ctx.author) + ' made channel: `' + name + '`', footer='Moderator action')
         await council.send(embed=eObj)
 
+    @commands.command()
+    # search up text channel purge coroutine
+    async def clear(self, ctx, numOfMsgs = 15, user = None):
+        # Deletes the last X msg's from channel
+        # OR 
+        # Deletes the last X msg's from @Y user from channel (self/me keyword)
+        mentions = ctx.message.mentions
+
+        # If there is no mention then author's messages are being deleted
+        if len(mentions) != 1: 
+            user = ctx.author
+        else:
+            user = mentions[0]
+
+        channel = ctx.channel
+        # Grab the last 100 messages from the channel regardless of user
+        messages = channel.history(limit=100)
+        msgs = []
+        async for msg in messages:
+            if msg.author == user and msg.id != ctx.message.id: 
+                # Delete msg
+                msgs.append(msg)
+                print('msg added')
+
+                numOfMsgs -= 1
+            if numOfMsgs == 0: 
+                break
+        
+        await channel.delete_messages(msgs)
+        eObj = em(description=str(user)+'\'s messages deleted')
+        await ctx.send(embed=eObj, delete_after=5.0)
+            
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
