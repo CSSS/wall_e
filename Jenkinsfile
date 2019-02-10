@@ -28,6 +28,8 @@ pipeline {
                             sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"  
                             sh "whoami"
                             sh "ls -l"        
+                            sh "ls -l database_config_file"
+                            sh "cat database_config_file/backup.sql"
                             sh "./database_config_file/database_config_password_setter.sh"
                             sh "docker-compose up -d"
                         }
