@@ -20,8 +20,8 @@ pipeline {
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
                         ]) {
-                            sh "docker image rm -f ${testContainerName.toLowerCase()} postgres || true"          
-                            sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"                            
+                            sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
+                            sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"          
                             sh "docker-compose up -d"
                         }
                         sleep 20
@@ -71,11 +71,34 @@ pipeline {
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
                                 string(credentialsId: 'BOT_LOG_CHANNEL_ID', variable: "${logChannelEnv}")
                         ]) {
-                            sh "docker image rm -f ${productionContainerName.toLowerCase()} || true"                                      
                             sh "docker rm -f ${productionContainerName} || true"
+                            sh "docker image rm -f ${productionContainerName.toLowerCase()} postgres python  || true"                                      
                             sh "docker-compose up -d"
                             //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ${logChannelEnv} -e ENVIRONMENT --net=host --name ${productionContainerName} --mount source=logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
+                        sleep 20
+                        def containerFailed = sh script: "docker ps -a -f name=${productionContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
+                        def containerDBFailed = sh script: "docker ps -a -f name=${productionContainerDBName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
+                        if (containerFailed) {
+                            def output = sh (
+                                    script: "docker logs ${productionContainerName}",
+                                    returnStdout: true
+                            ).trim()
+                            withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                                discordSend description: BRANCH_NAME + '\n' + output, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: 'Failing build', webhookURL: "$WEBHOOKURL"
+                            }
+                            error output
+                        }
+                        if (containerDBFailed){
+                            def output = sh (
+                                    script: "docker logs ${productionContainerDBName}",
+                                    returnStdout: true
+                            ).trim()
+                            withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                                discordSend description: BRANCH_NAME + '\n' + output, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: 'Failing build', webhookURL: "$WEBHOOKURL"
+                            }
+                            error output
+                        }                                            
                     }
                 }
             }
