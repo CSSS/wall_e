@@ -13,15 +13,15 @@ pipeline {
                             'ENVIRONMENT=TEST',
                             "BRANCH=${BRANCH_NAME}",
                             "COMPOSE_PROJECT_NAME=${BRANCH_NAME}",
-                            "POSTGRES_DATABASE_PASSWORD=${POSTGRES_DATABASE_PASSWORD}",
-                            "WALL_E_DATABASE_PASSWORD=${WALL_E_DATABASE_PASSWORD}"
+                            "POSTGRES_PASSWORD=${POSTGRES_DATABASE_PASSWORD}",
+                            "WALL_E_PASSWORD=${WALL_E_DATABASE_PASSWORD}"
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
-                        GString POSTGRES_DB_PASSWORD = "${POSTGRES_DATABASE_PASSWORD}"
-                        GString WALl_E_DB_PASSWORD = "${WALL_E_DATABASE_PASSWORD}"
+                        GString POSTGRES_DB_PASSWORD = "${POSTGRES_PASSWORD}"
+                        GString WALl_E_DB_PASSWORD = "${WALL_E_PASSWORD}"
                         sh "./database_config_file/database_config_password_setter.sh"
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
