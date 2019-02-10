@@ -18,10 +18,8 @@ pipeline {
                         String wolframEnv = 'WOLFRAMAPI'
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
-                        GString POSTGRES_DB_PASSWORD = "${POSTGRES_DB_PASSWORD}"
-                        GString WALl_E_DB_PASSWORD = "${WALl_E_DB_PASSWORD}"
-                        sh "whoami"
-                        sh "pwd"
+                        GString POSTGRES_DB_PASSWORD = "${POSTGRES_DATABASE_PASSWORD}"
+                        GString WALl_E_DB_PASSWORD = "${WALL_E_DATABASE_PASSWORD}"
                         sh "./database_config_file/database_config_password_setter.sh"
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
