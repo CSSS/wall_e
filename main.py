@@ -25,6 +25,9 @@ if 'ENVIRONMENT' not in os.environ:
 ENVIRONMENT = os.environ['ENVIRONMENT']
 print("[main.py] variable \"ENVIRONMENT\" is set to \""+str(ENVIRONMENT)+"\"")
 
+if 'TOKEN' not in os.environ:
+    print("[main.py] No environment variable \"TOKEN\" seems to exist...read the README again")
+    exit(1)
 
 BOT_LOG_CHANNEL = None
 if ENVIRONMENT != 'TEST':
