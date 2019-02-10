@@ -17,15 +17,10 @@ import os
 import datetime
 from main import ENVIRONMENT
 logger = logging.getLogger('wall_e')
-if 'COMPOSE_PROJECT_NAME' not in os.environ:
-	print("[main.py] No environment variable \"COMPOSE_PROJECT_NAME\" seems to exist...read the README again")
-	exit(1)
+
 COMPOSE_PROJECT_NAME = os.environ['COMPOSE_PROJECT_NAME']
 print("[main.py] variable \"COMPOSE_PROJECT_NAME\" is set to \""+str(COMPOSE_PROJECT_NAME)+"\"")
 
-if 'WALL_E_DB_PASSWD' not in os.environ:
-	print("[main.py] No environment variable \"WALL_E_DB_PASSWD\" seems to exist...read the README again")
-	exit(1)
 WALL_E_DB_PASSWD = os.environ['WALL_E_DB_PASSWD']
 print("[main.py] variable \"WALL_E_DB_PASSWD\" is set to \""+str(WALL_E_DB_PASSWD)+"\"")
 
