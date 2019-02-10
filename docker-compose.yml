@@ -9,6 +9,7 @@ services:  #Services that are needed for the wall_e app
             - TOKEN
             - COMPOSE_PROJECT_NAME
             - BRANCH
+            - WALL_E_DB_PASSWD
         volumes: #volume are for hot reload for exemple
             - "./app:/src/app"
             - logs:/usr/src/app/logs

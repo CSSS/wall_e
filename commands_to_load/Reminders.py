@@ -23,6 +23,12 @@ if 'COMPOSE_PROJECT_NAME' not in os.environ:
 COMPOSE_PROJECT_NAME = os.environ['COMPOSE_PROJECT_NAME']
 print("[main.py] variable \"COMPOSE_PROJECT_NAME\" is set to \""+str(COMPOSE_PROJECT_NAME)+"\"")
 
+if 'WALL_E_DB_PASSWD' not in os.environ:
+	print("[main.py] No environment variable \"WALL_E_DB_PASSWD\" seems to exist...read the README again")
+	exit(1)
+WALL_E_DB_PASSWD = os.environ['WALL_E_DB_PASSWD']
+print("[main.py] variable \"WALL_E_DB_PASSWD\" is set to \""+str(WALL_E_DB_PASSWD)+"\"")
+
 class Reminders():
 
 	def __init__(self, bot):
@@ -30,7 +36,7 @@ class Reminders():
 
 		#setting up database connection
 		try:
-			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+COMPOSE_PROJECT_NAME+"_wall_e_db' password='@J6n2FIlEllYouiz'")
+			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+COMPOSE_PROJECT_NAME+"_wall_e_db' password='"+WALL_E_DB_PASSWD+"'")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
 			#self.curs.execute("DROP TABLE IF EXISTS Reminders;")
