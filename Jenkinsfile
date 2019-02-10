@@ -31,6 +31,7 @@ pipeline {
                             sh "ls -l"                           
                             sh "ls -l database_config_file"
                             sh "cat database_config_file/backup.sql"
+                            sh "ls -l database_config_file"
                             sh "docker-compose up -d"
                         }
                         sleep 20
