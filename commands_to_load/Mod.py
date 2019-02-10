@@ -204,10 +204,18 @@ class Mod():
         await council.send(embed=eObj)
 
     @commands.command()
-    # search up text channel purge coroutine
     async def clear(self, ctx, numOfMsgs = 10):
         # Deletes the last X (10 by default) msg's from channel
         # Limits: Max 100 messages at a time AND no messages older than 2 weeks (14 days)
+
+        logger.info('[Mod clear()] clear function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod clear()] invoking command deleted')
+
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod clear()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
 
         channel = ctx.channel
         # Grab the last X messages from the channel regardless of user
