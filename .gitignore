@@ -151,7 +151,6 @@ crashlytics-build.properties
 fabric.properties
 token
 
-database_config_file
 
 # Logs
 
