@@ -151,8 +151,6 @@ crashlytics-build.properties
 fabric.properties
 token
 
-# commenting out the database config file so that the final passwords dont get stored into the databse
-database_config_file/backup.sql
 
 # Logs
 
