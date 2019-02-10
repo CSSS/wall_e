@@ -219,8 +219,11 @@ class Mod():
 
         channel = ctx.channel
         # Grab the last X messages from the channel regardless of user
+        logger.info('[Mod clear()] grabbing last {} message from {}'.format(numOfMsgs, channel))
         messages = await channel.history(limit=numOfMsgs).flatten()
+        logger.info('[Mod clear()] messages to be deleted: {}'.format(messages))
         await channel.delete_messages(messages)
+        logger.info('[Mod clear()] messages from {} deleted'.format(channel))
 
         eObj = em(description='{} messages deleted'.format(numOfMsgs), footer='Message will self destruct in 5 ...')
         await ctx.send(embed=eObj, delete_after=5.0)
