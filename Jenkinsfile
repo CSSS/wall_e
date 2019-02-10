@@ -8,7 +8,7 @@ pipeline {
             steps {
                 script {
 
-                    #ask winfield the difference between declaring envs here and as [G]Strings below and as credentials
+                    //ask winfield the difference between declaring envs here and as [G]Strings below and as credentials
                     withEnv([
                             'ENVIRONMENT=TEST',
                             "BRANCH=${BRANCH_NAME}",
