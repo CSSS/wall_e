@@ -17,6 +17,9 @@ services:  #Services that are needed for the wall_e app
             - "db"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
     db: #declaration of the postgres container
+        environment:
+            - POSTGRES_DB_PASSWORD
+            - WALl_E_DB_PASSWORD
         image: postgres:alpine #using postgres image
         volumes: #used to pass the folder that contains the configuration for the database
             - ./database_config_file:/docker-entrypoint-initdb.d
