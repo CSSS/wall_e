@@ -7,28 +7,26 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-
-                    //ask winfield the difference between declaring envs here and as [G]Strings below and as credentials
                     withEnv([
                             'ENVIRONMENT=TEST',
                             "BRANCH=${BRANCH_NAME}",
-                            "COMPOSE_PROJECT_NAME=${BRANCH_NAME}",
-                            "POSTGRES_PASSWORD=${POSTGRES_DATABASE_PASSWORD}",
-                            "WALL_E_PASSWORD=${WALL_E_DATABASE_PASSWORD}"
+                            "COMPOSE_PROJECT_NAME=${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
-                        GString POSTGRES_DB_PASSWORD = "${POSTGRES_PASSWORD}"
-                        GString WALl_E_DB_PASSWORD = "${WALL_E_PASSWORD}"
-                        sh "./database_config_file/database_config_password_setter.sh"
+                        String postgresDbPassword='POSTGRES_DB_PASSWORD'
+                        String walleDbPassword='WALl_E_DB_PASSWORD'
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
-                                string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
+                                string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
+                                string(credentialsId: 'POSTGRES_DATABASE_PASSWORD', variable: "${postgresDbPassword}"),
+                                string(credentialsId: 'WALL_E_DATABASE_PASSWORD', variable: "${walleDbPassword}"),
                         ]) {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
                             sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"          
+                            sh "./database_config_file/database_config_password_setter.sh"
                             sh "docker-compose up -d"
                         }
                         sleep 20
