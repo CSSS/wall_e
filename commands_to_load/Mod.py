@@ -205,36 +205,18 @@ class Mod():
 
     @commands.command()
     # search up text channel purge coroutine
-    async def clear(self, ctx, numOfMsgs = 15, user = None):
-        # Deletes the last X msg's from channel
-        # OR 
-        # Deletes the last X msg's from @Y user from channel (self/me keyword)
-        mentions = ctx.message.mentions
-
-        # If there is no mention then author's messages are being deleted
-        if len(mentions) != 1: 
-            user = ctx.author
-        else:
-            user = mentions[0]
+    async def clear(self, ctx, numOfMsgs = 10):
+        # Deletes the last X (10 by default) msg's from channel
+        # Limits: Max 100 messages at a time AND no messages older than 2 weeks (14 days)
 
         channel = ctx.channel
-        # Grab the last 100 messages from the channel regardless of user
-        messages = channel.history(limit=100)
-        msgs = []
-        async for msg in messages:
-            if msg.author == user and msg.id != ctx.message.id: 
-                # Delete msg
-                msgs.append(msg)
-                print('msg added')
+        # Grab the last X messages from the channel regardless of user
+        messages = await channel.history(limit=numOfMsgs).flatten()
+        await channel.delete_messages(messages)
 
-                numOfMsgs -= 1
-            if numOfMsgs == 0: 
-                break
-        
-        await channel.delete_messages(msgs)
-        eObj = em(description=str(user)+'\'s messages deleted')
+        eObj = em(description='{} messages deleted'.format(numOfMsgs), footer='Message will self destruct in 5 ...')
         await ctx.send(embed=eObj, delete_after=5.0)
-            
+        
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
