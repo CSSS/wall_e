@@ -12,8 +12,8 @@ pipeline {
                     withEnv([
                             'ENVIRONMENT=TEST',
                             "BRANCH=${BRANCH_NAME}",
-                            "COMPOSE_PROJECT_NAME=${BRANCH_NAME}"
-                            "POSTGRES_DATABASE_PASSWORD=${POSTGRES_DATABASE_PASSWORD}"
+                            "COMPOSE_PROJECT_NAME=${BRANCH_NAME}",
+                            "POSTGRES_DATABASE_PASSWORD=${POSTGRES_DATABASE_PASSWORD}",
                             "WALL_E_DATABASE_PASSWORD=${WALL_E_DATABASE_PASSWORD}"
                     ]) {
                         String tokenEnv = 'TOKEN'
