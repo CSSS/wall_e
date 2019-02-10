@@ -211,19 +211,31 @@ class Mod():
         logger.info('[Mod clear()] clear function detected by user' + str(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod clear()] invoking command deleted')
-
+        
         if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
             logger.info('[Mod clear()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
+
+        # Verify args
+        if numOfMsgs > 100: 
+            # Prevents discord.ClientException 
+            eObj = em(description='Number of messages to be deleted cannot be more than 100', footer='Invalid arguments')
+            await ctx.send(embed=eObj)
 
         channel = ctx.channel
         # Grab the last X messages from the channel regardless of user
         logger.info('[Mod clear()] grabbing last {} message from {}'.format(numOfMsgs, channel))
         messages = await channel.history(limit=numOfMsgs).flatten()
         logger.info('[Mod clear()] messages to be deleted: {}'.format(messages))
-        await channel.delete_messages(messages)
-        logger.info('[Mod clear()] messages from {} deleted'.format(channel))
+        
+        try:
+            await channel.delete_messages(messages)
+            logger.info('[Mod clear()] messages from {} deleted'.format(channel))
+        except discord.HTTPException:
+            eObj = em(description='Messagaes cannot be older than 2 weeks', footer='Command Error')
+            await ctx.send(embed=eObj, delete_after=10.0)
+            return
 
         eObj = em(description='{} messages deleted'.format(numOfMsgs), footer='Message will self destruct in 5 ...')
         await ctx.send(embed=eObj, delete_after=5.0)
