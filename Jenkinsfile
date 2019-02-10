@@ -7,6 +7,8 @@ pipeline {
         stage('Test') {
             steps {
                 script {
+
+                    #ask winfield the difference between declaring envs here and as [G]Strings below and as credentials
                     withEnv([
                             'ENVIRONMENT=TEST',
                             "BRANCH=${BRANCH_NAME}",
@@ -16,6 +18,9 @@ pipeline {
                         String wolframEnv = 'WOLFRAMAPI'
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
+                        GString POSTGRES_DB_PASSWORD = "${POSTGRES_DB_PASSWORD}"
+                        GString WALl_E_DB_PASSWORD = "${WALl_E_DB_PASSWORD}"
+                        sh "./database_config_file/database_config_password_setter.sh"
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}")
