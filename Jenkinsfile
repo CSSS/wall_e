@@ -80,11 +80,10 @@ pipeline {
                             sh "docker rm -f ${productionContainerName} || true"
                             sh "docker image rm -f ${productionContainerName.toLowerCase()} postgres python  || true"                                      
                             sh "docker-compose up -d"
-                            //sh "docker run -d -e ${tokenEnv} -e ${wolframEnv} -e ${logChannelEnv} -e ENVIRONMENT --net=host --name ${productionContainerName} --mount source=logs,target=/usr/src/app/logs wall-e:${env.BUILD_ID}"
                         }
                         sleep 20
-                        def containerFailed = sh script: "docker ps -a -f name=${productionContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
-                        def containerDBFailed = sh script: "docker ps -a -f name=${productionContainerDBName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
+                        def containerFailed = sh script: "docker ps -a -f name=${productionContainerName} --format \"{{.Status}}\" | head -1 | grep 'Up'", returnStatus: true
+                        def containerDBFailed = sh script: "docker ps -a -f name=${productionContainerDBName} --format \"{{.Status}}\" | head -1 | grep 'Up'", returnStatus: true
                         if (containerFailed) {
                             def output = sh (
                                     script: "docker logs ${productionContainerName}",
