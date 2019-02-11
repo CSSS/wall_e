@@ -22,7 +22,7 @@ COMPOSE_PROJECT_NAME = os.environ['COMPOSE_PROJECT_NAME']
 logger.info("[main.py] variable \"COMPOSE_PROJECT_NAME\" is set to \""+str(COMPOSE_PROJECT_NAME)+"\"")
 
 WALL_E_DB_PASSWORD = os.environ['WALL_E_DB_PASSWORD']
-logger.info("[main.py] variable \"WALL_E_DB_PASSWORD\" is set to \""+str(WALL_E_DB_PASSWORD)+"\"")
+logger.info("[main.py] variable \"WALL_E_DB_PASSWORD\" has been set.")
 
 class Reminders():
 
