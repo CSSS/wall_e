@@ -56,7 +56,6 @@ wolframClient = wolframalpha.Client(wolframAPI)
 if 'COMPOSE_PROJECT_NAME' not in os.environ:
     print("[main.py] No environment variable \"COMPOSE_PROJECT_NAME\" seems to exist...read the README again")
     exit(1)
-print("[main.py] variable \"COMPOSE_PROJECT_NAME\" is set to \""+str(COMPOSE_PROJECT_NAME)+"\"")
 
 if 'WALL_E_DB_PASSWD' not in os.environ:
     print("[main.py] No environment variable \"WALL_E_DB_PASSWD\" seems to exist...read the README again")
