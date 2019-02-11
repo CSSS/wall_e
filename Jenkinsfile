@@ -21,8 +21,8 @@ pipeline {
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
-                                string(credentialsId: 'POSTGRES_DATABASE_PASSWORD', variable: "${postgresDbPassword}"),
-                                string(credentialsId: 'WALL_E_DATABASE_PASSWORD', variable: "${walleDbPassword}"),
+                                string(credentialsId: 'POSTGRES_DB_PASSWORD', variable: "${postgresDbPassword}"),
+                                string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
                         ]) {
                             sh "echo COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
