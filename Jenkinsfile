@@ -32,7 +32,7 @@ pipeline {
                             sh "ls -l database_config_file"
                             sh "head -10 database_config_file/backup.sql"
                             sh "ls -l database_config_file"
-                            sh "./database_config_file/database_config_password_setter.sh"
+                            sh "./database_config_password_setter.sh"
                             sh "whoami"
                             sh "ls -l"                           
                             sh "ls -l database_config_file"
