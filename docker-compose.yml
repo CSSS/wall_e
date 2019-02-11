@@ -1,6 +1,6 @@
 version: '3' #docker-compose version
 services:  #Services that are needed for the wall_e app
-    wall_e: #the wall_e app
+    wall_e: #the wall_e app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_wall_e
         build: . #Saying that all of my source files are at the root path
         environment:
             - ENVIRONMENT
@@ -11,7 +11,6 @@ services:  #Services that are needed for the wall_e app
             - BRANCH
             - WALL_E_DB_PASSWORD
         volumes: #volume are for hot reload
-            #- "./app:/src/app"
             - logs:/usr/src/app/logs
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
