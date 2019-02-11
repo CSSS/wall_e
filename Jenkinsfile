@@ -17,12 +17,16 @@ pipeline {
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
                         String postgresDbPassword='POSTGRES_DB_PASSWORD'
+                        String postgresDbPasswordHash='POSTGRES_DB_PASSWORD_HASH'
                         String walleDbPassword='WALL_E_DB_PASSWORD'
+                        String walleDbPasswordHash='WALL_E_DB_PASSWORD_HASH'
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
                                 string(credentialsId: 'POSTGRES_DB_PASSWORD', variable: "${postgresDbPassword}"),
+                                string(credentialsId: 'POSTGRES_DB_PASSWORD_HASH', variable: "${postgresDbPasswordHash}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
+                                string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}"),
                         ]) {
                             sh "echo COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
