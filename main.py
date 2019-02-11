@@ -50,11 +50,6 @@ if 'COMPOSE_PROJECT_NAME' not in os.environ:
     print("[main.py] No environment variable \"COMPOSE_PROJECT_NAME\" seems to exist...read the README again")
     exit(1)
 
-if 'WALL_E_DB_PASSWD' not in os.environ:
-    print("[main.py] No environment variable \"WALL_E_DB_PASSWD\" seems to exist...read the README again")
-    exit(1)
-print("[main.py] variable \"WALL_E_DB_PASSWD\" is set to \""+str(WALL_E_DB_PASSWD)+"\"")
-
 if 'WALl_E_DB_PASSWORD' not in os.environ:
     print("[main.py] No environment variable \"WALl_E_DB_PASSWORD\" seems to exist...read the README again")
     exit(1)
