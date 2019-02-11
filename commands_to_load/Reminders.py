@@ -21,8 +21,8 @@ logger = logging.getLogger('wall_e')
 COMPOSE_PROJECT_NAME = os.environ['COMPOSE_PROJECT_NAME']
 logger.info("[main.py] variable \"COMPOSE_PROJECT_NAME\" is set to \""+str(COMPOSE_PROJECT_NAME)+"\"")
 
-WALL_E_DB_PASSWD = os.environ['WALL_E_DB_PASSWD']
-logger.info("[main.py] variable \"WALL_E_DB_PASSWD\" is set to \""+str(WALL_E_DB_PASSWD)+"\"")
+WALl_E_DB_PASSWORD = os.environ['WALl_E_DB_PASSWORD']
+logger.info("[main.py] variable \"WALl_E_DB_PASSWORD\" is set to \""+str(WALl_E_DB_PASSWORD)+"\"")
 
 class Reminders():
 
@@ -31,7 +31,7 @@ class Reminders():
 
 		#setting up database connection
 		try:
-			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+COMPOSE_PROJECT_NAME+"_wall_e_db' password='"+WALL_E_DB_PASSWD+"'")
+			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+COMPOSE_PROJECT_NAME+"_wall_e_db' password='"+WALl_E_DB_PASSWORD+"'")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
 			#self.curs.execute("DROP TABLE IF EXISTS Reminders;")

@@ -19,6 +19,7 @@ import wolframalpha
 ##################################
 ## ENVIRONMENT VARIABLES TO USE ##
 ##################################
+
 if 'ENVIRONMENT' not in os.environ:
     print("[main.py] No environment variable \"ENVIRONMENT\" seems to exist...read the README again")
     exit(1)
@@ -38,20 +39,12 @@ if ENVIRONMENT != 'TEST':
         BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 print("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 
-bot = commands.Bot(command_prefix='.')
-FILENAME = None
-
-print('[main.py] loading cog names from json file')
-with open('commands_to_load/cogs.json') as c:
-    cogs = json.load(c)
-cogs = cogs['cogs']
 
 print("[main.py] loading Wolfram Alpha API Environment Variable")
 if 'WOLFRAMAPI' not in os.environ:
     print("[main.py] No environment variable \"WOLFRAMAPI\" seems to exist...read the README again")
     exit(1)
 wolframAPI = os.environ['WOLFRAMAPI']
-wolframClient = wolframalpha.Client(wolframAPI)
 
 if 'COMPOSE_PROJECT_NAME' not in os.environ:
     print("[main.py] No environment variable \"COMPOSE_PROJECT_NAME\" seems to exist...read the README again")
@@ -61,6 +54,26 @@ if 'WALL_E_DB_PASSWD' not in os.environ:
     print("[main.py] No environment variable \"WALL_E_DB_PASSWD\" seems to exist...read the README again")
     exit(1)
 print("[main.py] variable \"WALL_E_DB_PASSWD\" is set to \""+str(WALL_E_DB_PASSWD)+"\"")
+
+if 'WALl_E_DB_PASSWORD' not in os.environ:
+    print("[main.py] No environment variable \"WALl_E_DB_PASSWORD\" seems to exist...read the README again")
+    exit(1)
+
+######################
+## VARIABLES TO USE ##
+######################
+
+print('[main.py] loading cog names from json file')
+with open('commands_to_load/cogs.json') as c:
+    cogs = json.load(c)
+cogs = cogs['cogs']
+
+bot = commands.Bot(command_prefix='.')
+
+FILENAME = None
+
+wolframClient = wolframalpha.Client(wolframAPI)
+
 ##################
 ## LOGGING SETUP ##
 ##################
