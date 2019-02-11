@@ -9,7 +9,7 @@ import pytz
 import helper_files.testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
-from commands_to_load import Misc
+#from commands_to_load import Misc
 import helper_files.settings as settings
 from helper_files.embed import embed
 import re
