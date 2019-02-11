@@ -64,6 +64,77 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: reminders; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.reminders (
+    reminder_id bigint NOT NULL,
+    reminder_date timestamp without time zone DEFAULT (now() + '1 year'::interval year),
+    message character varying(2000) DEFAULT 'INVALID'::character varying,
+    author_id character varying(500) DEFAULT 'INVALID'::character varying,
+    author_name character varying(500) DEFAULT 'INVALID'::character varying,
+    message_id character varying(200) DEFAULT 'INVALID'::character varying
+);
+
+
+ALTER TABLE public.reminders OWNER TO postgres;
+
+--
+-- Name: reminders_reminder_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.reminders_reminder_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.reminders_reminder_id_seq OWNER TO postgres;
+
+--
+-- Name: reminders_reminder_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.reminders_reminder_id_seq OWNED BY public.reminders.reminder_id;
+
+
+--
+-- Name: reminders reminder_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reminders ALTER COLUMN reminder_id SET DEFAULT nextval('public.reminders_reminder_id_seq'::regclass);
+
+
+--
+-- Data for Name: reminders; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.reminders (reminder_id, reminder_date, message, author_id, author_name, message_id) FROM stdin;
+\.
+
+
+--
+-- Name: reminders_reminder_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.reminders_reminder_id_seq', 6, true);
+
+
+--
+-- Name: reminders reminders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.reminders
+    ADD CONSTRAINT reminders_pkey PRIMARY KEY (reminder_id);
+
+
 --
 -- PostgreSQL database dump complete
 --
@@ -163,3 +234,4 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 --
 -- PostgreSQL database cluster dump complete
 --
+
