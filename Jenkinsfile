@@ -30,7 +30,7 @@ pipeline {
                             sh "whoami"
                             sh "ls -l"                           
                             sh "ls -l database_config_file"
-                            sh "cat database_config_file/backup.sql"
+                            sh "head -10 database_config_file/backup.sql"
                             sh "ls -l database_config_file"
                             sh "docker-compose up -d"
                         }
