@@ -24,6 +24,7 @@ pipeline {
                                 string(credentialsId: 'POSTGRES_DATABASE_PASSWORD', variable: "${postgresDbPassword}"),
                                 string(credentialsId: 'WALL_E_DATABASE_PASSWORD', variable: "${walleDbPassword}"),
                         ]) {
+                            sh "echo COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
                             sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"       
                             sh "whoami"
