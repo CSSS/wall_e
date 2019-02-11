@@ -42,8 +42,8 @@ pipeline {
                             sh "docker-compose up -d"
                         }
                         sleep 20
-                        def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
-                        def containerDBFailed = sh script: "docker ps -a -f name=${testContainerDBName} --format \"{{.Status}}\" | grep 'Up'", returnStatus: true
+                        def containerFailed = sh script: "docker ps -a -f name=${testContainerName} --format \"{{.Status}}\" | head -1 | grep 'Up'", returnStatus: true
+                        def containerDBFailed = sh script: "docker ps -a -f name=${testContainerDBName} --format \"{{.Status}}\" | head -1 |  grep 'Up'", returnStatus: true
                         if (containerFailed) {
                             def output = sh (
                                     script: "docker logs ${testContainerName}",
