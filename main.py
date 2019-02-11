@@ -20,6 +20,7 @@ import wolframalpha
 ## ENVIRONMENT VARIABLES TO USE ##
 ##################################
 
+print("ENV VARIABLES="+str(os.environ))
 if 'ENVIRONMENT' not in os.environ:
     print("[main.py] No environment variable \"ENVIRONMENT\" seems to exist...read the README again")
     exit(1)
