@@ -239,7 +239,30 @@ class Mod():
 
         eObj = em(description='{} messages deleted'.format(numOfMsgs), footer='Message will self destruct in 5 ...')
         await ctx.send(embed=eObj, delete_after=5.0)
-        
+
+    @commands.command()
+    async def purge(self, ctx, user, numOfMsgs = 10):
+        # Deletes 10 message in channel from user
+
+        # Check for mentions, must be 1 otherwise error
+        mentions = ctx.messages.mentions
+        if len(mentions) != 1: 
+            await ctx.send('Need to @ mention user to purge messages from')
+            return
+        elif len(mentions) == 1:
+            user = mentions[0]
+
+        # Check command will determine if message is from user. Will need counter
+        def check(m):
+            nonlocal numOfMsgs
+            if m.author == user and numOfMsgs > 0:
+                return True
+                numOfMsgs -= 1
+            else:
+                return False
+            
+        # Call channel.purge() limit at 100 and bulk = True
+
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
