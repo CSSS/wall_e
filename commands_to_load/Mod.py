@@ -241,7 +241,7 @@ class Mod():
         await ctx.send(embed=eObj, delete_after=5.0)
 
     @commands.command()
-    async def purge(self, ctx, user, numOfMsgs = 10):
+    async def purge(self, ctx, *args):
         # Deletes 10 message in channel from user
 
         # Check for mentions, must be 1 otherwise error
