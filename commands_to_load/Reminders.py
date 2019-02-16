@@ -84,7 +84,7 @@ class Reminders():
 
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
 		await ctx.send(embed=eObj)
-		logger.info("[Reminders remindme()] offline message has been sent.")
+		logger.info("[Reminders remindmein()] reminder has been contructed and sent.")
 
 	@commands.command()
 	async def showreminders(self, ctx):
