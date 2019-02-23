@@ -31,10 +31,10 @@ pipeline {
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}"),
                         ]) {
-                            sh "docker rm -f ${testContainerName} ${testContainerDBName}"
-                            sh "docker volume rm ${testContainerName}_logs"
-                            sh "docker network rm ${testContainerName.toLowerCase()}_default"                            
-                            sh "docker image rm -f ${COMPOSE_PROJECT_NAME.toLowerCase()}_wall_e"       
+                            sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"
+                            sh "docker volume rm ${testContainerName}_logs || true"
+                            sh "docker network rm ${testContainerName.toLowerCase()}_default || true"                            
+                            sh "docker image rm -f ${COMPOSE_PROJECT_NAME.toLowerCase()}_wall_e || true"       
                             sh "./database_config_password_setter.sh"
                             sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""
                             sh "docker-compose up -d"
