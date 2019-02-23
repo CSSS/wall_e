@@ -31,7 +31,7 @@ pipeline {
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}"),
                         ]) {
-                            sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
+                            sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || docker network prune|| true"                            
                             sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"       
                             sh "./database_config_password_setter.sh"
                             sh "docker volume create --name="${COMPOSE_PROJECT_NAME}_logs""
