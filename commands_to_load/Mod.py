@@ -243,26 +243,10 @@ class Mod():
     @commands.command()
     async def purge(self, ctx, *args):
         # Deletes 10 message in channel from user
+        # Order of arguments doesn't matter, the code works around it
         args = list(args)
         print(args)
         # Verify arguments
-        ## min 1 arg that is mention 
-        ## max 2 mention and num of mesg's to delete
-        # if len(args) >= 1 and len(args) <= 2:
-        #     # Check for mentions, must be 1 otherwise error
-        #     mentions = ctx.message.mentions
-        #     if len(mentions) != 1: 
-        #         # There is no mention or more than 1
-        #         await ctx.send('Need to @ mention the user to purge messages from')
-        #         return
-        #     elif len(mentions) == 1:
-        #         # Remove the mention from args and init the num var
-        #         user = mentions[0]
-        #         print(user.mention)
-        #         args.remove(user.mention)
-        #         num = args[0] or 10 # if there was another value it'll set that or default to 10
-        #         print(num)
-
         ####
 
         mentions = ctx.message.mentions
@@ -276,7 +260,7 @@ class Mod():
             args.remove(user.mention)
 
         if args:
-            num = args[0]
+            num = int(args[0])
         else:
             num = 10
         print(num)
@@ -293,7 +277,8 @@ class Mod():
                 return False
             
         # Call channel.purge() limit at 100 and bulk = True
-
+        deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
+        await ctx.send('Deleted {} messages from {}'.format(num, user))
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
