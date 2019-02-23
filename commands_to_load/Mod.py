@@ -271,8 +271,8 @@ class Mod():
         def check(m):
             nonlocal num
             if m.author == user and num > 0:
+                num -=1
                 return True
-                num -= 1
             else:
                 return False
             
