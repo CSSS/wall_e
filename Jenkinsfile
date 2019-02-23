@@ -10,7 +10,7 @@ pipeline {
                     withEnv([
                             'ENVIRONMENT=TEST',
                             "BRANCH=${BRANCH_NAME}",
-                            "COMPOSE_PROJECT_NAME=${env.ENVIRONMENT}_${BRANCH_NAME}"
+                            "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
