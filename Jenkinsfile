@@ -14,12 +14,15 @@ pipeline {
                         GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_${BRANCH}"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
+
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
+
                         String postgresDbPassword='POSTGRES_DB_PASSWORD'
                         String postgresDbPasswordHash='POSTGRES_DB_PASSWORD_HASH'
                         String walleDbPassword='WALL_E_DB_PASSWORD'
                         String walleDbPasswordHash='WALL_E_DB_PASSWORD_HASH'
+
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
@@ -28,7 +31,6 @@ pipeline {
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}"),
                         ]) {
-                            sh "echo COMPOSE_PROJECT_NAME=$COMPOSE_PROJECT_NAME"
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
                             sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"       
                             sh "./database_config_password_setter.sh"
