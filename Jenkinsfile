@@ -31,8 +31,10 @@ pipeline {
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}"),
                         ]) {
-                            sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || docker network prune|| true"                            
-                            sh "docker image rm -f ${testContainerName.toLowerCase()} python:3.5.5-alpine || true"       
+                            sh "docker rm -f ${testContainerName} ${testContainerDBName}"
+                            sh "docker volume rm ${testContainerName}_logs"
+                            sh "docker network rm ${testContainerName.toLowerCase()}_default"                            
+                            sh "docker image rm -f ${COMPOSE_PROJECT_NAME.toLowerCase()}_wall_e"       
                             sh "./database_config_password_setter.sh"
                             sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""
                             sh "docker-compose up -d"
@@ -96,7 +98,7 @@ pipeline {
                                 string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}")
                         ]) {
                             sh "docker rm -f ${productionContainerName} || true"
-                            sh "docker image rm -f ${productionContainerName.toLowerCase()} python:3.5.5-alpine  || true"                                      
+                            sh "docker image rm -f ${productionContainerName.toLowerCase()} || true"                                      
                             sh "docker-compose up -d"
                         }
                         sleep 20
