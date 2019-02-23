@@ -9,9 +9,9 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
-                            "BRANCH=${BRANCH_NAME}"
+                            "BRANCH=${BRANCH_NAME}",
+                            "COMPOSE_PROJECT_NAME=${ENVIRONMENT}_${BRANCH}"
                     ]) {
-                        GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_${BRANCH}"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
 
