@@ -76,11 +76,14 @@ pipeline {
                         GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_master"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
+
                         String postgresDbPassword='POSTGRES_DB_PASSWORD'
                         String postgresDbPasswordHash='POSTGRES_DB_PASSWORD_HASH'
                         String walleDbPassword='WALL_E_DB_PASSWORD'
                         String walleDbPasswordHash='WALL_E_DB_PASSWORD_HASH'
+                        
                         String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
+
                         GString productionContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString productionContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
                         withCredentials([
