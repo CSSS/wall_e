@@ -9,9 +9,9 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
-                            "BRANCH=${BRANCH_NAME}",
-                            "COMPOSE_PROJECT_NAME=${BRANCH_NAME}"
+                            "BRANCH=${BRANCH_NAME}"
                     ]) {
+                        GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_${BRANCH}"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
@@ -32,6 +32,7 @@ pipeline {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || true"                            
                             sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"       
                             sh "./database_config_password_setter.sh"
+                            sh "docker volume create --name="${COMPOSE_PROJECT_NAME}_logs""
                             sh "docker-compose up -d"
                         }
                         sleep 20
@@ -69,8 +70,8 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=PRODUCTION',
-                            "COMPOSE_PROJECT_NAME=PRODUCTION"
                     ]) {
+                        GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_master"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
                         String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
