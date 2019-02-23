@@ -34,7 +34,7 @@ pipeline {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || docker network prune|| true"                            
                             sh "docker image rm -f ${testContainerName.toLowerCase()} python:3.5.5-alpine || true"       
                             sh "./database_config_password_setter.sh"
-                            sh "docker volume create --name="${COMPOSE_PROJECT_NAME}_logs""
+                            sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""
                             sh "docker-compose up -d"
                         }
                         sleep 20
@@ -81,7 +81,7 @@ pipeline {
                         String postgresDbPasswordHash='POSTGRES_DB_PASSWORD_HASH'
                         String walleDbPassword='WALL_E_DB_PASSWORD'
                         String walleDbPasswordHash='WALL_E_DB_PASSWORD_HASH'
-                        
+
                         String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
 
                         GString productionContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
