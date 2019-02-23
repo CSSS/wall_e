@@ -32,7 +32,7 @@ pipeline {
                                 string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}"),
                         ]) {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || docker volume prune || docker network prune|| true"                            
-                            sh "docker image rm -f ${testContainerName.toLowerCase()} postgres python || true"       
+                            sh "docker image rm -f ${testContainerName.toLowerCase()} python:3.5.5-alpine || true"       
                             sh "./database_config_password_setter.sh"
                             sh "docker volume create --name="${COMPOSE_PROJECT_NAME}_logs""
                             sh "docker-compose up -d"
@@ -85,7 +85,7 @@ pipeline {
                                 string(credentialsId: 'BOT_LOG_CHANNEL_ID', variable: "${logChannelEnv}")
                         ]) {
                             sh "docker rm -f ${productionContainerName} || true"
-                            sh "docker image rm -f ${productionContainerName.toLowerCase()} postgres python  || true"                                      
+                            sh "docker image rm -f ${productionContainerName.toLowerCase()} python:3.5.5-alpine  || true"                                      
                             sh "docker-compose up -d"
                         }
                         sleep 20
