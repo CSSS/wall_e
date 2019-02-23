@@ -246,6 +246,17 @@ class Mod():
         # Order of arguments doesn't matter, the code works around it
         args = list(args)
         print(args)
+
+        # Verify Minion
+        logger.info('[Mod purge()] purge function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod purge()] invoking command deleted')
+        
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod purge()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
+            
         # Verify arguments
         ####
 
