@@ -76,13 +76,21 @@ pipeline {
                         GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_master"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
+                        String postgresDbPassword='POSTGRES_DB_PASSWORD'
+                        String postgresDbPasswordHash='POSTGRES_DB_PASSWORD_HASH'
+                        String walleDbPassword='WALL_E_DB_PASSWORD'
+                        String walleDbPasswordHash='WALL_E_DB_PASSWORD_HASH'
                         String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
                         GString productionContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString productionContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
                         withCredentials([
                                 string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
-                                string(credentialsId: 'BOT_LOG_CHANNEL_ID', variable: "${logChannelEnv}")
+                                string(credentialsId: 'BOT_LOG_CHANNEL_ID', variable: "${logChannelEnv}"),
+                                string(credentialsId: 'POSTGRES_DB_PASSWORD', variable: "${postgresDbPassword}"),
+                                string(credentialsId: 'POSTGRES_DB_PASSWORD_HASH', variable: "${postgresDbPasswordHash}"),
+                                string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
+                                string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}")
                         ]) {
                             sh "docker rm -f ${productionContainerName} || true"
                             sh "docker image rm -f ${productionContainerName.toLowerCase()} python:3.5.5-alpine  || true"                                      
