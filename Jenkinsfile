@@ -71,7 +71,7 @@ pipeline {
             steps {
                 script {
                     withEnv([
-                            'ENVIRONMENT=PRODUCTION',
+                            'ENVIRONMENT=PRODUCTION'
                     ]) {
                         GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_master"
                         String tokenEnv = 'TOKEN'
