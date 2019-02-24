@@ -258,6 +258,7 @@ class Mod():
             return
 
         # Verify arguments
+        logger.info('[Mod purge()] verifying arguments')
         mentions = ctx.message.mentions
         if len(mentions) != 1: 
             # There is no mentoin or more than 1
@@ -273,7 +274,8 @@ class Mod():
             num = int(args[0])
         else:
             num = 10
-        print(num)
+        logger.info('[Mod purge()] all arguments verified')
+        logger.info('[Mod purge()] to purge messages from: {}\nNumber of messages to purge: {}'.format(user, num))
 
         # Check command will determine if message is from user. Will need counter
         def check(m):
@@ -286,6 +288,8 @@ class Mod():
             
         # Call channel.purge() limit at 100 and bulk = True
         deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
+        logger.info('[Mod purge()] purged messages: {}'.format(deleted))
+        
         eObj = em(description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
         await ctx.send(embed=eObj, delete_after=5.0)
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
