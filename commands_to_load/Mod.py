@@ -344,17 +344,23 @@ class Mod():
             logger.info('[Mod unmute()] no mention found. Informing user')
             eObj = em(description='You need to @ mention the user to mute', footer='Invalid arguments')
             await ctx.send(embed=eObj, delete_after=5.0)
+            return
         else: 
             user = mentions[0]
         logger.info('[Mod unmute()] user found through mention: {}'.format(user))
 
         # Get muted role
+        MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
 
         # Remove role from the user
+        await user.remove_roles(MUTED_ROLE)
 
         # Tell user of their new freedom and to not abuse it
+        await user.send('You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you\'ll get more than a ban')
 
         # Inform council of actions
+        council = discord.utils.get(ctx.guild.channels, name='council')
+        await council.send('{} unmuted {}'.format(ctx.message.author, user))
 
 #TODO: lock commands, dm warn/other kind of dm'd info etc
 
