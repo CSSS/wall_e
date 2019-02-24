@@ -1,17 +1,16 @@
 import sys
-#import traceback
+import traceback
 import asyncio
 import discord
 import logging
 import datetime
 import pytz
-#import helper_files.testenv
+from helper_files import testenv
 from discord.ext import commands
 from helper_files.logger_setup import LoggerWriter
 import helper_files.settings as settings
-#from helper_files.embed import embed
-#import re
-#import json
+from helper_files.embed import embed as imported_embed
+import re
 
 bot = commands.Bot(command_prefix='.')
 
@@ -103,11 +102,11 @@ async def write_to_bot_log_channel():
 ####################################################
 @bot.event
 async def on_command_error(ctx, error):
-	if helper_files.testenv.TestCog.check_test_environment(ctx):
+	if testenv.TestCog.check_test_environment(ctx):
 		if isinstance(error, commands.MissingRequiredArgument):
 			fmt = 'Missing argument: {0}'
 			logger.error('[main.py on_command_error()] '+fmt.format(error.param))
-			eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
+			eObj = imported_embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
 			await ctx.send(embed=eObj)
 		else:
 			#only prints out an error to the log if the string that was entered doesnt contain just "."
@@ -157,8 +156,6 @@ async def on_message(message):
 async def on_member_join(member):
 
 	if member is not None:
-		from helper_files.embed import embed as imported_embed
-
 		output="Hi, welcome to the SFU CSSS Discord Server\n"
 		output+="\tWe are a group of students who live to talk about classes and nerdy stuff.\n"
 		output+="\tIf you need help, please ping any of our Execs, Execs at large, or First Year Reps.\n"
