@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
-from main import cogs
 import subprocess
+import helper_files.settings as settings
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -12,7 +12,7 @@ class Administration():
 		self.bot = bot
 
 	def validCog(self, name):
-		for cog in cogs:
+		for cog in settings.cogs:
 			if cog["name"] == name:
 				return True, cog["folder"]
 		return False, ''

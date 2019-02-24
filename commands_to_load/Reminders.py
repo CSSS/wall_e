@@ -15,14 +15,7 @@ from helper_files.embed import embed
 import psycopg2
 import os
 import datetime
-from main import ENVIRONMENT
 logger = logging.getLogger('wall_e')
-
-COMPOSE_PROJECT_NAME = os.environ['COMPOSE_PROJECT_NAME']
-logger.info("[main.py] variable \"COMPOSE_PROJECT_NAME\" is set to \""+str(COMPOSE_PROJECT_NAME)+"\"")
-
-WALL_E_DB_PASSWORD = os.environ['WALL_E_DB_PASSWORD']
-logger.info("[main.py] variable \"WALL_E_DB_PASSWORD\" has been set.")
 
 class Reminders():
 
@@ -31,7 +24,13 @@ class Reminders():
 
 		#setting up database connection
 		try:
-			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+COMPOSE_PROJECT_NAME+"_wall_e_db' password='"+WALL_E_DB_PASSWORD+"'")
+			host=None
+			if 'localhost' == settings.ENVIRONMENT:
+				host='127.0.0.1'
+			else:
+				host=COMPOSE_PROJECT_NAME+'_wall_e_db'
+
+			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
 			self.curs.execute("CREATE TABLE IF NOT EXISTS Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp DEFAULT now() + interval '1' year, message varchar(2000) DEFAULT 'INVALID', author_id varchar(500) DEFAULT 'INVALID', author_name varchar(500) DEFAULT 'INVALID', message_id varchar(200) DEFAULT 'INVALID');")
@@ -156,16 +155,16 @@ class Reminders():
 
 		REMINDER_CHANNEL_ID=None
 		BRANCH = None
-		if ENVIRONMENT == 'TEST' and 'BRANCH' not in os.environ:
+		if settings.ENVIRONMENT == 'TEST' and 'BRANCH' not in os.environ:
 			print("[Reminders.py get_messages()] No environment variable \"BRANCH\" seems to exist and this is the discord TEST guild...read the README again")
 			exit(1)	
-		elif ENVIRONMENT == 'TEST'  and 'BRANCH' in os.environ:
+		elif settings.ENVIRONMENT == 'TEST'  and 'BRANCH' in os.environ:
 			BRANCH = os.environ['BRANCH']
 
 		##determines the channel to send the reminder on
 		try:
-			if ENVIRONMENT == 'PRODUCTION':
-				logger.info("[Reminders get_messages()] environment is =["+ENVIRONMENT+"]")
+			if settings.ENVIRONMENT == 'PRODUCTION':
+				logger.info("[Reminders get_messages()] environment is =["+settings.ENVIRONMENT+"]")
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='bot_commands_and_misc')
 				if reminder_chan is None:
 					logger.info("[Reminders get_messages()] reminder channel does not exist in PRODUCTION.")
@@ -179,7 +178,7 @@ class Reminders():
 					logger.info("[Reminders get_messages()] reminder channel exists in PRODUCTION and was detected.")
 					REMINDER_CHANNEL_ID = reminder_chan.id
 	   
-			elif ENVIRONMENT == 'TEST':
+			elif settings.ENVIRONMENT == 'TEST':
 				logger.info("[Reminders get_messages()] branch is =["+BRANCH+"]")
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=BRANCH.lower()+'_reminders')
 				if reminder_chan is None:
