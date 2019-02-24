@@ -256,14 +256,13 @@ class Mod():
             logger.info('[Mod purge()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
-            
-        # Verify arguments
-        ####
 
+        # Verify arguments
         mentions = ctx.message.mentions
         if len(mentions) != 1: 
             # There is no mentoin or more than 1
-            await ctx.send('Need to @ mention the user to purge messages from')
+            eObj = em(description='Need to @ mention the user to purge messages from', footer='Invalid arguments')
+            await ctx.send(embed=eObj)
             return
         elif len(mentions) == 1:
             # Remove the mention from args and init the num var
@@ -276,8 +275,6 @@ class Mod():
             num = 10
         print(num)
 
-        ####
-
         # Check command will determine if message is from user. Will need counter
         def check(m):
             nonlocal num
@@ -289,7 +286,8 @@ class Mod():
             
         # Call channel.purge() limit at 100 and bulk = True
         deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
-        await ctx.send('Deleted {} messages from {}'.format(num, user))
+        eObj = em(description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
+        await ctx.send(embed=eObj, delete_after=5.0)
 #TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
 
 
