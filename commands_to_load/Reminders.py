@@ -28,7 +28,7 @@ class Reminders():
 			if 'localhost' == settings.ENVIRONMENT:
 				host='127.0.0.1'
 			else:
-				host=COMPOSE_PROJECT_NAME+'_wall_e_db'
+				host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
 
 			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -154,12 +154,6 @@ class Reminders():
 		await self.bot.wait_until_ready()
 
 		REMINDER_CHANNEL_ID=None
-		BRANCH = None
-		if settings.ENVIRONMENT == 'TEST' and 'BRANCH' not in os.environ:
-			print("[Reminders.py get_messages()] No environment variable \"BRANCH\" seems to exist and this is the discord TEST guild...read the README again")
-			exit(1)	
-		elif settings.ENVIRONMENT == 'TEST'  and 'BRANCH' in os.environ:
-			BRANCH = os.environ['BRANCH']
 
 		##determines the channel to send the reminder on
 		try:
@@ -179,17 +173,17 @@ class Reminders():
 					REMINDER_CHANNEL_ID = reminder_chan.id
 	   
 			elif settings.ENVIRONMENT == 'TEST':
-				logger.info("[Reminders get_messages()] branch is =["+BRANCH+"]")
-				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=BRANCH.lower()+'_reminders')
+				logger.info("[Reminders get_messages()] branch is =["+settings.BRANCH+"]")
+				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=settings.RANCH.lower()+'_reminders')
 				if reminder_chan is None:
-					reminder_chan = await self.bot.guilds[0].create_text_channel(BRANCH+'_reminders')
+					reminder_chan = await self.bot.guilds[0].create_text_channel(settings.BRANCH+'_reminders')
 					REMINDER_CHANNEL_ID = reminder_chan.id
 					if REMINDER_CHANNEL_ID is None:
-						logger.info("[Reminders get_messages()] the channel designated for reminders ["+BRANCH+"_reminders] in "+str(BRANCH)+" does not exist and I was unable to create it, exiting now....")
+						logger.info("[Reminders get_messages()] the channel designated for reminders ["+settings.BRANCH+"_reminders] in "+str(settings.BRANCH)+" does not exist and I was unable to create it, exiting now....")
 						exit(1)
 					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
 				else:
-					logger.info("[Reminders get_messages()] reminder channel exists in "+str(BRANCH)+" and was detected.")
+					logger.info("[Reminders get_messages()] reminder channel exists in "+str(settings.BRANCH)+" and was detected.")
 					REMINDER_CHANNEL_ID = reminder_chan.id
 			else:
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='reminders')

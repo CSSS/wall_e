@@ -55,6 +55,12 @@ if ENVIRONMENT == 'localhost' or ENVIRONMENT == 'PRODUCTION':
 		BOT_LOG_CHANNEL = int(os.environ['BOT_LOG_CHANNEL_ID'])
 	print("[main.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 
+if ENVIRONMENT == 'TEST':
+	if 'BRANCH' not in os.environ:
+		print("[main.py] No environment variable \"BRANCH\" seems to exist...read the README again")
+		exit(1)
+	BRANCH = os.environ['BRANCH']
+
 print('[main.py] loading cog names from json file')
 with open('commands_to_load/cogs.json') as c:
 	cogs = json.load(c)

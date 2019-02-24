@@ -68,7 +68,7 @@ async def on_ready():
 async def write_to_bot_log_channel():
 	await bot.wait_until_ready()
 	if settings.ENVIRONMENT == 'TEST':
-		branch = os.environ['BRANCH'].lower()
+		branch = settings.BRANCH.lower()
 		log_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_logs')
 		if log_channel is None:
 			log_channel = await bot.guilds[0].create_text_channel(branch + '_logs')
