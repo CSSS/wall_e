@@ -93,11 +93,7 @@ class Mod():
             await self.rekt(ctx)
             return
 
-        roles = ctx.guild.roles
-        for role in roles: 
-            if role.id == 338575090847580160: # convert to envVar
-                MUTED_ROLE = role
-                break
+        MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
 
         ignoreChannels = [
                         417758181784158239, # rules
