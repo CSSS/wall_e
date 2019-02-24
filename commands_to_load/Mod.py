@@ -351,19 +351,26 @@ class Mod():
 
         # Get muted role
         MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
+        logger.info('[Mod unmute()] muted role found: {}'.format(MUTED_ROLE.id))
 
         # Verify user has the muted role
+        logger.info('[Mod unmute()] verifying if {} is muted or not'.format(user))
         if user not in MUTED_ROLE.members:
+            logger.info('[Mod unmute()] {} is not muted. Informing {} of this fact'.format(user, ctx.message.author))
             await ctx.send('{} is not muted so cannot unmute'.format(user))
             return
+        logger.info('[Mod unmute()] {} verified to be muted'.format(user))
 
         # Remove role from the user
         await user.remove_roles(MUTED_ROLE)
+        logger.info('[Mod unmute()] removed muted role from {}'.format(user))
 
         # Tell user of their new freedom and to not abuse it
+        logger.info('[Mod unmute()] letting {} know they\'ve been unmuted and to not do something stupid again')
         await user.send('You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you\'ll get more than a ban')
 
         # Inform council of actions
+        logger.info('[Mod unmute()] telling council of the unmuting')
         council = discord.utils.get(ctx.guild.channels, name='council')
         await council.send('{} unmuted {}'.format(ctx.message.author, user))
 
