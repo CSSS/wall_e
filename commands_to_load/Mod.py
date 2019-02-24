@@ -333,6 +333,29 @@ class Mod():
         eObj = em(description='{} muted {}'.format(ctx.message.author, user))
         await council.send(embed=eObj)
 
+    @commands.command()
+    async def unmute(self, ctx):
+        # Unmutes user by removed the muted role from them
+
+        # Verify mention
+        logger.info('[Mod unmute()] checking for mention')
+        mentions = ctx.message.mentions
+        if len(mentions) != 1:
+            logger.info('[Mod unmute()] no mention found. Informing user')
+            eObj = em(description='You need to @ mention the user to mute', footer='Invalid arguments')
+            await ctx.send(embed=eObj, delete_after=5.0)
+        else: 
+            user = mentions[0]
+        logger.info('[Mod unmute()] user found through mention: {}'.format(user))
+
+        # Get muted role
+
+        # Remove role from the user
+
+        # Tell user of their new freedom and to not abuse it
+
+        # Inform council of actions
+
 #TODO: lock commands, dm warn/other kind of dm'd info etc
 
 
