@@ -352,6 +352,11 @@ class Mod():
         # Get muted role
         MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
 
+        # Verify user has the muted role
+        if user not in MUTED_ROLE.members:
+            await ctx.send('{} is not muted so cannot unmute'.format(user))
+            return
+
         # Remove role from the user
         await user.remove_roles(MUTED_ROLE)
 
