@@ -15,7 +15,7 @@ if [[ "$ENVIRONMENT" == 'localhost' ]]; then
 	#sudo -iu postgres
 	psql -U postgres -f local_development/backup.sql postgres
 elif [[ "$ENVIRONMENT" == 'TEST' ]] || [[ "$ENVIRONMENT" == 'PRODUCTION' ]]; then
-	postgresLine="ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD '${POSTGRES_DB_PASSWORD_HASH}';"
+	#postgresLine="ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD '${POSTGRES_DB_PASSWORD_HASH}';"
 	walleLine="ALTER ROLE wall_e WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD '${WALL_E_DB_PASSWORD_HASH}';"
 
 	DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
@@ -24,6 +24,6 @@ elif [[ "$ENVIRONMENT" == 'TEST' ]] || [[ "$ENVIRONMENT" == 'PRODUCTION' ]]; the
 
 	mkdir database_config_file
 	cp helper_files/backup.sql database_config_file/backup.sql
-	sed -i '/ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD/c\'"$postgresLine" database_config_file/backup.sql
+	#sed -i '/ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD/c\'"$postgresLine" database_config_file/backup.sql
 	sed -i '/ALTER ROLE wall_e WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD/c\'"$walleLine" database_config_file/backup.sql
 fi
