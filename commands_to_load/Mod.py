@@ -377,6 +377,23 @@ class Mod():
         council = discord.utils.get(ctx.guild.channels, name='council')
         await council.send('{} unmuted {}'.format(ctx.message.author, user))
 
+    @commands.command()
+    async def lock(self, ctx):
+        # Disable everyone perms on channel for sending
+        # Add Minions exception to above
+        # Tell Council
+
+        logger.info('[Mod makechannel()] makechannel function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod makechannel()] invoking command deleted')
+
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod makechannel()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
+
+
+
 #TODO: lock commands, dm warn/other kind of dm'd info etc
 
 
