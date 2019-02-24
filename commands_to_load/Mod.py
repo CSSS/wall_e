@@ -312,7 +312,8 @@ class Mod():
         mentions = ctx.message.mentions
         if len(mentions) != 1:
             logger.info('[Mod mute()] no mention found. Informing user')
-            await ctx.send('You need to @ mention the user to mute', delete_after=5.0)
+            eObj = em(description='You need to @ mention the user to mute', footer='Invalid arguments')
+            await ctx.send(embed=eObj, delete_after=5.0)
         else: 
             user = mentions[0]
         logger.info('[Mod mute()] user found through mention: {}'.format(user))
@@ -327,7 +328,8 @@ class Mod():
 
         # Tell them in dm
         logger.info('[Mod mute()] informing {} that they are muted in dm'.format(user))
-        await user.send('You\'ve been muted. message a minion to learn why and how to be unmuted')
+        eObj = em(title='Moderator action was taken against you', colour=0xff0000, description='You\'ve been muted in the CSSS server. Message a minion to learn why and how to be unmuted', footer='Moderator action')
+        await user.send(embed=eObj)
         #TODO add something ^ to react to msg council for reconsideration slash reach out to u
 
         # Tell council of action 
@@ -336,9 +338,10 @@ class Mod():
         logger.info('[Mod mute()] council channel found: {}'.format(council.id))
 
         logger.info('[Mod mute()] informing council of {}\'s action to mute {}'.format(ctx.message.author, user))
-        await council.send('{} muted {}'.format(ctx.message.author, user))
+        eObj = em(description='{} muted {}'.format(ctx.message.author, user))
+        await council.send(embed=eObj)
 
-#TODO: lock commands, dm warn/other kind of dm'd info etc, mute
+#TODO: lock commands, dm warn/other kind of dm'd info etc
 
 
 def setup(bot):
