@@ -1,7 +1,7 @@
 import sys
 #import traceback
 import asyncio
-#import discord
+import discord
 import logging
 import datetime
 import pytz
