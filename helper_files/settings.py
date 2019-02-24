@@ -46,6 +46,7 @@ if ENVIRONMENT != 'localhost':
 	if 'COMPOSE_PROJECT_NAME' not in os.environ:
 		print("[main.py] No environment variable \"COMPOSE_PROJECT_NAME\" seems to exist...read the README again")
 		exit(1)
+	COMPOSE_PROJECT_NAME = os.environ['COMPOSE_PROJECT_NAME']
 
 if ENVIRONMENT == 'localhost' or ENVIRONMENT == 'PRODUCTION':
 	if 'BOT_LOG_CHANNEL_ID' not in os.environ:
