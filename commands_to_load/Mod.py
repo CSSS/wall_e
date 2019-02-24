@@ -357,7 +357,8 @@ class Mod():
         logger.info('[Mod unmute()] verifying if {} is muted or not'.format(user))
         if user not in MUTED_ROLE.members:
             logger.info('[Mod unmute()] {} is not muted. Informing {} of this fact'.format(user, ctx.message.author))
-            await ctx.send('{} is not muted so cannot unmute'.format(user))
+            eObj = em(description='{} is not muted so cannot unmute'.format(user), footer='Invalid arguments')
+            await ctx.send(embed=eObj)
             return
         logger.info('[Mod unmute()] {} verified to be muted'.format(user))
 
@@ -367,7 +368,8 @@ class Mod():
 
         # Tell user of their new freedom and to not abuse it
         logger.info('[Mod unmute()] letting {} know they\'ve been unmuted and to not do something stupid again')
-        await user.send('You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you\'ll get more than a ban')
+        eObj = em(description='You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you\'ll get more than a ban', footer='Moderator action')
+        await user.send(embed=eObj)
 
         # Inform council of actions
         logger.info('[Mod unmute()] telling council of the unmuting')
