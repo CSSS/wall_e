@@ -291,7 +291,34 @@ class Mod():
         
         eObj = em(description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
         await ctx.send(embed=eObj, delete_after=5.0)
-#TODO: lock commands, dm warn/other kind of dm'd info etc, mass msg delete, mute
+
+    @commands.command()
+    async def mute(self, ctx):
+        # Adds mute role to someone
+
+        # Check for mention
+        # If there get user
+        mentions = ctx.message.mentions
+        if len(mentions) != 1: 
+            await ctx.send('You need to @ mention the user to mute', delete_after=5.0)
+        else: 
+            user = mentions[0]
+
+        # Grab the Muted role
+        MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
+
+        # Add muted role to user
+        await user.add_roles(MUTED_ROLE)
+
+        # Tell them in dm
+        await user.send('You\'ve been muted. message a minion to learn why and how to be unmuted')
+        #TODO add something ^ to react to msg council for reconsideration slash reach out to u
+
+        # Tell council of action 
+        council = discord.utils.get(ctx.guild.channels, name='council')
+        await council.send('{} muted {}'.format(ctx.message.author, user))
+
+#TODO: lock commands, dm warn/other kind of dm'd info etc, mute
 
 
 def setup(bot):
