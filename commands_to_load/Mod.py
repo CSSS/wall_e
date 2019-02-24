@@ -392,6 +392,23 @@ class Mod():
             await self.rekt(ctx)
             return
 
+        # Get channel
+        channel = ctx.channel
+
+        # Get Minions role
+        MINIONS_ROLE = discord.utils.get(ctx.guild.roles, name='Minions')
+
+        # Edit channel with new permissions
+        await channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await channel.set_permissions(MINIONS_ROLE, send_messages=True)
+
+        # Message channel to notify the status
+        await ctx.send('This channel is now locked tigher than a nun p***y')
+
+        # Inform council of the locked channel
+        council = discord.utils.get(ctx.guild.channels, name='council')
+        await council.send('{} locked {}'.format(ctx.message.author, channel.mention))
+
 
 
 #TODO: lock commands, dm warn/other kind of dm'd info etc
