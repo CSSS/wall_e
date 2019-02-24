@@ -383,29 +383,34 @@ class Mod():
         # Add Minions exception to above
         # Tell Council
 
-        logger.info('[Mod makechannel()] makechannel function detected by user' + str(ctx.message.author))
+        logger.info('[Mod lock()] lock function detected by user' + str(ctx.message.author))
         await ctx.message.delete()
-        logger.info('[Mod makechannel()] invoking command deleted')
+        logger.info('[Mod lock()] invoking command deleted')
 
         if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
-            logger.info('[Mod makechannel()] unathorized command attempt detected. Being handled.')
+            logger.info('[Mod lock()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
 
         # Get channel
         channel = ctx.channel
+        logger.info('[Mod lock()] channel to unmute: {}'.format(channel.id))
 
         # Get Minions role
         MINIONS_ROLE = discord.utils.get(ctx.guild.roles, name='Minions')
+        logger.info('[Mod lock()] minion role found: {}'.format(MINIONS_ROLE.id))
 
         # Edit channel with new permissions
+        logger.info('[Mod lock()] editing {} permissions'.format(channel))
         await channel.set_permissions(ctx.guild.default_role, send_messages=False)
         await channel.set_permissions(MINIONS_ROLE, send_messages=True)
 
         # Message channel to notify the status
+        logger.info('[Mod lock()] lock message sent to {}'.format(channel))
         await ctx.send('This channel is now locked tigher than a nun p***y')
 
         # Inform council of the locked channel
+        logger.info('[Mod lock()] council informed of locked channel')
         council = discord.utils.get(ctx.guild.channels, name='council')
         await council.send('{} locked {}'.format(ctx.message.author, channel.mention))
 
