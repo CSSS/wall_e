@@ -22,6 +22,7 @@ elif [[ "$ENVIRONMENT" == 'TEST' ]] || [[ "$ENVIRONMENT" == 'PRODUCTION' ]]; the
 	cd $DIR/../
 	pwd
 
+	mkdir database_config_file
 	cp helper_files/backup.sql database_config_file/backup.sql
 	sed -i '/ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD/c\'"$postgresLine" database_config_file/backup.sql
 	sed -i '/ALTER ROLE wall_e WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD/c\'"$walleLine" database_config_file/backup.sql
