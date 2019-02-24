@@ -306,6 +306,7 @@ class Mod():
             logger.info('[Mod mute()] no mention found. Informing user')
             eObj = em(description='You need to @ mention the user to mute', footer='Invalid arguments')
             await ctx.send(embed=eObj, delete_after=5.0)
+            return
         else: 
             user = mentions[0]
         logger.info('[Mod mute()] user found through mention: {}'.format(user))
