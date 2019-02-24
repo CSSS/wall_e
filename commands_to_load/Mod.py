@@ -295,6 +295,16 @@ class Mod():
     @commands.command()
     async def mute(self, ctx):
         # Adds mute role to someone
+        
+        # Verify Minion
+        logger.info('[Mod mute()] mute function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod mute()] invoking command deleted')
+        
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod mute()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
 
         # Check for mention
         # If there get user
