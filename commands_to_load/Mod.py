@@ -166,11 +166,7 @@ class Mod():
             return
 
         # Get the MUTED role
-        roles = ctx.guild.roles
-        for role in roles: 
-            if role.id == 338575090847580160:
-                MUTED_ROLE = role
-                break
+        MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
 
         overwrite = {
             ctx.guild.default_role : discord.PermissionOverwrite(mention_everyone=False),
