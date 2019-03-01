@@ -11,4 +11,3 @@ RUN apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt && 
 COPY . .
 
 CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
-#CMD ["python", "./main.py" ]
