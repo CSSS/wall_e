@@ -9,7 +9,6 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
-                            "BRANCH=${BRANCH_NAME}",
                             "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}"
                     ]) {
                         String tokenEnv = 'TOKEN'
@@ -35,7 +34,6 @@ pipeline {
                             sh "docker volume rm ${testContainerName}_logs || true"
                             sh "docker network rm ${testContainerName.toLowerCase()}_default || true"                            
                             sh "docker image rm -f ${COMPOSE_PROJECT_NAME.toLowerCase()}_wall_e || true"       
-                            sh "./helper_files/database_config_password_setter.sh"
                             sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""
                             sh "docker-compose up -d"
                         }

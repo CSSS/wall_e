@@ -87,10 +87,11 @@ if ENVIRONMENT == 'PRODUCTION':
 	print("[settings.py] variable \"BOT_LOG_CHANNEL\" is set to \""+str(BOT_LOG_CHANNEL)+"\"")
 
 if ENVIRONMENT == 'TEST':
-	if 'BRANCH' not in os.environ:
-		print("[settings.py] No environment variable \"BRANCH\" seems to exist...read the README again")
+	if 'BRANCH_NAME' not in os.environ:
+		print("[settings.py] No environment variable \"BRANCH_NAME\" seems to exist...read the README again")
 		exit(1)
-	BRANCH = os.environ['BRANCH']
+	BRANCH_NAME = os.environ['BRANCH_NAME']
+	print("[settings.py] variable \"BRANCH_NAME\" is set to \""+str(BRANCH_NAME)+"\"")
 
 print('[settings.py] loading cog names from json file')
 with open('commands_to_load/cogs.json') as c:

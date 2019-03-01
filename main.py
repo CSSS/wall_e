@@ -155,7 +155,7 @@ async def write_to_bot_log_channel():
 		
 		log_channel_name=''
 		if settings.ENVIRONMENT == 'TEST':
-			log_channel_name=settings.BRANCH.lower() + '_logs'
+			log_channel_name=settings.BRANCH_NAME.lower() + '_logs'
 		else:
 			log_channel_name=settings.ENVIRONMENT.lower() + '_logs'
 

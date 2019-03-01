@@ -174,17 +174,17 @@ class Reminders():
 					REMINDER_CHANNEL_ID = reminder_chan.id
 	   
 			elif settings.ENVIRONMENT == 'TEST':
-				logger.info("[Reminders get_messages()] branch is =["+settings.BRANCH+"]")
-				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=settings.BRANCH.lower()+'_reminders')
+				logger.info("[Reminders get_messages()] branch is =["+settings.BRANCH_NAME+"]")
+				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=settings.BRANCH_NAME.lower()+'_reminders')
 				if reminder_chan is None:
-					reminder_chan = await self.bot.guilds[0].create_text_channel(settings.BRANCH+'_reminders')
+					reminder_chan = await self.bot.guilds[0].create_text_channel(settings.BRANCH_NAME+'_reminders')
 					REMINDER_CHANNEL_ID = reminder_chan.id
 					if REMINDER_CHANNEL_ID is None:
-						logger.info("[Reminders get_messages()] the channel designated for reminders ["+settings.BRANCH+"_reminders] in "+str(settings.BRANCH)+" does not exist and I was unable to create it, exiting now....")
+						logger.info("[Reminders get_messages()] the channel designated for reminders ["+settings.BRANCH_NAME+"_reminders] in "+str(settings.BRANCH_NAME)+" does not exist and I was unable to create it, exiting now....")
 						exit(1)
 					logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""+str(REMINDER_CHANNEL_ID)+"\"")
 				else:
-					logger.info("[Reminders get_messages()] reminder channel exists in "+str(settings.BRANCH)+" and was detected.")
+					logger.info("[Reminders get_messages()] reminder channel exists in "+str(settings.BRANCH_NAME)+" and was detected.")
 					REMINDER_CHANNEL_ID = reminder_chan.id
 			else:
 				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=settings.ENVIRONMENT.lower()+'reminders')
