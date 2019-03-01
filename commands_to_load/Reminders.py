@@ -29,8 +29,9 @@ class Reminders():
 				host='127.0.0.1'
 			else:
 				host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
-
-			conn = psycopg2.connect("dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'")
+			dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
+			logger.info("[Reminders __init__] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
+			conn = psycopg2.connect(dbConnectionString)
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			self.curs = conn.cursor()
 			self.curs.execute("CREATE TABLE IF NOT EXISTS Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, reminder_date timestamp DEFAULT now() + interval '1' year, message varchar(2000) DEFAULT 'INVALID', author_id varchar(500) DEFAULT 'INVALID', author_name varchar(500) DEFAULT 'INVALID', message_id varchar(200) DEFAULT 'INVALID');")
