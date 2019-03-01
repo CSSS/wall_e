@@ -17,18 +17,24 @@ pipeline {
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
 
-                        String postgresDbPassword='POSTGRES_DB_PASSWORD'
-                        String postgresDbPasswordHash='POSTGRES_DB_PASSWORD_HASH'
+                        String postgresDbUser='POSTGRES_DB_USER'
+                        String postgresDbPassword='POSTGRES_PASSWORD'
+                        String postgresDbName='POSTGRES_DB_DBNAME'
+
+                        String walleDbUser='WALL_E_DB_USER'
                         String walleDbPassword='WALL_E_DB_PASSWORD'
-                        String walleDbPasswordHash='WALL_E_DB_PASSWORD_HASH'
+                        String walleDbName='WALL_E_DB_DBNAME'
 
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
-                                string(credentialsId: 'POSTGRES_DB_PASSWORD', variable: "${postgresDbPassword}"),
-                                string(credentialsId: 'POSTGRES_DB_PASSWORD_HASH', variable: "${postgresDbPasswordHash}"),
+                                string(credentialsId: 'POSTGRES_DB_USER', variable: "${postgresDbUser}"),
+                                string(credentialsId: 'POSTGRES_PASSWORD', variable: "${postgresDbPassword}"),
+                                string(credentialsId: 'POSTGRES_DB_DBNAME', variable: "${postgresDbName}"),
+                                string(credentialsId: 'WALL_E_DB_USER', variable: "${walleDbUser}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
-                                string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}"),
+                                string(credentialsId: 'WALL_E_DB_DBNAME', variable: "${walleDbName}"),
+
                         ]) {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"
                             sh "docker volume rm ${testContainerName}_logs || true"
