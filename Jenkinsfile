@@ -33,9 +33,10 @@ pipeline {
 
                         ]) {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"
-                            sh "docker volume rm ${testContainerName}_logs || true"
-                            sh "docker network rm ${testContainerName.toLowerCase()}_default || true"                            
-                            sh "docker image rm -f ${COMPOSE_PROJECT_NAME.toLowerCase()}_wall_e || true"       
+                            sh "docker volume rm ${COMPOSE_PROJECT_NAME}_logs || true"
+                            sh "docker network rm ${COMPOSE_PROJECT_NAME.toLowerCase()}_default || true"
+                            sh "docker image rm -f ${testContainerName.toLowerCase()} || true"
+
                             sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""
                             sh "docker-compose up -d"
                         }
