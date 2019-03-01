@@ -4,3 +4,5 @@ yarl<1.2
 wolframalpha
 bs4
 psycopg2
+git+https://github.com/Rapptz/discord.py@3f06f247c039a23948e7bb0014ea31db533b4ba2#egg=discord.py[voice]
+psycopg2-binary
