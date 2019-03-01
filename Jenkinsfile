@@ -9,7 +9,11 @@ pipeline {
                 script {
                     withEnv([
                             'ENVIRONMENT=TEST',
-                            "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}"
+                            "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}",
+                            'POSTGRES_DB_USER=postgres',
+                            'POSTGRES_DB_DBNAME=postgres',
+                            'WALL_E_DB_USER=wall_e',
+                            'WALL_E_DB_DBNAME=csss_discord_db'
                     ]) {
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
@@ -17,23 +21,15 @@ pipeline {
                         GString testContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString testContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
 
-                        String postgresDbUser='POSTGRES_DB_USER'
                         String postgresDbPassword='POSTGRES_PASSWORD'
-                        String postgresDbName='POSTGRES_DB_DBNAME'
 
-                        String walleDbUser='WALL_E_DB_USER'
                         String walleDbPassword='WALL_E_DB_PASSWORD'
-                        String walleDbName='WALL_E_DB_DBNAME'
 
                         withCredentials([
                                 string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
-                                string(credentialsId: 'POSTGRES_DB_USER', variable: "${postgresDbUser}"),
                                 string(credentialsId: 'POSTGRES_PASSWORD', variable: "${postgresDbPassword}"),
-                                string(credentialsId: 'POSTGRES_DB_DBNAME', variable: "${postgresDbName}"),
-                                string(credentialsId: 'WALL_E_DB_USER', variable: "${walleDbUser}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
-                                string(credentialsId: 'WALL_E_DB_DBNAME', variable: "${walleDbName}"),
 
                         ]) {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"
@@ -77,32 +73,34 @@ pipeline {
             steps {
                 script {
                     withEnv([
-                            'ENVIRONMENT=PRODUCTION'
+                            'ENVIRONMENT=PRODUCTION',
+                            'POSTGRES_DB_USER=postgres',
+                            'POSTGRES_DB_DBNAME=postgres',
+                            'WALL_E_DB_USER=wall_e',
+                            'WALL_E_DB_DBNAME=csss_discord_db'
                     ]) {
-                        GString COMPOSE_PROJECT_NAME="${ENVIRONMENT}_master"
+                        String COMPOSE_PROJECT_NAME="PRODUCTION_MASTER"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
 
-                        String postgresDbPassword='POSTGRES_DB_PASSWORD'
-                        String postgresDbPasswordHash='POSTGRES_DB_PASSWORD_HASH'
-                        String walleDbPassword='WALL_E_DB_PASSWORD'
-                        String walleDbPasswordHash='WALL_E_DB_PASSWORD_HASH'
-
-                        String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
-
                         GString productionContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
                         GString productionContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
+
+                        String postgresDbPassword='POSTGRES_PASSWORD'
+
+                        String walleDbPassword='WALL_E_DB_PASSWORD'
+
+                        String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
                         withCredentials([
                                 string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}"),
                                 string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
                                 string(credentialsId: 'BOT_LOG_CHANNEL_ID', variable: "${logChannelEnv}"),
-                                string(credentialsId: 'POSTGRES_DB_PASSWORD', variable: "${postgresDbPassword}"),
-                                string(credentialsId: 'POSTGRES_DB_PASSWORD_HASH', variable: "${postgresDbPasswordHash}"),
+                                string(credentialsId: 'POSTGRES_PASSWORD', variable: "${postgresDbPassword}"),
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
-                                string(credentialsId: 'WALL_E_DB_PASSWORD_HASH', variable: "${walleDbPasswordHash}")
                         ]) {
                             sh "docker rm -f ${productionContainerName} || true"
-                            sh "docker image rm -f ${productionContainerName.toLowerCase()} || true"                                      
+                            sh "docker image rm -f ${productionContainerName.toLowerCase()}_wall_e || true"
+                            sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""                                    
                             sh "docker-compose up -d"
                         }
                         sleep 20
