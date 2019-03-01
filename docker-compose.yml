@@ -9,7 +9,12 @@ services:  #Services that are needed for the wall_e app
             - TOKEN
             - COMPOSE_PROJECT_NAME
             - BRANCH
+            - WALL_E_DB_USER
+            - WALL_E_DB_DBNAME
             - WALL_E_DB_PASSWORD
+            - POSTGRES_DB_USER
+            - POSTGRES_DB_DBNAME
+            - POSTGRES_PASSWORD
         volumes: #volume are for hot reload
             - logs:/usr/src/app/logs
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
@@ -17,8 +22,7 @@ services:  #Services that are needed for the wall_e app
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
     db: #declaration of the postgres container
         environment:
-            - POSTGRES_DB_PASSWORD
-            - WALL_E_DB_PASSWORD
+            - POSTGRES_PASSWORD
         image: postgres:alpine #using postgres image
         volumes: #used to pass the folder that contains the configuration for the database
             - ./database_config_file:/docker-entrypoint-initdb.d

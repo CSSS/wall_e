@@ -11,7 +11,7 @@ from helper_files.logger_setup import LoggerWriter
 import helper_files.settings as settings
 from helper_files.embed import embed as imported_embed
 import re
-
+import psycopg2
 bot = commands.Bot(command_prefix='.')
 
 
@@ -41,6 +41,85 @@ def createLogFile(formatter,logger):
 	filehandler.setFormatter(formatter)
 	logger.addHandler(filehandler)
 
+###############################
+## SETUP DATABASE CONNECTION ##
+###############################
+
+def setupDB():
+	try:
+		host=None
+		if 'localhost' == settings.ENVIRONMENT:
+			host='127.0.0.1'
+		else:
+			host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
+		dbConnectionString="dbname='"+settings.POSTGRES_DB_DBNAME+"' user='"+settings.POSTGRES_DB_USER+"' host='"+host+"' password='"+settings.POSTGRES_PASSWORD+"'"
+		logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='"+settings.POSTGRES_DB_DBNAME+"' user='"+settings.POSTGRES_DB_USER+"' host='"+host+"' password='*****']")
+		postgresConn = psycopg2.connect(dbConnectionString)
+		logger.info("[main.py setupDB] PostgreSQL connection established")
+		postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+		postgresCurs = postgresConn.cursor()
+
+		#these two parts is using a complicated DO statement because apparently postgres does not have an "if not exist" clause for roles or databases, only tables
+		#moreover, this is done to localhost and not any other environment cause with the TEST guild, the databases are always brand new fresh with each time the script get launched
+		if 'localhost' == settings.ENVIRONMENT or'PRODUCTION' == settings.ENVIRONMENT:
+			#aquired from https://stackoverflow.com/a/8099557/7734535
+			sqlQuery="""DO
+						$do$
+						BEGIN
+							IF NOT EXISTS (
+								SELECT                       -- SELECT list can stay empty for this
+								FROM   pg_catalog.pg_roles
+								WHERE  rolname = '"""+settings.WALL_E_DB_USER+"""') THEN
+								CREATE ROLE """+settings.WALL_E_DB_USER+""" WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS ENCRYPTED PASSWORD '"""+settings.WALL_E_DB_PASSWORD+"""';
+							END IF;
+						END
+						$do$;"""
+			postgresCurs.execute(sqlQuery)
+		else:
+			postgresCurs.execute("CREATE ROLE "+settings.WALL_E_DB_USER+" WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS ENCRYPTED PASSWORD '"+settings.WALL_E_DB_PASSWORD+"';")
+		logger.info("[main.py setupDB] "+settings.WALL_E_DB_USER+" role created")
+
+		if 'localhost' == settings.ENVIRONMENT or 'PRODUCTION' == settings.ENVIRONMENT:
+			sqlQuery="""DO
+						$do$
+						BEGIN
+						IF NOT EXISTS (
+							SELECT                       -- SELECT list can stay empty for this
+							FROM   pg_database
+							WHERE  datname = '"""+settings.WALL_E_DB_DBNAME+"""') THEN
+							CREATE DATABASE """+settings.WALL_E_DB_DBNAME+""" WITH OWNER """+settings.WALL_E_DB_USER+""" TEMPLATE = template0;
+						END IF;
+						END
+						$do$;"""
+			postgresCurs.execute(sqlQuery)
+		else:
+			postgresCurs.execute("CREATE DATABASE "+settings.WALL_E_DB_DBNAME+" WITH OWNER "+settings.WALL_E_DB_USER+" TEMPLATE = template0;")
+		
+		logger.info("[main.py setupDB] "+settings.WALL_E_DB_DBNAME+" database created")
+
+		#this section exists cause of this backup.sql that I had exported from an instance of a Postgres with which I had created the csss_discord_db
+		#https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
+		dbConnectionString="dbname='"+settings.WALL_E_DB_DBNAME+"' user='"+settings.POSTGRES_DB_USER+"' host='"+host+"' password='"+settings.POSTGRES_PASSWORD+"'"
+		logger.info("[main.py setupDB] Wall_e User dbConnectionString=[dbname='"+settings.WALL_E_DB_DBNAME+"' user='"+settings.POSTGRES_DB_USER+"' host='"+host+"' password='*****']")
+		walleConn = psycopg2.connect(dbConnectionString)
+		logger.info("[main.py setupDB] PostgreSQL connection established")
+		walleConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+		walleCurs = walleConn.cursor()
+		walleCurs.execute("SET statement_timeout = 0;")
+		walleCurs.execute("SET default_transaction_read_only = off;")
+		walleCurs.execute("SET lock_timeout = 0;")
+		walleCurs.execute("SET idle_in_transaction_session_timeout = 0;")
+		walleCurs.execute("SET client_encoding = 'UTF8';")
+		walleCurs.execute("SET standard_conforming_strings = on;")
+		walleCurs.execute("SELECT pg_catalog.set_config('search_path', '', false);")
+		walleCurs.execute("SET check_function_bodies = false;")
+		walleCurs.execute("SET client_min_messages = warning;")
+		walleCurs.execute("SET row_security = off;")
+		walleCurs.execute("CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;")
+		walleCurs.execute("COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';")
+	except Exception as e:
+		logger.error("[main.py setupDB] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
+
 ##################################################
 ## signals to all functions that use            ##
 ## "wait_until_ready" that the bot is now ready ##
@@ -66,26 +145,46 @@ async def on_ready():
 ##################################################################################################
 async def write_to_bot_log_channel():
 	await bot.wait_until_ready()
-	if settings.ENVIRONMENT == 'TEST':
-		branch = settings.BRANCH.lower()
-		log_channel = discord.utils.get(bot.guilds[0].channels, name=branch + '_logs')
+
+	# only environment that doesn't do automatic creation of the bot_log channel is the PRODUCTION guild.
+	# Production is a permanant channel so that it can be persistent. As for localhost,
+	# the idea was that this removes a dependence on the user to make the channel and shifts that responsibility to the script itself.
+	# thereby requiring less effort from the user
+	bot_log_channel = None
+	if settings.ENVIRONMENT != 'PRODUCTION':
+		
+		log_channel_name=''
+		if settings.ENVIRONMENT == 'TEST':
+			log_channel_name=settings.BRANCH.lower() + '_logs'
+		else:
+			log_channel_name=settings.ENVIRONMENT.lower() + '_logs'
+
+		log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
+
 		if log_channel is None:
-			log_channel = await bot.guilds[0].create_text_channel(branch + '_logs')
-		settings.BOT_LOG_CHANNEL = log_channel.id
-	channel = bot.get_channel(settings.BOT_LOG_CHANNEL) # channel ID goes here
-	if channel is None:
-		logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id " +str(settings.BOT_LOG_CHANNEL) +" . Please investigate further")
+			log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
+		bot_log_channel = log_channel.id
 	else:
-		logger.info("[main.py write_to_bot_log_channel] bot_log channel with id " +str(settings.BOT_LOG_CHANNEL) +" successfully retrieved.")
+		bot_log_channel = settings.BOT_LOG_CHANNEL
+	channel = bot.get_channel(bot_log_channel) # channel ID goes here
+	
+	if channel is None:
+		logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id " +str(bot_log_channel) +" . Please investigate further")
+	else:
+		logger.info("[main.py write_to_bot_log_channel] bot_log channel with id " +str(bot_log_channel) +" successfully retrieved.")
 		while not bot.is_closed():
 			f.flush()
 			line = f.readline()
 			while line:
 				if line.strip() != "":
+
+					#this was done so that no one gets accidentally pinged from the bot log channel
 					line=line.replace("@","[at]")
 					if line[0] == ' ':
 						line = "." + line
 					output=line
+
+					#done because discord has a character limit of 2000 for each message
 					if len(line)>2000:
 						prefix="truncated output="
 						line = prefix+line
@@ -183,6 +282,7 @@ if __name__ == "__main__":
 	FILENAME = None
 	logger = initalizeLogger()
 	logger.info("[main.py] Wall-E is starting up")
+	setupDB()
 
 	## tries to open log file in prep for write_to_bot_log_channel function
 	try:
