@@ -81,12 +81,12 @@ Pre-requisites: `git`.
       1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
       1. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
          1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
-      1. Run `export POSTGRES_DB_USER='admin user of your local postgres instance'`
-      1. Run `export POSTGRES_DB_DBNAME='<default database of the postgres username on your local postgres instance>'`
+      1. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
+      1. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
       1. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
-      1. Run `export WALL_E_DB_USER='whatever username you want to use for the wall_e user on the database>'`
-      1. Run `export WALL_E_DB_DBNAME='whatever name you want to use for the wall_e database on your local postgres instance>'`
-      1. Run `export WALL_E_DB_PASSWORD='whatever password you want to set for the wall_e user on your local postgres instance>'`
+      1. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
+      1. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
+      1. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
       1. Run `python3.5 main.py`  
 1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
