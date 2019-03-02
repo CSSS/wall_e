@@ -27,7 +27,7 @@ March 2019 Revision 2
    - [Local Testing Recommended Procedures](#local-testing-recommended-procedures)
      - [Local Testing Outside of a Container](#local-testing-outside-of-a-container)
      - [Local Testing Inside of a Container](#local-testing-inside-of-a-container)
-   - [The Role of Redis in the RemindMe Command](#the-role-of-redis-in-the-remindme-command)
+   - [The Role of Postgres in the RemindMe Command](#the-role-of-postgres-in-the-remindme-command)
  - [Changelog](#changelog)
 
 ## Architecture
@@ -169,4 +169,4 @@ Postgres is an open source object-relational database management system. Wall-E 
 ||||
 |---|---|---|
 |August 2018|Revision 1|Initial Version|
-|March 2019|Revision 2|Update Architecture to Use PostgreSQL inside of containers instead of on the localhost|
+|March 2019|Revision 2|Update Architecture to Use PostgreSQL inside of containers instead of on Redis the localhost|
