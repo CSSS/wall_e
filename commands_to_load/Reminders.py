@@ -187,7 +187,7 @@ class Reminders():
 					logger.info("[Reminders get_messages()] reminder channel exists in "+str(settings.BRANCH_NAME)+" and was detected.")
 					REMINDER_CHANNEL_ID = reminder_chan.id
 			else:
-				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=settings.ENVIRONMENT.lower()+'reminders')
+				reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=settings.ENVIRONMENT.lower()+'_reminders')
 				if reminder_chan is None:
 					reminder_chan = await self.bot.guilds[0].create_text_channel('localhost_reminders')
 					REMINDER_CHANNEL_ID = reminder_chan.id
