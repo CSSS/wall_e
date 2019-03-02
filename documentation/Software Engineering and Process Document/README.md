@@ -34,7 +34,8 @@ March 2019 Revision 2
 
 ### Overview
 
-![Image of Overview](overview.png) 
+![Image of CICD Overview](overview.png) 
+![Image of Docker App](wall_e_docker_architecture.jpg) 
 
 The Wall-E repository is synchronized with the Wall-E bot associated with the provided bot token. This is done using a continuous integration system known as Jenkins. The output of this automated process is the Wall-E bot inside of an isolated environment known as a Docker container, with some containers deployed with a testing token and containers from the repository master branch deployed with a production token.
 
