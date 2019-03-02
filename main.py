@@ -5,16 +5,16 @@ import discord
 import logging
 import datetime
 import pytz
-from helper_files import testenv
-from discord.ext import commands
-from helper_files.logger_setup import LoggerWriter
 import helper_files.settings as settings
+from helper_files import testenv
+from helper_files.logger_setup import LoggerWriter
 from helper_files.embed import embed as imported_embed
 import re
 import psycopg2
+from discord.ext import commands
+
+
 bot = commands.Bot(command_prefix='.')
-
-
 ##################
 ## LOGGING SETUP ##
 ##################
