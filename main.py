@@ -80,22 +80,23 @@ def setupDB():
 		logger.info("[main.py setupDB] "+settings.WALL_E_DB_USER+" role created")
 
 		if 'localhost' == settings.ENVIRONMENT or 'PRODUCTION' == settings.ENVIRONMENT:
-			sqlQuery="""DO
-						$do$
-						BEGIN
-						IF NOT EXISTS (
-							SELECT                       -- SELECT list can stay empty for this
-							FROM   pg_database
-							WHERE  datname = '"""+settings.WALL_E_DB_DBNAME+"""') THEN
-							CREATE DATABASE """+settings.WALL_E_DB_DBNAME+""" WITH OWNER """+settings.WALL_E_DB_USER+""" TEMPLATE = template0;
-						END IF;
-						END
-						$do$;"""
+			sqlQuery="""SELECT datname from pg_database"""
 			postgresCurs.execute(sqlQuery)
+			results = postgresCurs.fetchall()
+
+			#fetchAll returns  [('postgres',), ('template0',), ('template1',), ('csss_discord_db',)]
+			#which the below line converts to  ['postgres', 'template0', 'template1', 'csss_discord_db']
+			results = [x for xs in results for x in xs]
+
+			print(str(results))
+			if settings.WALL_E_DB_DBNAME not in results:
+				postgresCurs.execute("CREATE DATABASE "+settings.WALL_E_DB_DBNAME+" WITH OWNER "+settings.WALL_E_DB_USER+" TEMPLATE = template0;")
+				logger.info("[main.py setupDB] "+settings.WALL_E_DB_DBNAME+" database created")
+			else:
+				logger.info("[main.py setupDB] "+settings.WALL_E_DB_DBNAME+" database already exists")
 		else:
 			postgresCurs.execute("CREATE DATABASE "+settings.WALL_E_DB_DBNAME+" WITH OWNER "+settings.WALL_E_DB_USER+" TEMPLATE = template0;")
-		
-		logger.info("[main.py setupDB] "+settings.WALL_E_DB_DBNAME+" database created")
+			logger.info("[main.py setupDB] "+settings.WALL_E_DB_DBNAME+" database created")
 
 		#this section exists cause of this backup.sql that I had exported from an instance of a Postgres with which I had created the csss_discord_db
 		#https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
