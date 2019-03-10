@@ -78,9 +78,9 @@ pipeline {
                             'POSTGRES_DB_USER=postgres',
                             'POSTGRES_DB_DBNAME=postgres',
                             'WALL_E_DB_USER=wall_e',
-                            'WALL_E_DB_DBNAME=csss_discord_db'
+                            'WALL_E_DB_DBNAME=csss_discord_db',
+                            'COMPOSE_PROJECT_NAME=PRODUCTION_MASTER'
                     ]) {
-                        String COMPOSE_PROJECT_NAME="PRODUCTION_MASTER"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
 
