@@ -7,6 +7,7 @@ import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import operator
+import psycopg2
 
 logger = logging.getLogger('wall_e')
 
@@ -114,6 +115,13 @@ class Administration():
 		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
 		return [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
 
+	def get_column_headersDB(self):
+		dbConn = self.connectTODB()
+		dbConn.execute("Select * FROM commandstats LIMIT 0")
+		colnames = [desc[0] for desc in dbConn.description]
+		return [name.lower().strip().replace(' ', '_') for name in colnames]
+
+
 	def getCSVFILE(self):
 		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
 		csvFile.fieldnames = [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
@@ -126,8 +134,9 @@ class Administration():
 				dict_list.append(out_dict)
 		return dict_list
 
-	def CommandFrequency(self,csv, filters=None):
+	def CommandFrequency(self,dbConn, filters=None):
 		logger.info("[Administration CommandFrequency()] trying to create a dictionary from "+str(csv)+" with the filters "+str(filters))
+		
 		channels = {}
 		for line in csv:
 			entry = line[filters[0]]
@@ -142,13 +151,79 @@ class Administration():
 				channels[entry]+=1
 		return channels
 
+	def CommandFrequencyDB(self,dbConn, filters=None):
+		logger.info("[Administration CommandFrequencyDB()] trying to create a dictionary from "+str(dbConn)+" with the filters:\n\t"+str(filters))
+		
+		combinedFilter='", "'.join(str(e) for e in filters)
+		combinedFilter="\""+combinedFilter+"\""
+		sqlQuery="""select """+combinedFilter+""" from commandstats;"""
+		logger.info("[Administration CommandFrequencyDB()] initial sql query to determine what entries needs to be created with the filter specified above:\n\t"+str(sqlQuery))
+		dbConn.execute(sqlQuery)
+
+		results = dbConn.fetchall()
+		overarchingWHereClause=''
+		channels = {}
+		index=0
+		while len(results) > 0:
+			logger.info("[Administration CommandFrequencyDB()] results of sql query=["+str(results)+"]")
+			whereClause=''
+			entry=''
+			for idx, val in enumerate(filters):
+				if len(filters) == 1 + idx:
+					entry+=str(results[0][idx])
+					whereClause+="\""+str(val)+"\"='"+str(results[0][idx])+"'"
+				else:
+					entry+=str(results[0][idx])+'_'
+					whereClause+="\""+str(val)+"\"='"+str(results[0][idx])+"' AND "
+			logger.info("[Administration CommandFrequencyDB()] where clause for determining which entries match the entry ["+entry+"]:\n\t"+str(whereClause))
+			sqlQuery="select "+combinedFilter+" from commandstats WHERE "+whereClause+";"
+			logger.info("[Administration CommandFrequencyDB()] query that includes the above specified where clause for determining how many elements match the filter of ["+entry+"]:\n\t"+str(sqlQuery))
+			dbConn.execute(sqlQuery)
+			results2=dbConn.fetchall()
+			channels[entry]=len(results2)
+			logger.info("[Administration CommandFrequencyDB()] determined that "+str(channels[entry])+" entries exist for filter "+entry)
+
+			if index > 0 :
+				overarchingWHereClause+=' AND NOT ( '+whereClause+' )'
+			else:
+				overarchingWHereClause+=' NOT ( '+whereClause+' )'
+			logger.info("[Administration CommandFrequencyDB()] updated where clause for discriminating against all entries that have already been recorded:\n\t"+str(overarchingWHereClause))
+			sqlQuery="""select """+combinedFilter+""" from commandstats WHERE ( """+overarchingWHereClause+""" );"""
+			logger.info("[Administration CommandFrequencyDB()] updated sql query to determine what remaining entries potentially need to be created after ruling out entries that match the where clause :\n\t"+str(sqlQuery))
+			dbConn.execute(sqlQuery)
+			results = dbConn.fetchall()
+			index+=1
+
+		return channels
+
+	def connectTODB(self):
+		try:
+			host=None
+			if 'localhost' == settings.ENVIRONMENT:
+				host='127.0.0.1'
+			else:
+				host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
+			dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
+			logger.info("[Reminders __init__] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
+			conn = psycopg2.connect(dbConnectionString)
+			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+			curs = conn.cursor()
+			logger.info("[Reminders __init__] PostgreSQL connection established")
+		except Exception as e:
+			logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
+
+		return curs
+
 	@commands.command()
 	async def frequency(self, ctx, *args):
 		logger.info("[Administration frequency()] frequency command detected from "+str(ctx.message.author)+" with arguments ["+str(args)+"]")
 		if len(args) == 0:
-			await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headers())))
+			#await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headers())))
+			await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headersDB())))
+			return
 		else:
-			dicResult = self.CommandFrequency(self.getCSVFILE(), args)
+			#dicResult = self.CommandFrequency(self.getCSVFILE(), args)
+			dicResult = self.CommandFrequencyDB(self.connectTODB(), args)
 
 		dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
 		logger.info("[Administration frequency()] sorted dicResults by value")
