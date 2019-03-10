@@ -111,45 +111,12 @@ class Administration():
 			logger.info("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
 
-	def get_column_headers(self):
-		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
-		return [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
-
 	def get_column_headersDB(self):
 		dbConn = self.connectTODB()
 		dbConn.execute("Select * FROM commandstats LIMIT 0")
 		colnames = [desc[0] for desc in dbConn.description]
 		return [name.lower().strip().replace(' ', '_') for name in colnames]
 
-
-	def getCSVFILE(self):
-		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
-		csvFile.fieldnames = [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
-		dict_list = []
-		for line in csvFile:
-			out_dict={}
-			for k, v in line.items():
-				out_dict[k]=v.strip()
-			if "Direct Message with " not in str(out_dict.values()):
-				dict_list.append(out_dict)
-		return dict_list
-
-	def CommandFrequency(self,dbConn, filters=None):
-		logger.info("[Administration CommandFrequency()] trying to create a dictionary from "+str(csv)+" with the filters "+str(filters))
-		
-		channels = {}
-		for line in csv:
-			entry = line[filters[0]]
-			for theFilter in filters[1:]:
-				entry+="_"+line[theFilter]
-			logger.info("[Administration CommandFrequency()] entry "+str(entry)+" found in csv" )				
-			if entry not in channels:
-				logger.info("[Administration CommandFrequency()] entry "+str(entry)+" was not in dictionary, initializing it" )				
-				channels[entry]=1
-			else:
-				logger.info("[Administration CommandFrequency()] entry "+str(entry)+" in dictionary is being incremented to "+str(channels[entry]) )				
-				channels[entry]+=1
-		return channels
 
 	def CommandFrequencyDB(self,dbConn, filters=None):
 		logger.info("[Administration CommandFrequencyDB()] trying to create a dictionary from "+str(dbConn)+" with the filters:\n\t"+str(filters))
@@ -218,11 +185,9 @@ class Administration():
 	async def frequency(self, ctx, *args):
 		logger.info("[Administration frequency()] frequency command detected from "+str(ctx.message.author)+" with arguments ["+str(args)+"]")
 		if len(args) == 0:
-			#await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headers())))
 			await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headersDB())))
 			return
 		else:
-			#dicResult = self.CommandFrequency(self.getCSVFILE(), args)
 			dicResult = self.CommandFrequencyDB(self.connectTODB(), args)
 
 		dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
@@ -283,7 +248,6 @@ class Administration():
 				firstIndex+=numOfBarsPerPage
 				lastIndex+=numOfBarsPerPage
 				logger.info("[Administration frequency()] updating firstIndex and lastIndex to "+str(firstIndex)+" to "+str(lastIndex)+" respectively")
-
 
 def setup(bot):
 	bot.add_cog(Administration(bot))
