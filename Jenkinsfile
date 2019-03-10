@@ -100,7 +100,7 @@ pipeline {
                                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
                         ]) {
                             sh "docker rm -f ${productionContainerName} || true"
-                            sh "docker image rm -f ${productionContainerName.toLowerCase()}_wall_e || true"
+                            sh "docker image rm -f ${productionContainerName.toLowerCase()} || true"
                             sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""                                    
                             sh "docker-compose up -d"
                         }
