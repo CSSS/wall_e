@@ -6,7 +6,7 @@ COPY requirements.txt ./
 
 RUN apk add --update alpine-sdk libffi-dev
 
-RUN apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt &&  apk --update add postgresql-client
+RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt &&  apk --update add postgresql-client 
 
 COPY . .
 
