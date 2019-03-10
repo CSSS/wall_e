@@ -5,11 +5,12 @@ from helper_files.embed import embed
 from helper_files.Paginate import paginateEmbed
 import helper_files.settings as settings
 import json
-from main import wolframAPI, wolframClient
+import wolframalpha
 import discord.client
 
 logger = logging.getLogger('wall_e')
 
+wolframClient = wolframalpha.Client(settings.wolframAPI)
 
 class Misc():
 
