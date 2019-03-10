@@ -88,7 +88,6 @@ def setupDB():
 			#which the below line converts to  ['postgres', 'template0', 'template1', 'csss_discord_db']
 			results = [x for xs in results for x in xs]
 
-			print(str(results))
 			if settings.WALL_E_DB_DBNAME not in results:
 				postgresCurs.execute("CREATE DATABASE "+settings.WALL_E_DB_DBNAME+" WITH OWNER "+settings.WALL_E_DB_USER+" TEMPLATE = template0;")
 				logger.info("[main.py setupDB] "+settings.WALL_E_DB_DBNAME+" database created")
