@@ -421,7 +421,16 @@ class Mod():
         # Unlocks a channel if its locked
         # Verify channel is locked 
         ## How? => check @everyone for send_messages
+        
+        logger.info('[Mod unlock()] unlock function detected by user' + str(ctx.message.author))
+        await ctx.message.delete()
+        logger.info('[Mod unlock()] invoking command deleted')
 
+        if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
+            logger.info('[Mod unlock()] unathorized command attempt detected. Being handled.')
+            await self.rekt(ctx)
+            return
+            
         channel = ctx.channel
         perms = channel.overwrites
         ow = list(perms[0]) # assumes @everyone is always the fifrst thign in teh perms tuple
