@@ -430,7 +430,7 @@ class Mod():
             logger.info('[Mod unlock()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
-            
+
         channel = ctx.channel
         perms = channel.overwrites
         ow = list(perms[0]) # assumes @everyone is always the fifrst thign in teh perms tuple
@@ -448,15 +448,19 @@ class Mod():
 
         # Get the Minions role
         MINIONS_ROLE = discord.utils.get(ctx.guild.roles, name='Minions')
+        logger.info('[Mod unlock()] minion role found: {}'.format(MINIONS_ROLE.id))
 
         # Set the permissions
+        logger.info('[Mod unlock()] editing {} permissions'.format(channel))
         await channel.set_permissions(ctx.guild.default_role, send_messages=None)
         await channel.set_permissions(MINIONS_ROLE, overwrite=None)
 
         # Tell the channel
+        logger.info('[Mod unlock()] unlock message sent to {}'.format(channel))        
         await ctx.send('channel is now unlock feel free to blah blah bl....')
 
         # Tell council
+        logger.info('[Mod unlock()] council informed of locked channel')
         council = discord.utils.get(ctx.guild.channels, name='council')
         await council.send('{} unlock {}'.format(ctx.message.author, channel.mention))
 
