@@ -416,6 +416,43 @@ class Mod():
         eObj = em(description='{} locked {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
         await council.send(embed=eObj)
 
+    @commands.command()
+    async def unlock(self, ctx):
+        # Unlocks a channel if its locked
+        # Verify channel is locked 
+        ## How? => check @everyone for send_messages
+
+        channel = ctx.channel
+        perms = channel.overwrites
+        ow = list(perms[0]) # assumes @everyone is always the fifrst thign in teh perms tuple
+
+        if ow[1].send_messages == True or ow[1].send_messages == None: 
+            # Not locked
+            await ctx.send('You can\'t unlock what isn\'t locked.\n-Richard Stallman\'s Fart', delete_after=3.0)
+            return
+
+        # If here then the channel is locked and we can proceed 
+        
+        # Need to adjust the @everyone perms
+        # And delete the @Minions perms
+        # Then tell #council of the unlocking
+
+        # Get the Minions role
+        MINIONS_ROLE = discord.utils.get(ctx.guild.roles, name='Minions')
+
+        # Set the permissions
+        await channel.set_permissions(ctx.guild.default_role, send_messages=None)
+        await channel.set_permissions(MINIONS_ROLE, overwrite=None)
+
+        # Tell the channel
+        await ctx.send('channel is now unlock feel free to blah blah bl....')
+
+        # Tell council
+        council = discord.utils.get(ctx.guild.channels, name='council')
+        await council.send('{} unlock {}'.format(ctx.message.author, channel.mention))
+
+            
+
 
 
 #TODO: lock commands, dm warn/other kind of dm'd info etc
