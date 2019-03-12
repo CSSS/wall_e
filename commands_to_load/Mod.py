@@ -442,10 +442,6 @@ class Mod():
 
         # If here then the channel is locked and we can proceed 
         
-        # Need to adjust the @everyone perms
-        # And delete the @Minions perms
-        # Then tell #council of the unlocking
-
         # Get the Minions role
         MINIONS_ROLE = discord.utils.get(ctx.guild.roles, name='Minions')
         logger.info('[Mod unlock()] minion role found: {}'.format(MINIONS_ROLE.id))
@@ -456,13 +452,15 @@ class Mod():
         await channel.set_permissions(MINIONS_ROLE, overwrite=None)
 
         # Tell the channel
-        logger.info('[Mod unlock()] unlock message sent to {}'.format(channel))        
-        await ctx.send('channel is now unlock feel free to blah blah bl....')
+        logger.info('[Mod unlock()] unlock message sent to {}'.format(channel))
+        eObj = em(description='This channel is now unlocked, feel free to blah blah bl...', author=ctx.author.display_name, avatar=ctx.author.avatar_url, footer='Moderator action') 
+        await ctx.send(embed=eObj)
 
         # Tell council
         logger.info('[Mod unlock()] council informed of locked channel')
         council = discord.utils.get(ctx.guild.channels, name='council')
-        await council.send('{} unlock {}'.format(ctx.message.author, channel.mention))
+        eObj = em(description='{} unlock {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
+        await ctx.send(embed=eObj)
 
             
 
