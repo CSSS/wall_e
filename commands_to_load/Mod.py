@@ -407,12 +407,14 @@ class Mod():
 
         # Message channel to notify the status
         logger.info('[Mod lock()] lock message sent to {}'.format(channel))
-        await ctx.send('This channel is now locked tigher than a nun p***y')
+        eObj = em(description='This channel has been locked until further notice.', author=ctx.author.display_name, avatar=ctx.author.avatar_url, footer='Moderator action')
+        await ctx.send(embed=eObj)
 
         # Inform council of the locked channel
         logger.info('[Mod lock()] council informed of locked channel')
         council = discord.utils.get(ctx.guild.channels, name='council')
-        await council.send('{} locked {}'.format(ctx.message.author, channel.mention))
+        eObj = em(description='{} locked {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
+        await council.send(embed=eObj)
 
 
 
