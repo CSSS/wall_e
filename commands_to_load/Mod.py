@@ -462,12 +462,5 @@ class Mod():
         eObj = em(description='{} unlock {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
         await ctx.send(embed=eObj)
 
-            
-
-
-
-#TODO: lock commands, dm warn/other kind of dm'd info etc
-
-
 def setup(bot):
     bot.add_cog(Mod(bot))
