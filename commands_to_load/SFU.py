@@ -188,7 +188,7 @@ class SFU():
                 res = json.loads(data)
                 logger.info('[SFU outline()] parsing section data')
                 for x in res:
-                    if x['sectionCode'] in ['LEC', 'LAB', 'TUT']:
+                    if x['sectionCode'] in ['LEC', 'LAB', 'TUT', 'SEM']:
                         section = x['value']
                         break
 
