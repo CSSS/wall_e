@@ -191,6 +191,11 @@ class SFU():
                     if x['sectionCode'] in ['LEC', 'LAB', 'TUT', 'SEM']:
                         section = x['value']
                         break
+            else:
+            logger.info('[SFU outline()] section get resulted in '+ str(res.status))
+            eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
+            await ctx.send(embed=eObj)
+            return
 
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         logger.info('[SFU outline()] url for get constructed: ' + url)
