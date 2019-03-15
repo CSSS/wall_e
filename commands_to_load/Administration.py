@@ -1,9 +1,13 @@
 from discord.ext import commands
 import discord
-from main import cogs
 import subprocess
-
+import helper_files.settings as settings
+import csv
 import logging
+import matplotlib.pyplot as plt
+import numpy as np
+import operator
+
 logger = logging.getLogger('wall_e')
 
 class Administration():
@@ -12,7 +16,7 @@ class Administration():
 		self.bot = bot
 
 	def validCog(self, name):
-		for cog in cogs:
+		for cog in settings.cogs:
 			if cog["name"] == name:
 				return True, cog["folder"]
 		return False, ''
@@ -106,6 +110,104 @@ class Administration():
 			logger.info("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
 
+	def get_column_headers(self):
+		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
+		return [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
+
+	def getCSVFILE(self):
+		csvFile = csv.DictReader(open('logs/stats_of_commands.csv', 'r'))
+		csvFile.fieldnames = [name.lower().strip().replace(' ', '_') for name in csvFile.fieldnames]
+		dict_list = []
+		for line in csvFile:
+			out_dict={}
+			for k, v in line.items():
+				out_dict[k]=v.strip()
+			if "Direct Message with " not in str(out_dict.values()):
+				dict_list.append(out_dict)
+		return dict_list
+
+	def CommandFrequency(self,csv, filters=None):
+		logger.info("[Administration CommandFrequency()] trying to create a dictionary from "+str(csv)+" with the filters "+str(filters))
+		channels = {}
+		for line in csv:
+			entry = line[filters[0]]
+			for theFilter in filters[1:]:
+				entry+="_"+line[theFilter]
+			logger.info("[Administration CommandFrequency()] entry "+str(entry)+" found in csv" )				
+			if entry not in channels:
+				logger.info("[Administration CommandFrequency()] entry "+str(entry)+" was not in dictionary, initializing it" )				
+				channels[entry]=1
+			else:
+				logger.info("[Administration CommandFrequency()] entry "+str(entry)+" in dictionary is being incremented to "+str(channels[entry]) )				
+				channels[entry]+=1
+		return channels
+
+	@commands.command()
+	async def frequency(self, ctx, *args):
+		logger.info("[Administration frequency()] frequency command detected from "+str(ctx.message.author)+" with arguments ["+str(args)+"]")
+		if len(args) == 0:
+			await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headers())))
+		else:
+			dicResult = self.CommandFrequency(self.getCSVFILE(), args)
+
+		dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
+		logger.info("[Administration frequency()] sorted dicResults by value")
+		if len(dicResult) <= 50:
+			logger.info("[Administration frequency()] dicResults's length is <= 50")
+			labels = [i[0] for i in dicResult]
+			numbers = [i[1] for i in dicResult]
+			plt.rcdefaults()
+			fig, ax = plt.subplots()
+			y_pos = np.arange(len(labels))
+
+			for i, v in enumerate(numbers):
+				ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
+
+			ax.barh(y_pos, numbers, align='center',color='green')
+			ax.set_yticks(y_pos)
+			ax.set_yticklabels(labels)
+			ax.invert_yaxis()  # labels read top-to-bottom
+			#ax.set_xlabel(x_label)
+			#ax.set_title(title)
+			fig.set_size_inches(18.5, 10.5)
+			fig.savefig('image.png')
+			logger.info("[Administration frequency()] graph created and saved")
+			plt.close(fig)
+			await ctx.send(file=discord.File('image.png'))
+			logger.info("[Administration frequency()] graph image file has been sent")
+		else:
+			logger.info("[Administration frequency()] dicResults's length is > 50")
+			numberOfPages = int(len(dicResult) / 50)
+			if len(dicResult) % 50 != 0:
+				numberOfPages+=1
+			numOfBarsPerPage = int(len(dicResult) / numberOfPages )+1
+			firstIndex, lastIndex= 0, numOfBarsPerPage
+			while firstIndex < len(dicResult):
+				logger.info("[Administration frequency()] creating a graph with entries "+str(firstIndex)+" to "+str(lastIndex))
+				labels = [i[0] for i in dicResult][firstIndex:lastIndex]
+				numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
+				plt.rcdefaults()
+				fig, ax = plt.subplots()
+				y_pos = np.arange(len(labels))
+
+				for i, v in enumerate(numbers):
+					ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
+
+				ax.barh(y_pos, numbers, align='center',color='green')
+				ax.set_yticks(y_pos)
+				ax.set_yticklabels(labels)
+				ax.invert_yaxis()  # labels read top-to-bottom
+				#ax.set_xlabel(x_label)
+				#ax.set_title(title)
+				fig.set_size_inches(18.5, 10.5)
+				fig.savefig('image.png')
+				logger.info("[Administration frequency()] graph created and saved")
+				plt.close(fig)
+				await ctx.send(file=discord.File('image.png'))
+				logger.info("[Administration frequency()] graph image file has been sent")
+				firstIndex+=numOfBarsPerPage
+				lastIndex+=numOfBarsPerPage
+				logger.info("[Administration frequency()] updating firstIndex and lastIndex to "+str(firstIndex)+" to "+str(lastIndex)+" respectively")
 
 
 def setup(bot):

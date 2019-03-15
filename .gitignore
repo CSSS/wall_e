@@ -151,14 +151,14 @@ crashlytics-build.properties
 fabric.properties
 token
 
+
 # Logs
 
 logs/stats_of_commands.csv
 
-#my own files
-token.txt
-setup.sh
+#Jace's files
+.pytest_cache
 @eaDir
-logs/stats_of_commands.csv
-
-runner.sh
+notes/
+sftp-config.json
+test-bot.iml
