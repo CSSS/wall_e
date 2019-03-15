@@ -184,7 +184,7 @@ class SFU():
                 data = ''
                 while not res.content.at_eof():
                     chunk = await res.content.readchunk()
-                    data += str(chunk.decode())
+                    data += str(chunk[0].decode())
                 res = json.loads(data)
                 logger.info('[SFU outline()] parsing section data')
                 for x in res:
@@ -202,7 +202,7 @@ class SFU():
             data = ''
             while not res.content.at_eof():
                 chunk = await res.content.readchunk()
-                data += str(chunk.decode())
+                data += str(chunk[0].decode())
 
             data = json.loads(data)
         else:
