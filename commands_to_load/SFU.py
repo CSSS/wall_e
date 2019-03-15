@@ -170,7 +170,7 @@ class SFU():
                     term = course[1].lower()
                 else:
                     # Send something saying be in this order
-                    logger.error('[SFU outline] args out of order or wrong')
+                    logger.info('[SFU outline] args out of order or wrong')
                     eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
                     await ctx.send(embed=eObj)
                     return
@@ -206,7 +206,7 @@ class SFU():
 
             data = json.loads(data)
         else:
-            logger.error('[SFU outline()] get resulted in '+ str(res.status))
+            logger.info('[SFU outline()] get resulted in '+ str(res.status))
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
