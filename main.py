@@ -260,18 +260,30 @@ async def on_command(ctx):
 					arg = arg.replace(',', '[comma]')
 				argument += arg+' '
 			index+=1
-		epoch_time = int(time.time())
+		epoch_time = str(int(time.time()))
 
 		now = datetime.datetime.now()
+		current_year=str(now.year)
+		current_month=str(now.month)
+		current_day=str(now.day)
+		current_hour=str(now.hour)
+		channel_id=str(ctx.channel.id)
+		channel_name=str(ctx.channel).replace(",","[comma]").strip()
+		author=str(ctx.message.author).replace(",","[comma]").strip()
+		command=str(ctx.command).strip()
+		argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
+		method_of_invoke=str(ctx.invoked_with).strip()
+		invoked_subcommand=str(ctx.invoked_subcommand).strip()
+
 
 		sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
-						VALUES ("""+str(epoch_time)+""","""+str(now.year)+""", """+str(now.month)+""","""+str(now.day)+""","""+str(now.hour)+""","""+str(ctx.channel.id)+""",
-						 '"""+str(ctx.channel).replace(",","[comma]")+"""','"""+str(ctx.message.author).replace(",","[comma]").strip()+"""', '"""+str(ctx.command).strip()+"""','"""+str(argument).strip()+"""',
-						 '"""+str(ctx.invoked_with).strip()+"""','"""+str(ctx.invoked_subcommand).strip()+"""');"""
+						VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
+						 '"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
+						 '"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
 		logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
 		curs.execute(sqlCommand)
+		curs.close()
 		conn.close()
-		#stat_file.write(str(now.year)+', '+str(now.month)+', '+str(now.day)+', '+str(now.hour)+', '+str(str(ctx.channel.id))+", "+str(str(ctx.channel).replace(",","[comma]"))+", "+str(str(ctx.message.author).replace(",","[comma]"))+", "+str(ctx.command)+", "+str(argument)+", "+str(ctx.invoked_with)+", "+str(ctx.invoked_subcommand)+"\n")
 	except Exception as e:
 		logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL connection\n{}".format(e))	
 
@@ -355,16 +367,6 @@ if __name__ == "__main__":
 			logger.error('[main.py] Failed to load command {}\n{}'.format(cog["name"], exception))
 		if commandLoaded:
 			logger.info("[main.py] " + cog["name"] + " successfully loaded")
-
-	from pathlib import Path
-	my_file = Path("logs/stats_of_commands.csv")
-	if my_file.is_file():
-		print("[main.py] stats_of_commands.csv already exist")
-	else:
-		print("[main.py] stats_of_commands.csv didn't exist, creating it now....")
-		stat_file = open("logs/stats_of_commands.csv", 'a+')
-		stat_file.write("Year, Month, Date, Hour, Channel Name, Channel ID, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
-		stat_file.close()
 
 	##final step, running the bot with the passed in environment TOKEN variable
 	bot.run(settings.TOKEN)
