@@ -170,7 +170,7 @@ class SFU():
                     term = course[1].lower()
                 else:
                     # Send something saying be in this order
-                    logger.error('[SFU outline] args out of order or wrong')
+                    logger.info('[SFU outline] args out of order or wrong')
                     eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
                     await ctx.send(embed=eObj)
                     return
@@ -184,13 +184,18 @@ class SFU():
                 data = ''
                 while not res.content.at_eof():
                     chunk = await res.content.readchunk()
-                    data += str(chunk.decode())
+                    data += str(chunk[0].decode())
                 res = json.loads(data)
                 logger.info('[SFU outline()] parsing section data')
                 for x in res:
-                    if x['sectionCode'] in ['LEC', 'LAB', 'TUT']:
+                    if x['sectionCode'] in ['LEC', 'LAB', 'TUT', 'SEM']:
                         section = x['value']
                         break
+            else:
+                logger.info('[SFU outline()] section get resulted in '+ str(res.status))
+                eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
+                await ctx.send(embed=eObj)
+                return
 
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
         logger.info('[SFU outline()] url for get constructed: ' + url)
@@ -202,11 +207,11 @@ class SFU():
             data = ''
             while not res.content.at_eof():
                 chunk = await res.content.readchunk()
-                data += str(chunk.decode())
+                data += str(chunk[0].decode())
 
             data = json.loads(data)
         else:
-            logger.error('[SFU outline()] get resulted in '+ str(res.status))
+            logger.info('[SFU outline()] full outline get resulted in '+ str(res.status))
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
             await ctx.send(embed=eObj)
             return
