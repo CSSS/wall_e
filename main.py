@@ -12,7 +12,7 @@ from helper_files.embed import embed as imported_embed
 import re
 import psycopg2
 from discord.ext import commands
-
+import time
 
 bot = commands.Bot(command_prefix='.')
 ##################
@@ -216,29 +216,79 @@ async def on_command_error(ctx, error):
 					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 					return
 
+def setupStatsOfCommandsDBTable():
+	try:
+		host=None
+		if 'localhost' == settings.ENVIRONMENT:
+			host='127.0.0.1'
+		else:
+			host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
+		dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
+		logger.info("[main.py setupStatsOfCommandsDBTable()] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
+		conn = psycopg2.connect(dbConnectionString)
+		logger.info("[main.py setupStatsOfCommandsDBTable()] PostgreSQL connection established")
+		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+		curs = conn.cursor()
+		curs.execute("CREATE TABLE IF NOT EXISTS CommandStats ( \"EPOCH TIME\" BIGINT  PRIMARY KEY, YEAR BIGINT, MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel ID\" BIGINT, \"Channel Name\" varchar(2000), Author varchar(2000), Command varchar(2000), Argument varchar(2000), \"Invoked with\" varchar(2000), \"Invoked subcommand\"  varchar(2000));")
+		logger.info("[main.py setupStatsOfCommandsDBTable()] CommandStats database table created")
+	except Exception as e:
+		logger.error("[main.py setupStatsOfCommandsDBTable()] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
+
 ########################################################
 ## Function that gets called whenever a commmand      ##
 ## gets called, being use for data gathering purposes ##
 ########################################################
 @bot.event
 async def on_command(ctx):
-	stat_file = open("logs/stats_of_commands.csv", 'a+')
+	if testenv.TestCog.check_test_environment(ctx):
+		try:
+			host=None
+			if 'localhost' == settings.ENVIRONMENT:
+				host='127.0.0.1'
+			else:
+				host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
+			dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
+			logger.info("[main.py on_command()] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
+			conn = psycopg2.connect(dbConnectionString)
+			logger.info("[main.py on_command()] PostgreSQL connection established")
+			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+			curs = conn.cursor()
+			index=0
+			argument=''
+			for arg in ctx.args:
+				if index > 1:
+					if ',' in arg:
+						arg = arg.replace(',', '[comma]')
+					argument += arg+' '
+				index+=1
+			epoch_time = str(int(time.time()))
 
-	index=0
-	argument=''
-	for arg in ctx.args:
-		if index > 1:
-			if ',' in arg:
-				arg = arg.replace(',', '[comma]')
-			argument += arg+' '
-		index+=1
+			now = datetime.datetime.now()
+			current_year=str(now.year)
+			current_month=str(now.month)
+			current_day=str(now.day)
+			current_hour=str(now.hour)
+			channel_id=str(ctx.channel.id)
+			channel_name=str(ctx.channel).replace(",","[comma]").strip()
+			author=str(ctx.message.author).replace(",","[comma]").strip()
+			command=str(ctx.command).strip()
+			argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
+			method_of_invoke=str(ctx.invoked_with).strip()
+			invoked_subcommand=str(ctx.invoked_subcommand).strip()
 
-	author=str(ctx.message.author)
-	if ',' in author:
-		author=author.replace(",","[comma]")
 
-	now = datetime.datetime.now()
-	stat_file.write(str(now.year)+', '+str(now.month)+', '+str(now.day)+', '+str(now.hour)+', '+str(str(ctx.channel.id))+", "+str(str(ctx.channel))+", "+str(author)+", "+str(ctx.command)+", "+str(argument)+", "+str(ctx.invoked_with)+", "+str(ctx.invoked_subcommand)+"\n")
+			sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
+							VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
+							 '"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
+							 '"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
+			logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
+			curs.execute(sqlCommand)
+			curs.close()
+			conn.close()
+		except Exception as e:
+			logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL connection\n{}".format(e))	
+
+
 
 ########################################################
 ## Function that gets called any input or output from ##
@@ -283,6 +333,7 @@ if __name__ == "__main__":
 	logger = initalizeLogger()
 	logger.info("[main.py] Wall-E is starting up")
 	setupDB()
+	setupStatsOfCommandsDBTable()
 
 	## tries to open log file in prep for write_to_bot_log_channel function
 	try:
@@ -317,16 +368,6 @@ if __name__ == "__main__":
 			logger.error('[main.py] Failed to load command {}\n{}'.format(cog["name"], exception))
 		if commandLoaded:
 			logger.info("[main.py] " + cog["name"] + " successfully loaded")
-
-	from pathlib import Path
-	my_file = Path("logs/stats_of_commands.csv")
-	if my_file.is_file():
-		print("[main.py] stats_of_commands.csv already exist")
-	else:
-		print("[main.py] stats_of_commands.csv didn't exist, creating it now....")
-		stat_file = open("logs/stats_of_commands.csv", 'a+')
-		stat_file.write("Year, Month, Date, Hour, Channel Name, Channel ID, Author, Command, Argument, Invoked_with, Invoked_subcommand\n")
-		stat_file.close()
 
 	##final step, running the bot with the passed in environment TOKEN variable
 	bot.run(settings.TOKEN)
