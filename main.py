@@ -240,52 +240,53 @@ def setupStatsOfCommandsDBTable():
 ########################################################
 @bot.event
 async def on_command(ctx):
-	try:
-		host=None
-		if 'localhost' == settings.ENVIRONMENT:
-			host='127.0.0.1'
-		else:
-			host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
-		dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
-		logger.info("[main.py on_command()] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
-		conn = psycopg2.connect(dbConnectionString)
-		logger.info("[main.py on_command()] PostgreSQL connection established")
-		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-		curs = conn.cursor()
-		index=0
-		argument=''
-		for arg in ctx.args:
-			if index > 1:
-				if ',' in arg:
-					arg = arg.replace(',', '[comma]')
-				argument += arg+' '
-			index+=1
-		epoch_time = str(int(time.time()))
+	if testenv.TestCog.check_test_environment(ctx):
+		try:
+			host=None
+			if 'localhost' == settings.ENVIRONMENT:
+				host='127.0.0.1'
+			else:
+				host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
+			dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
+			logger.info("[main.py on_command()] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
+			conn = psycopg2.connect(dbConnectionString)
+			logger.info("[main.py on_command()] PostgreSQL connection established")
+			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+			curs = conn.cursor()
+			index=0
+			argument=''
+			for arg in ctx.args:
+				if index > 1:
+					if ',' in arg:
+						arg = arg.replace(',', '[comma]')
+					argument += arg+' '
+				index+=1
+			epoch_time = str(int(time.time()))
 
-		now = datetime.datetime.now()
-		current_year=str(now.year)
-		current_month=str(now.month)
-		current_day=str(now.day)
-		current_hour=str(now.hour)
-		channel_id=str(ctx.channel.id)
-		channel_name=str(ctx.channel).replace(",","[comma]").strip()
-		author=str(ctx.message.author).replace(",","[comma]").strip()
-		command=str(ctx.command).strip()
-		argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
-		method_of_invoke=str(ctx.invoked_with).strip()
-		invoked_subcommand=str(ctx.invoked_subcommand).strip()
+			now = datetime.datetime.now()
+			current_year=str(now.year)
+			current_month=str(now.month)
+			current_day=str(now.day)
+			current_hour=str(now.hour)
+			channel_id=str(ctx.channel.id)
+			channel_name=str(ctx.channel).replace(",","[comma]").strip()
+			author=str(ctx.message.author).replace(",","[comma]").strip()
+			command=str(ctx.command).strip()
+			argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
+			method_of_invoke=str(ctx.invoked_with).strip()
+			invoked_subcommand=str(ctx.invoked_subcommand).strip()
 
 
-		sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
-						VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
-						 '"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
-						 '"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
-		logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
-		curs.execute(sqlCommand)
-		curs.close()
-		conn.close()
-	except Exception as e:
-		logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL connection\n{}".format(e))	
+			sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
+							VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
+							 '"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
+							 '"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
+			logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
+			curs.execute(sqlCommand)
+			curs.close()
+			conn.close()
+		except Exception as e:
+			logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL connection\n{}".format(e))	
 
 
 
