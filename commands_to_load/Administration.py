@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import operator
 import psycopg2
+import asyncio
 
 logger = logging.getLogger('wall_e')
 
@@ -111,29 +112,41 @@ class Administration():
 			logger.info("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
 
-	def get_column_headersDB(self):
-		dbConn = self.connectTODB()
-		dbConn.execute("Select * FROM commandstats LIMIT 0")
-		colnames = [desc[0] for desc in dbConn.description]
-		return [name.lower().strip().replace(' ', '_') for name in colnames]
+	def get_column_headers_from_database(self):
+		dbConn = self.connectToDatabase()
+		dbCurr = dbConn.cursor()
+		dbCurr.execute("Select * FROM commandstats LIMIT 0")
+		colnames = [desc[0] for desc in dbCurr.description]
+		dbCurr.close()
+		dbConn.close()
+		return [name.strip() for name in colnames]
 
 
-	def CommandFrequencyDB(self,dbConn, filters=None):
-		logger.info("[Administration CommandFrequencyDB()] trying to create a dictionary from "+str(dbConn)+" with the filters:\n\t"+str(filters))
+	def determineXYFrequency(self,dbConn, filters=None):
+		dbCurr = dbConn.cursor()
+		logger.info("[Administration determineXYFrequency()] trying to create a dictionary from "+str(dbCurr)+" with the filters:\n\t"+str(filters))
 		
 		combinedFilter='", "'.join(str(e) for e in filters)
 		combinedFilter="\""+combinedFilter+"\""
 		sqlQuery="""select """+combinedFilter+""" from commandstats;"""
-		logger.info("[Administration CommandFrequencyDB()] initial sql query to determine what entries needs to be created with the filter specified above:\n\t"+str(sqlQuery))
-		dbConn.execute(sqlQuery)
+		logger.info("[Administration determineXYFrequency()] initial sql query to determine what entries needs to be created with the filter specified above:\n\t"+str(sqlQuery))
+		dbCurr.execute(sqlQuery)
 
-		results = dbConn.fetchall()
+		#getting all the rows that need to be graphed
+		results = dbCurr.fetchall()
+
+		#where clause that will be used to determine what remaining rows still need to be added to the dictionary of results
 		overarchingWHereClause=''
-		channels = {}
+
+		#dictionary that will contain the stats that need to be graphed
+		frequency = {}
 		index=0
+
+		#this loop will go through eachu unqiue entry that were turned from the results variable above to determine how much each unique entry
+		# was appeared and needs that info added to frequency dictionary
 		while len(results) > 0:
-			logger.info("[Administration CommandFrequencyDB()] results of sql query=["+str(results)+"]")
-			whereClause=''
+			logger.info("[Administration determineXYFrequency()] "+str(index)+"th index results of sql query=["+str(results[0])+"]")
+			whereClause='' #where clause that keeps track of things that need to be added to the overarchingWhereClause
 			entry=''
 			for idx, val in enumerate(filters):
 				if len(filters) == 1 + idx:
@@ -142,28 +155,29 @@ class Administration():
 				else:
 					entry+=str(results[0][idx])+'_'
 					whereClause+="\""+str(val)+"\"='"+str(results[0][idx])+"' AND "
-			logger.info("[Administration CommandFrequencyDB()] where clause for determining which entries match the entry ["+entry+"]:\n\t"+str(whereClause))
+			logger.info("[Administration determineXYFrequency()] where clause for determining which entries match the entry ["+entry+"]:\n\t"+str(whereClause))
 			sqlQuery="select "+combinedFilter+" from commandstats WHERE "+whereClause+";"
-			logger.info("[Administration CommandFrequencyDB()] query that includes the above specified where clause for determining how many elements match the filter of ["+entry+"]:\n\t"+str(sqlQuery))
-			dbConn.execute(sqlQuery)
-			results2=dbConn.fetchall()
-			channels[entry]=len(results2)
-			logger.info("[Administration CommandFrequencyDB()] determined that "+str(channels[entry])+" entries exist for filter "+entry)
+			logger.info("[Administration determineXYFrequency()] query that includes the above specified where clause for determining how many elements match the filter of ["+entry+"]:\n\t"+str(sqlQuery))
+			dbCurr.execute(sqlQuery)
+			resultsOfQueryForSpecificEntry=dbCurr.fetchall()
+			frequency[entry]=len(resultsOfQueryForSpecificEntry)
+			logger.info("[Administration determineXYFrequency()] determined that "+str(frequency[entry])+" entries exist for filter "+entry)
 
 			if index > 0 :
 				overarchingWHereClause+=' AND NOT ( '+whereClause+' )'
 			else:
 				overarchingWHereClause+=' NOT ( '+whereClause+' )'
-			logger.info("[Administration CommandFrequencyDB()] updated where clause for discriminating against all entries that have already been recorded:\n\t"+str(overarchingWHereClause))
+			logger.info("[Administration determineXYFrequency()] updated where clause for discriminating against all entries that have already been recorded:\n\t"+str(overarchingWHereClause))
 			sqlQuery="""select """+combinedFilter+""" from commandstats WHERE ( """+overarchingWHereClause+""" );"""
-			logger.info("[Administration CommandFrequencyDB()] updated sql query to determine what remaining entries potentially need to be created after ruling out entries that match the where clause :\n\t"+str(sqlQuery))
-			dbConn.execute(sqlQuery)
-			results = dbConn.fetchall()
+			logger.info("[Administration determineXYFrequency()] updated sql query to determine what remaining entries potentially need to be created after ruling out entries that match the where clause :\n\t"+str(sqlQuery))
+			dbCurr.execute(sqlQuery)
+			results = dbCurr.fetchall()
 			index+=1
+		dbCurr.close()
+		dbConn.close()
+		return frequency
 
-		return channels
-
-	def connectTODB(self):
+	def connectToDatabase(self):
 		try:
 			host=None
 			if 'localhost' == settings.ENVIRONMENT:
@@ -174,21 +188,20 @@ class Administration():
 			logger.info("[Reminders __init__] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
 			conn = psycopg2.connect(dbConnectionString)
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-			curs = conn.cursor()
 			logger.info("[Reminders __init__] PostgreSQL connection established")
 		except Exception as e:
 			logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL connection\n{}".format(e))
 
-		return curs
+		return conn
 
 	@commands.command()
 	async def frequency(self, ctx, *args):
 		logger.info("[Administration frequency()] frequency command detected from "+str(ctx.message.author)+" with arguments ["+str(args)+"]")
 		if len(args) == 0:
-			await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headersDB())))
+			await ctx.send("please specify which columns you want to count="+str(list(self.get_column_headers_from_database())))
 			return
 		else:
-			dicResult = self.CommandFrequencyDB(self.connectTODB(), args)
+			dicResult = self.determineXYFrequency(self.connectToDatabase(), args)
 
 		dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
 		logger.info("[Administration frequency()] sorted dicResults by value")
@@ -207,8 +220,14 @@ class Administration():
 			ax.set_yticks(y_pos)
 			ax.set_yticklabels(labels)
 			ax.invert_yaxis()  # labels read top-to-bottom
-			#ax.set_xlabel(x_label)
-			#ax.set_title(title)
+
+			if len(args) > 1:
+				title='_'.join(str(arg) for arg in args[:len(args)-1])
+				title+="_"+args[len(args)-1]
+			else:
+				title=args[0]
+			
+			ax.set_title("How may times each "+title+" appears in the database")
 			fig.set_size_inches(18.5, 10.5)
 			fig.savefig('image.png')
 			logger.info("[Administration frequency()] graph created and saved")
@@ -221,9 +240,16 @@ class Administration():
 			if len(dicResult) % 50 != 0:
 				numberOfPages+=1
 			numOfBarsPerPage = int(len(dicResult) / numberOfPages )+1
-			firstIndex, lastIndex= 0, numOfBarsPerPage
+			firstIndex, lastIndex= 0, numOfBarsPerPage-1
+			msg=None
+			currentPage=0
+
+			
 			while firstIndex < len(dicResult):
 				logger.info("[Administration frequency()] creating a graph with entries "+str(firstIndex)+" to "+str(lastIndex))
+				toReact = ['⏪', '⏩', '✅']
+
+
 				labels = [i[0] for i in dicResult][firstIndex:lastIndex]
 				numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
 				plt.rcdefaults()
@@ -237,17 +263,70 @@ class Administration():
 				ax.set_yticks(y_pos)
 				ax.set_yticklabels(labels)
 				ax.invert_yaxis()  # labels read top-to-bottom
-				#ax.set_xlabel(x_label)
-				#ax.set_title(title)
+				ax.set_xlabel("Page "+str(currentPage)+"/"+str(numberOfPages-1))
+				if len(args) > 1:
+					title='_'.join(str(arg) for arg in args[:len(args)-1])
+					title+="_"+args[len(args)-1]
+				else:
+					title=args[0]
+				ax.set_title("How may times each "+title+" appears in the database")
 				fig.set_size_inches(18.5, 10.5)
 				fig.savefig('image.png')
 				logger.info("[Administration frequency()] graph created and saved")
 				plt.close(fig)
-				await ctx.send(file=discord.File('image.png'))
+				if msg is None:
+					msg = await ctx.send(file=discord.File('image.png'))
+				else:
+					await msg.delete()
+					msg = await ctx.send(file=discord.File('image.png'))
+
+				for reaction in toReact:
+					await msg.add_reaction(reaction)
+				def checkReaction(reaction, user):
+					if not user.bot:  ##just making sure the bot doesnt take its own reactions
+						##into consideration
+						e = str(reaction.emoji)
+						logger.info("[numOfBarsPerPage frequency()] reaction " + e + " detected from " + str(user))
+						return e.startswith(('⏪', '⏩', '✅'))
+				
 				logger.info("[Administration frequency()] graph image file has been sent")
-				firstIndex+=numOfBarsPerPage
-				lastIndex+=numOfBarsPerPage
-				logger.info("[Administration frequency()] updating firstIndex and lastIndex to "+str(firstIndex)+" to "+str(lastIndex)+" respectively")
+
+				userReacted = False
+				while userReacted == False:
+					try:
+						userReacted = await self.bot.wait_for('reaction_add', timeout=20, check=checkReaction)
+					except asyncio.TimeoutError:
+						logger.info("[Administration frequency()] timed out waiting for the user's reaction.")
+
+					if userReacted != False:
+						if '⏪' == userReacted[0].emoji:
+							firstIndex-=numOfBarsPerPage
+							lastIndex-=numOfBarsPerPage
+							currentPage-=1
+							if firstIndex < 0:
+								firstIndex, lastIndex= numOfBarsPerPage*3, numOfBarsPerPage*4
+								currentPage=numberOfPages-1
+							logger.info("[Administration frequency()] user indicates they want to go back to page " + str(currentPage))
+							
+						elif '⏩' == userReacted[0].emoji:
+							firstIndex+=numOfBarsPerPage
+							lastIndex+=numOfBarsPerPage
+							currentPage+=1
+							if firstIndex > len(dicResult):
+								firstIndex, lastIndex= 0, numOfBarsPerPage
+								currentPage=0
+							logger.info("[Administration frequency()] user indicates they want to go to page " + str(currentPage))
+							
+						elif '✅' == userReacted[0].emoji:
+							logger.info("[Administration frequency()] user indicates they are done with the roles command, deleting roles message")
+							await msg.delete()
+							return
+					else:
+						logger.info("[Administration frequency()] deleting message")
+						await msg.delete()
+						return
+
+				logger.info("[Administration frequency()] updating firstIndex and lastIndex to "+str(firstIndex)+" and "+str(lastIndex)+" respectively")
 
 def setup(bot):
 	bot.add_cog(Administration(bot))
