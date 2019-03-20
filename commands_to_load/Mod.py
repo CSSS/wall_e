@@ -108,14 +108,11 @@ class Mod():
                         444040481677246464, # execs-academicplan
                         420698199712595968 # froshweek-volunteers
                         ]
-        # mute role id: <@&338575090847580160>
-        # have list of admin channel id's dont get them dynamically in code
-        #  waste of cycles, only case for needing it in code if channels get added
-        #  however admin channels are rare to be made
 
-        # get guild
+        # Get guild
         channels = ctx.guild.channels
-        # set up the perms overwrite
+
+        # Set up the perms overwrite
         overwrite = discord.PermissionOverwrite()
         setattr(overwrite, 'send_messages', False)
         setattr(overwrite, 'manage_messages', False)
@@ -124,11 +121,13 @@ class Mod():
         setattr(overwrite, 'manage_nicknames', False)
         setattr(overwrite, 'manage_roles', False)
         
-        # loop through channels and change the perms
+        # Loop through channels and change the perms
         for channel in channels: 
             if channel.id not in ignoreChannels:
-                print(str(channel.id) + ' ' + channel.name)
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
+
+        eObj = em(description='Muted permissions spread though all channels like herpies. Enjoy :)', footer='Moderator action')
+        await ctx.send(embed=eObj, delete_after=3.0)
 
     @commands.command()
     async def slowmode(self, ctx, time = 10): 
