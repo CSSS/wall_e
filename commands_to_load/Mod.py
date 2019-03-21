@@ -195,7 +195,7 @@ class Mod():
         await council.send(embed=eObj)
 
     @commands.command()
-    async def clear(self, ctx, numOfMsgs = 10):
+    async def clear(self, ctx, numOfMsgs = 10.0):
         # Deletes the last X (10 by default) msg's from channel
         # Limits: Max 100 messages at a time AND no messages older than 2 weeks (14 days)
 
@@ -207,6 +207,8 @@ class Mod():
             logger.info('[Mod clear()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
+
+        numOfMsgs = int(numOfMsgs)
 
         # Verify args
         if numOfMsgs > 100: 
