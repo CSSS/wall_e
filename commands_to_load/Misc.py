@@ -1,18 +1,22 @@
 from discord.ext import commands
 import logging
-import requests as req
+import aiohttp
 from helper_files.embed import embed 
+from helper_files.Paginate import paginateEmbed
 import helper_files.settings as settings
 import json
-from main import wolframAPI, wolframClient
+import wolframalpha
+import discord.client
 
 logger = logging.getLogger('wall_e')
 
+wolframClient = wolframalpha.Client(settings.wolframAPI)
 
 class Misc():
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.session = aiohttp.ClientSession(loop=bot.loop)
 
 	@commands.command()
 	async def poll(self, ctx, *questions):
@@ -75,33 +79,32 @@ class Misc():
 		
 		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
 		logger.info("[Misc urban()] following url  constructed for get request =\""+str(url)+"\"")
-		
 
-		res = req.get(url)
-		logger.info("[Misc urban()] Get request made =\""+str(res)+"\"")
-		
-		if(res.status_code != 404):
-			logger.info("[Misc urban()] Get request successful")			
-			data = res.json()
-		else:
-			logger.info("[Misc urban()] Get request failed, 404 resulted")
+		async with self.session.get(url) as res:
 			data = ''
+			if res.status == 200:
+				logger.info("[Misc urban()] Get request successful")
+				data = await res.json()
+			else:
+				logger.info("[Misc urban()] Get request failed resulted in " + str(res.status))
 
-		data = data['list']
-		if not data:
-			logger.info("[Misc urban()] sending message indicating 404 result")
-			eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
-			await ctx.send(embed=eObj)
-			return
-		else:
-			logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
-			urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
-			content = [
-				['Definition', data[1]['definition']], 
-				['Link', '[here](%s)' % urbanUrl]
-				]
-			eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
-			await ctx.send(embed=eObj)
+			data = data['list']
+			if not data:
+				logger.info("[Misc urban()] sending message indicating 404 result")
+				eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
+				await ctx.send(embed=eObj)
+				return
+			else:
+				logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
+				urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+				# truncate to fit in embed, field values must be 1024 or fewer in length
+				definition = data[0]['definition'][:1021] + '...' if len(data[0]['definition']) > 1024 else data[0]['definition']
+				content = [
+					['Definition', definition],
+					['Link', '[here](%s)' % urbanUrl]
+					]
+				eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
+				await ctx.send(embed=eObj)
 
 	@commands.command()
 	async def wolfram(self, ctx, *arg):
@@ -134,6 +137,93 @@ class Misc():
 			await ctx.send(embed=eObj)
 			logger.error("[Misc wolfram()] result NOT found for %s" % arg)
 
+	@commands.command()
+	async def help(self, ctx):
+		numberOfCommandsPerPage=5
+		await ctx.send("     help me.....")
+		logger.info("[Misc help()] help command detected from "+str(ctx.message.author))
+		logger.info("[Misc help()] attempting to load command info from help.json")
+		with open('commands_to_load/help.json') as f:
+			helpDict = json.load(f)
+		logger.info("[Misc help()] loaded commands from help.json=\n"+str(json.dumps(helpDict, indent=3)))
+		
+		# determing the number of commands the user has access to.
+		numberOfCommands=0
+		for entry in helpDict['commands']:
+			if entry['access'] == "role": ## if the access for the command is determined on the role of the user
+				if entry['role'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+					if 'Class' not in entry['name']:
+						numberOfCommands += 1
+				elif entry['role'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+					if 'Class' not in entry['name']:
+						numberOfCommands += 1					
+				elif entry['role'] == "public":
+					if 'Class' not in entry['name']:
+						numberOfCommands += 1
+			elif entry['access'] == "channel": ## if the access for the command is determined on permissions
+			## in the channel that the help comamnd was called from, rather than generic role permissions
+				if entry['channel'] in (item[0] for item in list(ctx.channel.permissions_for(ctx.message.author))):
+					if 'Class' not in entry['name']:
+						numberOfCommands += 1	
+
+		logger.info("[Misc help()] numberOfCommands set to "+str(numberOfCommands))
+		descriptionToEmbed=[""]
+		x, page = 0, 0
+		for entry in helpDict['commands']:
+			if entry['access'] == "role":
+				if entry['role'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+					if 'Class' in entry['name']:
+						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+						descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+					else:
+						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
+						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+						x+=1
+						if x == numberOfCommandsPerPage:
+							descriptionToEmbed.append("")
+							page+=1
+							x = 0					
+				elif entry['role'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
+					if 'Class' in entry['name']:
+						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+						descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"					
+					else:
+						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+						x+=1
+						if x == numberOfCommandsPerPage:
+							descriptionToEmbed.append("")
+							page+=1
+							x = 0
+				elif entry['role'] == "public":
+					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+					if 'Class' in entry['name']:
+						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+						descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+					else:
+						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+						x+=1
+						if x == numberOfCommandsPerPage:
+							descriptionToEmbed.append("")
+							page+=1
+							x = 0
+			elif entry['access'] == "channel":
+				if entry['channel'] in (item[0] for item in list(ctx.channel.permissions_for(ctx.message.author)) if item[1]):
+					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
+					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+					x+=1
+					if x == numberOfCommandsPerPage:
+						descriptionToEmbed.append("")
+						page+=1
+						x = 0				
+			else:
+				logger.info("[Misc help()] "+str(entry)+" has a wierd access level of "+str(entry['access'])+"....not sure how to handle it so not adding it to the descriptionToEmbed")
+		logger.info("[Misc help()] transfer successful")
+
+		await paginateEmbed(self.bot, ctx, descriptionToEmbed, title="Help Page" )
+
+	def __del__(self):
+		self.session.close()
 
 def setup(bot):
 	bot.add_cog(Misc(bot))

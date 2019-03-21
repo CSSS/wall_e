@@ -1,7 +1,10 @@
-pytz
-redis
-parsedatetime
-discord-rewrite==1.0.0
 yarl<1.2
-requests
-wolframalpha
+bs4
+psycopg2
+git+https://github.com/Rapptz/discord.py@3f06f247c039a23948e7bb0014ea31db533b4ba2#egg=discord.py[voice]
+psycopg2-binary
+pytz==2018.5
+parsedatetime==2.4
+wolframalpha==3.0.1
+numpy==1.15.2
+matplotlib==3.0.0
