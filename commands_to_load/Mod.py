@@ -458,10 +458,10 @@ class Mod():
         await ctx.send(embed=eObj)
 
         # Tell council
-        logger.info('[Mod unlock()] council informed of locked channel')
+        logger.info('[Mod unlock()] council informed of unlocked channel')
         council = discord.utils.get(ctx.guild.channels, name='council')
-        eObj = em(description='{} unlock {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
-        await ctx.send(embed=eObj)
+        eObj = em(description='{} unlocked {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
+        await council.send(embed=eObj)
 
 def setup(bot):
     bot.add_cog(Mod(bot))
