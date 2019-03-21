@@ -438,7 +438,8 @@ class Mod():
 
         if ow[1].send_messages == True or ow[1].send_messages == None: 
             # Not locked
-            await ctx.send('You can\'t unlock what isn\'t locked.\n-Richard Stallman\'s Fart', delete_after=3.0)
+            eObj = em(description='You can\'t unlock what isn\'t locked.\n-Richard Stallman\'s Fart', footer='Command error')
+            await ctx.send(embed=eObj, delete_after=3.0)
             return
 
         # If here then the channel is locked and we can proceed 
