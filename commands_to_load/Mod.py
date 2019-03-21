@@ -211,9 +211,9 @@ class Mod():
         numOfMsgs = int(numOfMsgs)
 
         # Verify args
-        if numOfMsgs > 100: 
+        if numOfMsgs > 100 or numOfMsgs < 1: 
             # Prevents discord.ClientException 
-            eObj = em(description='Number of messages to be deleted cannot be more than 100', footer='Invalid arguments')
+            eObj = em(description='Number of messages to be between 1 and 100 inclusively', footer='Invalid arguments')
             await ctx.send(embed=eObj)
 
         channel = ctx.channel
