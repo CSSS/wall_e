@@ -257,8 +257,6 @@ async def on_command(ctx):
 			argument=''
 			for arg in ctx.args:
 				if index > 1:
-					if ',' in arg:
-						arg = arg.replace(',', '[comma]')
 					argument += arg+' '
 				index+=1
 			epoch_time = str(int(time.time()))
@@ -269,8 +267,8 @@ async def on_command(ctx):
 			current_day=str(now.day)
 			current_hour=str(now.hour)
 			channel_id=str(ctx.channel.id)
-			channel_name=str(ctx.channel).replace(",","[comma]").strip()
-			author=str(ctx.message.author).replace(",","[comma]").strip()
+			channel_name=str(ctx.channel)
+			author=str(ctx.message.author)
 			command=str(ctx.command).strip()
 			argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
 			method_of_invoke=str(ctx.invoked_with).strip()
