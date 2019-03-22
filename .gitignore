@@ -162,3 +162,7 @@ logs/stats_of_commands.csv
 notes/
 sftp-config.json
 test-bot.iml
+
+#VJ's files
+setup.sh
+token.txt
