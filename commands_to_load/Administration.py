@@ -92,22 +92,25 @@ class Administration():
 		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 			logger.info("[Administration exc()] "+str(ctx.message.author)+" successfully authenticated")
 			query = " ".join(args)
+			if 'WOLFRAMAPI' not in query and 'TOKEN' not in query and 'WALL_E_DB_PASSWORD' not in query and 'POSTGRES_PASSWORD' not in query:
 
-			#this got implemented for cases when the output of the command is too big to send to the channel
-			exitCode, output = subprocess.getstatusoutput(query)
-			prefix = "truncated output=\n"
-			if len(output)>2000 :
-				logger.info("getting reduced")
-				length = len(output)- (len(output) - 2000) #taking length of just output into account
-				length = length - len(prefix) #taking length of prefix into account
-				length = length - 6 #taking length of prefix into account
-				length = length - 12 - len(str(exitCode)) #taking exit code info into account
-				output=output[:length]
-				await ctx.send("Exit Code: "+str(exitCode)+"\n"+prefix+"```"+output+"```")
-			elif len(output) == 0:
-				await ctx.send("Exit Code: "+str(exitCode)+"\n")
+				#this got implemented for cases when the output of the command is too big to send to the channel
+				exitCode, output = subprocess.getstatusoutput(query)
+				prefix = "truncated output=\n"
+				if len(output)>2000 :
+					logger.info("getting reduced")
+					length = len(output)- (len(output) - 2000) #taking length of just output into account
+					length = length - len(prefix) #taking length of prefix into account
+					length = length - 6 #taking length of prefix into account
+					length = length - 12 - len(str(exitCode)) #taking exit code info into account
+					output=output[:length]
+					await ctx.send("Exit Code: "+str(exitCode)+"\n"+prefix+"```"+output+"```")
+				elif len(output) == 0:
+					await ctx.send("Exit Code: "+str(exitCode)+"\n")
+				else:
+					await ctx.send("Exit Code: "+str(exitCode)+"\n```"+output+"```")
 			else:
-				await ctx.send("Exit Code: "+str(exitCode)+"\n```"+output+"```")
+				await ctx.send("Can\'t perform this command as it contains an environment variable that is being protected. If this command is innocent, fix the .exc command to allow it to pass")
 		else:
 			logger.info("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
