@@ -267,12 +267,12 @@ async def on_command(ctx):
 			current_day=str(now.day)
 			current_hour=str(now.hour)
 			channel_id=str(ctx.channel.id)
-			channel_name=str(ctx.channel)
-			author=str(ctx.message.author)
-			command=str(ctx.command).strip()
-			argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
-			method_of_invoke=str(ctx.invoked_with).strip()
-			invoked_subcommand=str(ctx.invoked_subcommand).strip()
+			channel_name=str(ctx.channel).replace("\'","[single_quote]").strip()
+			author=str(ctx.message.author).replace("\'","[single_quote]").strip()
+			command=str(ctx.command).replace("\'","[single_quote]").strip()
+			argument=str(argument).replace("\'","[single_quote]").strip() if command is not "embed" else "redacted due to large size"
+			method_of_invoke=str(ctx.invoked_with).replace("\'","[single_quote]").strip()
+			invoked_subcommand=str(ctx.invoked_subcommand).replace("\'","[single_quote]").strip()
 
 			#this next part is just setup to keep inserting until it finsd a primary key that is not in use
 			successful=False
