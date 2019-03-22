@@ -80,16 +80,16 @@ class Mod():
         await ctx.send(embed=eObj)
 
     @commands.command(aliases=['propm'])
-    async def propigatemute(self, ctx):
+    async def propagatemute(self, ctx):
         """Ensures all channels have the muted role as part of its permissions.""" 
         ## Avoid the admin category of channels and rules and announcments channel since nobody can talk in there anyway
 
-        logger.info('[Mod propigatemute()] propigatemute function detected by user ' + str(ctx.message.author))
+        logger.info('[Mod propagatemute()] propagatemute function detected by user ' + str(ctx.message.author))
         await ctx.message.delete()
-        logger.info('[Mod propigatemute()] invoking message deleted')
+        logger.info('[Mod propagatemute()] invoking message deleted')
         
         if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
-            logger.info('[Mod propigatemute()] unathorized command attempt detected. Being handled.')
+            logger.info('[Mod propagatemute()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
 
