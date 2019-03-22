@@ -255,7 +255,6 @@ async def on_command(ctx):
 			curs = conn.cursor()
 			index=0
 			argument=''
-			
 			for arg in ctx.args:
 				if index > 1:
 					if ',' in arg:
@@ -276,6 +275,7 @@ async def on_command(ctx):
 			argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
 			method_of_invoke=str(ctx.invoked_with).strip()
 			invoked_subcommand=str(ctx.invoked_subcommand).strip()
+
 
 			sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
 							VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",

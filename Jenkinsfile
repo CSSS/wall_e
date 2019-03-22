@@ -33,7 +33,7 @@ pipeline {
 
                         ]) {
                             sh "docker rm -f ${testContainerName} ${testContainerDBName} || true"
-                            // sh "docker volume rm ${COMPOSE_PROJECT_NAME}_logs || true"
+                            sh "docker volume rm ${COMPOSE_PROJECT_NAME}_logs || true"
                             sh "docker network rm ${COMPOSE_PROJECT_NAME.toLowerCase()}_default || true"
                             sh "docker image rm -f ${testContainerName.toLowerCase()} || true"
 
