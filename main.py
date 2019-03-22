@@ -276,7 +276,6 @@ async def on_command(ctx):
 			method_of_invoke=str(ctx.invoked_with).strip()
 			invoked_subcommand=str(ctx.invoked_subcommand).strip()
 
-
 			sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
 							VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
 							 '"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
