@@ -74,7 +74,8 @@ class Misc():
 		logger.info("[Misc urban()] query string being contructed")
 		queryString = ''
 		for x in arg:
-			queryString += x + '%20'
+			queryString += x.replace(' ', '%20') + '%20'
+		queryString = queryString.replace('%20%20', '%20')
 		queryString = queryString[:len(queryString)-3]
 		
 		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
