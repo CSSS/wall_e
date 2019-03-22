@@ -35,6 +35,17 @@
 		{ "access": "role", "role" : "Bot_manager", "name": "Class: Minions"},
 		{ "access": "role", "role" : "Minions", "name": ".embed <arg0> <arg1> ...", "description": "Allows Minions to post embed messages.\nFor odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.\nFor even number there will be no description."},
 		{ "access": "role", "role" : "Minions", "name": ".modspeak <arg>", "description": "Posts the warning message <arg> in embed format. No quotes required with message."},
+		{"access": "role", "role" : "Minions", "name": ".propagatemute", "description": "The command spreads permissions for the @Muted role throughout all channels in the guild"},
+		{"access": "role", "role" : "Minions", "name": ".slowmode [<seconds>]", "description": "Enter the current channel into slowmode with a 10 second delay by default. Optionally you can specify and integer amount of seconds between messages as the `<arg>`."},
+		{"access": "role", "role" : "Minions", "name": ".makechannel <channel Name> [1]", "description": "Creates a channel with the name given. If you want to make a secret channel enter a \"1\" after the channel name. Command sends message to council to inform Minions of the new channel."},
+		{"access": "role", "role" : "Minions", "name": ".clear [<Number of messages>]", "description": "Clears the last X messages in current channel. 10 messages by default, or optionally you can specify the number of messages to clear."},
+		{"access": "role", "role" : "Minions", "name": ".purge <@ mention of target user> [<number of messages>]", "description": "Purges (or deletes) the last X messages by the target user. Defaults to 10 messages, or optionally you can specify the number of messages to delete from the user."},
+		{"access": "role", "role" : "Minions", "name": ".mute <@ mention of target user>", "description": "Adds the @MUTED role to the target user and pm's them letting them know. Command sends message to council to inform them which Minion muted which user."},
+		{"access": "role", "role" : "Minions", "name": ".unmute <@ mention of target user>", "description": "Removes the @MUTED role from the target user and pm's them letting them know. Command sends message to council to inform them which Minion unmuted which user."},
+		{"access": "role", "role" : "Minions", "name": ".lock", "description": "Removes @everyone's permission to send messages in the current channel. Minions excemption also added. Command sends message to council to inform them which Minion locked which channel."},
+		{"access": "role", "role" : "Minions", "name": ".unlock", "description": "Undo's everything done by `.lock` command and messages council to inform which Minions unlocked which channel."},
+
+
 
 		{"access": "role", "role" : "Bot_manager", "name": "Class: Here"},
 		{ "access": "role", "role" : "public", "name": ".here <filters> ...", "description": "Displays all users with permissions to view the current channel. Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."},
