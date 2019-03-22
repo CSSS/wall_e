@@ -255,6 +255,7 @@ async def on_command(ctx):
 			curs = conn.cursor()
 			index=0
 			argument=''
+			
 			for arg in ctx.args:
 				if index > 1:
 					if ',' in arg:
