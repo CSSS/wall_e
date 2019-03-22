@@ -276,13 +276,22 @@ async def on_command(ctx):
 			method_of_invoke=str(ctx.invoked_with).strip()
 			invoked_subcommand=str(ctx.invoked_subcommand).strip()
 
-
-			sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
-							VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
-							 '"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
-							 '"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
-			logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
-			curs.execute(sqlCommand)
+			#this next part is just setup to keep inserting until it finsd a primary key that is not in use
+			successful=False
+			while not successful:
+				try:
+					sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
+					VALUES ("""+str(epoch_time)+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
+					'"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
+					'"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
+					logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
+					curs.execute(sqlCommand)
+				except psycopg2.IntegrityError as e:
+					logger.error("[main.py on_command()] enountered following exception when trying to insert the record\n{}".format(e))	
+					epoch_time += 1
+					logger.info("[main.py on_command()] incremented the epoch time to "+str(epoch_time)+" and will try again.")	
+				else:
+					successful=True
 			curs.close()
 			conn.close()
 		except Exception as e:
