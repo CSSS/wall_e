@@ -268,7 +268,10 @@ async def on_command(ctx):
 			current_hour=str(now.hour)
 			channel_id=str(ctx.channel.id)
 			channel_name=str(ctx.channel).replace("\'","[single_quote]").strip()
-			author=str(ctx.message.author).replace("\'","[single_quote]").strip()
+			if ctx.guild.get_member(ctx.message.author.id).name.isalnum():
+				author=str(ctx.message.author).replace("\'","[single_quote]").strip()
+			else:
+				author="<"+str(ctx.message.author.id).replace("\'","[single_quote]").strip()+">"
 			command=str(ctx.command).replace("\'","[single_quote]").strip()
 			argument=str(argument).replace("\'","[single_quote]").strip() if command is not "embed" else "redacted due to large size"
 			method_of_invoke=str(ctx.invoked_with).replace("\'","[single_quote]").strip()
