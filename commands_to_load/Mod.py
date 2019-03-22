@@ -357,7 +357,7 @@ class Mod():
 
         # Tell user of their new freedom and to not abuse it
         logger.info('[Mod unmute()] letting {} know they\'ve been unmuted and to not do something stupid again')
-        eObj = em(description='You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you\'ll get more than a ban', footer='Moderator action')
+        eObj = em(description='You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you might be kicked or banned.', footer='Moderator action')
         await user.send(embed=eObj)
 
         # Inform council of actions
