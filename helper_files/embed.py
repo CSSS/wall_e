@@ -18,13 +18,13 @@ def embed(title='', content='', description='', author='', colour=0x00bfbd, link
 
 	#these are put in place cause of the limits on embed described here
 	# https://discordapp.com/developers/docs/resources/channel#embed-limits
-	if title.length() > 256:
-		ctx.send("length of the title ["+str(title)+"] being added to the name field is "+str(title.length()-256)+" too big, pleae cut down to a size of 256")
+	if len(title) > 256:
+		ctx.send("length of the title ["+str(title)+"] being added to the name field is "+str(len(title)-256)+" too big, pleae cut down to a size of 256")
 		logger.info("[Mod embed()] length of name ["+str(title)+"] being added to the field is too big")
 		return False
 
-	if description.length() > 2048:
-		ctx.send("length of name ["+str(description)+"] being added to the name field is "+str(description.length()-2048)+" too big, pleae cut down to a size of 2048")
+	if len(description) > 2048:
+		ctx.send("length of name ["+str(description)+"] being added to the name field is "+str(len(description)-2048)+" too big, pleae cut down to a size of 2048")
 		logger.info("[Mod embed()] length of name ["+str(description)+"] being added to the field is too big")
 		return False
 
@@ -34,17 +34,17 @@ def embed(title='', content='', description='', author='', colour=0x00bfbd, link
 		return False
 
 	for record in content:
-		if record[0].length() > 256:
-			ctx.send("length of name ["+str(record[0])+"] being added to the name field is "+str(record[0].length()-256)+" too big, pleae cut down to a size of 256")
+		if len(record[0]) > 256:
+			ctx.send("length of name ["+str(record[0])+"] being added to the name field is "+str(len(record[0])-256)+" too big, pleae cut down to a size of 256")
 			logger.info("[Mod embed()] length of name ["+str(record[0])+"] being added to the field is too big")
 			return False
-		if record[1].length() > 1024:
-			ctx.send("length of name ["+str(record[1])+"] being added to the name field is "+str(record[1].length()-1024)+" too big, pleae cut down to a size of 1024")
+		if len(record[1]) > 1024:
+			ctx.send("length of name ["+str(record[1])+"] being added to the name field is "+str(len(record[1])-1024)+" too big, pleae cut down to a size of 1024")
 			logger.info("[Mod embed()] length of name ["+str(record[1])+"] being added to the field is too big")
 			return False
 
 	if len(footer) > 2048:
-		ctx.send("length of name ["+str(footer)+"] being added to the name field is "+str(footer.length()-2048)+" too big, pleae cut down to a size of 2048")
+		ctx.send("length of name ["+str(footer)+"] being added to the name field is "+str(len(footer)-2048)+" too big, pleae cut down to a size of 2048")
 		logger.info("[Mod embed()] length of name ["+str(footer)+"] being added to the field is too big")
 		return False
 
