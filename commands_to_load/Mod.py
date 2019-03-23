@@ -19,6 +19,8 @@ class Mod():
             await asyncio.sleep(5)
             await msg.delete()
             logger.info('[Mod rekt()] troll message deleted')
+        else:
+            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
     
     def __init__(self, bot):
         self.bot = bot
@@ -58,12 +60,14 @@ class Mod():
         eObj = em(description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d ,content=fields)
         if eObj is not False:
             await ctx.send(embed=eObj)
+        else:
+            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
     @commands.command(aliases=['warn'])
     async def modspeak(self, ctx, *arg):
         logger.info('[Mod modspeak()] modspeack function detected by minion ' + str(ctx.message.author))
         await ctx.message.delete()
-        logger.info('[Mod embed()] invoking message deleted')
+        logger.info('[Mod modspeak()] invoking message deleted')
 
         if not arg:
             logger.info("[Mod modspeak()] no args, so command ended")
@@ -81,6 +85,8 @@ class Mod():
         eObj = em(title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         if eObj is not False:
             await ctx.send(embed=eObj)
+        else:
+            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 def setup(bot):
     bot.add_cog(Mod(bot))

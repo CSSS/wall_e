@@ -25,6 +25,8 @@ class SFU():
             eObj = embed(title='Missing Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Usage', '`.sfu <arg>`'],['Example', '`.sfu cmpt300`']], footer='SFU Error')
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             logger.info('[SFU sfu()] missing arguments, command ended')
             return
 
@@ -50,7 +52,9 @@ class SFU():
                 eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=[['Usage', '`.sfu <arg>`'],['Example', '`.sfu cmpt300`']], footer='SFU Error')
                 if eObj is not False:
                     await ctx.send(embed=eObj)
-                logger.info('[SFU outline()] bad arguments, command ended')
+                else:
+                    await ctx.send("issue detected wth embed function, please look above for what the issue is.")
+                logger.info('[SFU sfu()] bad arguments, command ended')
                 return
             
             courseCode = crs[0].lower()
@@ -79,6 +83,8 @@ class SFU():
                 eObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for:\n%s/%s/%s/%s/\nMake sure you entered all the arguments correctly' % (year, term.upper(), courseCode.upper(), courseNum), footer='SFU Error')
                 if eObj is not False:
                     await ctx.send(embed=eObj)
+                else:
+                    await ctx.send("issue detected wth embed function, please look above for what the issue is.")
                 return
         
         logger.info('[SFU sfu()] parsing json data returned from get request')
@@ -95,6 +101,8 @@ class SFU():
         embedObj = embed(title='Results from SFU', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=fields, colour=sfuRed, footer=footer)
         if eObj is not False:
             await ctx.send(embed=embedObj)
+        else:
+            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
         logger.info('[SFU sfu()] out sent to server')        
 
     @commands.command()
@@ -111,6 +119,8 @@ class SFU():
             eObj = embed(title='Missing Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=usage, footer='SFU Outline Error')
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             logger.info('[SFU outline()] missing arguments, command ended')
             return
         course = list(course)
@@ -146,6 +156,8 @@ class SFU():
                 eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, content=usage, footer='SFU Outline Error')
                 if eObj is not False:
                     await ctx.send(embed=eObj)
+                else:
+                    await ctx.send("issue detected wth embed function, please look above for what the issue is.")
                 logger.info('[SFU outline()] bad arguments, command ended')
                 return
 
@@ -180,6 +192,8 @@ class SFU():
                     eObj = embed(title='Bad Arguments', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Make sure your arguments are in the following order:\n<course> <term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section are optional args', footer='SFU Outline Error')
                     if eObj is not False:
                         await ctx.send(embed=eObj)
+                    else:
+                        await ctx.send("issue detected wth embed function, please look above for what the issue is.")
                     return
 
         # Set up url for get
@@ -203,6 +217,8 @@ class SFU():
                 eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
                 if eObj is not False:
                     await ctx.send(embed=eObj)
+                else:
+                    await ctx.send("issue detected wth embed function, please look above for what the issue is.")
                 return
 
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?%s/%s/%s/%s/%s' % (year, term, courseCode, courseNum, section)
@@ -223,6 +239,8 @@ class SFU():
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             return
 
         logger.info('[SFU outline()] parsing data from get request')
@@ -237,6 +255,8 @@ class SFU():
             eObj = embed(title='SFU Course Outlines', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline Error')
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             return
 
         outline = info['outlinePath'].upper()
@@ -329,6 +349,8 @@ class SFU():
         eObj = embed(title='SFU Outline Results', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=sfuRed, thumbnail=img, content=fields, footer='Written by VJ')
         if eObj is not False:
             await ctx.send(embed=eObj)
+        else:
+            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
     def __del__(self):
         self.req.close()

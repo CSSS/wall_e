@@ -24,6 +24,8 @@ class RoleCommands():
                 if eObj is not False:
                     await ctx.send(embed=eObj)
                     logger.info("[RoleCommands newrole()] "+roleToAdd+" already exists")
+                else:
+                    await ctx.send("issue detected wth embed function, please look above for what the issue is.")
                 return
         role = await guild.create_role(name=roleToAdd)
         await role.edit(mentionable=True)
@@ -32,7 +34,8 @@ class RoleCommands():
         eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nCalling `.iam "+roleToAdd+"` will add it to you.")
         if eObj is not False:
             await ctx.send(embed=eObj)
-
+        else:
+            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
     @commands.command()
     async def deleterole(self, ctx, roleToDelete):
         logger.info("[RoleCommands deleterole()] "+str(ctx.message.author)+" called deleterole with role "+str(roleToDelete)+".")
@@ -43,6 +46,8 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** does not exist.")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             return
         membersOfRole = role.members
         if not membersOfRole:
@@ -51,11 +56,15 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** deleted.")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
         else:
             logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** has members. Cannot delete.")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
     @commands.command()
     async def iam(self, ctx, roleToAdd):
@@ -67,6 +76,8 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToAdd + "**` doesn't exist.\nCalling .newrole " + roleToAdd)
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             return
         user = ctx.message.author
         membersOfRole = role.members
@@ -75,6 +86,8 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAHP!!")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
         else:
             await user.add_roles(role)
             logger.info("[RoleCommands iam()] user " + str(user) + " added to role " + str(roleToAdd) + ".")
@@ -85,6 +98,8 @@ class RoleCommands():
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully been added to role **`" + roleToAdd + "`**.")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
     @commands.command()
     async def iamn(self, ctx, roleToRemove):
@@ -96,6 +111,8 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToRemove + "`** doesn't exist.")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             return
         membersOfRole = role.members
         user = ctx.message.author
@@ -105,6 +122,8 @@ class RoleCommands():
             if eObj is not False:
                 await ctx.send(embed=eObj)
                 logger.info("[RoleCommands iamn()] " + str(user) + " has been removed from role " + str(roleToRemove) )
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             # delete role if last person
             membersOfRole = role.members
             if not membersOfRole:
@@ -113,12 +132,15 @@ class RoleCommands():
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + role.name + "`** deleted.")
                 if eObj is not False:
                     await ctx.send(embed=eObj)
+                else:
+                    await ctx.send("issue detected wth embed function, please look above for what the issue is.")
         else:
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Boop Beep??\n You don't have the role, so how am I gonna remove it????")
             if eObj is not False:
                 await ctx.send(embed=eObj)
             logger.info("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
-
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 
     @commands.command()
@@ -131,6 +153,8 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="**`" + roleToCheck + "`** does not exist.")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             logger.info("[RoleCommands whois()] role "+str(roleToCheck) + " doesnt exist")
             return
         membersOfRole = role.members
@@ -139,6 +163,8 @@ class RoleCommands():
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="No members in role **`" + roleToCheck + "`**.")
             if eObj is not False:
                 await ctx.send(embed=eObj)
+            else:
+                await ctx.send("issue detected wth embed function, please look above for what the issue is.")
             return
         for members in membersOfRole:
             name = members.display_name
@@ -148,6 +174,8 @@ class RoleCommands():
         eObj = embed(title="Members belonging to role: `" + roleToCheck + '`', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=memberString)
         if eObj is not False:
             await ctx.send(embed=eObj)
+        else:
+            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
     @commands.command()
     async def roles(self, ctx):
@@ -184,7 +212,7 @@ class RoleCommands():
     @commands.command()
     async def Roles(self, ctx):
         numberOfRolesPerPage=5
-        logger.info("[Misc Roles()] roles command detected from user "+str(ctx.message.author))
+        logger.info("[RoleCommands Roles()] roles command detected from user "+str(ctx.message.author))
 
         #declares and populates assignedRoles with all self-assignable roles and how many people are in each role
         assignedRoles = []
@@ -193,12 +221,12 @@ class RoleCommands():
                 numberOfMembers = len(discord.utils.get(ctx.guild.roles, name=str(role.name)).members)
                 assignedRoles.append((str(role.name),numberOfMembers))
 
-        logger.info("[Misc Roles()] assignedRoles array populated with the roles extracted from \"guild.roles\"")
+        logger.info("[RoleCommands Roles()] assignedRoles array populated with the roles extracted from \"guild.roles\"")
 
         assignedRoles.sort(key=itemgetter(0))
-        logger.info("[Misc Roles()] roles in arrays sorted alphabetically")
+        logger.info("[RoleCommands Roles()] roles in arrays sorted alphabetically")
 
-        logger.info("[HealthChecks help()] tranferring array to description array")
+        logger.info("[RoleCommands Roles()] tranferring array to description array")
 
         x, currentIndex = 0, 0;
         descriptionToEmbed = ["Roles - Number of People in Role\n"]
@@ -209,14 +237,14 @@ class RoleCommands():
                 descriptionToEmbed.append("Roles - Number of People in Role\n")
                 currentIndex+=1
                 x = 0
-        logger.info("[RoleCommands roles()] transfer successful")
+        logger.info("[RoleCommands Roles()] transfer successful")
 
         await paginateEmbed(self.bot,ctx,descriptionToEmbed, title="Mod/Exec/XP Assigned Roles")
 
 
     @commands.command()
     async def purgeroles(self, ctx):
-        logger.info("[Misc purgeroles()] purgeroles command detected from user " + str(ctx.message.author))
+        logger.info("[RoleCommands purgeroles()] purgeroles command detected from user " + str(ctx.message.author))
 
         embed = discord.Embed(type = "rich")
         embed.color = discord.Color.blurple()
@@ -233,7 +261,7 @@ class RoleCommands():
             embed.title = "It seems that the bot don't have permissions to delete roles. :("
             await ctx.send(embed=embed)
             return
-        logger.info("[Misc purgeroles()] bot's highest role is " + str(bot_highestRole) +" and its ability to delete roles is " +str(bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator))
+        logger.info("[RoleCommands purgeroles()] bot's highest role is " + str(bot_highestRole) +" and its ability to delete roles is " +str(bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator))
         
 
         ##determine if user who is calling the command is able to delete the roles
@@ -244,7 +272,7 @@ class RoleCommands():
             embed.title = "You don't have permissions to delete roles. :("
             await ctx.send(embed=embed)
             return
-        logger.info("[Misc purgeroles()] user's highest role is " + str(author_highestRole) +" and its ability to delete roles is " +str(ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator))
+        logger.info("[RoleCommands purgeroles()] user's highest role is " + str(author_highestRole) +" and its ability to delete roles is " +str(ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator))
 
 
         guild = ctx.guild
@@ -256,17 +284,17 @@ class RoleCommands():
                     softRoles.append(role)
                 else:
                     undeletableRoles.append(role.name)
-        logger.info("[Misc purgeroles()] Located all the empty roles that both the user and the bot can delete")
-        logger.info("[Misc purgeroles()] the ones it can't are: "+str(', '.join(undeletableRoles)))
+        logger.info("[RoleCommands purgeroles()] Located all the empty roles that both the user and the bot can delete")
+        logger.info("[RoleCommands purgeroles()] the ones it can't are: "+str(', '.join(undeletableRoles)))
 
         deleted = []
         for role in softRoles:
             membersInRole = role.members
             if not membersInRole:
-                logger.info("[Misc purgeroles()] deleting empty role @" + role.name)
+                logger.info("[RoleCommands purgeroles()] deleting empty role @" + role.name)
                 deleted.append(role.name)
                 await role.delete()
-                logger.info("[Misc purgeroles()] deleted empty role @" + role.name)
+                logger.info("[RoleCommands purgeroles()] deleted empty role @" + role.name)
 
 
         if not deleted:

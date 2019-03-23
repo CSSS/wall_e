@@ -29,6 +29,8 @@ class Misc():
 			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please only submit a maximum of 11 options for a multi-option question.')
 			if eObj is not False:
 				await ctx.send(embed=eObj)
+			else:
+				await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 			return
 		elif len(questions) == 1:
 			logger.info("[Misc poll()] yes/no poll being constructed.")
@@ -38,18 +40,24 @@ class Misc():
 				await post.add_reaction(u"\U0001F44D")
 				await post.add_reaction(u"\U0001F44E")
 				logger.info("[Misc poll()] yes/no poll constructed and sent to server.")
+			else:
+				await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 			return
 		if len(questions) == 2:
 			logger.info("[Misc poll()] poll with only 2 arguments detected.")
 			eObj = embed(title='Poll Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please submit at least 2 options for a multi-option question.')
 			if eObj is not False:
 				await ctx.send(embed=eObj)
+			else:
+				await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 			return
 		elif len(questions) == 0:
 			logger.info("[Misc poll()] poll with no arguments detected.")
 			eObj = embed(title='Usage', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='.poll <Question> [Option A] [Option B] ...')
 			if eObj is not False:
 				await ctx.send(embed=eObj)
+			else:
+				await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 			return
 		else:
 			logger.info("[Misc poll()] multi-option poll being constructed.")
@@ -72,6 +80,8 @@ class Misc():
 				for i in range(0, options):
 					await pollPost.add_reaction(numbersUnicode[i])
 				logger.info("[Misc poll()] reactions added to multi-option poll message.")
+			else:
+				await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 	@commands.command()
 	async def urban(self, ctx, *arg):
@@ -99,6 +109,8 @@ class Misc():
 				eObj = embed(title="Urban Results", author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't you?")
 				if eObj is not False:
 					await ctx.send(embed=eObj)
+				else:
+					await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 				return
 			else:
 				logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
@@ -112,6 +124,8 @@ class Misc():
 				eObj = embed(title='Results from Urban Dictionary', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, colour=0xfd6a02, content=content)
 				if eObj is not False:
 					await ctx.send(embed=eObj)
+				else:
+					await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 	@commands.command()
 	async def wolfram(self, ctx, *arg):
@@ -137,6 +151,8 @@ class Misc():
 			if eObj is not False:
 				await ctx.send(embed=eObj)
 				logger.info("[Misc wolfram()] result found for %s" % arg)
+			else:
+				await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 		except (AttributeError, StopIteration):
 			content = [
 				['Results from Wolfram Alpha', "No results found. :thinking: \n\n[Link](%s)" % wolframURL], 
@@ -145,6 +161,8 @@ class Misc():
 			if eObj is not False:
 				await ctx.send(embed=eObj)
 				logger.error("[Misc wolfram()] result NOT found for %s" % arg)
+			else:
+				await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 	@commands.command()
 	async def help(self, ctx):
