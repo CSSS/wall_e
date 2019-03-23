@@ -13,6 +13,7 @@ import re
 import psycopg2
 from discord.ext import commands
 import time
+import aiohttp
 
 bot = commands.Bot(command_prefix='.')
 ##################
@@ -184,14 +185,22 @@ async def write_to_bot_log_channel():
 						line = "." + line
 					output=line
 
-					#done because discord has a character limit of 2000 for each message
-					if len(line)>2000:
-						prefix="truncated output="
-						line = prefix+line
-						length = len(line)- (len(line) - 2000) #taking length of just output into account
-						length = length - len(prefix) #taking length of prefix into account
-						output=line[:length]
-					await channel.send(output)
+					# done because discord has a character limit of 2000 for each message
+					# so what basically happens is it first tries to send the full message, then if it cant, it breaks it down into 2000 sizes messages and send them individually
+					try:
+						await channel.send(output)
+					except (aiohttp.ClientError, discord.errors.HTTPException) as exc:
+						finished = False
+						firstIndex, lastIndex = 0, 2000
+						while not finished:
+							await channel.send(output[firstIndex:lastIndex])
+							firstIndex = lastIndex
+							lastIndex += 2000
+							if len(output[firstIndex:lastIndex]) == 0:
+								finished = True
+					except Exception as e:
+						exc_str = '{}: {}'.format(type(exc).__name__, exc)
+						logger.error('[main.py write_to_bot_log_channel] write to channel failed\n{}'.format(exc_str)) 					
 				line = f.readline()
 			await asyncio.sleep(1)
 
