@@ -135,10 +135,10 @@ class RoleCommands():
                 else:
                     await ctx.send("issue detected wth embed function, please look above for what the issue is.")
         else:
+            logger.info("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Boop Beep??\n You don't have the role, so how am I gonna remove it????")
             if eObj is not False:
                 await ctx.send(embed=eObj)
-            logger.info("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
             else:
                 await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
