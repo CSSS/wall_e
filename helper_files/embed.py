@@ -1,10 +1,11 @@
 import discord
 import asyncio
 import json
-
+import logging
+logger = logging.getLogger('wall_e')
 from discord.ext import commands
 
-def embed(title='', content='', description='', author='', colour=0x00bfbd, link='', thumbnail='', avatar='', footer=''):
+async def embed(ctx, title='', content='', description='', author='', colour=0x00bfbd, link='', thumbnail='', avatar='', footer=''):
 	"""
 	title:<str> Title of the embed 99% of the time it'll be the command name, exceptions when it makes sense like with the sfu command.\n
 	content:<array[tuples]> Array of tuples. Tuple per field of the embed. Field name at index 0 and value at index 1. \n
@@ -19,33 +20,35 @@ def embed(title='', content='', description='', author='', colour=0x00bfbd, link
 	#these are put in place cause of the limits on embed described here
 	# https://discordapp.com/developers/docs/resources/channel#embed-limits
 	if len(title) > 256:
-		ctx.send("length of the title ["+str(title)+"] being added to the name field is "+str(len(title)-256)+" too big, pleae cut down to a size of 256")
-		logger.info("[Mod embed()] length of name ["+str(title)+"] being added to the field is too big")
+		title=str(title)
+		length=str(len(title)-256)
+		await ctx.send("Embed Error:\nlength of the title ```"+title+"``` being added to the title field is "+length+" characters too big, pleae cut down to a size of 256")
+		logger.info("[Mod embed()] length of title ["+str(title)+"] being added to the field is too big")
 		return False
 
 	if len(description) > 2048:
-		ctx.send("length of name ["+str(description)+"] being added to the name field is "+str(len(description)-2048)+" too big, pleae cut down to a size of 2048")
-		logger.info("[Mod embed()] length of name ["+str(description)+"] being added to the field is too big")
+		await ctx.send("Embed Error:\nlength of description ```"+str(description)+"``` being added to the description field is "+str(len(description)-2048)+" characters too big, pleae cut down to a size of 2048")
+		logger.info("[Mod embed()] length of description ["+str(description)+"] being added to the field is too big")
 		return False
 
-	if len(contents) > 25:
-		ctx.send("length of name ["+str(contents)+"] being added to the name field is "+str(contents.length()-25)+" too big, pleae cut down to a size of 25")
-		logger.info("[Mod embed()] length of name ["+str(contents)+"] being added to the field is too big")
+	if len(content) > 25:
+		await ctx.send("Embed Error:\nlength of content ```"+str(content)+"``` being added to the content field is "+str(len(content)-25)+" characters too big, pleae cut down to a size of 25")
+		logger.info("[Mod embed()] length of content ["+str(contents)+"] being added to the field is too big")
 		return False
 
 	for record in content:
 		if len(record[0]) > 256:
-			ctx.send("length of name ["+str(record[0])+"] being added to the name field is "+str(len(record[0])-256)+" too big, pleae cut down to a size of 256")
-			logger.info("[Mod embed()] length of name ["+str(record[0])+"] being added to the field is too big")
+			await ctx.send("Embed Error:\nlength of record ```"+str(record[0])+"``` being added to the name field is "+str(len(record[0])-256)+" characters too big, pleae cut down to a size of 256")
+			logger.info("[Mod embed()] length of record ["+str(record[0])+"] being added to the field is too big")
 			return False
 		if len(record[1]) > 1024:
-			ctx.send("length of name ["+str(record[1])+"] being added to the name field is "+str(len(record[1])-1024)+" too big, pleae cut down to a size of 1024")
-			logger.info("[Mod embed()] length of name ["+str(record[1])+"] being added to the field is too big")
+			await ctx.send("Embed Error:\nlength of record ```"+str(record[1])+"``` being added to the value field is "+str(len(record[1])-1024)+" characters too big, pleae cut down to a size of 1024")
+			logger.info("[Mod embed()] length of record ["+str(record[1])+"] being added to the field is too big")
 			return False
 
 	if len(footer) > 2048:
-		ctx.send("length of name ["+str(footer)+"] being added to the name field is "+str(len(footer)-2048)+" too big, pleae cut down to a size of 2048")
-		logger.info("[Mod embed()] length of name ["+str(footer)+"] being added to the field is too big")
+		await ctx.send("Embed Error:\nlength of footer ```"+str(footer)+"``` being added to the footer field is "+str(len(footer)-2048)+" characters too big, pleae cut down to a size of 2048")
+		logger.info("[Mod embed()] length of footer ["+str(footer)+"] being added to the field is too big")
 		return False
 
 	embObj = discord.Embed(title=title, type='rich')
