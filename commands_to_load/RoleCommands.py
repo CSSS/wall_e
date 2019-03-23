@@ -21,15 +21,17 @@ class RoleCommands():
         for role in guild.roles:
             if role.name == roleToAdd:
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role '" + roleToAdd + "' exists. Calling .iam " + roleToAdd +" will add you to it.")
-                await ctx.send(embed=eObj)
-                logger.info("[RoleCommands newrole()] "+roleToAdd+" already exists")
+                if eObj is not False:
+                    await ctx.send(embed=eObj)
+                    logger.info("[RoleCommands newrole()] "+roleToAdd+" already exists")
                 return
         role = await guild.create_role(name=roleToAdd)
         await role.edit(mentionable=True)
         logger.info("[RoleCommands newrole()] "+str(roleToAdd)+" created and is set to mentionable")
 
         eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully created role **`" + roleToAdd + "`**.\nCalling `.iam "+roleToAdd+"` will add it to you.")
-        await ctx.send(embed=eObj)
+        if eObj is not False:
+            await ctx.send(embed=eObj)
 
     @commands.command()
     async def deleterole(self, ctx, roleToDelete):
@@ -39,18 +41,21 @@ class RoleCommands():
         if role == None:
             logger.info("[RoleCommands deleterole()] role that user wants to delete doesnt seem to exist.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** does not exist.")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
             return
         membersOfRole = role.members
         if not membersOfRole:
             deleteRole = await role.delete()
             logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** deleted.")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
         else:
             logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToDelete + "`** has members. Cannot delete.")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
 
     @commands.command()
     async def iam(self, ctx, roleToAdd):
@@ -60,14 +65,16 @@ class RoleCommands():
         if role == None:
             logger.info("[RoleCommands iam()] role doesnt exist.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToAdd + "**` doesn't exist.\nCalling .newrole " + roleToAdd)
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
             return
         user = ctx.message.author
         membersOfRole = role.members
         if user in membersOfRole:
             logger.info("[RoleCommands iam()] " + str(user) + " was already in the role " + str(roleToAdd) + ".")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Beep Boop\n You've already got the role dude STAAAHP!!")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
         else:
             await user.add_roles(role)
             logger.info("[RoleCommands iam()] user " + str(user) + " added to role " + str(roleToAdd) + ".")
@@ -76,7 +83,8 @@ class RoleCommands():
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="**WELCOME TO SFU!!!!**\nYou have successfully been added to role **`" + roleToAdd + "`**.")
             else:
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully been added to role **`" + roleToAdd + "`**.")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
 
     @commands.command()
     async def iamn(self, ctx, roleToRemove):
@@ -86,25 +94,29 @@ class RoleCommands():
         if role == None:
             logger.info("[RoleCommands iam()] role doesnt exist.")
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToRemove + "`** doesn't exist.")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
             return
         membersOfRole = role.members
         user = ctx.message.author
         if user in membersOfRole:
             await user.remove_roles(role)
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You have successfully been removed from role **`" + roleToRemove + "`**.")
-            await ctx.send(embed=eObj)
-            logger.info("[RoleCommands iamn()] " + str(user) + " has been removed from role " + str(roleToRemove) )
+            if eObj is not False:
+                await ctx.send(embed=eObj)
+                logger.info("[RoleCommands iamn()] " + str(user) + " has been removed from role " + str(roleToRemove) )
             # delete role if last person
             membersOfRole = role.members
             if not membersOfRole:
                 deleteRole = await role.delete()
                 logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
                 eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + role.name + "`** deleted.")
-                await ctx.send(embed=eObj)
+                if eObj is not False:
+                    await ctx.send(embed=eObj)
         else:
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Boop Beep??\n You don't have the role, so how am I gonna remove it????")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
             logger.info("[RoleCommands iamn()] " + str(user) + " wasnt in the role " + str(roleToRemove) )
 
 
@@ -117,14 +129,16 @@ class RoleCommands():
         role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
         if role == None:
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="**`" + roleToCheck + "`** does not exist.")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
             logger.info("[RoleCommands whois()] role "+str(roleToCheck) + " doesnt exist")
             return
         membersOfRole = role.members
         if not membersOfRole:
             logger.info("[RoleCommands whois()] there are no members in the role "+str(roleToCheck))
             eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="No members in role **`" + roleToCheck + "`**.")
-            await ctx.send(embed=eObj)
+            if eObj is not False:
+                await ctx.send(embed=eObj)
             return
         for members in membersOfRole:
             name = members.display_name
@@ -132,7 +146,8 @@ class RoleCommands():
             logString += name + '\t'
         logger.info("[RoleCommands whois()] following members were found in the role: "+str(logString))
         eObj = embed(title="Members belonging to role: `" + roleToCheck + '`', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=memberString)
-        await ctx.send(embed=eObj)
+        if eObj is not False:
+            await ctx.send(embed=eObj)
 
     @commands.command()
     async def roles(self, ctx):

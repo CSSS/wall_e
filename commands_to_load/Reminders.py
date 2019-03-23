@@ -59,12 +59,14 @@ class Reminders():
 		if parsedTime == '':
 			logger.info("[Reminders remindmein()] was unable to extract a time")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a time"+str(how_to_call_command))
-			await ctx.send(embed=eObj)
+			if eObj is not False:
+				await ctx.send(embed=eObj)
 			return
 		if message == '':
 			logger.info("[Reminders remindmein()] was unable to extract a message")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="unable to extract a string"+str(how_to_call_command))
-			await ctx.send(embed=eObj)
+			if eObj is not False:
+				await ctx.send(embed=eObj)
 			return
 		timeUntil = str(parsedTime)
 		logger.info("[Reminders remindmein()] extracted time is "+str(timeUntil))
@@ -73,7 +75,8 @@ class Reminders():
 		if parse_status == 0:
 			logger.info("[Reminders remindmein()] couldn't parse the time")
 			eObj = embed(title='RemindMeIn Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Could not parse time!"+how_to_call_command)
-			await ctx.send(embed=eObj)
+			if eObj is not False:
+				await ctx.send(embed=eObj)
 			return
 
 		expire_seconds = int(mktime(time_struct) - time.time())
@@ -87,8 +90,9 @@ class Reminders():
 		fmt = 'Reminder set for {0} seconds from now'
 
 		eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(expire_seconds))
-		await ctx.send(embed=eObj)
-		logger.info("[Reminders remindmein()] reminder has been contructed and sent.")
+		if eObj is not False:
+			await ctx.send(embed=eObj)
+			logger.info("[Reminders remindmein()] reminder has been contructed and sent.")
 
 	@commands.command()
 	async def showreminders(self, ctx):
@@ -106,16 +110,19 @@ class Reminders():
 				if reminders != '':
 					logger.info("[Reminders showreminders()] sent off the list of reminders to "+str(ctx.message.author))
 					eObj = embed(title="Here are you reminders " + author, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, content=[["MessageID\t\t\t\t\t\t\tReminder", reminders]])
-					await ctx.send(embed=eObj)
+					if eObj is not False:
+						await ctx.send(embed=eObj)
 				else:
 					logger.info("[Reminders showreminders()] "+str(ctx.message.author)+" didnt seem to have any reminders.")
 					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="You don't seem to have any reminders " + author)
-					await ctx.send(embed=eObj)
+					if eObj is not False:
+						await ctx.send(embed=eObj)
 			except Exception as error:
 				eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Something screwy seems to have happened, look at the logs for more info.")
-				await ctx.send(embed=eObj)
-				logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
-				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+				if eObj is not False:
+					await ctx.send(embed=eObj)
+					logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
+					traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 	@commands.command()
 	async def deletereminder(self,ctx,messageId):
@@ -128,8 +135,9 @@ class Reminders():
 				print("result="+str(result))
 				if result is None:
 					eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nSpecified reminder could not be found")
-					await ctx.send(embed=eObj)
-					logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
+					if eObj is not False:
+						await ctx.send(embed=eObj)
+						logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
 				else:
 					if str(result[4]) == str(ctx.message.author):
 					##check to make sure its the right author
@@ -137,11 +145,13 @@ class Reminders():
 						self.curs.execute(sqlCommand)
 						logger.info("[Reminders deletereminder()] following reminder was deleted = "+str(result))
 						eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Following reminder has been deleted:\n"+str(result[2]))
-						await ctx.send(embed=eObj)
+						if eObj is not False:
+							await ctx.send(embed=eObj)
 					else:
 						eObj = embed(title='Delete Reminder', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="ERROR\nYou are trying to delete a reminder that is not yours")
-						await ctx.send(embed=eObj)
-						logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(result[4])+"'s reminder.")						
+						if eObj is not False:
+							await ctx.send(embed=eObj)
+							logger.info("[Reminders deletereminder()] It seems that  "+str(ctx.message.author)+" was trying to delete "+str(result[4])+"'s reminder.")						
 		except Exception as error:
 			logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
 			traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
@@ -217,7 +227,8 @@ class Reminders():
 					logger.info('[Misc.py get_message()] sent off reminder to '+str(author_id)+" about \""+reminder_message+"\"")
 					eObj = embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="This is your reminder to "+reminder_message, footer='Reminder')
 					self.curs.execute("DELETE FROM Reminders WHERE reminder_id = "+str(row[0])+";")
-					await reminder_channel.send('<@'+author_id+'>',embed=eObj)
+					if eObj is not False:
+						await reminder_channel.send('<@'+author_id+'>',embed=eObj)
 			except Exception as error:
 				logger.error('[Reminders.py get_message()] Ignoring exception when generating reminder:')
 				traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
