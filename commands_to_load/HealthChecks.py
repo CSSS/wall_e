@@ -13,11 +13,9 @@ class HealthChecks():
 	@commands.command()
 	async def ping(self, ctx):
 		logger.info("[HealthChecks ping()] ping command detected from "+str(ctx.message.author))
-		eObj = embed(description='Pong!', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
+		eObj = await embed(ctx, description='Pong!', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
 		if eObj is not False:
 			await ctx.send(embed=eObj)
-		else:
-			await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 	@commands.command()
 	async def echo(self, ctx, *args):
@@ -27,11 +25,9 @@ class HealthChecks():
 			arg+=argument+' '
 		logger.info("[HealthChecks echo()] echo command detected from "+str(ctx.message.author)+" with argument "+str(arg))
 		avatar = ctx.author.avatar_url
-		eObj = embed(author=user, avatar=avatar, description=arg)
+		eObj = await embed(ctx, author=user, avatar=avatar, description=arg)
 		if eObj is not False:
 			await ctx.send(embed=eObj)
-		else:
-			await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 def setup(bot):
 	bot.add_cog(HealthChecks(bot))

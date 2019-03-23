@@ -13,14 +13,12 @@ class Mod():
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-        eObj = em(title='Minion Things', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=lol)        
+        eObj = await em(ctx, title='Minion Things', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=lol)        
         if eObj is not False:
             msg = await ctx.send(embed=eObj)
             await asyncio.sleep(5)
             await msg.delete()
             logger.info('[Mod rekt()] troll message deleted')
-        else:
-            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
     
     def __init__(self, bot):
         self.bot = bot
@@ -57,11 +55,9 @@ class Mod():
             i +=2
 
         name = ctx.author.nick or ctx.author.name
-        eObj = em(description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d ,content=fields)
+        eObj = await em(ctx, description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d ,content=fields)
         if eObj is not False:
             await ctx.send(embed=eObj)
-        else:
-            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
     @commands.command(aliases=['warn'])
     async def modspeak(self, ctx, *arg):
@@ -82,11 +78,9 @@ class Mod():
         for wrd in arg:
             msg += wrd + ' '
 
-        eObj = em(title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
+        eObj = await em(ctx, title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         if eObj is not False:
             await ctx.send(embed=eObj)
-        else:
-            await ctx.send("issue detected wth embed function, please look above for what the issue is.")
 
 def setup(bot):
     bot.add_cog(Mod(bot))
