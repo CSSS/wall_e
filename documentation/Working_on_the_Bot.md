@@ -72,28 +72,21 @@ Pre-requisites: `git`.
    1. `python3.5 -m venv ENV`  
    1. `. ENV/bin/activate`  
    1. `python3.5 -m pip install -r requirements.txt`  
-   1. Redis Instructions  
-      1. Mac  
-         1. Run
-            1. `brew install redis`  
-            1. `echo 'notify-keyspace-events "Ex"' >> /usr/local/etc/redis.conf`  
-            1. `brew services start|stop|restart redis` to start, stop and restart redis  
-      1. Ubuntu  
-         1. Run
-            1. `sudo apt-get install -y redis-server`  
-            1. `echo 'notify-keyspace-events "Ex"' >> /etc/redis/redis.conf`
-            1. `sudo service redis-server start|stop|restart`  to start, stop and restart redis  
-      1. Arch
-         1. Run
-            1. `sudo pacman -S redis`
-            1. `echo 'notify-keyspace-events "Ex"' >> /etc/redis.conf`
-            1. `sudo systemctl status|stop|restart|status redis` to start, stop and restart redis  
+   1. PostgreSQL Instructions  
+      1. [Mac](https://www.postgresql.org/download/macosx/)
+      1. [Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
+      1. [ArchWiki](https://wiki.archlinux.org/index.php/PostgreSQL)
    1. Using Your Own Discord Test Server  
       1. Run `export ENVIRONMENT='localhost'`  
       1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
-      1. Run `export BOT_LOG_CHANNEL_ID=channel_id` with the channel id of the channel that will hold the logs on the discord server  
-      1. Run `export WOLFRAMAPI=apikey` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
+      1. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
          1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
+      1. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
+      1. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
+      1. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
+      1. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
+      1. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
+      1. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
       1. Run `python3.5 main.py`  
 1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
