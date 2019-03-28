@@ -205,8 +205,9 @@ async def on_command_error(ctx, error):
 		if isinstance(error, commands.MissingRequiredArgument):
 			fmt = 'Missing argument: {0}'
 			logger.error('[main.py on_command_error()] '+fmt.format(error.param))
-			eObj = imported_embed(author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
-			await ctx.send(embed=eObj)
+			eObj = await imported_embed(ctx, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=fmt.format(error.param))
+			if eObj is not False:
+				await ctx.send(embed=eObj)
 		else:
 			#only prints out an error to the log if the string that was entered doesnt contain just "."
 			pattern = r'[^\.]'
@@ -254,11 +255,8 @@ async def on_command(ctx):
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			curs = conn.cursor()
 			index=0
-			argument=''
 			for arg in ctx.args:
 				if index > 1:
-					if ',' in arg:
-						arg = arg.replace(',', '[comma]')
 					argument += arg+' '
 				index+=1
 			epoch_time = str(int(time.time()))
@@ -269,20 +267,32 @@ async def on_command(ctx):
 			current_day=str(now.day)
 			current_hour=str(now.hour)
 			channel_id=str(ctx.channel.id)
-			channel_name=str(ctx.channel).replace(",","[comma]").strip()
-			author=str(ctx.message.author).replace(",","[comma]").strip()
-			command=str(ctx.command).strip()
-			argument=str(argument).strip() if command is not "embed" else "redacted due to large size"
-			method_of_invoke=str(ctx.invoked_with).strip()
-			invoked_subcommand=str(ctx.invoked_subcommand).strip()
+			channel_name=str(ctx.channel).replace("\'","[single_quote]").strip()
+			if ctx.guild.get_member(ctx.message.author.id).name.isalnum():
+				author=str(ctx.message.author).replace("\'","[single_quote]").strip()
+			else:
+				author="<"+str(ctx.message.author.id).replace("\'","[single_quote]").strip()+">"
+			command=str(ctx.command).replace("\'","[single_quote]").strip()
+			argument=str(argument).replace("\'","[single_quote]").strip() if command is not "embed" else "redacted due to large size"
+			method_of_invoke=str(ctx.invoked_with).replace("\'","[single_quote]").strip()
+			invoked_subcommand=str(ctx.invoked_subcommand).replace("\'","[single_quote]").strip()
 
-
-			sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
-							VALUES ("""+epoch_time+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
-							 '"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
-							 '"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
-			logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
-			curs.execute(sqlCommand)
+			#this next part is just setup to keep inserting until it finsd a primary key that is not in use
+			successful=False
+			while not successful:
+				try:
+					sqlCommand="""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR, \"Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\", \"Invoked subcommand\") 
+					VALUES ("""+str(epoch_time)+""","""+current_year+""", """+current_month+""","""+current_day+""","""+current_hour+""","""+channel_id+""",
+					'"""+channel_name+"""','"""+author+"""', '"""+command+"""','"""+argument+"""',
+					'"""+method_of_invoke+"""','"""+invoked_subcommand+"""');"""
+					logger.info("[main.py on_command()] sqlCommand=["+sqlCommand+"]")
+					curs.execute(sqlCommand)
+				except psycopg2.IntegrityError as e:
+					logger.error("[main.py on_command()] enountered following exception when trying to insert the record\n{}".format(e))	
+					epoch_time += 1
+					logger.info("[main.py on_command()] incremented the epoch time to "+str(epoch_time)+" and will try again.")	
+				else:
+					successful=True
 			curs.close()
 			conn.close()
 		except Exception as e:
@@ -321,9 +331,10 @@ async def on_member_join(member):
 		output+="\tWe also have a smattering of course specific Academic channels.\n"
 		output+="\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass cmpt316>\n"
 		output+="\tPlease keep Academic Honesty in mind when discussing course material here.\n"
-		eObj = imported_embed(description=output, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
-		await member.send(embed=eObj)
-		logger.info("[main.py on_member_join] embed sent to member "+str(member))
+		eObj = await imported_embed(ctx, description=output, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
+		if eObj is not False:
+			await member.send(embed=eObj)
+			logger.info("[main.py on_member_join] embed sent to member "+str(member))
 
 ####################
 ## STARTING POINT ##
