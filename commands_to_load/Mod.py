@@ -13,11 +13,12 @@ class Mod():
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-        eObj = em(title='Minion Things', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=lol)        
-        msg = await ctx.send(embed=eObj)
-        await asyncio.sleep(5)
-        await msg.delete()
-        logger.info('[Mod rekt()] troll message deleted')
+        eObj = await em(ctx, title='Minion Things', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=lol)        
+        if eObj is not False:
+            msg = await ctx.send(embed=eObj)
+            await asyncio.sleep(5)
+            await msg.delete()
+            logger.info('[Mod rekt()] troll message deleted')
     
     def __init__(self, bot):
         self.bot = bot
@@ -54,14 +55,15 @@ class Mod():
             i +=2
 
         name = ctx.author.nick or ctx.author.name
-        eObj = em(description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d ,content=fields)
-        await ctx.send(embed=eObj)
+        eObj = await em(ctx, description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d ,content=fields)
+        if eObj is not False:
+            await ctx.send(embed=eObj)
 
     @commands.command(aliases=['warn'])
     async def modspeak(self, ctx, *arg):
         logger.info('[Mod modspeak()] modspeack function detected by minion ' + str(ctx.message.author))
         await ctx.message.delete()
-        logger.info('[Mod embed()] invoking message deleted')
+        logger.info('[Mod modspeak()] invoking message deleted')
 
         if not arg:
             logger.info("[Mod modspeak()] no args, so command ended")
@@ -76,8 +78,9 @@ class Mod():
         for wrd in arg:
             msg += wrd + ' '
 
-        eObj = em(title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
-        await ctx.send(embed=eObj)
+        eObj = await em(ctx, title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
+        if eObj is not False:
+            await ctx.send(embed=eObj)
 
 def setup(bot):
     bot.add_cog(Mod(bot))
