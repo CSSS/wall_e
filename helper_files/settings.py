@@ -41,13 +41,15 @@ print("[settings.py] variable \"ENVIRONMENT\" is set to \""+str(ENVIRONMENT)+"\"
 if 'TOKEN' not in os.environ:
 	print("[settings.py] No environment variable \"TOKEN\" seems to exist...read the README again")
 	exit(1)
-TOKEN = os.environ['TOKEN']   
+TOKEN = os.environ['TOKEN']
+os.environ['TOKEN']=''
 print("[settings.py] variable \"TOKEN\" has been set")
 
 if 'WOLFRAMAPI' not in os.environ:
 	print("[settings.py] No environment variable \"WOLFRAMAPI\" seems to exist...read the README again")
 	exit(1)
 wolframAPI = os.environ['WOLFRAMAPI']
+os.environ['WOLFRAMAPI']=''
 print("[settings.py] variable \"WOLFRAMAPI\" has been set")
 
 
@@ -66,7 +68,8 @@ print("[settings.py] variable \"POSTGRES_DB_DBNAME\" is set to \""+str(POSTGRES_
 if 'POSTGRES_PASSWORD' not in os.environ:
 	print("[settings.py] No environment variable \"POSTGRES_PASSWORD\" seems to exist...read the README again")
 	exit(1)
-POSTGRES_PASSWORD = os.environ['POSTGRES_PASSWORD']   
+POSTGRES_PASSWORD = os.environ['POSTGRES_PASSWORD']
+os.environ['POSTGRES_PASSWORD']=''
 print("[settings.py] variable \"POSTGRES_PASSWORD\" has been set.")
 
 if 'WALL_E_DB_USER' not in os.environ:
@@ -84,7 +87,8 @@ print("[settings.py] variable \"WALL_E_DB_DBNAME\" is set to \""+str(WALL_E_DB_D
 if 'WALL_E_DB_PASSWORD' not in os.environ:
 	print("[settings.py] No environment variable \"WALL_E_DB_PASSWORD\" seems to exist...read the README again")
 	exit(1)
-WALL_E_DB_PASSWORD = os.environ['WALL_E_DB_PASSWORD']   
+WALL_E_DB_PASSWORD = os.environ['WALL_E_DB_PASSWORD']
+os.environ['WALL_E_DB_PASSWORD']=''   
 print("[settings.py] variable \"WALL_E_DB_PASSWORD\" has been set.")
 
 
