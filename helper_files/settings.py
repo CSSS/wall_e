@@ -10,6 +10,24 @@ import os, json
 BOT_NAME = ''
 BOT_AVATAR = ''
 
+###################################
+## Admin Channel id's from guild ##
+###################################
+
+adminChannels = [
+	417758181784158239, # rules
+	228767328106446860, # announcements
+	228766474972430336, # execs
+	303276909054132242, # council
+	478776321808269322, # bot_logs
+	440742806475112448, # deepexec
+	229508956664496130, # meetingroom
+	466734608726229005, # bot-mangement
+	415337971387203585, # sv18
+	444040481677246464, # execs-academicplan
+	420698199712595968 # froshweek-volunteers
+]
+
 ##################################
 ## ENVIRONMENT VARIABLES TO USE ##
 ##################################

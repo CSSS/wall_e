@@ -4,6 +4,7 @@ import asyncio
 import json
 from helper_files.embed import embed as em
 import helper_files.settings as settings
+from helper_files.settings import adminChannels 
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -80,34 +81,20 @@ class Mod():
         await ctx.send(embed=eObj)
 
     @commands.command(aliases=['propm'])
-    async def propigatemute(self, ctx):
+    async def propagatemute(self, ctx):
         """Ensures all channels have the muted role as part of its permissions.""" 
         ## Avoid the admin category of channels and rules and announcments channel since nobody can talk in there anyway
 
-        logger.info('[Mod propigatemute()] propigatemute function detected by user ' + str(ctx.message.author))
+        logger.info('[Mod propagatemute()] propagatemute function detected by user ' + str(ctx.message.author))
         await ctx.message.delete()
-        logger.info('[Mod propigatemute()] invoking message deleted')
+        logger.info('[Mod propagatemute()] invoking message deleted')
         
         if not ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members:
-            logger.info('[Mod propigatemute()] unathorized command attempt detected. Being handled.')
+            logger.info('[Mod propagatemute()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
 
         MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
-
-        ignoreChannels = [
-                        417758181784158239, # rules
-                        228767328106446860, # announcements
-                        228766474972430336, # execs
-                        303276909054132242, # council
-                        478776321808269322, # bot_logs
-                        440742806475112448, # deepexec
-                        229508956664496130, # meetingroom
-                        466734608726229005, # bot-mangement
-                        415337971387203585, # sv18
-                        444040481677246464, # execs-academicplan
-                        420698199712595968 # froshweek-volunteers
-                        ]
 
         # Get guild
         channels = ctx.guild.channels
@@ -123,7 +110,7 @@ class Mod():
         
         # Loop through channels and change the perms
         for channel in channels: 
-            if channel.id not in ignoreChannels:
+            if channel.id not in adminChannels:
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
         eObj = em(description='Muted permissions spread though all channels like herpies. Enjoy :)', footer='Moderator action')
@@ -370,7 +357,7 @@ class Mod():
 
         # Tell user of their new freedom and to not abuse it
         logger.info('[Mod unmute()] letting {} know they\'ve been unmuted and to not do something stupid again')
-        eObj = em(description='You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you\'ll get more than a ban', footer='Moderator action')
+        eObj = em(description='You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you might be kicked or banned.', footer='Moderator action')
         await user.send(embed=eObj)
 
         # Inform council of actions
