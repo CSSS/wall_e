@@ -92,7 +92,6 @@ class Administration():
 		if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
 			logger.info("[Administration exc()] "+str(ctx.message.author)+" successfully authenticated")
 			query = " ".join(args)
-
 			#this got implemented for cases when the output of the command is too big to send to the channel
 			exitCode, output = subprocess.getstatusoutput(query)
 			prefix = "truncated output=\n"
