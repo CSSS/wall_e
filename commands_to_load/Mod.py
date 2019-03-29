@@ -213,7 +213,7 @@ class Mod():
             await channel.delete_messages(messages)
             logger.info('[Mod clear()] messages from {} deleted'.format(channel))
         except discord.HTTPException:
-            eObj = em(description='Messagaes cannot be older than 2 weeks', footer='Command Error')
+            eObj = em(description='Messages cannot be older than 2 weeks', footer='Command Error')
             await ctx.send(embed=eObj, delete_after=10.0)
             return
 
@@ -311,7 +311,6 @@ class Mod():
         logger.info('[Mod mute()] informing {} that they are muted in dm'.format(user))
         eObj = em(title='Moderator action was taken against you', colour=0xff0000, description='You\'ve been muted in the CSSS server. Message a minion to learn why and how to be unmuted', footer='Moderator action')
         await user.send(embed=eObj)
-        #TODO add something ^ to react to msg council for reconsideration slash reach out to u
 
         # Tell council of action 
         logger.info('[Mod mute()] getting council channel')
