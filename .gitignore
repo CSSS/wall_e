@@ -134,6 +134,7 @@ cmake-build-debug/
 
 # IntelliJ
 out/
+container_settings.json
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -152,11 +153,6 @@ fabric.properties
 token
 
 
-# Logs
-
-logs/stats_of_commands.csv
-
-#Jace's files
 .pytest_cache
 @eaDir
 notes/
