@@ -134,7 +134,6 @@ cmake-build-debug/
 
 # IntelliJ
 out/
-container_settings.json
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
