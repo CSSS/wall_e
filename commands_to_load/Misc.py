@@ -7,6 +7,7 @@ import helper_files.settings as settings
 import json
 import wolframalpha
 import discord.client
+import urllib
 
 logger = logging.getLogger('wall_e')
 
@@ -76,14 +77,10 @@ class Misc():
 	@commands.command()
 	async def urban(self, ctx, *arg):
 		logger.info("[Misc urban()] urban command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
-		logger.info("[Misc urban()] query string being contructed")
-		queryString = ''
-		for x in arg:
-			queryString += x.replace(' ', '%20') + '%20'
-		queryString = queryString.replace('%20%20', '%20')
-		queryString = queryString[:len(queryString)-3]
-		
-		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
+
+		queryString = urllib.parse.urlencode({ 'term' : " ".join(arg)})
+		url = 'http://api.urbandictionary.com/v0/define?%s' % queryString
+
 		logger.info("[Misc urban()] following url  constructed for get request =\""+str(url)+"\"")
 
 		async with self.session.get(url) as res:
@@ -102,8 +99,8 @@ class Misc():
 					await ctx.send(embed=eObj)
 				return
 			else:
-				logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
-				urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+				logger.info("[Misc urban()] constructing embed object with definition of \"" + " ".join(arg)+"\"")
+				urbanUrl = 'https://www.urbandictionary.com/define.php?%s' % queryString
 				# truncate to fit in embed, field values must be 1024 or fewer in length
 				definition = data[0]['definition'][:1021] + '...' if len(data[0]['definition']) > 1024 else data[0]['definition']
 				content = [
