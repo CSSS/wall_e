@@ -264,6 +264,7 @@ async def on_command(ctx):
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 			curs = conn.cursor()
 			index=0
+			argument=''
 			for arg in ctx.args:
 				if index > 1:
 					argument += arg+' '
