@@ -3,10 +3,12 @@ import logging
 import aiohttp
 from helper_files.embed import embed 
 from helper_files.Paginate import paginateEmbed
+from helper_files.listOfRoles import getListOfUserPerms
 import helper_files.settings as settings
 import json
 import wolframalpha
 import discord.client
+import urllib
 
 logger = logging.getLogger('wall_e')
 
@@ -76,13 +78,10 @@ class Misc():
 	@commands.command()
 	async def urban(self, ctx, *arg):
 		logger.info("[Misc urban()] urban command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
-		logger.info("[Misc urban()] query string being contructed")
-		queryString = ''
-		for x in arg:
-			queryString += x + '%20'
-		queryString = queryString[:len(queryString)-3]
-		
-		url = 'http://api.urbandictionary.com/v0/define?term=%s' % queryString
+
+		queryString = urllib.parse.urlencode({ 'term' : " ".join(arg)})
+		url = 'http://api.urbandictionary.com/v0/define?%s' % queryString
+
 		logger.info("[Misc urban()] following url  constructed for get request =\""+str(url)+"\"")
 
 		async with self.session.get(url) as res:
@@ -101,8 +100,8 @@ class Misc():
 					await ctx.send(embed=eObj)
 				return
 			else:
-				logger.info("[Misc urban()] constructing embed object with definition of \"" + queryString+"\"")
-				urbanUrl = 'https://www.urbandictionary.com/define.php?term=%s' % queryString
+				logger.info("[Misc urban()] constructing embed object with definition of \"" + " ".join(arg)+"\"")
+				urbanUrl = 'https://www.urbandictionary.com/define.php?%s' % queryString
 				# truncate to fit in embed, field values must be 1024 or fewer in length
 				definition = data[0]['definition'][:1021] + '...' if len(data[0]['definition']) > 1024 else data[0]['definition']
 				content = [
@@ -155,7 +154,7 @@ class Misc():
 		with open('commands_to_load/help.json') as f:
 			helpDict = json.load(f)
 		logger.info("[Misc help()] loaded commands from help.json=\n"+str(json.dumps(helpDict, indent=3)))
-		
+		user_roles = await getListOfUserPerms(ctx)
 		# determing the number of commands the user has access to.
 		numberOfCommands=0
 		for entry in helpDict['commands']:
@@ -169,11 +168,13 @@ class Misc():
 				elif entry['role'] == "public":
 					if 'Class' not in entry['name']:
 						numberOfCommands += 1
-			elif entry['access'] == "channel": ## if the access for the command is determined on permissions
-			## in the channel that the help comamnd was called from, rather than generic role permissions
-				if entry['channel'] in (item[0] for item in list(ctx.channel.permissions_for(ctx.message.author))):
-					if 'Class' not in entry['name']:
-						numberOfCommands += 1	
+			elif entry['access'] == "permissions": ## if the access for the command is determined on permissions
+				print("list of roles for user "+str(ctx.message.author)+" :"+str(user_roles))
+				
+				for permission in entry[entry['access']]:
+					if permission in user_roles:
+						if 'Class' not in entry['name']:
+							numberOfCommands += 1	
 
 		logger.info("[Misc help()] numberOfCommands set to "+str(numberOfCommands))
 		descriptionToEmbed=[""]
@@ -216,15 +217,16 @@ class Misc():
 							descriptionToEmbed.append("")
 							page+=1
 							x = 0
-			elif entry['access'] == "channel":
-				if entry['channel'] in (item[0] for item in list(ctx.channel.permissions_for(ctx.message.author)) if item[1]):
-					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
-					descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
-					x+=1
-					if x == numberOfCommandsPerPage:
-						descriptionToEmbed.append("")
-						page+=1
-						x = 0				
+			elif entry['access'] == "permissions":
+				for permission in entry[entry['access']]:
+					if permission in user_roles:
+						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
+						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+						x+=1
+						if x == numberOfCommandsPerPage:
+							descriptionToEmbed.append("")
+							page+=1
+							x = 0				
 			else:
 				logger.info("[Misc help()] "+str(entry)+" has a wierd access level of "+str(entry['access'])+"....not sure how to handle it so not adding it to the descriptionToEmbed")
 		logger.info("[Misc help()] transfer successful")

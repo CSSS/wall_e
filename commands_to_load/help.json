@@ -11,8 +11,7 @@
 		{ "access": "role", "role" : "public", "name": ".whois <arg>", "description": "returns everyone who has role <arg>" },
 		{ "access": "role", "role" : "public", "name": ".roles", "description": "will display all the self-assignable roles that exist"},
 		{ "access": "role", "role" : "public", "name": ".Roles", "description": "will display all the Mod/Exec/XP Assigned roles that exist"},
-		{ "access": "role", "role" : "Minions", "name": ".purgeroles", "description": "deletes all empty self-assignable roles"},
-		{ "access": "channel", "channel" : "manage_roles", "name": ".purgeroles", "description": "deletes all empty self-assignable roles"},
+		{ "access": "permissions", "permissions" : [ "manage_roles", "administrator"] , "name": ".purgeroles", "description": "deletes all empty self-assignable roles"},
 
 		{ "access": "role", "role" : "Bot_manager", "name": "Class: Misc"},
 		{ "access": "role", "role" : "public", "name": ".help", "description": "shows this page" },
