@@ -54,10 +54,10 @@ class SFU():
                 return
             
             courseCode = crs[0].lower()
-            courseNum = crs[1]
+            courseNum = crs[1].lower()
         else:
             courseCode = course[0].lower()
-            courseNum = course[1]
+            courseNum = course[1].lower()
 
         url = 'http://www.sfu.ca/bin/wcm/academic-calendar?%s/%s/courses/%s/%s' % (year, term, courseCode, courseNum)
         logger.info('[SFU sfu()] url for get request constructed: %s' % url)

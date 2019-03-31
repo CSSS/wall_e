@@ -3,7 +3,7 @@ import discord
 import asyncio
 import logging
 import helper_files.settings as settings
-from helper_files.embed import embed
+from helper_files.embed import embed as imported_embed
 
 logger = logging.getLogger('wall_e')
 
@@ -19,9 +19,11 @@ async def paginateEmbed(bot, ctx, descriptionToEmbed, title=" "):
 		logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
 		logger.info("[Paginate paginateEmbed()] loading roles " + str(descriptionToEmbed[currentPage]))
 
-		embedObj=None
-		embedObj = embed(title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=descriptionToEmbed[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
-		logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
+		embedObj = await imported_embed(ctx,title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=descriptionToEmbed[currentPage], footer='{}/{}'.format(str(currentPage + 1), str(numOfPages)))
+		if embedObj is not None:
+			logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page " + str(currentPage))
+		else:
+			return
 
 		# determining which reactions are needed
 		if numOfPages == 1:
