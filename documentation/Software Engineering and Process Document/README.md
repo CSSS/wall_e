@@ -173,8 +173,9 @@ Postgres is an open source object-relational database management system. Wall-E 
 Automated jobs update the state of the Discord test server when certain events take place in the repository. Here are the most important takeaways:
 
  * Once a PR is opened from branch AAA to master with PR number XXX, you should use the pr-XXX channels on the testing server. We'll call these the PR channels or numbered channels. Do not use the AAA channels, which we'll call branch channels or named channels.
-   * This is because the branch channels are deactivated when the PR is opened and only reactivated if the PR is closed without being merged.
+   * This is because the branch channels are deactivated when the PR is opened and only reactivated if the PR is closed without being merged. To be precise, their actual containers are stopped.
    * Why is this the case? After a PR is opened, Jenkins assigns new commits on the branch to a PR-XXX PR folder rather than to a AAA branch folder. This means that if the branch channels were not disabled and developers accidentally tested their changes on that channel, they would be testing a version of their code without those changes and be extremely confused. Changing Jenkins's behaviour to resolve the problem created new issues with GitHub's PR build status reporting.
+   * Branches with PRs opened to other non-master branches, including those PR opened from master itself, do not have their channels deactivated. This is to prevent the edge case where the master testing channel would be disabled due to a PR being opened from it, which was a cause of confusion. Note that if commits are made to such a branch, the issues noted above still apply. Thus, making these types of opposite-direction-from-workflow PRs should be discouraged.
  * If channels of old branches and PRs start building up on the test server, there was probably a change made to the infrastructure, for example to container or channel naming conventions, which broke the jobs.
  * The jobs are located in the repository's /jobs/ directory.
 
