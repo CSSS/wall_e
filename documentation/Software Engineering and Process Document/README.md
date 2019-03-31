@@ -1,9 +1,10 @@
 # Software Engineering and Process Document
 
-Created by [Winfield Chen](https://github.com/wnfldchen) - wca988@sfu.ca
+Created by [Winfield Chen](https://github.com/wnfldchen) - wca88@sfu.ca
 
 August 2018 Revision 1
 March 2019 Revision 2
+March 2019 Revision 3
 
 ## Table of Contents
  - [Architecture](#architecture)
@@ -28,6 +29,7 @@ March 2019 Revision 2
      - [Local Testing Outside of a Container](#local-testing-outside-of-a-container)
      - [Local Testing Inside of a Container](#local-testing-inside-of-a-container)
    - [The Role of Postgres in the RemindMe Command](#the-role-of-postgres-in-the-remindme-command)
+   - [Container and Channel Lifecycle](#container-and-channel-lifecycle)
  - [Changelog](#changelog)
 
 ## Architecture
@@ -164,9 +166,21 @@ Postgres is an open source object-relational database management system. Wall-E 
 |---|---|
 |<ul><li>Persistence: reminders would be lost on bot shutdown, crash, or update if reminders were handled in Wall-E.</li><li>Data-logic separation: better style.</li><li>Less development needed: by using a pre-made component the wheel need not be reinvented.</li><li>Available for future features: Postgres can also be used for future stateful features like XP tracking.</li></ul>|<ul><li>Additional external dependency: Wall-E requires Postgres to function.</li><li>Configuration required: Postgres does not publish notifications; this requires the bot to check the database on a regular interval for reminders that are expired.</li><li>Complicates structure: the bot container must be able to talk the Postgres container which is an additional complexity</li></ul>|
 
+### Container and Channel Lifecycle
+
+![Image of container and channel lifecycle](lifecycle.png)
+
+Automated jobs update the state of the Discord test server when certain events take place in the repository. Here are the most important takeaways:
+
+ * Once a PR is opened from branch AAA to master with PR number XXX, you should use the pr-XXX channels on the testing server. We'll call these the PR channels or numbered channels. Do not use the AAA channels, which we'll call branch channels or named channels.
+   * This is because the branch channels are deactivated when the PR is opened and only reactivated if the PR is closed without being merged.
+   * Why is this the case? After a PR is opened, Jenkins assigns new commits on the branch to a PR-XXX PR folder rather than to a AAA branch folder. This means that if the branch channels were not disabled and developers accidentally tested their changes on that channel, they would be testing a version of their code without those changes and be extremely confused. Changing Jenkins's behaviour to resolve the problem created new issues with GitHub's PR build status reporting.
+ * If channels of old branches and PRs start building up on the test server, there was probably a change made to the infrastructure, for example to container or channel naming conventions, which broke the jobs.
+ * The jobs are located in the repository's /jobs/ directory.
 
 ## Changelog
 ||||
 |---|---|---|
 |August 2018|Revision 1|Initial Version|
 |March 2019|Revision 2|Update Architecture to Use PostgreSQL inside of containers instead of on Redis the localhost|
+|March 2019|Revision 3|Add Jenkins jobs and flowchart of container and channel lifecycles on the test server|
