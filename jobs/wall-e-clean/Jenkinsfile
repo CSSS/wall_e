@@ -1,18 +1,29 @@
 node {
    stage('Cleanup Branch') {
+    // Trigger: GitHub webhook whenever a branch is deleted
+    // Action: Delete branch's testing channels and containers
+
     withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: 'TOKEN')]) {
+
+      // Parse the GitHub webhook's payload
       def object = readJSON text: "${payload}"
       def branchName = object.ref
+
+      // Get the Discord guild
       def resp = httpRequest customHeaders:
         [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
         url: 'https://discordapp.com/api/users/@me/guilds'
       def guilds = resp.getContent()
       def guildObject = readJSON text: guilds
       def guildId = guildObject[0].id
+
+      // Get the guild's channels
       resp = httpRequest customHeaders:
         [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
         url: "https://discordapp.com/api/guilds/${guildId}/channels"
       def channels = readJSON text: resp.getContent()
+
+      // Delete the branch's channels (testing channel, log channel, and reminder channel)
       def prChanId = channels.find{chan -> chan.name == "${branchName}"}.id
       def logChanId = channels.find{chan -> chan.name == "${branchName}_logs"}.id
       def reminderChanId = channels.find{chan -> chan.name == "${branchName}_reminders"}.id
@@ -28,6 +39,8 @@ node {
         [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
         httpMode: 'DELETE', responseHandle: 'NONE',
         url: "https://discordapp.com/api/channels/${reminderChanId}"
+
+      // Delete the branch's containers
       sh "docker rm -f TEST_${branchName}_wall_e TEST_${branchName}_wall_e_db"
     }
    }
