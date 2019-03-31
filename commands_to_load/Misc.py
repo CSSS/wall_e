@@ -9,6 +9,7 @@ import json
 import wolframalpha
 import discord.client
 import urllib
+import asyncio
 
 logger = logging.getLogger('wall_e')
 
@@ -145,8 +146,7 @@ class Misc():
 				await ctx.send(embed=eObj)
 				logger.error("[Misc wolfram()] result NOT found for %s" % arg)
 
-	@commands.command()
-	async def help(self, ctx):
+	async def GeneralDescription(self, ctx):
 		numberOfCommandsPerPage=5
 		await ctx.send("     help me.....")
 		logger.info("[Misc help()] help command detected from "+str(ctx.message.author))
@@ -154,84 +154,93 @@ class Misc():
 		with open('commands_to_load/help.json') as f:
 			helpDict = json.load(f)
 		logger.info("[Misc help()] loaded commands from help.json=\n"+str(json.dumps(helpDict, indent=3)))
-		user_roles = await getListOfUserPerms(ctx)
-		# determing the number of commands the user has access to.
-		numberOfCommands=0
-		for entry in helpDict['commands']:
-			if entry['access'] == "role": ## if the access for the command is determined on the role of the user
-				if entry['role'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-					if 'Class' not in entry['name']:
-						numberOfCommands += 1
-				elif entry['role'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
-					if 'Class' not in entry['name']:
-						numberOfCommands += 1					
-				elif entry['role'] == "public":
-					if 'Class' not in entry['name']:
-						numberOfCommands += 1
-			elif entry['access'] == "permissions": ## if the access for the command is determined on permissions
-				print("list of roles for user "+str(ctx.message.author)+" :"+str(user_roles))
-				
-				for permission in entry[entry['access']]:
-					if permission in user_roles:
-						if 'Class' not in entry['name']:
-							numberOfCommands += 1	
-
-		logger.info("[Misc help()] numberOfCommands set to "+str(numberOfCommands))
+		user_perms = await getListOfUserPerms(ctx)
+		user_roles = [role.name for role in sorted(ctx.author.roles, key = lambda x: int(x.position),reverse=True)]
 		descriptionToEmbed=[""]
 		x, page = 0, 0
 		for entry in helpDict['commands']:
 			if entry['access'] == "role":
-				if entry['role'] == "Bot_manager" and ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-					if 'Class' in entry['name']:
-						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
-						descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
-					else:
-						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
-						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
-						x+=1
-						if x == numberOfCommandsPerPage:
-							descriptionToEmbed.append("")
-							page+=1
-							x = 0					
-				elif entry['role'] == "Minions" and (ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members or ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members):
-					if 'Class' in entry['name']:
-						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
-						descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"					
-					else:
-						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
-						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
-						x+=1
-						if x == numberOfCommandsPerPage:
-							descriptionToEmbed.append("")
-							page+=1
-							x = 0
-				elif entry['role'] == "public":
-					logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
-					if 'Class' in entry['name']:
-						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
-						descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
-					else:
-						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
-						x+=1
-						if x == numberOfCommandsPerPage:
-							descriptionToEmbed.append("")
-							page+=1
-							x = 0
+				for role in entry[entry['access']]:
+					if ( role in user_roles or (role == 'public') ):
+						if 'Class' in entry['name'] and 'Bot_manager' in user_roles:
+							logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+							descriptionToEmbed[page]+="\n**"+entry['name']+"**: "+"\n"
+						else:
+							logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")
+							descriptionToEmbed[page]+="*"+"/".join(entry['name'])+"* - "+entry['description'][0]+"\n\n"
+							x+=1
+							if x == numberOfCommandsPerPage:
+								descriptionToEmbed.append("")
+								page+=1
+								x  = 0
 			elif entry['access'] == "permissions":
 				for permission in entry[entry['access']]:
-					if permission in user_roles:
+					if permission in user_perms:
 						logger.info("[Misc help()] adding "+str(entry)+" to page "+str(page)+" of the descriptionToEmbed")					
-						descriptionToEmbed[page]+="*"+entry['name']+"* - "+entry['description']+"\n\n"
+						descriptionToEmbed[page]+="*"+"/".join(entry['name'])+"* - "+entry['description'][0]+"\n\n"
 						x+=1
 						if x == numberOfCommandsPerPage:
 							descriptionToEmbed.append("")
 							page+=1
-							x = 0				
+							x = 0	
+						break			
 			else:
 				logger.info("[Misc help()] "+str(entry)+" has a wierd access level of "+str(entry['access'])+"....not sure how to handle it so not adding it to the descriptionToEmbed")
 		logger.info("[Misc help()] transfer successful")
 
 		await paginateEmbed(self.bot, ctx, descriptionToEmbed, title="Help Page" )
+
+	async def specificDescription(self, ctx, command):
+		with open('commands_to_load/help.json') as f:
+			helpDict = json.load(f)
+		helpDict = helpDict['commands']
+		logger.info("[Misc specificDescription()] invoked by user "+str(ctx.message.author)+" for command "+str(command))
+		for entry in helpDict:
+			for name in entry['name']:
+				if name == command[0]:
+					logger.info("[Misc specificDescription()] loading the entry for command  "+str(command[0])+" :\n\n"+str(entry))
+					descriptions = ""
+					for description in entry['description']:
+						descriptions+= description+"\n\n"
+					descriptions+="\n\nExample:\n"
+					descriptions+="\n".join(entry['example'])
+					eObj = await embed(ctx,title="Man Entry for "+str(command[0]), author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=descriptions)
+					if eObj is not False:
+						msg = await ctx.send(content=None, embed=eObj)
+						logger.info("[Misc specificDescription()] embed created and sent for command "+str(command[0]))
+						await msg.add_reaction('✅')
+						logger.info("[Misc specificDescription()] reaction added to message")
+						def checkReaction(reaction, user):
+							if not user.bot:  ##just making sure the bot doesnt take its own reactions
+								##into consideration
+								e = str(reaction.emoji)
+								logger.info("[Misc specificDescription()] reaction " + e + " detected from " + str(user))
+								return e.startswith(('✅'))
+						userReacted = False
+						while userReacted == False:
+							try:
+								userReacted = await self.bot.wait_for('reaction_add', timeout=20, check=checkReaction)
+							except asyncio.TimeoutError:
+								logger.info("[Misc specificDescription()] timed out waiting for the user's reaction.")
+
+							if userReacted != False:
+								if '✅' == userReacted[0].emoji:
+									logger.info("[Misc specificDescription()] user indicates they are done with the roles command, deleting roles message")
+									await msg.delete()
+									return
+							else:
+								logger.info("[Misc specificDescription()] deleting message")
+								await msg.delete()
+								return		
+
+	@commands.command(aliases=['man'])
+	async def help(self, ctx, *arg):
+		await ctx.send("     help me.....")
+		logger.info("[Misc help()] help command detected from "+str(ctx.message.author)+" with the argument "+str(arg))
+		if len(arg) == 0:
+			await self.GeneralDescription(ctx)
+		else:
+			await self.specificDescription(ctx, arg)
 
 	def __del__(self):
 		self.session.close()
