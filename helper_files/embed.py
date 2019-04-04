@@ -33,7 +33,7 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
 
 	if len(content) > 25:
 		await ctx.send("Embed Error:\nlength of content ```"+str(content)+"``` being added to the content field is "+str(len(content)-25)+" characters too big, pleae cut down to a size of 25")
-		logger.info("[Mod embed()] length of content ["+str(contents)+"] being added to the field is too big")
+		logger.info("[Mod embed()] length of content ["+str(content)+"] being added to the field is too big")
 		return False
 
 	for record in content:
