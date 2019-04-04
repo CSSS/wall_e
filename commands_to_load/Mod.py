@@ -116,7 +116,7 @@ class Mod():
             if channel.id not in adminChannels:
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
-        eObj = em(description='Muted permissions spread though all channels like herpies. Enjoy :)', footer='Moderator action')
+        eObj = await em(description='Muted permissions spread though all channels like herpies. Enjoy :)', footer='Moderator action')
         await ctx.send(embed=eObj, delete_after=3.0)
 
     @commands.command()
@@ -146,7 +146,7 @@ class Mod():
 
         # Verify args
         if not name: 
-            eObj = em(description='Missing arguments', footer='Error in makechannel command')
+            eObj = await em(description='Missing arguments', footer='Error in makechannel command')
             ctx.send(embed=eObj)
             return
 
@@ -181,7 +181,7 @@ class Mod():
 
         # Send message to council about channel made 
         council = discord.utils.get(ctx.guild.channels, name="council")
-        eObj = em(description=str(ctx.author) + ' made channel: `' + name + '`', footer='Moderator action')
+        eObj = await em(description=str(ctx.author) + ' made channel: `' + name + '`', footer='Moderator action')
         await council.send(embed=eObj)
 
     @commands.command()
@@ -203,7 +203,7 @@ class Mod():
         # Verify args
         if numOfMsgs > 100 or numOfMsgs < 1: 
             # Prevents discord.ClientException 
-            eObj = em(description='Number of messages to be between 1 and 100 inclusively', footer='Invalid arguments')
+            eObj = await em(description='Number of messages to be between 1 and 100 inclusively', footer='Invalid arguments')
             await ctx.send(embed=eObj)
 
         channel = ctx.channel
@@ -216,11 +216,11 @@ class Mod():
             await channel.delete_messages(messages)
             logger.info('[Mod clear()] messages from {} deleted'.format(channel))
         except discord.HTTPException:
-            eObj = em(description='Messages cannot be older than 2 weeks', footer='Command Error')
+            eObj = await em(description='Messages cannot be older than 2 weeks', footer='Command Error')
             await ctx.send(embed=eObj, delete_after=10.0)
             return
 
-        eObj = em(description='{} messages deleted'.format(numOfMsgs), footer='Message will self destruct in 5 ...')
+        eObj = await em(description='{} messages deleted'.format(numOfMsgs), footer='Message will self destruct in 5 ...')
         await ctx.send(embed=eObj, delete_after=5.0)
 
     @commands.command()
@@ -244,7 +244,7 @@ class Mod():
         mentions = ctx.message.mentions
         if len(mentions) != 1: 
             # There is no mentoin or more than 1
-            eObj = em(description='Need to @ mention the user to purge messages from', footer='Invalid arguments')
+            eObj = await em(description='Need to @ mention the user to purge messages from', footer='Invalid arguments')
             await ctx.send(embed=eObj)
             return
         elif len(mentions) == 1:
@@ -272,7 +272,7 @@ class Mod():
         deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
         logger.info('[Mod purge()] purged messages: {}'.format(deleted))
         
-        eObj = em(description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
+        eObj = await em(description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
         await ctx.send(embed=eObj, delete_after=5.0)
 
     @commands.command()
@@ -295,7 +295,7 @@ class Mod():
         mentions = ctx.message.mentions
         if len(mentions) != 1:
             logger.info('[Mod mute()] no mention found. Informing user')
-            eObj = em(description='You need to @ mention the user to mute', footer='Invalid arguments')
+            eObj = await em(description='You need to @ mention the user to mute', footer='Invalid arguments')
             await ctx.send(embed=eObj, delete_after=5.0)
             return
         else: 
@@ -312,7 +312,7 @@ class Mod():
 
         # Tell them in dm
         logger.info('[Mod mute()] informing {} that they are muted in dm'.format(user))
-        eObj = em(title='Moderator action was taken against you', colour=0xff0000, description='You\'ve been muted in the CSSS server. Message a minion to learn why and how to be unmuted', footer='Moderator action')
+        eObj = await em(title='Moderator action was taken against you', colour=0xff0000, description='You\'ve been muted in the CSSS server. Message a minion to learn why and how to be unmuted', footer='Moderator action')
         await user.send(embed=eObj)
 
         # Tell council of action 
@@ -321,7 +321,7 @@ class Mod():
         logger.info('[Mod mute()] council channel found: {}'.format(council.id))
 
         logger.info('[Mod mute()] informing council of {}\'s action to mute {}'.format(ctx.message.author, user))
-        eObj = em(description='{} muted {}'.format(ctx.message.author, user))
+        eObj = await em(description='{} muted {}'.format(ctx.message.author, user))
         await council.send(embed=eObj)
 
     @commands.command()
@@ -333,7 +333,7 @@ class Mod():
         mentions = ctx.message.mentions
         if len(mentions) != 1:
             logger.info('[Mod unmute()] no mention found. Informing user')
-            eObj = em(description='You need to @ mention the user to mute', footer='Invalid arguments')
+            eObj = await em(description='You need to @ mention the user to mute', footer='Invalid arguments')
             await ctx.send(embed=eObj, delete_after=5.0)
             return
         else: 
@@ -348,7 +348,7 @@ class Mod():
         logger.info('[Mod unmute()] verifying if {} is muted or not'.format(user))
         if user not in MUTED_ROLE.members:
             logger.info('[Mod unmute()] {} is not muted. Informing {} of this fact'.format(user, ctx.message.author))
-            eObj = em(description='{} is not muted so cannot unmute'.format(user), footer='Invalid arguments')
+            eObj = await em(description='{} is not muted so cannot unmute'.format(user), footer='Invalid arguments')
             await ctx.send(embed=eObj)
             return
         logger.info('[Mod unmute()] {} verified to be muted'.format(user))
@@ -359,7 +359,7 @@ class Mod():
 
         # Tell user of their new freedom and to not abuse it
         logger.info('[Mod unmute()] letting {} know they\'ve been unmuted and to not do something stupid again')
-        eObj = em(description='You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you might be kicked or banned.', footer='Moderator action')
+        eObj = await em(description='You\'ve been unmuted. Don\'t do whatever you did to get muted in the first place again, or else next time you might be kicked or banned.', footer='Moderator action')
         await user.send(embed=eObj)
 
         # Inform council of actions
@@ -397,13 +397,13 @@ class Mod():
 
         # Message channel to notify the status
         logger.info('[Mod lock()] lock message sent to {}'.format(channel))
-        eObj = em(description='This channel has been locked until further notice.', author=ctx.author.display_name, avatar=ctx.author.avatar_url, footer='Moderator action')
+        eObj = await em(description='This channel has been locked until further notice.', author=ctx.author.display_name, avatar=ctx.author.avatar_url, footer='Moderator action')
         await ctx.send(embed=eObj)
 
         # Inform council of the locked channel
         logger.info('[Mod lock()] council informed of locked channel')
         council = discord.utils.get(ctx.guild.channels, name='council')
-        eObj = em(description='{} locked {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
+        eObj = await em(description='{} locked {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
         await council.send(embed=eObj)
 
     @commands.command()
@@ -427,7 +427,7 @@ class Mod():
 
         if ow[1].send_messages == True or ow[1].send_messages == None: 
             # Not locked
-            eObj = em(description='You can\'t unlock what isn\'t locked.\n-Richard Stallman\'s Fart', footer='Command error')
+            eObj = await em(description='You can\'t unlock what isn\'t locked.\n-Richard Stallman\'s Fart', footer='Command error')
             await ctx.send(embed=eObj, delete_after=3.0)
             return
 
@@ -444,13 +444,13 @@ class Mod():
 
         # Tell the channel
         logger.info('[Mod unlock()] unlock message sent to {}'.format(channel))
-        eObj = em(description='This channel is now unlocked, feel free to blah blah bl...', author=ctx.author.display_name, avatar=ctx.author.avatar_url, footer='Moderator action') 
+        eObj = await em(description='This channel is now unlocked, feel free to blah blah bl...', author=ctx.author.display_name, avatar=ctx.author.avatar_url, footer='Moderator action') 
         await ctx.send(embed=eObj)
 
         # Tell council
         logger.info('[Mod unlock()] council informed of unlocked channel')
         council = discord.utils.get(ctx.guild.channels, name='council')
-        eObj = em(description='{} unlocked {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
+        eObj = await em(description='{} unlocked {}'.format(ctx.message.author, channel.mention), footer='Moderator action')
         await council.send(embed=eObj)
 
 def setup(bot):
