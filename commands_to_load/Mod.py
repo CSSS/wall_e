@@ -122,6 +122,8 @@ class Mod():
 
     @commands.command()
     async def slowmode(self, ctx, time = 10): 
+        # For information on slowmode go here
+        # https://support.discordapp.com/hc/en-us/articles/360016150952-Slowmode-Slllooowwwiiinng-down-your-channel
         logger.info('[Mod slowmode()] slowmode function detected by user' + str(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod slowmode()] invoking message deleted')
