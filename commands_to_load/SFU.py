@@ -11,7 +11,7 @@ import aiohttp
 logger = logging.getLogger('wall_e')
 sfuRed = 0xA6192E
 
-class SFU():
+class SFU(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.req = aiohttp.ClientSession(loop=bot.loop)

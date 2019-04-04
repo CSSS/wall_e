@@ -14,7 +14,7 @@ logger = logging.getLogger('wall_e')
 
 wolframClient = wolframalpha.Client(settings.wolframAPI)
 
-class Misc():
+class Misc(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
