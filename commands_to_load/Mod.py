@@ -9,7 +9,7 @@ from helper_files.settings import adminChannels
 import logging
 logger = logging.getLogger('wall_e')
 
-class Mod(commands.Cog):
+class Mod():
 
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
