@@ -12,7 +12,7 @@ import asyncio
 
 logger = logging.getLogger('wall_e')
 
-class Administration(commands.Cog):
+class Administration():
 
 	def __init__(self, bot):
 		self.bot = bot

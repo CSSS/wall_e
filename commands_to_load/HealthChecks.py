@@ -5,7 +5,7 @@ import helper_files.settings as settings
 import logging
 logger = logging.getLogger('wall_e')
 
-class HealthChecks(commands.Cog):
+class HealthChecks():
 
 	def __init__(self, bot):
 		self.bot = bot

@@ -8,7 +8,7 @@ from operator import itemgetter
 
 logger = logging.getLogger('wall_e')
 
-class RoleCommands(commands.Cog):
+class RoleCommands():
 
     def __init__(self, bot):
         self.bot = bot

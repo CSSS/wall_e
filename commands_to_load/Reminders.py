@@ -17,7 +17,7 @@ import os
 import datetime
 logger = logging.getLogger('wall_e')
 
-class Reminders(commands.Cog):
+class Reminders():
 
 	def __init__(self, bot):
 		self.bot = bot

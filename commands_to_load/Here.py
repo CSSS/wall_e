@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger('wall_e')
 
 
-class Here(commands.Cog):
+class Here():
 
     def __init__(self, bot):
         self.bot = bot
