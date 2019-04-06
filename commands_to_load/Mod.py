@@ -99,6 +99,13 @@ class Mod():
 
         MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
 
+        # Check if muted role is there
+        if not MUTED_ROLE:
+            eObj = await em(ctx, description='Muted role is missing', footer='Command error')
+            if eObj is not False:
+                await ctx.send(embed=eObj)
+            return
+
         # Get guild
         channels = ctx.guild.channels
 
@@ -156,6 +163,13 @@ class Mod():
 
         # Get the MUTED role
         MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
+
+        # Check if muted role is there
+        if not MUTED_ROLE:
+            eObj = await em(ctx, description='Muted role is missing', footer='Command error')
+            if eObj is not False:
+                await ctx.send(embed=eObj)
+            return
 
         overwrite = {
             ctx.guild.default_role : discord.PermissionOverwrite(mention_everyone=False),
@@ -315,6 +329,14 @@ class Mod():
 
         # Grab the Muted role
         MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
+        
+        # Check if muted role is there
+        if not MUTED_ROLE:
+            eObj = await em(ctx, description='Muted role is missing', footer='Command error')
+            if eObj is not False:
+                await ctx.send(embed=eObj)
+            return
+        
         logger.info('[Mod mute()] mute role found: {}'.format(MUTED_ROLE.id))
 
         # Add muted role to user
@@ -356,6 +378,14 @@ class Mod():
 
         # Get muted role
         MUTED_ROLE = discord.utils.get(ctx.guild.roles, name='Muted')
+
+        # Check if muted role is there
+        if not MUTED_ROLE:
+            eObj = await em(ctx, description='Muted role is missing', footer='Command error')
+            if eObj is not False:
+                await ctx.send(embed=eObj)
+            return
+
         logger.info('[Mod unmute()] muted role found: {}'.format(MUTED_ROLE.id))
 
         # Verify user has the muted role
