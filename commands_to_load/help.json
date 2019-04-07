@@ -119,14 +119,14 @@
 			"access": "role", 
 			"role" : [ "public" ], 
 			"name": [ "urban" ], 
-			"example": ".urban <arg>", 
+			"example": [".urban <arg>"], 
 			"description": [ "returns definition from urban dictionary of <arg>" ]
 		},
 		{
 			"access": "role", 
 			"role" : [ "public" ], 
 			"name": [ "wolfram" ], 
-			"example": ".wolfram <arg>", 
+			"example": [".wolfram <arg>"], 
 			"description": [ "returns the result of passing <arg> to Wolfram Alpha" ]
 		},
 
