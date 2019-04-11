@@ -225,6 +225,7 @@ class Mod():
             eObj = await em(ctx, description='Number of messages to be between 1 and 100 inclusively', footer='Invalid arguments')
             if eObj is not False:
                 await ctx.send(embed=eObj, delete_after=5.0)
+            return
 
         channel = ctx.channel
         # Grab the last X messages from the channel regardless of user
