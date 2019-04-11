@@ -103,7 +103,7 @@ class Mod():
         if not MUTED_ROLE:
             eObj = await em(ctx, description='Muted role is missing', footer='Command error')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
             return
 
         # Get guild
@@ -156,9 +156,9 @@ class Mod():
 
         # Verify args
         if not name: 
-            eObj = await em(ctx, description='Missing arguments', footer='Error in makechannel command')
+            eObj = await em(ctx, description='Missing arguments', footer='Missing arguments')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
             return
 
         # Get the MUTED role
@@ -168,7 +168,7 @@ class Mod():
         if not MUTED_ROLE:
             eObj = await em(ctx, description='Muted role is missing', footer='Command error')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
             return
 
         overwrite = {
@@ -224,7 +224,7 @@ class Mod():
             # Prevents discord.ClientException 
             eObj = await em(ctx, description='Number of messages to be between 1 and 100 inclusively', footer='Invalid arguments')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
 
         channel = ctx.channel
         # Grab the last X messages from the channel regardless of user
@@ -270,7 +270,7 @@ class Mod():
         if not mentions:
             eObj = await em(ctx, description='Need to @ mention the user to purge messages from', footer='Invalid arguments')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
             return
 
         # Too many mentions
@@ -350,7 +350,7 @@ class Mod():
         if not MUTED_ROLE:
             eObj = await em(ctx, description='Muted role is missing', footer='Command error')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
             return
         
         logger.info('[Mod mute()] mute role found: {}'.format(MUTED_ROLE.id))
@@ -382,14 +382,20 @@ class Mod():
         # Verify mention
         logger.info('[Mod unmute()] checking for mention')
         mentions = ctx.message.mentions
-        if len(mentions) != 1:
+        if not mentions:
             logger.info('[Mod unmute()] no mention found. Informing user')
             eObj = await em(ctx, description='You need to @ mention the user to mute', footer='Invalid arguments')
             if eObj is not False:
                 await ctx.send(embed=eObj, delete_after=5.0)
             return
-        else: 
-            user = mentions[0]
+
+        if len(mentions) > 1:
+            logger.info('[Mod unmute()] more than 1 mention. Informing user.') 
+            eObj = await em(ctx, description='You have too many @\'s. Please only @ mention one target user.', footer='Invalid arguments')
+            if eObj is not False:
+                await ctx.send(embed=eObj, delete_after=5)
+            return
+        user = mentions[0]
         logger.info('[Mod unmute()] user found through mention: {}'.format(user))
 
         # Get muted role
@@ -399,7 +405,7 @@ class Mod():
         if not MUTED_ROLE:
             eObj = await em(ctx, description='Muted role is missing', footer='Command error')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
             return
 
         logger.info('[Mod unmute()] muted role found: {}'.format(MUTED_ROLE.id))
@@ -410,7 +416,7 @@ class Mod():
             logger.info('[Mod unmute()] {} is not muted. Informing {} of this fact'.format(user, ctx.message.author))
             eObj = await em(ctx, description='{} is not muted so cannot unmute'.format(user), footer='Invalid arguments')
             if eObj is not False:
-                await ctx.send(embed=eObj)
+                await ctx.send(embed=eObj, delete_after=5)
             return
         logger.info('[Mod unmute()] {} verified to be muted'.format(user))
 
