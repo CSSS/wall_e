@@ -243,7 +243,7 @@ class Mod():
 
         eObj = await em(ctx, description='{} messages deleted'.format(numOfMsgs), footer='Message will self destruct in 5 ...')
         if eObj is not False:
-            await ctx.send(embed=eObj, delete_after=5.0.0)
+            await ctx.send(embed=eObj, delete_after=5.0)
 
     @commands.command()
     async def purge(self, ctx, *args):
@@ -306,7 +306,7 @@ class Mod():
         
         eObj = await em(ctx, description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
         if eObj is not False:
-            await ctx.send(embed=eObj, delete_after=5.0.0)
+            await ctx.send(embed=eObj, delete_after=5.0)
 
     @commands.command()
     async def mute(self, ctx):
@@ -330,7 +330,7 @@ class Mod():
             logger.info('[Mod mute()] No mention found. Informing user')
             eObj = await em(ctx, description='You need to @ mention the user to mute', footer='Invalid arguments')
             if eObj is not False:
-                await ctx.send(embed=eObj, delete_after=5.0.0)
+                await ctx.send(embed=eObj, delete_after=5.0)
             return
 
         if len(mentions) > 1:
@@ -386,7 +386,7 @@ class Mod():
             logger.info('[Mod unmute()] no mention found. Informing user')
             eObj = await em(ctx, description='You need to @ mention the user to mute', footer='Invalid arguments')
             if eObj is not False:
-                await ctx.send(embed=eObj, delete_after=5.0.0)
+                await ctx.send(embed=eObj, delete_after=5.0)
             return
 
         if len(mentions) > 1:
