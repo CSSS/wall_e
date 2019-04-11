@@ -247,7 +247,8 @@ class Mod():
 
     @commands.command()
     async def purge(self, ctx, *args):
-        # Deletes 10 message in channel from user
+        # Deletes X messages in channel from user
+        # Defaults to 10, user can speicify the number however
         # Order of arguments doesn't matter, the code works around it
         args = list(args)
 
@@ -264,16 +265,24 @@ class Mod():
         # Verify arguments
         logger.info('[Mod purge()] verifying arguments')
         mentions = ctx.message.mentions
-        if len(mentions) != 1: 
-            # There is no mentoin or more than 1
+
+        # No mentions
+        if not mentions:
             eObj = await em(ctx, description='Need to @ mention the user to purge messages from', footer='Invalid arguments')
             if eObj is not False:
                 await ctx.send(embed=eObj)
             return
-        elif len(mentions) == 1:
-            # Remove the mention from args and init the num var
-            user = mentions[0]
-            args.remove(user.mention)
+
+        # Too many mentions
+        if len(mentions) > 1:
+            eObj = await em(ctx, description='You have to many @\'s.\nPlease only have 1 @ mention of the target user', footer='Invalid arguments')
+            if eObj is not False:
+                await ctx.send(embed=eObj, delete_after=5)
+            return
+
+        # Remove the mention from args and init the num var
+        user = mentions[0]
+        args.remove(user.mention)
 
         if args:
             num = int(args[0])
@@ -317,14 +326,21 @@ class Mod():
         # If there get user
         logger.info('[Mod mute()] checking for mention')
         mentions = ctx.message.mentions
-        if len(mentions) != 1:
-            logger.info('[Mod mute()] no mention found. Informing user')
+        if not mentions:
+            logger.info('[Mod mute()] No mention found. Informing user')
             eObj = await em(ctx, description='You need to @ mention the user to mute', footer='Invalid arguments')
             if eObj is not False:
                 await ctx.send(embed=eObj, delete_after=5.0)
             return
-        else: 
-            user = mentions[0]
+
+        if len(mentions) > 1:
+            logger.info('[Mod Mute()] more than 1 mention. Informing user')
+            eObj = await em(ctx, description='You have too many @\'s. Please only @ mention one target user.', footer='Invalid arguments')
+            if eObj is not False:
+                await ctx.send(embed=eObj, delete_after=5)
+            return
+        
+        user = mentions[0]
         logger.info('[Mod mute()] user found through mention: {}'.format(user))
 
         # Grab the Muted role
