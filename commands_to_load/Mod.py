@@ -293,19 +293,28 @@ class Mod():
         logger.info('[Mod purge()] to purge messages from: {}\nNumber of messages to purge: {}'.format(user, num))
 
         # Check command will determine if message is from user. Will need counter
+        numMsgs = 0
         def check(m):
-            nonlocal num
-            if m.author == user and num > 0:
-                num -=1
+            nonlocal numMsgs
+            if m.author == user:
+                numMsgs += 1
                 return True
             else:
                 return False
+
+        # While looping this incase number of messages to purge is large
+        while numMsgs < num:
+            # Call channel.purge() limit at 100 and bulk = True
+            deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
             
-        # Call channel.purge() limit at 100 and bulk = True
-        deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
-        logger.info('[Mod purge()] purged messages: {}'.format(deleted))
+            # Check if no more messages to delete
+            if not deleted: 
+                break
+
+            logger.info('[Mod purge() purged messages: {}'.format(deleted))
+            deleted = None
         
-        eObj = await em(ctx, description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
+        eObj = await em(ctx, description='Purged {} messages from {}'.format(numMsgs, user), footer='This messages will self destruct in 5...')
         if eObj is not False:
             await ctx.send(embed=eObj, delete_after=5.0)
 
