@@ -286,7 +286,7 @@
 			"example":[ ".purge <@ mention of target user> [<number of messages>]" ],
 			"description":	[
 							"Purges the last *X* messages from target user from current channel.",
-							"Defaults to 10 messages, or optionally you can specify the number of messages to delete wiht a max of 100."
+							"Defaults to 10 messages, or optionally you can specify the number of messages to delete."
 							]
 		},
 		{
