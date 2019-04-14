@@ -311,7 +311,7 @@ class Mod():
             if not deleted: 
                 break
 
-            logger.info('[Mod purge() purged messages: {}'.format(deleted))
+            logger.info('[Mod purge() purged the following {} messages: {}'.format(numMsgs, deleted))
             deleted = None
         
         eObj = await em(ctx, description='Purged {} messages from {}'.format(numMsgs, user), footer='This messages will self destruct in 5...')
