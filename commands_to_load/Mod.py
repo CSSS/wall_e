@@ -123,7 +123,7 @@ class Mod():
             if channel.id not in adminChannels:
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
-        eObj = await em(ctx, description='Muted permissions spread though all channels like herpies. Enjoy :)', footer='Moderator action')
+        eObj = await em(ctx, description='Muted permissions spread though all channels like glitter. Enjoy :)', footer='Moderator action')
         if eObj is not False:
             await ctx.send(embed=eObj, delete_after=5.0)
 
