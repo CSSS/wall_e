@@ -78,7 +78,7 @@ class Mod():
         for wrd in arg:
             msg += wrd + ' '
 
-        eObj = await em(ctx, title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
+        eObj = await em(ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         if eObj is not False:
             await ctx.send(embed=eObj)
 
