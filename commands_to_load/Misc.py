@@ -157,7 +157,7 @@ class Misc():
 				if not char.isalpha():
 					output += numArr[int(char)]
 				else:
-					output += ":regional_indicator_" + char + ":"
+					output += ":regional_indicator_" + char.lower() + ":"
 			else:
 				output += char
 		await ctx.send(output)
