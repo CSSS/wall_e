@@ -1,4 +1,5 @@
-
+import aiohttp
+import discord
 
 async def send(ctx, content=None, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
 
