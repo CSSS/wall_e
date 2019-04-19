@@ -4,6 +4,10 @@ import logging
 logger = logging.getLogger('wall_e')
 
 def getLastIndex(content, index, reservedSpace):
+	# this when the the size of contents is too big for a single discord message, this means
+	# that the message has to be split. and in order to make the output most visually appealing
+	# when splitting it is to see if there is a newline on which  the message can be split instead.
+	# if there is no suitable newline, it will instead just cut down an existing line
 	logger.info("[send.py getLastIndex()] index =["+str(index)+"] reservedSpace =["+str(reservedSpace)+"]")
 	if len(content) - index < 2000-reservedSpace:
 		logger.info("[send.py  getLastIndex()] returning length of content =["+str(len(content))+"]")
