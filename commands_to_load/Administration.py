@@ -9,7 +9,7 @@ import numpy as np
 import operator
 import psycopg2
 import asyncio
-from helper_files.send import send as send
+from helper_files.send import send as helper_send
 
 logger = logging.getLogger('wall_e')
 
@@ -95,8 +95,8 @@ class Administration():
 			query = " ".join(args)
 			#this got implemented for cases when the output of the command is too big to send to the channel
 			exitCode, output = subprocess.getstatusoutput(query)
-			prefix = "truncated output=\n"
-			await send(ctx,"Exit Code: "+str(exitCode)+"\n```"+output+"```")
+			await helper_send(ctx,"Exit Code: "+str(exitCode))
+			await helper_send(ctx,output, prefix ="```", suffix="```")
 		else:
 			logger.info("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
