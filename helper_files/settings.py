@@ -34,6 +34,7 @@ wolframAPI = os.environ['WOLFRAMAPI']
 os.environ['WOLFRAMAPI']=''
 print("[settings.py] variable \"WOLFRAMAPI\" has been set")
 
+if ENVIRONMENT != 'localhost_noDB':
 
 if 'POSTGRES_DB_USER' not in os.environ:
 	print("[settings.py] No environment variable \"POSTGRES_DB_USER\" seems to exist...read the README again")
@@ -74,7 +75,7 @@ os.environ['WALL_E_DB_PASSWORD']=''
 print("[settings.py] variable \"WALL_E_DB_PASSWORD\" has been set.")
 
 
-if ENVIRONMENT != 'localhost':
+if ENVIRONMENT != 'localhost' and ENVIRONMENT != 'localhost_noDB':
 	if 'COMPOSE_PROJECT_NAME' not in os.environ:
 		print("[settings.py] No environment variable \"COMPOSE_PROJECT_NAME\" seems to exist...read the README again")
 		exit(1)

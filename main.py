@@ -353,6 +353,7 @@ if __name__ == "__main__":
 	FILENAME = None
 	logger = initalizeLogger()
 	logger.info("[main.py] Wall-E is starting up")
+	if settings.ENVIRONMENT != 'localhost_noDB':
 	setupDB()
 	setupStatsOfCommandsDBTable()
 
@@ -381,6 +382,9 @@ if __name__ == "__main__":
 	for cog in settings.cogs:
 		commandLoaded=True
 		try:
+			if cog["name"] == 'Reminders' and settings.ENVIRONMENT == 'localhost_noDB':
+				commandLoaded = False
+			else:
 			logger.info("[main.py] attempting to load command "+ cog["name"])
 			bot.load_extension(cog["folder"] + '.' + cog["name"])
 		except Exception as e:
