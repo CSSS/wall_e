@@ -233,8 +233,8 @@ def setupStatsOfCommandsDBTable():
 			host='127.0.0.1'
 		else:
 			host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
-		dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
-		logger.info("[main.py setupStatsOfCommandsDBTable()] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
+		dbConnectionString="dbname='"+settings.WALL_E_DB_DBNAME+"' user='"+settings.WALL_E_DB_USER+"' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
+		logger.info("[main.py setupStatsOfCommandsDBTable()] dbConnectionString=[dbname='"+settings.WALL_E_DB_DBNAME+"' user='"+settings.WALL_E_DB_USER+"' host='"+host+"' password='******']")
 		conn = psycopg2.connect(dbConnectionString)
 		logger.info("[main.py setupStatsOfCommandsDBTable()] PostgreSQL connection established")
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -257,8 +257,8 @@ async def on_command(ctx):
 				host='127.0.0.1'
 			else:
 				host=settings.COMPOSE_PROJECT_NAME+'_wall_e_db'
-			dbConnectionString="dbname='csss_discord_db' user='wall_e' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
-			logger.info("[main.py on_command()] dbConnectionString=[dbname='csss_discord_db' user='wall_e' host='"+host+"' password='******']")
+			dbConnectionString="dbname='"+settings.WALL_E_DB_DBNAME+"' user='"+settings.WALL_E_DB_USER+"' host='"+host+"' password='"+settings.WALL_E_DB_PASSWORD+"'"
+			logger.info("[main.py on_command()] dbConnectionString=[dbname='"+settings.WALL_E_DB_DBNAME+"' user='"+settings.WALL_E_DB_USER+"' host='"+host+"' password='******']")
 			conn = psycopg2.connect(dbConnectionString)
 			logger.info("[main.py on_command()] PostgreSQL connection established")
 			conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
