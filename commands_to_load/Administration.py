@@ -9,6 +9,7 @@ import numpy as np
 import operator
 import psycopg2
 import asyncio
+from helper_files.send import send as send
 
 logger = logging.getLogger('wall_e')
 
@@ -72,7 +73,7 @@ class Administration():
 				await ctx.send("```" + name + " isn't a real cog```")
 				logger.info("[Administration load()] " + str(ctx.message.author) + " tried loading " + name + " which doesn't exist.")
 				return
-			
+
 			self.bot.unload_extension(folder + '.' + name)
 			try:
 				self.bot.load_extension(folder + '.' + name)
@@ -95,18 +96,7 @@ class Administration():
 			#this got implemented for cases when the output of the command is too big to send to the channel
 			exitCode, output = subprocess.getstatusoutput(query)
 			prefix = "truncated output=\n"
-			if len(output)>2000 :
-				logger.info("getting reduced")
-				length = len(output)- (len(output) - 2000) #taking length of just output into account
-				length = length - len(prefix) #taking length of prefix into account
-				length = length - 6 #taking length of prefix into account
-				length = length - 12 - len(str(exitCode)) #taking exit code info into account
-				output=output[:length]
-				await ctx.send("Exit Code: "+str(exitCode)+"\n"+prefix+"```"+output+"```")
-			elif len(output) == 0:
-				await ctx.send("Exit Code: "+str(exitCode)+"\n")
-			else:
-				await ctx.send("Exit Code: "+str(exitCode)+"\n```"+output+"```")
+			await send(ctx,"Exit Code: "+str(exitCode)+"\n```"+output+"```")
 		else:
 			logger.info("[Administration exc()] unauthorized command attempt detected from "+ str(ctx.message.author))
 			await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
@@ -124,7 +114,7 @@ class Administration():
 	def determineXYFrequency(self,dbConn, filters=None):
 		dbCurr = dbConn.cursor()
 		logger.info("[Administration determineXYFrequency()] trying to create a dictionary from "+str(dbCurr)+" with the filters:\n\t"+str(filters))
-		
+
 		combinedFilter='", "'.join(str(e) for e in filters)
 		combinedFilter="\""+combinedFilter+"\""
 		sqlQuery="""select """+combinedFilter+""" from commandstats;"""
@@ -225,7 +215,7 @@ class Administration():
 				title+="_"+args[len(args)-1]
 			else:
 				title=args[0]
-			
+
 			ax.set_title("How may times each "+title+" appears in the database")
 			fig.set_size_inches(18.5, 10.5)
 			fig.savefig('image.png')
@@ -243,7 +233,7 @@ class Administration():
 			msg=None
 			currentPage=0
 
-			
+
 			while firstIndex < len(dicResult):
 				logger.info("[Administration frequency()] creating a graph with entries "+str(firstIndex)+" to "+str(lastIndex))
 				toReact = ['⏪', '⏩', '✅']
@@ -287,7 +277,7 @@ class Administration():
 						e = str(reaction.emoji)
 						logger.info("[numOfBarsPerPage frequency()] reaction " + e + " detected from " + str(user))
 						return e.startswith(('⏪', '⏩', '✅'))
-				
+
 				logger.info("[Administration frequency()] graph image file has been sent")
 
 				userReacted = False
@@ -306,7 +296,7 @@ class Administration():
 								firstIndex, lastIndex= numOfBarsPerPage*3, numOfBarsPerPage*4
 								currentPage=numberOfPages-1
 							logger.info("[Administration frequency()] user indicates they want to go back to page " + str(currentPage))
-							
+
 						elif '⏩' == userReacted[0].emoji:
 							firstIndex+=numOfBarsPerPage
 							lastIndex+=numOfBarsPerPage
@@ -315,7 +305,7 @@ class Administration():
 								firstIndex, lastIndex= 0, numOfBarsPerPage
 								currentPage=0
 							logger.info("[Administration frequency()] user indicates they want to go to page " + str(currentPage))
-							
+
 						elif '✅' == userReacted[0].emoji:
 							logger.info("[Administration frequency()] user indicates they are done with the roles command, deleting roles message")
 							await msg.delete()
