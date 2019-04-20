@@ -354,8 +354,8 @@ if __name__ == "__main__":
 	logger = initalizeLogger()
 	logger.info("[main.py] Wall-E is starting up")
 	if settings.ENVIRONMENT != 'localhost_noDB':
-	setupDB()
-	setupStatsOfCommandsDBTable()
+	    setupDB()
+	    setupStatsOfCommandsDBTable()
 
 	## tries to open log file in prep for write_to_bot_log_channel function
 	try:
@@ -385,8 +385,8 @@ if __name__ == "__main__":
 			if cog["name"] == 'Reminders' and settings.ENVIRONMENT == 'localhost_noDB':
 				commandLoaded = False
 			else:
-			logger.info("[main.py] attempting to load command "+ cog["name"])
-			bot.load_extension(cog["folder"] + '.' + cog["name"])
+			    logger.info("[main.py] attempting to load command "+ cog["name"])
+			    bot.load_extension(cog["folder"] + '.' + cog["name"])
 		except Exception as e:
 			commandLoaded=False
 			exception = '{}: {}'.format(type(e).__name__, e)
