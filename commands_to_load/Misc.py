@@ -145,6 +145,28 @@ class Misc():
 			if eObj is not False:
 				await ctx.send(embed=eObj)
 				logger.error("[Misc wolfram()] result NOT found for %s" % arg)
+	
+	@commands.command()
+	async def emotespeak(self, ctx, *arg):
+		logger.info("[Misc emotespeak()] emotespeak command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
+		numArr = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:"]
+		merged = ' '.join(arg)
+		output = ""
+		for char in merged:
+			try:
+				char.encode('ascii')
+			except UnicodeEncodeError:
+				output += char
+			else:
+				if char.isalnum():
+					if not char.isalpha():
+						output += numArr[int(char)]
+					else:
+						output += ":regional_indicator_" + char.lower() + ":"
+				else:
+					output += char
+		await ctx.send(output)
+
 
 	async def GeneralDescription(self, ctx):
 		numberOfCommandsPerPage=5
