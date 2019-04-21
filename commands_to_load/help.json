@@ -15,12 +15,6 @@
 			"example": [ ".echo <arg>" ],
 			"description": [ "returns <arg>" ] 
 		},
-		{ 	"access": "role", 
-			"role" : [ "public" ], 
-			"name": [ "emotespeak" ], 
-			"example": [ ".emotespeak <arg>" ],
-			"description": [ "returns <arg> but with regional emoji" ] 
-		},
 
 		{ 	"access": "role", 
 			"role" : [ "Bot_manager" ], 
