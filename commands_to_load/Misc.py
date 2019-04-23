@@ -149,6 +149,7 @@ class Misc():
 	
 	@commands.command()
 	async def emojispeak(self, ctx, *args):
+		logger.info("[Misc emojispeak()] emojispeak command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
 		numArr = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:"]
 		output = ""
 
@@ -156,6 +157,12 @@ class Misc():
 			# If the current word is a custom server emoji, just output it
 			if re.match(r'<:\w*:\d*>', word):
 				output += word
+			elif re.match(r':*:', word):
+				logger.info("[Misc emojispeak()] was called with a non-server emoji.")
+				eObj = await embed(ctx, title='EmojiSpeak Error', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description='Please refrain from using non-server emoji.')
+				if eObj is not False:
+					await ctx.send(embed=eObj)
+				return
 			else:
 				for char in word:
 					# Check if char is ascii
@@ -184,6 +191,9 @@ class Misc():
 			output += " "
 
 		# Mention the user, and send the emote speak
+		logger.info("[Misc emojispeak()] deleting" + ctx.message)
+		await ctx.message.delete()
+		logger.info("[Misc emojispeak()] sending" + ctx.author.mention + " says " + output)
 		await ctx.send(ctx.author.mention + " says " + output)
 
 
