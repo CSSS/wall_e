@@ -10,6 +10,7 @@ import wolframalpha
 import discord.client
 import urllib
 import asyncio
+import re
 
 logger = logging.getLogger('wall_e')
 
@@ -146,26 +147,44 @@ class Misc():
 				await ctx.send(embed=eObj)
 				logger.error("[Misc wolfram()] result NOT found for %s" % arg)
 	
-	# @commands.command()
-	# async def emotespeak(self, ctx, *arg):
-	# 	logger.info("[Misc emotespeak()] emotespeak command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
-	# 	numArr = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:"]
-	# 	merged = ' '.join(arg)
-	# 	output = ""
-	# 	for char in merged:
-	# 		try:
-	# 			char.encode('ascii')
-	# 		except UnicodeEncodeError:
-	# 			output += char
-	# 		else:
-	# 			if char.isalnum():
-	# 				if not char.isalpha():
-	# 					output += numArr[int(char)]
-	# 				else:
-	# 					output += ":regional_indicator_" + char.lower() + ":"
-	# 			else:
-	# 				output += char
-	# 	await ctx.send(output)
+	@commands.command()
+	async def emojispeak(self, ctx, *args):
+		numArr = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:"]
+		output = ""
+
+		for word in args:
+			# If the current word is a custom server emoji, just output it
+			if re.match(r'<:\w*:\d*>', word):
+				output += word
+			else:
+				for char in word:
+					# Check if char is ascii
+					try:
+						char.encode('ascii')
+					# If it is not ascii, output plain text char
+					except UnicodeEncodeError:
+						output += char
+					# If it is ascii, handle accordingly
+					else:
+						# If letter, output regional indicator emoji
+						if char.isalpha():
+							output += ":regional_indicator_" + char.lower() + ":"
+						# If number, output number emoji
+						elif char.isdigit():
+							output += numArr[int(char)]
+						# If ?, output ? emoji
+						elif char == '?':
+							output += ":question:"
+						# If !, output ! emoji
+						elif char == '!':
+							output += ":exclamation:"
+						# If any other symbol, output plain text
+						else:
+							output += char
+			output += " "
+
+		# Mention the user, and send the emote speak
+		await ctx.send(ctx.author.mention + " says " + output)
 
 
 	async def GeneralDescription(self, ctx):
