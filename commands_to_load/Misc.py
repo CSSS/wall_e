@@ -191,9 +191,9 @@ class Misc():
 			output += " "
 
 		# Mention the user, and send the emote speak
-		logger.info("[Misc emojispeak()] deleting" + ctx.message)
+		logger.info("[Misc emojispeak()] deleting" + str(ctx.message))
 		await ctx.message.delete()
-		logger.info("[Misc emojispeak()] sending" + ctx.author.mention + " says " + output)
+		logger.info("[Misc emojispeak()] sending" + str(ctx.author.mention) + " says " + output)
 		await ctx.send(ctx.author.mention + " says " + output)
 
 
