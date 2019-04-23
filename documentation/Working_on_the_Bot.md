@@ -39,7 +39,8 @@
 9. Select the server you created and click `Authorize`  
 
 ### Part 1.5: Setting up your Discord server for local testing
->This sections ensures that all mod commands work without errors in you local testing enviroment, meaning you Discord server. 
+>Skip this section if you aren't gonna test on your own server
+This sections ensures that all mod commands work without errors in you local testing enviroment, meaning you Discord server. 
 
 1. Make sure you have the following roles in your server: 
    1. Minions
