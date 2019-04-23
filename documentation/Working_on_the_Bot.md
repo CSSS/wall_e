@@ -83,23 +83,25 @@ Pre-requisites: `git`.
    4. `python3.5 -m venv ENV`  
    5. `. ENV/bin/activate`  
    6. `python3.5 -m pip install -r requirements.txt`  
-   7. PostgreSQL Instructions  
+   7. PostgreSQL Instructions [only if you need to do work on a command that involes the database]  
       1. [Mac](https://www.postgresql.org/download/macosx/)
       2. [Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
       3. [ArchWiki](https://wiki.archlinux.org/index.php/PostgreSQL)
    8. Using Your Own Discord Test Server  
-      1. Run `export ENVIRONMENT='localhost'`  
+      1. Setting up the `ENVIRONMENT` variable
+         1. If you need the DB for your work on the bot: `export ENVIRONMENT='localhost'`
+         2. If you do not need to setup the DB for your work on the bot: `export ENVIRONMENT='localhost_noDB'`
       2. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
       3. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
          1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
-      4. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
-      5. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
-      6. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
-      7. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
-      8. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
-      9. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
-      10. Run `python3.5 main.py`  
-4. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
+      1. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
+      2. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
+      3. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
+      4. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
+      5. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
+      6. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
+      7.  Run `python3.5 main.py`  
+1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
 ## Making a PR to master  

@@ -119,14 +119,14 @@
 			"access": "role", 
 			"role" : [ "public" ], 
 			"name": [ "urban" ], 
-			"example": ".urban <arg>", 
+			"example": [".urban <arg>"], 
 			"description": [ "returns definition from urban dictionary of <arg>" ]
 		},
 		{
 			"access": "role", 
 			"role" : [ "public" ], 
 			"name": [ "wolfram" ], 
-			"example": ".wolfram <arg>", 
+			"example": [".wolfram <arg>"], 
 			"description": [ "returns the result of passing <arg> to Wolfram Alpha" ]
 		},
 
@@ -205,6 +205,7 @@
 								"The classes and their corresponding commands can be determined using the \".help\" command."
 							]
 		},
+
 		{
 			"access": "role",
 			"role" : [ "Bot_manager" ],
@@ -218,7 +219,7 @@
 						"em"
 					], 
 			"example": [ ".embed <arg0> <arg1> ..." ], 
-			"description":	[
+			"description": [
 								"Allows Minions to post embed messages.", 
 								"For odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.", 
 								"For even number there will be no description."
@@ -233,11 +234,6 @@
 					] , 
 			"example": [ ".modspeak <arg>" ], 
 			"description": [ "Posts the warning message <arg> in embed format. No quotes required with message." ]
-		},
-		{
-			"access": "role", 
-			"role" : [ "Bot_manager" ],
-			"name": "Class: Here"
 		},
 		{
 			"access": "role",
@@ -290,7 +286,7 @@
 			"example":[ ".purge <@ mention of target user> [<number of messages>]" ],
 			"description":	[
 							"Purges the last *X* messages from target user from current channel.",
-							"Defaults to 10 messages, or optionally you can specify the number of messages to delete wiht a max of 100."
+							"Defaults to 10 messages, or optionally you can specify the number of messages to delete."
 							]
 		},
 		{
@@ -333,6 +329,12 @@
 							"Unlocks the current channel",
 							"Council is notified of unlocked channel."
 			]
+		},
+  
+		{
+			"access": "role", 
+			"role" : [ "Bot_manager" ],
+			"name": "Class: Here"
 		},
 		{
 			"access": "role",

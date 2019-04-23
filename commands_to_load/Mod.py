@@ -79,7 +79,7 @@ class Mod():
         for wrd in arg:
             msg += wrd + ' '
 
-        eObj = await em(ctx, title='A Bellow From the Underworld says...', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
+        eObj = await em(ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name, avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         if eObj is not False:
             await ctx.send(embed=eObj)
 
@@ -123,7 +123,7 @@ class Mod():
             if channel.id not in adminChannels:
                 await channel.set_permissions(MUTED_ROLE, overwrite=overwrite)
 
-        eObj = await em(ctx, description='Muted permissions spread though all channels like herpies. Enjoy :)', footer='Moderator action')
+        eObj = await em(ctx, description='Muted permissions spread though all channels like glitter. Enjoy :)', footer='Moderator action')
         if eObj is not False:
             await ctx.send(embed=eObj, delete_after=5.0)
 
@@ -225,6 +225,7 @@ class Mod():
             eObj = await em(ctx, description='Number of messages to be between 1 and 100 inclusively', footer='Invalid arguments')
             if eObj is not False:
                 await ctx.send(embed=eObj, delete_after=5.0)
+            return
 
         channel = ctx.channel
         # Grab the last X messages from the channel regardless of user
@@ -292,19 +293,28 @@ class Mod():
         logger.info('[Mod purge()] to purge messages from: {}\nNumber of messages to purge: {}'.format(user, num))
 
         # Check command will determine if message is from user. Will need counter
+        numMsgs = 0
         def check(m):
-            nonlocal num
-            if m.author == user and num > 0:
-                num -=1
+            nonlocal numMsgs
+            if m.author == user and numMsgs < num:
+                numMsgs += 1
                 return True
             else:
                 return False
+
+        # While looping this incase number of messages to purge is large
+        while numMsgs < num:
+            # Call channel.purge() limit at 100 and bulk = True
+            deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
             
-        # Call channel.purge() limit at 100 and bulk = True
-        deleted = await ctx.channel.purge(limit=100, check=check, bulk=True)
-        logger.info('[Mod purge()] purged messages: {}'.format(deleted))
+            # Check if no more messages to delete
+            if not deleted: 
+                break
+
+            logger.info('[Mod purge() purged the following {} messages: {}'.format(numMsgs, deleted))
+            deleted = None
         
-        eObj = await em(ctx, description='Purged {} messages from {}'.format(len(deleted), user), footer='This messages will self destruct in 5...')
+        eObj = await em(ctx, description='Purged {} messages from {}'.format(numMsgs, user), footer='This messages will self destruct in 5...')
         if eObj is not False:
             await ctx.send(embed=eObj, delete_after=5.0)
 
@@ -433,7 +443,7 @@ class Mod():
         # Inform council of actions
         logger.info('[Mod unmute()] telling council of the unmuting')
         council = discord.utils.get(ctx.guild.channels, name='council')
-        eObj = em(ctx, description='{} unmuted {}'.format(ctx.message.author, user), footer='Moderator action')
+        eObj = await em(ctx, description='{} unmuted {}'.format(ctx.message.author, user), footer='Moderator action')
         if eObj is not False:
             await council.send(embed=eObj)
 

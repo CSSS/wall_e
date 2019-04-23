@@ -148,7 +148,6 @@ class Misc():
 
 	async def GeneralDescription(self, ctx):
 		numberOfCommandsPerPage=5
-		await ctx.send("     help me.....")
 		logger.info("[Misc help()] help command detected from "+str(ctx.message.author))
 		logger.info("[Misc help()] attempting to load command info from help.json")
 		with open('commands_to_load/help.json') as f:
