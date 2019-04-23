@@ -149,7 +149,7 @@ class Misc():
 	
 	@commands.command()
 	async def emojispeak(self, ctx, *args):
-		logger.info("[Misc emojispeak()] emojispeak command detected from user "+str(ctx.message.author)+" with argument =\""+str(arg)+"\"")
+		logger.info("[Misc emojispeak()] emojispeak command detected from user "+str(ctx.message.author)+" with argument =\""+str(args)+"\"")
 		numArr = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:"]
 		output = ""
 
