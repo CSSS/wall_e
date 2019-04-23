@@ -72,12 +72,14 @@ Pre-requisites: `git`.
    1. `python3.5 -m venv ENV`  
    1. `. ENV/bin/activate`  
    1. `python3.5 -m pip install -r requirements.txt`  
-   1. PostgreSQL Instructions  
+   1. PostgreSQL Instructions [only if you need to do work on a command that involes the database]  
       1. [Mac](https://www.postgresql.org/download/macosx/)
       1. [Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
       1. [ArchWiki](https://wiki.archlinux.org/index.php/PostgreSQL)
    1. Using Your Own Discord Test Server  
-      1. Run `export ENVIRONMENT='localhost'`  
+      1. Setting up the `ENVIRONMENT` variable
+         1. If you need the DB for your work on the bot: `export ENVIRONMENT='localhost'`
+         2. If you do not need to setup the DB for your work on the bot: `export ENVIRONMENT='localhost_noDB'`
       1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
       1. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
          1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
