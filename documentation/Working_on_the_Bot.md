@@ -1,12 +1,11 @@
 # Working on the Bot
 
-- [Local Setup](#local-setup)
-  - [Part 1: Creating Bot and Attaching it to a Development Server](#part-1-creating-bot-and-attaching-it-to-a-development-server)  
-  - [Part 2: Running the Bot](#part-2-running-the-bot)  
-- [Making a PR to master](#making-a-pr-to-master)  
-- [Test Cases](#test-cases)  
-- [Reporting Issues](#reporting-issues)  
-- [FAQs](#faqs)  
+- [Working on the Bot](#working-on-the-bot)
+  - [Local Setup](#local-setup)
+    - [Part 1: Creating Bot and Attaching it to a Development Server](#part-1-creating-bot-and-attaching-it-to-a-development-server)
+    - [Part 1.5: Setting up your Discord server for local testing](#part-15-setting-up-your-discord-server-for-local-testing)
+    - [Part 2: Running the Bot](#part-2-running-the-bot)
+  - [Making a PR to master](#making-a-pr-to-master)
 
 ## Local Setup  
 
@@ -39,6 +38,18 @@
    * `YOUR_CLIENT_ID` is the `CLIENT ID` you recorded in Step 5  
 9. Select the server you created and click `Authorize`  
 
+### Part 1.5: Setting up your Discord server for local testing
+>This sections ensures that all mod commands work without errors in you local testing enviroment, meaning you Discord server. 
+
+1. Make sure you have the following roles in your server: 
+   1. Minions
+      * This is the mod role, which a user needs to have in order to use the mod commands
+   2. Muted
+      * This is the given to an unruly user inorder to shut them up while the mod team discusses furhter action against them
+2. Make sure you have the following channels:
+   1. Council
+      * This is the mod teams private channel where the bot will send notificaiton messages
+
 ### Part 2: Running the Bot  
 
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) at the end of the documentation for future reference :)
@@ -48,47 +59,47 @@ Pre-requisites: `git`.
 1. Python3.5 Instructions  
    1. Mac  
       1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)  
-      1. Run following commands: 
+      2. Run following commands: 
          1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
-         1. `python3.5 get-pip.py`
-   1. Ubuntu  
+         2. `python3.5 get-pip.py`
+   2. Ubuntu  
       1. Run following commands:
          1. `sudo apt-get install -y python 3.5`
-   1. Arch  
+   3. Arch  
       1. Run following commands:
          1. `wget https://aur.archlinux.org/cgit/aur.git/snapshot/python35.tar.gz`
-         1. `tar xvf python35.tar.gz`
-         1. `cd python35`
-         1. `sudo pacman -S tk valgrind`
-         1. `makepkg`
-         1. `sudo pacman -U python35-3.5.6-1-x86_64.pkg.tar.xz`
-         1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
-         1. `sudo -H python3.5 get-pip.py`
-1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
-1. From commandline, run following commands  
+         2. `tar xvf python35.tar.gz`
+         3. `cd python35`
+         4. `sudo pacman -S tk valgrind`
+         5. `makepkg`
+         6. `sudo pacman -U python35-3.5.6-1-x86_64.pkg.tar.xz`
+         7. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+         8. `sudo -H python3.5 get-pip.py`
+2. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
+3. From commandline, run following commands  
    1. `git clone <the url of your forked repo>`  
-   1. `cd wall_e`
-   1. `sudo -H python3.5 -m pip install virtualenv`
-   1. `python3.5 -m venv ENV`  
-   1. `. ENV/bin/activate`  
-   1. `python3.5 -m pip install -r requirements.txt`  
-   1. PostgreSQL Instructions  
+   2. `cd wall_e`
+   3. `sudo -H python3.5 -m pip install virtualenv`
+   4. `python3.5 -m venv ENV`  
+   5. `. ENV/bin/activate`  
+   6. `python3.5 -m pip install -r requirements.txt`  
+   7. PostgreSQL Instructions  
       1. [Mac](https://www.postgresql.org/download/macosx/)
-      1. [Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
-      1. [ArchWiki](https://wiki.archlinux.org/index.php/PostgreSQL)
-   1. Using Your Own Discord Test Server  
+      2. [Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
+      3. [ArchWiki](https://wiki.archlinux.org/index.php/PostgreSQL)
+   8. Using Your Own Discord Test Server  
       1. Run `export ENVIRONMENT='localhost'`  
-      1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
-      1. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
+      2. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
+      3. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
          1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
-      1. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
-      1. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
-      1. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
-      1. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
-      1. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
-      1. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
-      1. Run `python3.5 main.py`  
-1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
+      4. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
+      5. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
+      6. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
+      7. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
+      8. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
+      9. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
+      10. Run `python3.5 main.py`  
+4. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
 ## Making a PR to master  
