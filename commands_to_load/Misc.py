@@ -12,6 +12,7 @@ import urllib
 import asyncio
 
 logger = logging.getLogger('wall_e')
+client = discord.Client()
 
 wolframClient = wolframalpha.Client(settings.wolframAPI)
 
@@ -241,8 +242,17 @@ class Misc():
 		else:
 			await self.specificDescription(ctx, arg)
 
+	@client.event
+	async def on_message_delete(message):
+		if(message.author.id == "556251463538442253"): # imlate#6365
+			bot_commands_channel = client.get_channel(354084037465473025)
+			await bot_commands_channel.send('imlate deleted: ' + message)
+			#await message.channel.send('imlate deleted: ' + message)
+            
+            
 	def __del__(self):
 		self.session.close()
+		client.logout()
 
 def setup(bot):
 	bot.add_cog(Misc(bot))
