@@ -258,7 +258,7 @@ class Administration():
 					title+="_"+args[len(args)-1]
 				else:
 					title=args[0]
-				ax.set_title("How may times each "+title+" appears in the database")
+				ax.set_title("How may times each "+title+" appears in the database since Sept 21, 2018")
 				fig.set_size_inches(18.5, 10.5)
 				fig.savefig('image.png')
 				logger.info("[Administration frequency()] graph created and saved")
