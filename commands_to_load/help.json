@@ -15,7 +15,12 @@
 			"example": [ ".echo <arg>" ],
 			"description": [ "returns <arg>" ] 
 		},
-
+    { "access": "role", 
+			"role" : [ "public" ], 
+			"name": [ "emojispeak" ], 
+			"example": [ ".emojispeak <args>" ],
+			"description": [ "returns <args> but in emoji format" ] 
+		},
 		{ 	"access": "role", 
 			"role" : [ "Bot_manager" ], 
 			"name": "Class: RoleCommands"
