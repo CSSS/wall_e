@@ -28,7 +28,7 @@ async def send(ctx, content=None, tts=False, embed=None, file=None, files=None, 
 	if prefix is not None:
 	 	formattedContent= prefix + content
 	if suffix is not None:
-		formattedContent = content + suffix
+		formattedContent = formattedContent + suffix
 
 	# so what basically happens is it first tries to send the full message, then if it cant, it breaks it down into 2000 sizes messages and send them individually
 	try:
