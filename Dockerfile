@@ -16,7 +16,7 @@ RUN ls -l
 
 RUN ls -l commands_to_load
 
-RUN ls -l helper_file
+RUN ls -l helper_files
 
 RUN py.test
 
