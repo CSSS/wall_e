@@ -10,7 +10,9 @@ COPY commands_to_load ./
 
 COPY helper_files ./
 
-RUN pip install --no-cache-dir -r test-requirements.txt && py.test
+RUN pip install --no-cache-dir -r test-requirements.txt
+
+RUN py.test
 
 RUN pip uninstall -r test-requirements.txt
 
