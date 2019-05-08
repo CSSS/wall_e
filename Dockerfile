@@ -6,9 +6,9 @@ COPY test-requirements.txt ./
 
 COPY main.py ./
 
-COPY commands_to_load ./
+COPY commands_to_load ./commands_to_load
 
-COPY helper_files ./
+COPY helper_files ./helper_files
 
 RUN pip install --no-cache-dir -r test-requirements.txt
 
