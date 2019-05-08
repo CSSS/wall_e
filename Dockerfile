@@ -24,7 +24,7 @@ RUN ls -l helper_files
 
 RUN py.test
 
-RUN pip uninstall -r test-requirements.txt
+RUN pip uninstall -y -r test-requirements.txt
 
 COPY requirements.txt ./
 
