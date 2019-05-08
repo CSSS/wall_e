@@ -6,6 +6,10 @@ COPY test-requirements.txt ./
 
 COPY main.py ./
 
+COPY pytest.ini ./
+
+COPY setup.cfg ./
+
 COPY commands_to_load ./commands_to_load
 
 COPY helper_files ./helper_files
