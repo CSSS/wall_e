@@ -16,12 +16,6 @@ COPY helper_files ./helper_files
 
 RUN pip install --no-cache-dir -r test-requirements.txt
 
-RUN ls -l
-
-RUN ls -l commands_to_load
-
-RUN ls -l helper_files
-
 RUN py.test
 
 RUN pip uninstall -y -r test-requirements.txt
