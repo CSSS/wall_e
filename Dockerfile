@@ -22,6 +22,8 @@ RUN pip uninstall -y -r test-requirements.txt
 
 COPY requirements.txt ./
 
+COPY wait-for-postgres.sh ./
+
 RUN apk add --update alpine-sdk libffi-dev
 
 RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt &&  apk --update add postgresql-client 
