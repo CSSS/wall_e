@@ -23,7 +23,7 @@ pipeline {
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
 			sleep 20
 			sh "docker logs ${pyTestContainerName}"
-			def testContainerFailed = sh script: "docker inspect ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep -v 0", returnStatus: false
+			def testContainerFailed = sh script: "docker inspect ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep  '0'", returnStatus: true
 			if (testContainerFailed){
 				def output = sh (
 					script: "docker logs ${pyTestContainerName}",
