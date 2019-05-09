@@ -16,8 +16,8 @@ pipeline {
                             'WALL_E_DB_DBNAME=csss_discord_db'
                     ]) {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
-			sh "docker build -t ${pyTestContainerName} Dockerfile.test"
-			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName}"
+			sh "docker build -t ${pyTestContainerName.toLowerCase()} -f Dockerfile.test"
+			sh "docker run -d -e --net=host --name ${pyTestContainerName.toLowerCase()} ${pyTestContainerName}"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
 
