@@ -21,7 +21,9 @@ pipeline {
 			
 			sh "docker build -t ${pyTestContainerName.toLowerCase()} -f Dockerfile.test ."
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
-                        sh "docker logs ${pyTestContainerName}"
+			sh "return $(docker inspect ${pyTestContainerName}  --format='{{.State.ExitCode}}')"
+                        sleep 20
+			sh "docker logs ${pyTestContainerName}"
 			
 			String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
