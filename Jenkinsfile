@@ -21,7 +21,8 @@ pipeline {
 			
 			sh "docker build -t ${pyTestContainerName.toLowerCase()} -f Dockerfile.test ."
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
-			sh "return $(docker inspect ${pyTestContainerName}  --format='{{.State.ExitCode}}')"
+			sleep 20
+			sh "if [ $(docker inspect ${pyTestContainerName}  --format='{{.State.ExitCode}}') -eq 1 ]; then return 1 fi"
                         sleep 20
 			sh "docker logs ${pyTestContainerName}"
 			
