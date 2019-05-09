@@ -23,7 +23,18 @@ pipeline {
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
 			sleep 20
 			sh "docker logs ${pyTestContainerName}"
-			sh "./validator.sh ${pyTestContainerName}"
+			def testContainerFailed = sh script: "docker ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep -v 0", returnStatus: true
+			if (testContainerFailed){
+				def output = sh (
+					script: "docker logs ${pyTestContainerName}",
+					returnStdout: true
+				).trim()
+				withCredentials([string[credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+					discordSend description: BRANCH_NAME + '\n' + output, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: "Failing build", webhookURL: "$WEBHOOKURL"
+				}
+				error output
+			}
+			# sh "./validator.sh ${pyTestContainerName}"
 			
 			String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
