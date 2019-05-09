@@ -17,7 +17,7 @@ pipeline {
                     ]) {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 			sh "docker build -t ${pyTestContainerName.toLowerCase()} -f Dockerfile.test ."
-			sh "docker run -d -e --net=host --name ${pyTestContainerName.toLowerCase()} ${pyTestContainerName}"
+			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
                         String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
 
