@@ -29,7 +29,7 @@ pipeline {
 					script: "docker logs ${pyTestContainerName}",
 					returnStdout: true
 				).trim()
-				withCredentials([string[credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+				withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
 					discordSend description: BRANCH_NAME + '\n' + output, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: "Failing build", webhookURL: "$WEBHOOKURL"
 				}
 				error output
