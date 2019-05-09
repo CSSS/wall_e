@@ -15,7 +15,7 @@ pipeline {
                             'WALL_E_DB_USER=wall_e',
                             'WALL_E_DB_DBNAME=csss_discord_db'
                     ]) {
-			GString pyTestContainerName = "${COMPOE_PROJECT_NAME}_wall_e_pytest"
+			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 			sh "docker build -t ${pyTestContainerName} Dockerfile.test"
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName}"
                         String tokenEnv = 'TOKEN'
