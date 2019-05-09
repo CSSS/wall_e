@@ -23,6 +23,7 @@ pipeline {
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
 			sleep 20
 			sh "docker logs ${pyTestContainerName}"
+			sh "./validator.sh ${pyTestContainerName}"
 			
 			String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
