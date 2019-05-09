@@ -34,7 +34,7 @@ pipeline {
 				}
 				error output
 			}
-			# sh "./validator.sh ${pyTestContainerName}"
+			// sh "./validator.sh ${pyTestContainerName}"
 			
 			String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
