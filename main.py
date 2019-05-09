@@ -240,8 +240,8 @@ def setupStatsOfCommandsDBTable():
             host = '127.0.0.1'
         else:
             host = settings.COMPOSE_PROJECT_NAME + '_wall_e_db'
-        dbConnectionString = "dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "'"
-        " host='" + host + "' password='" + settings.WALL_E_DB_PASSWORD + "'"
+        dbConnectionString = ("dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "'"
+                              " host='" + host + "' password='" + settings.WALL_E_DB_PASSWORD + "'")
         logger.info("[main.py setupStatsOfCommandsDBTable()] dbConnectionString=[dbname='"
                     + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "' host='" + host
                     + "' password='******']")

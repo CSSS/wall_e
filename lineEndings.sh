@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 traverse_files(){
 	#echo "layer="$1
@@ -37,6 +37,3 @@ traverse_files(){
 	done
 }
 traverse_files 1
-
-
-
