@@ -16,6 +16,7 @@ pipeline {
                             'WALL_E_DB_DBNAME=csss_discord_db'
                     ]) {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
+			sh "ls -la"
 			windowLineEndings = sh {
 				script: './lineEndings.sh',
 				returnStdout: true
