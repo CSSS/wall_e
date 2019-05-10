@@ -17,10 +17,10 @@ pipeline {
                     ]) {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 			sh "ls -la"
-			windowLineEndings = sh {
+			windowLineEndings = sh (
 				script: './lineEndings.sh',
 				returnStdout: true
-			}.trim() 
+			).trim() 
 			echo "$windowLineEndings"
 			error windowLineEndings
 			sh "./lineEndings.sh"
