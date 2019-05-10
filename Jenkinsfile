@@ -20,7 +20,7 @@ pipeline {
 			def lineFailure = sh script: "./lineEndings.sh", returnStatus: true
 			if (lineFailure){
 				def lineFailureOutput = sh (
-					script: "./lineEndings.sh"
+					script: "./lineEndings.sh",
 					returnStdout: true
 				).trim()
 				error lineFailureOutput
