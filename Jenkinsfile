@@ -19,11 +19,11 @@ pipeline {
 			sh "ls -la"
 			def lineFailure = sh script: "./lineEndings.sh", returnStatus: true
 			if (lineFailure){
-				windowLineEndings = sh (
+				def windowLineEndings = sh (
 					script: './lineEndings.sh',
 					returnStdout: true
 				).trim() 
-				echo "$windowLineEndings"
+				echo "${windowLineEndings}"
 				error windowLineEndings
 			}
 			sh "docker rm -f ${pyTestContainerName} || true"
