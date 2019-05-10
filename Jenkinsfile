@@ -19,12 +19,8 @@ pipeline {
 			sh "ls -la"
 			def lineFailure = sh script: "./lineEndings.sh", returnStatus: true
 			if (lineFailure){
-				def windowLineEndings = sh (
-					script: './lineEndings.sh',
-					returnStdout: true
-				).trim() 
-				echo "${windowLineEndings}"
-				error windowLineEndings
+				echo "${lineFailure}"
+				error lineFailure
 			}
 			sh "docker rm -f ${pyTestContainerName} || true"
 			sh "docker image rm -f ${pyTestContainerName.toLowerCase()} || true"
