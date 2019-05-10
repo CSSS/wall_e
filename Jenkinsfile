@@ -17,13 +17,15 @@ pipeline {
                     ]) {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 			sh "ls -la"
-			windowLineEndings = sh (
-				script: './lineEndings.sh',
-				returnStdout: true
-			).trim() 
-			echo "$windowLineEndings"
-			error windowLineEndings
-			sh "./lineEndings.sh"
+			def lineFailure = sh script: "./lineEndings.sh", returnStatus: true
+			if (lineFailure){
+				windowLineEndings = sh (
+					script: './lineEndings.sh',
+					returnStdout: true
+				).trim() 
+				echo "$windowLineEndings"
+				error windowLineEndings
+			}
 			sh "docker rm -f ${pyTestContainerName} || true"
 			sh "docker image rm -f ${pyTestContainerName.toLowerCase()} || true"
 			
