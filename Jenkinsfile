@@ -23,7 +23,7 @@ pipeline {
 					script: "./lineEndings.sh",
 					returnStdout: true
 				).trim()
-				echo lineFailureOutput
+				error lineFailureOutput
 			}
 			sh "docker rm -f ${pyTestContainerName} || true"
 			sh "docker image rm -f ${pyTestContainerName.toLowerCase()} || true"
