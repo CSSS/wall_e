@@ -17,10 +17,49 @@ pipeline {
                     ]) {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 			sh "ls -la"
-			sh "./lineEndings.sh"
+      sh """
+        traverse_files(){
+        	#echo "layer="$1
+        	local outter_files
+        	mapfile -t outter_files < <( ls | tr '\n' '\n' )
+        	local index
+        	for (( index=0; index < ${#outter_files[@]}; index++ ))
+        	do
+        		#echo ${outter_files[$index]}
+        		if [ -d "${outter_files[$index]}" ]
+        		then
+        			#echo -e "\tits a directory"
+        			dir=$(pwd)
+        			#echo "going to ${outter_files[$index]} from $dir"
+        			cd ${outter_files[$index]}
+        			traverse_files $(expr $1 + 1)
+        			if [ $? -eq 1 ]; then
+        				return 1
+        			fi
+        			#echo "going back to $dir"
+        			cd $dir
+        			#echo "back at ${outter_files[$index]}"
+
+        		else
+        			fileType=$(file -i ${outter_files[$index]} | cut -d' ' -f2)
+        			if [ "$fileType" == "text/x-python;" ] || [ "$fileType" == "text/plain;" ]; then
+        				result=$(dos2unix < ${outter_files[$index]} | cmp - ${outter_files[$index]})
+        				if [ "$result" != "" ]; then
+        					echo ${outter_files[$index]} is not using linux line endings!
+        					return 1
+        				fi
+        			fi
+        			#echo -e "\tits a regular file"
+        		fi
+
+        	done
+        }
+        traverse_files 1
+      """
+			// sh "./lineEndings.sh"
 			sh "docker rm -f ${pyTestContainerName} || true"
 			sh "docker image rm -f ${pyTestContainerName.toLowerCase()} || true"
-			
+
 			sh "docker build -t ${pyTestContainerName.toLowerCase()} -f Dockerfile.test ."
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
 			sleep 20
@@ -37,7 +76,7 @@ pipeline {
 				error output
 			}
 			// sh "./validator.sh ${pyTestContainerName}"
-			
+
 			String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
 
@@ -124,7 +163,7 @@ pipeline {
                         ]) {
                             sh "docker rm -f ${productionContainerName} || true"
                             sh "docker image rm -f ${productionContainerName.toLowerCase()} || true"
-                            sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""                                    
+                            sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""
                             sh "docker-compose up -d"
                         }
                         sleep 20
@@ -149,7 +188,7 @@ pipeline {
                                 discordSend description: BRANCH_NAME + '\n' + output, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: 'Failing build', webhookURL: "$WEBHOOKURL"
                             }
                             error output
-                        }                                            
+                        }
                     }
                 }
             }
