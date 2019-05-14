@@ -18,22 +18,22 @@
    1. Going to `https://discordapp.com/channels/@me`  
    2. Clicking the + on the left side   
 
-   ![Creating Discord Development Server](README_files/create_development_server.png) 
+   ![Creating Discord Development Server](README_files/create_development_server.png)
 
 2. Navigate to `https://discordapp.com/developers/applications/me` and login  
 3. Click `Create New Application`   
 
-![Creating Discord Application](README_files/create_application.png) 
+![Creating Discord Application](README_files/create_application.png)
 
 4. Change the name of the Application to whatever you want and then click `Save Changes`  
 5. Take note of the `Client ID` for step 8  
 6. Click on `Bot`   
 
-![Click on Bot](README_files/click_on_bot.png) 
+![Click on Bot](README_files/click_on_bot.png)
 
 7. Click on `Add Bot`  
 
-![Click on Add Bot](README_files/add_bot.png) 
+![Click on Add Bot](README_files/add_bot.png)
 
 8. Navigate to `https://discordapp.com/oauth2/authorize?&client_id=YOUR_CLIENT_ID_HERE&scope=bot&permissions=2119564375`
    * `YOUR_CLIENT_ID` is the `CLIENT ID` you recorded in Step 5  
@@ -48,7 +48,7 @@ Pre-requisites: `git`.
 1. Python3.5 Instructions  
    1. Mac  
       1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)  
-      1. Run following commands: 
+      1. Run following commands:
          1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
          1. `python3.5 get-pip.py`
    1. Ubuntu  
@@ -72,7 +72,7 @@ Pre-requisites: `git`.
    1. `python3.5 -m venv ENV`  
    1. `. ENV/bin/activate`  
    1. `python3.5 -m pip install -r requirements.txt`  
-   1. PostgreSQL Instructions [only if you need to do work on a command that involes the database]  
+   1. PostgreSQL Instructions [only if you need to do work on a command that involves the database]  
       1. [Mac](https://www.postgresql.org/download/macosx/)
       1. [Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
       1. [ArchWiki](https://wiki.archlinux.org/index.php/PostgreSQL)
@@ -83,13 +83,18 @@ Pre-requisites: `git`.
       1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
       1. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
          1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
-      1. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
-      1. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
-      1. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
-      1. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
-      1. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
-      1. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
+      1. If you are using the database with your testing  
+         1. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
+         1. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
+         1. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
+         1. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
+         1. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
+         1. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
       1. Run `python3.5 main.py`  
+1. Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
+   1. `python3.5 -m pip install test-requirements.txt` [only necessary if you have not already installed the test requirements]
+   1. `py.test`
+   1. `./lineEndings.sh` [if any files are reported to not be using Linux line endings, please change them.]
 1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
@@ -107,7 +112,7 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
  1. If you are making a new Class of commands, add the class to bot.json following the convention already there.  
  1. Evidence of Testing. This one needs to be completed after the PR is opened. At that point, you will go on the channel on the CSSS Wall-E Test Server that was automatically created when the PR was opened and then test the [following functionality](#test-cases). Once you had done so, you can leave a comment on the PR stating that you had done the necessary testing.  
  1. Please provide ways to test whatever you just modified on the bot in the [Test Cases section below](#test-cases) so that future PRs can be tested to ensure they dont break *your code* when merging to master  
- 
+
  ## Test Cases  
 
  1. `.ping`  
