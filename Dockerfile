@@ -6,13 +6,19 @@ COPY test-requirements.txt ./
 
 COPY main.py ./
 
-COPY commands_to_load ./
+COPY pytest.ini ./
 
-COPY helper_files ./
+COPY setup.cfg ./
 
-RUN pip install --no-cache-dir -r test-requirements.txt && py.test
+COPY commands_to_load ./commands_to_load
 
-RUN pip uninstall -r test-requirements.txt
+COPY helper_files ./helper_files
+
+RUN pip install --no-cache-dir -r test-requirements.txt
+
+RUN py.test
+
+RUN pip uninstall -y -r test-requirements.txt
 
 COPY requirements.txt ./
 
