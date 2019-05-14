@@ -83,9 +83,11 @@ class SFU():
             else:
                 logger.info('[SFU sfu()] get resulted in ' + str(res.status))
                 eObj = await embed(ctx, title='Results from SFU', author=settings.BOT_NAME,
-                                   avatar=settings.BOT_AVATAR, colour=sfuRed, description='Couldn\'t find anything f'
-                                   + 'or:\n{0}/{1}/{2}/{3}/\nMake sure you entered all the arguments '
-                                   + 'correctly'.format(year, term.upper(), courseCode.upper(), courseNum),
+                                   avatar=settings.BOT_AVATAR, colour=sfuRed,
+                                   description=('Couldn\'t find anything f'
+                                                'or:\n{0}/{1}/{2}/{3}/\nMake sure you entered all the arguments '
+                                                'correctly').format(year, term.upper(), courseCode.upper(),
+                                                                    courseNum),
                                    footer='SFU Error')
                 if eObj is not False:
                     await ctx.send(embed=eObj)
