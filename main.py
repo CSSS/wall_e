@@ -264,7 +264,7 @@ def setupStatsOfCommandsDBTable():
 ########################################################
 @bot.event
 async def on_command(ctx):
-    if testenv.TestCog.check_test_environment(ctx):
+    if testenv.TestCog.check_test_environment(ctx) and settings.ENVIRONMENT != 'localhost_noDB':
         try:
             host = None
             if 'localhost' == settings.ENVIRONMENT:
@@ -379,7 +379,7 @@ if __name__ == "__main__":
     logger.info("[main.py] Wall-E is starting up")
     if settings.ENVIRONMENT != 'localhost_noDB':
         setupDB()
-    setupStatsOfCommandsDBTable()
+        setupStatsOfCommandsDBTable()
     # tries to open log file in prep for write_to_bot_log_channel function
     try:
         logger.info("[main.py] trying to open " + FILENAME + ".log to be able to send its output to #bot_log channel")

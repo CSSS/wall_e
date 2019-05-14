@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 traverse_files(){
 	#echo "layer="$1
@@ -13,13 +13,13 @@ traverse_files(){
 			#echo -e "\tits a directory"
 			dir=$(pwd)
 			#echo "going to ${outter_files[$index]} from $dir"
-			cd ${outter_files[$index]}
+			cd "${outter_files[$index]}"
 			traverse_files $(expr $1 + 1)
 			if [ $? -eq 1 ]; then
 				return 1
 			fi
 			#echo "going back to $dir"
-			cd $dir
+			cd "$dir"
 			#echo "back at ${outter_files[$index]}"
 
 		else

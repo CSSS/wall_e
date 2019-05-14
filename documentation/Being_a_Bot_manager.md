@@ -1,7 +1,7 @@
 # Being a Bot_manager
 
 ## Becoming a Bot_manager  
-  
+
 1. Get added to the CODEOWNERS file  
 1. Perms you need to get from existing Bot_managers  
    1. Account on [Wall-E's Jenkins Server](178.128.184.141)  
@@ -21,5 +21,5 @@
       1. the purpose of the command  
       1. if its called with any arguments  
          1. if it is, they need to either provide a good enough explanation of the arg that a user can tell what it will do before using the command. adding an example of how to call it with the args is not necessary but good practice.  
-  
+
 In the event that the host server needs to be replicated, plase follow the steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the host machine to support CI/CD.
