@@ -16,8 +16,6 @@ pipeline {
                             'WALL_E_DB_DBNAME=csss_discord_db'
                     ]) {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
-			sh "ls -la"
-			sh "./lineEndings.sh"
 			sh "docker rm -f ${pyTestContainerName} || true"
 			sh "docker image rm -f ${pyTestContainerName.toLowerCase()} || true"
 
