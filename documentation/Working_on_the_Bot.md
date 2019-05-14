@@ -206,4 +206,3 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
   1. If absolutely necessary, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bot managers may not necessarily respond. Please over-provide with regards to what the error is, how it happened and any logs and etc rather than under-provide.
 
  ## FAQs  
-
