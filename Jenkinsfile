@@ -22,7 +22,7 @@ pipeline {
 			sh "docker build -t ${pyTestContainerName.toLowerCase()} -f Dockerfile.test ."
 			sh "docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerName.toLowerCase()}"
 			sleep 20
-			sh "docker logs ${pyTestContainerName}"
+			// sh "docker logs ${pyTestContainerName}"
 			def testContainerFailed = sh script: "docker inspect ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep  '0'", returnStatus: true
 			if (testContainerFailed){
 				def output = sh (
@@ -34,7 +34,6 @@ pipeline {
 				}
 				error output
 			}
-			// sh "./validator.sh ${pyTestContainerName}"
 
 			String tokenEnv = 'TOKEN'
                         String wolframEnv = 'WOLFRAMAPI'
