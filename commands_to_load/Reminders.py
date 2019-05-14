@@ -30,7 +30,7 @@ class Reminders():
             else:
                 host = settings.COMPOSE_PROJECT_NAME + '_wall_e_db'
             dbConnectionString = ("dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "'"
-            " host='" + host + "' password='" + settings.WALL_E_DB_PASSWORD + "'")
+                                  " host='" + host + "' password='" + settings.WALL_E_DB_PASSWORD + "'")
             logger.info("[Reminders __init__] dbConnectionString=[dbname='" + settings.WALL_E_DB_DBNAME + "' user='"
                         + settings.WALL_E_DB_USER + "' host='" + host + "' password='******']")
             conn = psycopg2.connect(dbConnectionString)
