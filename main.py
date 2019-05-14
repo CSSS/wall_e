@@ -55,8 +55,8 @@ def setupDB():
             host = '127.0.0.1'
         else:
             host = settings.COMPOSE_PROJECT_NAME + '_wall_e_db'
-        dbConnectionString = "dbname='" + settings.POSTGRES_DB_DBNAME + "' user='" + settings.POSTGRES_DB_USER + "' "
-        "host='" + host + "' password='" + settings.POSTGRES_PASSWORD + "'"
+        dbConnectionString = ("dbname='" + settings.POSTGRES_DB_DBNAME + "' user='" + settings.POSTGRES_DB_USER + "' "
+        "host='" + host + "' password='" + settings.POSTGRES_PASSWORD + "'")
         logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='" + settings.POSTGRES_DB_DBNAME
                     + "' user='" + settings.POSTGRES_DB_USER + "' host='" + host + "' password='*****']")
         postgresConn = psycopg2.connect(dbConnectionString)
@@ -107,8 +107,8 @@ def setupDB():
         # this section exists cause of this backup.sql that I had exported from an instance of a Postgres with
         # which I had created the csss_discord_db
         # https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
-        dbConnectionString = "dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.POSTGRES_DB_USER + "'"
-        " host='" + host + "' password='" + settings.POSTGRES_PASSWORD + "'"
+        dbConnectionString = ("dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.POSTGRES_DB_USER + "'"
+        " host='" + host + "' password='" + settings.POSTGRES_PASSWORD + "'")
         logger.info("[main.py setupDB] Wall_e User dbConnectionString=[dbname='" + settings.WALL_E_DB_DBNAME + "'"
                     " user='" + settings.POSTGRES_DB_USER + "' host='" + host + "' password='*****']")
         walleConn = psycopg2.connect(dbConnectionString)
@@ -271,8 +271,8 @@ async def on_command(ctx):
                 host = '127.0.0.1'
             else:
                 host = settings.COMPOSE_PROJECT_NAME + '_wall_e_db'
-            dbConnectionString = "dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "'"
-            " host='" + host + "' password='" + settings.WALL_E_DB_PASSWORD + "'"
+            dbConnectionString = ("dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "'"
+            " host='" + host + "' password='" + settings.WALL_E_DB_PASSWORD + "'")
             logger.info("[main.py on_command()] dbConnectionString=[dbname='" + settings.WALL_E_DB_DBNAME
                         + "' user='" + settings.WALL_E_DB_USER + "' host='" + host + "' password='******']")
             conn = psycopg2.connect(dbConnectionString)
