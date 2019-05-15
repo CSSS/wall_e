@@ -18,6 +18,7 @@ pipeline {
 			GString pyTestContainerName = "${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 			sh "docker rm -f ${pyTestContainerName} || true"
 			sh "docker image rm -f ${pyTestContainerName.toLowerCase()} || true"
+      
       sh "echo $PATH"
       sh "export PATH=$PATH:/lol"
       sh "echo $PATH"
