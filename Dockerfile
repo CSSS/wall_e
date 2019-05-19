@@ -12,7 +12,7 @@ COPY main.py .
 
 COPY commands_to_load .
 
-COPY helper_files .
+COPY helper_files helper_files
 
 COPY wait-for-postgres.sh .
 
