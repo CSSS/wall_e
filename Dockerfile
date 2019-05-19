@@ -10,7 +10,7 @@ RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir
 
 COPY main.py .
 
-COPY commands_to_load .
+COPY commands_to_load commands_to_load
 
 COPY helper_files helper_files
 
