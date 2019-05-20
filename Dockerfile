@@ -16,6 +16,4 @@ COPY helper_files helper_files
 
 COPY wait-for-postgres.sh .
 
-RUN ls -l /usr/src/app
-
 CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
