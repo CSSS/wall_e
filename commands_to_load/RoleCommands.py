@@ -7,6 +7,7 @@ from helper_files.embed import embed
 from operator import itemgetter
 
 logger = logging.getLogger('wall_e')
+notAllowRoles = [":(){\:|:& };:"]
 
 class RoleCommands():
 
@@ -61,7 +62,7 @@ class RoleCommands():
         logger.info("[RoleCommands iam()] "+str(ctx.message.author)+" called iam with role "+str(roleToAdd))
         roleToAdd = roleToAdd.lower()
         role = discord.utils.get(ctx.guild.roles, name=roleToAdd)
-        if role == None:
+        if role == None or role in notAllowRoles:
             logger.info("[RoleCommands iam()] role doesnt exist.")
             eObj = await embed(ctx, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToAdd + "**` doesn't exist.\nCalling .newrole " + roleToAdd)
             if eObj is not False:
@@ -90,7 +91,7 @@ class RoleCommands():
         logger.info("[RoleCommands iamn()] "+str(ctx.message.author)+" called iamn with role "+str(roleToRemove))
         roleToRemove = roleToRemove.lower()
         role = discord.utils.get(ctx.guild.roles, name=roleToRemove)
-        if role == None:
+        if role == None or role in notAllowRoles:
             logger.info("[RoleCommands iam()] role doesnt exist.")
             eObj = await embed(ctx, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role **`" + roleToRemove + "`** doesn't exist.")
             if eObj is not False:
