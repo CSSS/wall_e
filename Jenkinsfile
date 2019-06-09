@@ -32,11 +32,6 @@ pipeline {
                 script: "docker logs ${pyTestContainerName}",
                 returnStdout: true
               ).trim()
-              echo "description="+BRANCH_NAME + '\n' + discordOutput
-              echo "footer="+env.GIT_COMMIT
-              echo "link="+env.BUILD_URL
-              echo "successful="+false
-              echo "title="+"Failing build"
               withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
                 discordSend description: BRANCH_NAME + '\n' + discordOutput, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: "Failing build", webhookURL: "$WEBHOOKURL"
               }
