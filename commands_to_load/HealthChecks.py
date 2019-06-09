@@ -14,7 +14,7 @@ class HealthChecks():
     @commands.command()
     async def ping(self, ctx):
         logger.info("[HealthChecks ping()] ping command detected from " + str(ctx.message.author))
-        eObj = await embed(ctx, description='Pong!', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
+        eObj = await embed(ctx, description='crack!', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
         if eObj is not False:
             await ctx.send(embed=eObj)
 
