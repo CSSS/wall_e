@@ -25,7 +25,7 @@ pipeline {
             def testContainerFailed = sh script: "docker inspect ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep  '0'", returnStatus: true
             if (testContainerFailed){
               def output = sh (
-                script: "docker logs ${pyTestContainerName}",
+                script: "docker logs ${pyTestContainerName} | tail -12",
                 returnStdout: true
               ).trim()
               echo "description="+BRANCH_NAME + '\n' + output
