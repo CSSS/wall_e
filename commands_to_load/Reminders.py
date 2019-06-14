@@ -149,7 +149,6 @@ class Reminders():
                 sqlCommand = "SELECT * FROM Reminders WHERE message_id = '" + str(messageId) + "';"
                 self.curs.execute(sqlCommand)
                 result = self.curs.fetchone()
-                print("result=" + str(result))
                 if result is None:
                     eObj = await embed(ctx, title='Delete Reminder', author=settings.BOT_NAME,
                                        avatar=settings.BOT_AVATAR, description="ERROR\nSpecified reminder could not "
@@ -250,9 +249,6 @@ class Reminders():
             try:
                 self.curs.execute("SELECT * FROM Reminders where reminder_date <= TIMESTAMP '" + str(dt) + "';")
                 for row in self.curs.fetchall():
-                    # print(row)
-                    # fmt = '<@{0}>\n {1}'
-                    # fmt = '{0}'
                     reminder_message = row[2]
                     author_id = row[3]
                     logger.info('[Misc.py get_message()] obtained the message of [' + str(reminder_message) + '] for '

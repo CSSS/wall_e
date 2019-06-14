@@ -21,15 +21,10 @@ class RoleCommands():
         roleToAdd = roleToAdd.lower()
         guild = ctx.guild
         for role in guild.roles:
-            print("\nroleToAdd=[{}]".format(roleToAdd))
-            print("role.name=[{}]".format(role.name))
             if role.name == roleToAdd:
-                print("here")
                 eObj = await embed(ctx, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description="Role '"
                                    + roleToAdd + "' exists. Calling .iam " + roleToAdd + " will add you to it.")
-                print("eObj=[{}]".format(eObj))
                 if eObj is not False:
-                    print("nigger")
                     await ctx.send(embed=eObj)
                     logger.info("[RoleCommands newrole()] " + roleToAdd + " already exists")
                 return
