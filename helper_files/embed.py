@@ -24,11 +24,15 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
     footer:<str> Used for whatever."""
     # these are put in place cause of the limits on embed described here
     # https://discordapp.com/developers/docs/resources/channel#embed-limits
+    lenOfBaseMessage = len("Embed Error:\nlength of the title `````` being added to the title field is "
+                           " characters too big, pleae cut down to a size of 256")
+    logger.info("[embed embed()] lenOfBaseMessage={0}".format(lenOfBaseMessage))
     if len(title) > 256:
         title = str(title)
         length = str(len(title) - 256)
-        await ctx.send("Embed Error:\nlength of the title ```" + title + "``` being added to the title field is "
-                       + length + " characters too big, pleae cut down to a size of 256")
+        await ctx.send("Embed Error:\nlength of the title ```" + title[0:2000-126-len(length)] + "``` being added to "
+                       "the title field is " + length + " characters too big, pleae cut down to a size of 256")
+
         logger.info("[Mod embed()] length of title [" + str(title) + "] being added to the field is too big")
         return False
 
