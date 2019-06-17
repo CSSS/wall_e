@@ -32,8 +32,13 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
         logger.info("[Mod embed()] length of title [" + str(title) + "] being added to the field is too big")
         return False
 
+    lenOfBaseMessage = len("Embed Error:\nlength of description `````` being added to the "
+                           "description field is  characters too big, pleae cut "
+                           "down to a size of 2048")
+    logger.info("[embed.py embed()] lenOfBaseMessage={0}".format(lenOfBaseMessage))
     if len(description) > 2048:
-        await ctx.send("Embed Error:\nlength of description ```" + str(description) + "``` being added to the "
+        await ctx.send("Embed Error:\nlength of description ```" +
+                       str(description[0:2000-135-len(str(len(description)-2048))]) + "``` being added to the "
                        "description field is " + str(len(description) - 2048) + " characters too big, pleae cut "
                        "down to a size of 2048")
         logger.info("[Mod embed()] length of description [" + str(description) + "] being added to the field is too "
