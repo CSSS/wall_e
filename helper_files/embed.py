@@ -27,8 +27,8 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
     if len(title) > 256:
         title = str(title)
         length = str(len(title) - 256)
-        lenOfBaseMessage = len ("Embed Error:\nlength of the title `````` being added to the title field is "
-                       " characters too big, pleae cut down to a size of 256" )
+        lenOfBaseMessage = len("Embed Error:\nlength of the title `````` being added to the title field is "
+                               " characters too big, pleae cut down to a size of 256")
         logger.info("[embed embed()] lenOfBaseMessage={0}".format(lenOfBaseMessage))
         await ctx.send("Embed Error:\nlength of the title ```" + title + "``` being added to the title field is "
                        + length + " characters too big, pleae cut down to a size of 256")
