@@ -144,7 +144,7 @@ class RoleCommands():
         numberofUsersPerPage = 20
         logger.info("[RoleCommands whois()] " + str(ctx.message.author) + " called whois with role "
                     + str(roleToCheck))
-        memberString = []
+        memberString = [""]
         logString = ""
         role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
         if role is None:
@@ -168,6 +168,7 @@ class RoleCommands():
             memberString[currentIndex] += name + "\n"
             x += 1
             if x == numberofUsersPerPage:
+                memberString.append("")
                 currentIndex += 1
                 x = 0
             logString += name + '\t'
