@@ -141,9 +141,10 @@ class RoleCommands():
 
     @commands.command()
     async def whois(self, ctx, roleToCheck):
+        numberofUsersPerPage = 20
         logger.info("[RoleCommands whois()] " + str(ctx.message.author) + " called whois with role "
                     + str(roleToCheck))
-        memberString = ""
+        memberString = [""]
         logString = ""
         role = discord.utils.get(ctx.guild.roles, name=roleToCheck)
         if role is None:
@@ -161,15 +162,18 @@ class RoleCommands():
             if eObj is not False:
                 await ctx.send(embed=eObj)
             return
+        x, currentIndex = 0, 0
         for members in membersOfRole:
             name = members.display_name
-            memberString += name + "\n"
+            memberString[currentIndex] += name + "\n"
+            x += 1
+            if x == numberofUsersPerPage:
+                memberString.append("")
+                currentIndex += 1
+                x = 0
             logString += name + '\t'
         logger.info("[RoleCommands whois()] following members were found in the role: " + str(logString))
-        eObj = await embed(ctx, title="Members belonging to role: `" + roleToCheck + '`',
-                           author=settings.BOT_NAME, avatar=settings.BOT_AVATAR, description=memberString)
-        if eObj is not False:
-            await ctx.send(embed=eObj)
+        await paginateEmbed(self.bot, ctx, memberString, title="Members belonging to role: `{0}`".format(roleToCheck))
 
     @commands.command()
     async def roles(self, ctx):
