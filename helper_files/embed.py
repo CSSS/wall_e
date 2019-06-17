@@ -30,8 +30,8 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
     if len(title) > 256:
         title = str(title)
         length = str(len(title) - 256)
-        await ctx.send("Embed Error:\nlength of the title ```" + title[0:2000-126-len(length)]+ "``` being added to the title field is "
-                       + length + " characters too big, pleae cut down to a size of 256")
+        await ctx.send("Embed Error:\nlength of the title ```" + title[0:2000-126-len(length)] + "``` being added to "
+                       "the title field is " + length + " characters too big, pleae cut down to a size of 256")
 
         logger.info("[Mod embed()] length of title [" + str(title) + "] being added to the field is too big")
         return False
