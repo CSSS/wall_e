@@ -37,8 +37,8 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
                        str(description[0:2000-135-len(str(len(description)-2048))]) + "``` being added to the "
                        "description field is " + str(len(description) - 2048) + " characters too big, pleae cut "
                        "down to a size of 2048")
-        logger.info("[embed.py embed()] length of description [" + str(description) + "] being added to the field is too "
-                    + "big")
+        logger.info("[embed.py embed()] length of description [" + str(description) + "] being added to the "
+                    "field is too big")
         return False
 
     if len(content) > 25:
@@ -52,13 +52,15 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
             await ctx.send("Embed Error:\nlength of record ```" + str(record[0]) + "``` being added to the name "
                            "field is " + str(len(record[0]) - 256) + " characters too big, pleae cut down to a "
                            "size of 256")
-            logger.info("[embed.py embed()] length of record [" + str(record[0]) + "] being added to the field is too big")
+            logger.info("[embed.py embed()] length of record [" + str(record[0]) + "] being added to the field "
+                        "is too big")
             return False
         if len(record[1]) > 1024:
             await ctx.send("Embed Error:\nlength of record ```" + str(record[1]) + "``` being added to the value "
                            "field is " + str(len(record[1]) - 1024) + " characters too big, pleae cut down to a "
                            "size of 1024")
-            logger.info("[embed.py embed()] length of record [" + str(record[1]) + "] being added to the field is too big")
+            logger.info("[embed.py embed()] length of record [" + str(record[1]) + "] being added to the field "
+                        "is too big")
             return False
 
     if len(footer) > 2048:
