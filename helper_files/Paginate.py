@@ -68,7 +68,7 @@ async def paginateEmbed(bot, ctx, descriptionToEmbed, title=" "):
             except asyncio.TimeoutError:
                 logger.info("[Paginate paginateEmbed()] timed out waiting for the user's reaction.")
 
-            if userReacted is not False:
+            if userReacted:
                 if '⏪' == userReacted[0].emoji:
                     prevPage = currentPage
                     currentPage = currentPage - 1
@@ -90,10 +90,10 @@ async def paginateEmbed(bot, ctx, descriptionToEmbed, title=" "):
                                 + "deleting roles message")
                     await msg.delete()
                     return
-                else:
-                    logger.info("[Paginate paginateEmbed()] deleting message")
-                    await msg.delete()
-                    return
+            else:
+                logger.info("[Paginate paginateEmbed()] deleting message")
+                await msg.delete()
+                return
 
 
 async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, title=" "):
