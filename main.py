@@ -5,17 +5,18 @@ import discord
 import logging
 import datetime
 import pytz
-import helper_files.settings as settings
-from helper_files import testenv
-from helper_files.logger_setup import LoggerWriter
-from helper_files.embed import embed as imported_embed
+from resources.utilities.config.config import WalleConfig as config
+from resources.cogs import testenv
+from resources.utilities.logger_setup import LoggerWriter
+from resources.utilities.embed import embed as imported_embed
 import re
-import psycopg2
+import os
+import importlib
 from discord.ext import commands
 import time
 import aiohttp
 bot = commands.Bot(command_prefix='.')
-
+config = config(os.environ['ENVIRONMENT'])
 
 ##################
 # LOGGING SETUP ##
@@ -51,14 +52,23 @@ def createLogFile(formatter, logger):
 def setupDB():
     try:
         host = None
-        if 'localhost' == settings.ENVIRONMENT:
+        env = config.get_config_value("wall_e", "ENVIRONMENT")
+        compose_project_name = config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME")
+        postgres_db_dbname = config.get_config_value("database", "POSTGRES_DB_DBNAME")
+        postgres_db_user = config.get_config_value("database", "POSTGRES_DB_USER")
+        postgres_password = config.get_config_value("database", "POSTGRES_PASSWORD")
+        wall_e_db_dbname = config.get_config_value("database", "WALL_E_DB_DBNAME")
+        wall_e_db_user = config.get_config_value("database", "WALL_E_DB_USER")
+        wall_e_db_password =config.get_config_value("database", "WALL_E_DB_PASSWORD")
+
+        if 'localhost' == env:
             host = '127.0.0.1'
         else:
-            host = settings.COMPOSE_PROJECT_NAME + '_wall_e_db'
-        dbConnectionString = ("dbname='" + settings.POSTGRES_DB_DBNAME + "' user='" + settings.POSTGRES_DB_USER + "' "
-                              "host='" + host + "' password='" + settings.POSTGRES_PASSWORD + "'")
-        logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='" + settings.POSTGRES_DB_DBNAME
-                    + "' user='" + settings.POSTGRES_DB_USER + "' host='" + host + "' password='*****']")
+            host = compose_project_name + '_wall_e_db'
+        dbConnectionString = ("dbname='" + postgres_db_dbname + "' user='" + postgres_db_user + "' "
+                              "host='" + host + "' password='" + postgres_password + "'")
+        logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='" + postgres_db_dbname
+                    + "' user='" + postgres_db_user + "' host='" + host + "' password='*****']")
         postgresConn = psycopg2.connect(dbConnectionString)
         logger.info("[main.py setupDB] PostgreSQL connection established")
         postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -67,7 +77,7 @@ def setupDB():
         # "if not exist" clause for roles or databases, only tables moreover, this is done to localhost and not any
         # other environment cause with the TEST guild, the databases are always brand new fresh with each time the
         # script get launched
-        if 'localhost' == settings.ENVIRONMENT or'PRODUCTION' == settings.ENVIRONMENT:
+        if 'localhost' == env or'PRODUCTION' == env:
             # aquired from https://stackoverflow.com/a/8099557/7734535
             sqlQuery = """DO
             $do$
@@ -75,42 +85,42 @@ def setupDB():
             IF NOT EXISTS (
             SELECT                       -- SELECT list can stay empty for this
             FROM   pg_catalog.pg_roles
-            WHERE  rolname = '""" + settings.WALL_E_DB_USER + """') THEN
-            CREATE ROLE """ + settings.WALL_E_DB_USER + """ WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN
-             NOREPLICATION NOBYPASSRLS ENCRYPTED PASSWORD '""" + settings.WALL_E_DB_PASSWORD + """';
+            WHERE  rolname = '""" + wall_e_db_user + """') THEN
+            CREATE ROLE """ + wall_e_db_user + """ WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN
+             NOREPLICATION NOBYPASSRLS ENCRYPTED PASSWORD '""" + wall_e_db_password + """';
             END IF;
             END
             $do$;"""
             postgresCurs.execute(sqlQuery)
         else:
-            postgresCurs.execute("CREATE ROLE " + settings.WALL_E_DB_USER + " WITH NOSUPERUSER INHERIT "
+            postgresCurs.execute("CREATE ROLE " + wall_e_db_user + " WITH NOSUPERUSER INHERIT "
                                  "NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS ENCRYPTED "
-                                 "PASSWORD '" + settings.WALL_E_DB_PASSWORD + "';")
-        logger.info("[main.py setupDB] " + settings.WALL_E_DB_USER + " role created")
-        if 'localhost' == settings.ENVIRONMENT or 'PRODUCTION' == settings.ENVIRONMENT:
+                                 "PASSWORD '" + wall_e_db_password + "';")
+        logger.info("[main.py setupDB] " + wall_e_db_user + " role created")
+        if 'localhost' == env or 'PRODUCTION' == env:
             sqlQuery = """SELECT datname from pg_database"""
             postgresCurs.execute(sqlQuery)
             results = postgresCurs.fetchall()
             # fetchAll returns  [('postgres',), ('template0',), ('template1',), ('csss_discord_db',)]
             # which the below line converts to  ['postgres', 'template0', 'template1', 'csss_discord_db']
             results = [x for xs in results for x in xs]
-            if settings.WALL_E_DB_DBNAME not in results:
-                postgresCurs.execute("CREATE DATABASE " + settings.WALL_E_DB_DBNAME + " WITH OWNER"
-                                     " " + settings.WALL_E_DB_USER + " TEMPLATE = template0;")
-                logger.info("[main.py setupDB] " + settings.WALL_E_DB_DBNAME + " database created")
+            if wall_e_db_dbname not in results:
+                postgresCurs.execute("CREATE DATABASE " + wall_e_db_dbname + " WITH OWNER"
+                                     " " + wall_e_db_user + " TEMPLATE = template0;")
+                logger.info("[main.py setupDB] " + wall_e_db_dbname + " database created")
             else:
-                logger.info("[main.py setupDB] " + settings.WALL_E_DB_DBNAME + " database already exists")
+                logger.info("[main.py setupDB] " + wall_e_db_dbname + " database already exists")
         else:
-            postgresCurs.execute("CREATE DATABASE " + settings.WALL_E_DB_DBNAME + " WITH OWNER"
-                                 " " + settings.WALL_E_DB_USER + " TEMPLATE = template0;")
-            logger.info("[main.py setupDB] " + settings.WALL_E_DB_DBNAME + " database created")
+            postgresCurs.execute("CREATE DATABASE " + wall_e_db_dbname + " WITH OWNER"
+                                 " " + wall_e_db_user + " TEMPLATE = template0;")
+            logger.info("[main.py setupDB] " + wall_e_db_dbname + " database created")
         # this section exists cause of this backup.sql that I had exported from an instance of a Postgres with
         # which I had created the csss_discord_db
         # https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
-        dbConnectionString = ("dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.POSTGRES_DB_USER + "'"
-                              " host='" + host + "' password='" + settings.POSTGRES_PASSWORD + "'")
-        logger.info("[main.py setupDB] Wall_e User dbConnectionString=[dbname='" + settings.WALL_E_DB_DBNAME + "'"
-                    " user='" + settings.POSTGRES_DB_USER + "' host='" + host + "' password='*****']")
+        dbConnectionString = ("dbname='" + wall_e_db_dbname + "' user='" + postgres_db_user + "'"
+                              " host='" + host + "' password='" + postgres_password + "'")
+        logger.info("[main.py setupDB] Wall_e User dbConnectionString=[dbname='" + wall_e_db_dbname + "'"
+                    " user='" + postgres_db_user + "' host='" + host + "' password='*****']")
         walleConn = psycopg2.connect(dbConnectionString)
         logger.info("[main.py setupDB] PostgreSQL connection established")
         walleConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -142,10 +152,10 @@ async def on_ready():
     logger.info('[main.py on_ready()] ' + bot.user.name)
     logger.info('[main.py on_ready()] ' + str(bot.user.id))
     logger.info('[main.py on_ready()] ------')
-    settings.BOT_NAME = bot.user.name
-    settings.BOT_AVATAR = bot.user.avatar_url
-    logger.info('[main.py on_ready()] BOT_NAME initialized to ' + str(settings.BOT_NAME) + ' in settings.py')
-    logger.info('[main.py on_ready()] BOT_AVATAR initialized to ' + str(settings.BOT_AVATAR) + ' in settings.py')
+    config.set_config_value("wall_e", "BOT_NAME", bot.user.name)
+    config.set_config_value("wall_e", "BOT_AVATAR", bot.user.avatar_url)
+    logger.info('[main.py on_ready()] BOT_NAME initialized to ' + str(config.get_config_value("wall_e", "BOT_NAME")))
+    logger.info('[main.py on_ready()] BOT_AVATAR initialized to ' + str(config.get_config_value("wall_e", "BOT_AVATAR")))
     logger.info('[main.py on_ready()] ' + bot.user.name + ' is now ready for commands')
 
 
@@ -159,18 +169,28 @@ async def write_to_bot_log_channel():
     # the idea was that this removes a dependence on the user to make the channel and shifts that
     # responsibility to the script itself. thereby requiring less effort from the user
     bot_log_channel = None
-    if settings.ENVIRONMENT != 'PRODUCTION':
-        log_channel_name = ''
-        if settings.ENVIRONMENT == 'TEST':
-            log_channel_name = settings.BRANCH_NAME.lower() + '_logs'
-        else:
-            log_channel_name = settings.ENVIRONMENT.lower() + '_logs'
+    env = config.get_config_value("wall_e", "ENVIRONMENT")
+    branch_name = config.get_config_value("wall_e", "BRANCH_NAME")
+    log_channel_name = config.get_config_value("wall_e", "BOT_LOG_CHANNEL")
+    if (env == "LOCALHOST" or env == "PRODUCTION") and log_channel_name == 'NONE':
+        print("no name detected for bot log channel in settings....exit")
+
+
+    if env == "LOCALHOST":
         log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
         if log_channel is None:
             log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
         bot_log_channel = log_channel.id
-    else:
-        bot_log_channel = settings.BOT_LOG_CHANNEL
+    elif env == "DEV":
+        log_channel_name = branch_name.lower() + '_logs'
+        log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
+        if log_channel is None:
+            log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
+        bot_log_channel = log_channel.id
+    elif env == "PRODUCTION":
+        log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
+        bot_log_channel = log_channel.id
+
     channel = bot.get_channel(bot_log_channel)  # channel ID goes here
     if channel is None:
         logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id "
@@ -377,7 +397,7 @@ if __name__ == "__main__":
     FILENAME = None
     logger = initalizeLogger()
     logger.info("[main.py] Wall-E is starting up")
-    if settings.ENVIRONMENT != 'localhost_noDB':
+    if config.get_config_value("database", "enabled") == '1':
         setupDB()
         setupStatsOfCommandsDBTable()
     # tries to open log file in prep for write_to_bot_log_channel function
@@ -392,7 +412,7 @@ if __name__ == "__main__":
                      "following error" + str(e))
     # load the code dealing with test server interaction
     try:
-        bot.load_extension('helper_files.testenv')
+        bot.load_extension('resources.cogs.testenv')
     except Exception as e:
         exception = '{}: {}'.format(type(e).__name__, e)
         logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
@@ -400,19 +420,22 @@ if __name__ == "__main__":
     logger.info("[main.py] default help command being removed")
     bot.remove_command("help")
     # tries to loads any commands specified in the_commands into the bot
-    for cog in settings.cogs:
+
+    #cogs = __import('resources')
+    for cog in config.get_cogs():
         commandLoaded = True
         try:
-            if cog["name"] == 'Reminders' and settings.ENVIRONMENT == 'localhost_noDB':
-                commandLoaded = False
-            else:
-                logger.info("[main.py] attempting to load command " + cog["name"])
-                bot.load_extension(cog["folder"] + '.' + cog["name"])
+            logger.info("[main.py] attempting to load command {}".format(cog["name"]))
+            admin = importlib.import_module( str(cog['path'])+str(cog["name"]))
+            attr = getattr(admin, str(cog["name"]))
+            bot.add_cog(attr(bot))
+            #bot.add_cog(class_3(bot))
+            #bot.load_extension(class_)
         except Exception as e:
             commandLoaded = False
             exception = '{}: {}'.format(type(e).__name__, e)
-            logger.error('[main.py] Failed to load command {}\n{}'.format(cog["name"], exception))
+            logger.error('[main.py] Failed to load command {}\n{}'.format(cog, exception))
         if commandLoaded:
             logger.info("[main.py] " + cog["name"] + " successfully loaded")
     # final step, running the bot with the passed in environment TOKEN variable
-    bot.run(settings.TOKEN)
+    bot.run(config.get_config_value("wall_e", "TOKEN"))

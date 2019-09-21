@@ -1,19 +1,19 @@
 from discord.ext import commands
 import discord
 import subprocess
-import helper_files.settings as settings
+from main import config
 import logging
-import matplotlib.pyplot as plt
-import numpy as np
-# import operator
-import psycopg2
+if config.get_config_value("wall_e", "ENVIRONMENT") == 1:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import psycopg2
 import asyncio
-from helper_files.send import send as helper_send
+from resources.utilities.send import send as helper_send
 
 logger = logging.getLogger('wall_e')
 
 
-class Administration():
+class Administration(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

@@ -1,15 +1,15 @@
 from discord.ext import commands
 import discord
 import logging
-from helper_files.Paginate import paginateEmbed
-import helper_files.settings as settings
-from helper_files.embed import embed
+from resources.utilities.Paginate import paginateEmbed
+from main import config
+from resources.utilities.embed import embed
 from operator import itemgetter
 
 logger = logging.getLogger('wall_e')
 
 
-class RoleCommands():
+class RoleCommands(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

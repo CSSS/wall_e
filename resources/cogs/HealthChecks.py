@@ -1,12 +1,11 @@
 from discord.ext import commands
-from helper_files.embed import embed
-import helper_files.settings as settings
-
+from resources.utilities.embed import embed
+from main import config
 import logging
 logger = logging.getLogger('wall_e')
 
 
-class HealthChecks():
+class HealthChecks(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

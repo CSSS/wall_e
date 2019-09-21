@@ -9,15 +9,15 @@ from time import mktime
 # import helper_files.testenv
 import traceback
 import sys
-import helper_files.settings as settings
-from helper_files.embed import embed
+from main import config
+from resources.utilities.embed import embed
 import psycopg2
 # import os
 import datetime
 logger = logging.getLogger('wall_e')
 
 
-class Reminders():
+class Reminders(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

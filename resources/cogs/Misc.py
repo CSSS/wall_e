@@ -1,10 +1,10 @@
 from discord.ext import commands
 import logging
 import aiohttp
-from helper_files.embed import embed
-from helper_files.Paginate import paginateEmbed
-from helper_files.listOfRoles import getListOfUserPerms
-import helper_files.settings as settings
+from resources.utilities.embed import embed
+from resources.utilities.Paginate import paginateEmbed
+from resources.utilities.listOfRoles import getListOfUserPerms
+from main import config
 import json
 import wolframalpha
 # import discord.client
@@ -17,7 +17,7 @@ logger = logging.getLogger('wall_e')
 wolframClient = wolframalpha.Client(settings.wolframAPI)
 
 
-class Misc():
+class Misc(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot

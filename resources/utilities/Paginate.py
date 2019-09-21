@@ -2,8 +2,8 @@
 # import discord
 import asyncio
 import logging
-import helper_files.settings as settings
-from helper_files.embed import embed as imported_embed
+from main import config
+import resources.utilities.embed as imported_embed
 
 logger = logging.getLogger('wall_e')
 

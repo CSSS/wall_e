@@ -2,14 +2,14 @@ from discord.ext import commands
 import discord
 import asyncio
 # import json
-from helper_files.embed import embed as em
-import helper_files.settings as settings
+from resources.utilities.embed import embed as em
+from main import config
 
 import logging
 logger = logging.getLogger('wall_e')
 
 
-class Mod():
+class Mod(commands.Cog):
 
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')

@@ -3,8 +3,8 @@ import logging
 import time
 import json  # dont need since requests has built in json encoding and decoding
 import re
-from helper_files.embed import embed
-import helper_files.settings as settings
+from resources.utilities.embed import embed
+from main import config
 import html
 import aiohttp
 
@@ -12,7 +12,7 @@ logger = logging.getLogger('wall_e')
 sfuRed = 0xA6192E
 
 
-class SFU():
+class SFU(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.req = aiohttp.ClientSession(loop=bot.loop)
