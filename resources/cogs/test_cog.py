@@ -4,7 +4,9 @@ from discord.ext import commands
 import logging
 logger = logging.getLogger('wall_e')
 
-globalConfig = None
+def getClassName():
+    return "TestCog"
+
 class TestCog(commands.Cog):
 
     @commands.command(hidden=True)
@@ -38,8 +40,3 @@ class TestCog(commands.Cog):
         bot.add_check(self.check_test_environment)
         self.bot = bot
         self.config = config
-
-
-
-def setup(bot):
-    bot.add_cog(TestCog(bot))

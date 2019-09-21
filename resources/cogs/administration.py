@@ -10,6 +10,8 @@ import numpy as np
 
 logger = logging.getLogger('wall_e')
 
+def getClassName():
+    return "Administration"
 
 class Administration(commands.Cog):
 

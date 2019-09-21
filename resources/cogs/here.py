@@ -7,6 +7,8 @@ import discord
 import logging
 logger = logging.getLogger('wall_e')
 
+def getClassName():
+    return "Here"
 
 class Here(commands.Cog):
 

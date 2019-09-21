@@ -7,6 +7,8 @@ from resources.utilities.embed import embed as em
 import logging
 logger = logging.getLogger('wall_e')
 
+def getClassName():
+    return "Mod"
 
 class Mod(commands.Cog):
 

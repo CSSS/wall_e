@@ -1,152 +1,26 @@
-import sys
-import traceback
-import asyncio
-import discord
-import logging
-import datetime
-import pytz
-from resources.utilities.config.config import WalleConfig as config
-import os
-from resources.cogs.TestCog import TestCog
-from resources.utilities.logger_setup import LoggerWriter
-from resources.utilities.embed import embed as imported_embed
-import re
-import importlib
-from discord.ext import commands
-import time
 import aiohttp
+from discord.ext import commands
+import importlib
+import os
+import re
+import sys
+import time
+import traceback
+
+from resources.cogs.test_cog import TestCog
+from resources.utilities.config.config import WalleConfig as config
+from resources.utilities.embed import embed as imported_embed
+from resources.utilities.logger import initalizeLogger, createLogFile
+from resources.utilities.log_channel import write_to_bot_log_channel
 
 bot = commands.Bot(command_prefix='.')
 config = config(os.environ['ENVIRONMENT'])
-
-##################
-# LOGGING SETUP ##
-##################
-def initalizeLogger():
-    # setting up log requirements
-    logger = logging.getLogger('wall_e')
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s = %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
-    sys.stdout = LoggerWriter(logger, logging.INFO)
-    sys.stderr = LoggerWriter(logger, logging.WARNING)
-    createLogFile(formatter, logger)
-    return logger
-
-
-def createLogFile(formatter, logger):
-    DATE = datetime.datetime.now(pytz.timezone('US/Pacific')).strftime("%Y_%m_%d_%H_%M_%S")
-    global FILENAME
-    FILENAME = "logs/" + DATE + "_wall_e"
-    filehandler = logging.FileHandler("{}.log".format(FILENAME))
-    filehandler.setLevel(logging.INFO)
-    filehandler.setFormatter(formatter)
-    logger.addHandler(filehandler)
 
 def check_test_environment(config, ctx):
     if config.get_config_value('database', 'BRANCH_NAME')  == 'TEST':
         if ctx.message.guild is not None and ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
             return False
     return True
-
-###############################
-# SETUP DATABASE CONNECTION ##
-###############################
-def setupDB():
-    if int(config.get_config_value("database", "enabled")) == 1:
-        try:
-            host = None
-            env = config.get_config_value("wall_e", "ENVIRONMENT")
-            compose_project_name = config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME")
-            postgres_db_dbname = config.get_config_value("database", "POSTGRES_DB_DBNAME")
-            postgres_db_user = config.get_config_value("database", "POSTGRES_DB_USER")
-            postgres_password = config.get_config_value("database", "POSTGRES_PASSWORD")
-            wall_e_db_dbname = config.get_config_value("database", "WALL_E_DB_DBNAME")
-            wall_e_db_user = config.get_config_value("database", "WALL_E_DB_USER")
-            wall_e_db_password =config.get_config_value("database", "WALL_E_DB_PASSWORD")
-
-            if 'localhost' == env:
-                host = '127.0.0.1'
-            else:
-                host = compose_project_name + '_wall_e_db'
-            dbConnectionString = ("dbname='" + postgres_db_dbname + "' user='" + postgres_db_user + "' "
-                                  "host='" + host + "' password='" + postgres_password + "'")
-            logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='" + postgres_db_dbname
-                        + "' user='" + postgres_db_user + "' host='" + host + "' password='*****']")
-            postgresConn = psycopg2.connect(dbConnectionString)
-            logger.info("[main.py setupDB] PostgreSQL connection established")
-            postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            postgresCurs = postgresConn.cursor()
-            # these two parts is using a complicated DO statement because apparently postgres does not have an
-            # "if not exist" clause for roles or databases, only tables moreover, this is done to localhost and not any
-            # other environment cause with the TEST guild, the databases are always brand new fresh with each time the
-            # script get launched
-            if 'localhost' == env or'PRODUCTION' == env:
-                # aquired from https://stackoverflow.com/a/8099557/7734535
-                sqlQuery = """DO
-                $do$
-                BEGIN
-                IF NOT EXISTS (
-                SELECT                       -- SELECT list can stay empty for this
-                FROM   pg_catalog.pg_roles
-                WHERE  rolname = '""" + wall_e_db_user + """') THEN
-                CREATE ROLE """ + wall_e_db_user + """ WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN
-                 NOREPLICATION NOBYPASSRLS ENCRYPTED PASSWORD '""" + wall_e_db_password + """';
-                END IF;
-                END
-                $do$;"""
-                postgresCurs.execute(sqlQuery)
-            else:
-                postgresCurs.execute("CREATE ROLE " + wall_e_db_user + " WITH NOSUPERUSER INHERIT "
-                                     "NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS ENCRYPTED "
-                                     "PASSWORD '" + wall_e_db_password + "';")
-            logger.info("[main.py setupDB] " + wall_e_db_user + " role created")
-            if 'localhost' == env or 'PRODUCTION' == env:
-                sqlQuery = """SELECT datname from pg_database"""
-                postgresCurs.execute(sqlQuery)
-                results = postgresCurs.fetchall()
-                # fetchAll returns  [('postgres',), ('template0',), ('template1',), ('csss_discord_db',)]
-                # which the below line converts to  ['postgres', 'template0', 'template1', 'csss_discord_db']
-                results = [x for xs in results for x in xs]
-                if wall_e_db_dbname not in results:
-                    postgresCurs.execute("CREATE DATABASE " + wall_e_db_dbname + " WITH OWNER"
-                                         " " + wall_e_db_user + " TEMPLATE = template0;")
-                    logger.info("[main.py setupDB] " + wall_e_db_dbname + " database created")
-                else:
-                    logger.info("[main.py setupDB] " + wall_e_db_dbname + " database already exists")
-            else:
-                postgresCurs.execute("CREATE DATABASE " + wall_e_db_dbname + " WITH OWNER"
-                                     " " + wall_e_db_user + " TEMPLATE = template0;")
-                logger.info("[main.py setupDB] " + wall_e_db_dbname + " database created")
-            # this section exists cause of this backup.sql that I had exported from an instance of a Postgres with
-            # which I had created the csss_discord_db
-            # https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
-            dbConnectionString = ("dbname='" + wall_e_db_dbname + "' user='" + postgres_db_user + "'"
-                                  " host='" + host + "' password='" + postgres_password + "'")
-            logger.info("[main.py setupDB] Wall_e User dbConnectionString=[dbname='" + wall_e_db_dbname + "'"
-                        " user='" + postgres_db_user + "' host='" + host + "' password='*****']")
-            walleConn = psycopg2.connect(dbConnectionString)
-            logger.info("[main.py setupDB] PostgreSQL connection established")
-            walleConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            walleCurs = walleConn.cursor()
-            walleCurs.execute("SET statement_timeout = 0;")
-            walleCurs.execute("SET default_transaction_read_only = off;")
-            walleCurs.execute("SET lock_timeout = 0;")
-            walleCurs.execute("SET idle_in_transaction_session_timeout = 0;")
-            walleCurs.execute("SET client_encoding = 'UTF8';")
-            walleCurs.execute("SET standard_conforming_strings = on;")
-            walleCurs.execute("SELECT pg_catalog.set_config('search_path', '', false);")
-            walleCurs.execute("SET check_function_bodies = false;")
-            walleCurs.execute("SET client_min_messages = warning;")
-            walleCurs.execute("SET row_security = off;")
-            walleCurs.execute("CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;")
-            walleCurs.execute("COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';")
-        except Exception as e:
-            logger.error("[main.py setupDB] enountered following exception when setting up PostgreSQL "
-                         "connection\n{}".format(e))
 
 ##################################################
 # signals to all functions that use            ##
@@ -164,76 +38,6 @@ async def on_ready():
     logger.info('[main.py on_ready()] BOT_NAME initialized to ' + str(config.get_config_value("bot_profile", "BOT_NAME")))
     logger.info('[main.py on_ready()] BOT_AVATAR initialized to ' + str(config.get_config_value("bot_profile", "BOT_AVATAR")))
     logger.info('[main.py on_ready()] ' + bot.user.name + ' is now ready for commands')
-
-
-##################################################################################################
-# HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
-##################################################################################################
-async def write_to_bot_log_channel():
-    await bot.wait_until_ready()
-    # only environment that doesn't do automatic creation of the bot_log channel is the PRODUCTION guild.
-    # Production is a permanant channel so that it can be persistent. As for localhost,
-    # the idea was that this removes a dependence on the user to make the channel and shifts that
-    # responsibility to the script itself. thereby requiring less effort from the user
-    bot_log_channel = None
-    env = config.get_config_value("basic_config", "ENVIRONMENT")
-    branch_name = config.get_config_value("basic_config", "BRANCH_NAME")
-    log_channel_name = config.get_config_value("basic_config", "BOT_LOG_CHANNEL")
-    if (env == "LOCALHOST" or env == "PRODUCTION") and log_channel_name == 'NONE':
-        print("no name detected for bot log channel in settings....exit")
-
-
-    if env == "LOCALHOST":
-        log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
-        if log_channel is None:
-            log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
-        bot_log_channel = log_channel.id
-    elif env == "DEV":
-        log_channel_name = branch_name.lower() + '_logs'
-        log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
-        if log_channel is None:
-            log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
-        bot_log_channel = log_channel.id
-    elif env == "PRODUCTION":
-        log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
-        bot_log_channel = log_channel.id
-
-    channel = bot.get_channel(bot_log_channel)  # channel ID goes here
-    if channel is None:
-        logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id "
-                     + str(bot_log_channel) + " . Please investigate further")
-    else:
-        logger.info("[main.py write_to_bot_log_channel] bot_log channel with id " + str(bot_log_channel)
-                    + " successfully retrieved.")
-        while not bot.is_closed():
-            f.flush()
-            line = f.readline()
-            while line:
-                if line.strip() != "":
-                    # this was done so that no one gets accidentally pinged from the bot log channel
-                    line = line.replace("@", "[at]")
-                    if line[0] == ' ':
-                        line = "." + line
-                    output = line
-                    # done because discord has a character limit of 2000 for each message
-                    # so what basically happens is it first tries to send the full message, then if it cant, it
-                    # breaks it down into 2000 sizes messages and send them individually
-                    try:
-                        await channel.send(output)
-                    except (aiohttp.ClientError, discord.errors.HTTPException):
-                        finished = False
-                        firstIndex, lastIndex = 0, 2000
-                        while not finished:
-                            await channel.send(output[firstIndex:lastIndex])
-                            firstIndex = lastIndex
-                            lastIndex += 2000
-                            if len(output[firstIndex:lastIndex]) == 0:
-                                finished = True
-                    except Exception as exc:
-                        exc_str = '{}: {}'.format(type(exc).__name__, exc)
-                        logger.error('[main.py write_to_bot_log_channel] write to channel failed\n{}'.format(exc_str))
-                line = f.readline()
-            await asyncio.sleep(1)
 
 ####################################################
 # Function that gets called when the script cant ##
@@ -258,33 +62,6 @@ async def on_command_error(ctx, error):
                 # \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
                 return
-
-
-def setupStatsOfCommandsDBTable():
-    if int(config.get_config_value("database", "enabled")) == 1:
-        try:
-            host = None
-            if 'localhost' == config.get_config_value('basic_config', 'ENVIRONMENT'):
-                host = '127.0.0.1'
-            else:
-                host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
-            dbConnectionString = ("dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
-                                  " host='" + host + "' password='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
-            logger.info("[main.py setupStatsOfCommandsDBTable()] dbConnectionString=[dbname='"
-                        + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host
-                        + "' password='******']")
-            conn = psycopg2.connect(dbConnectionString)
-            logger.info("[main.py setupStatsOfCommandsDBTable()] PostgreSQL connection established")
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            curs = conn.cursor()
-            curs.execute("CREATE TABLE IF NOT EXISTS CommandStats ( \"EPOCH TIME\" BIGINT  PRIMARY KEY, YEAR BIGINT, "
-                         "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel ID\" BIGINT, \"Channel Name\" varchar(2000), "
-                         "Author varchar(2000), Command varchar(2000), Argument varchar(2000), \"Invoked with\" "
-                         "varchar(2000), \"Invoked subcommand\"  varchar(2000));")
-            logger.info("[main.py setupStatsOfCommandsDBTable()] CommandStats database table created")
-        except Exception as e:
-            logger.error("[main.py setupStatsOfCommandsDBTable()] enountered following exception when setting up "
-                         "PostgreSQL connection\n{}".format(e))
 
 ########################################################
 # Function that gets called whenever a commmand      ##
@@ -403,8 +180,7 @@ async def on_member_join(member):
 # STARTING POINT ##
 ####################
 if __name__ == "__main__":
-    FILENAME = None
-    logger = initalizeLogger()
+    logger, FILENAME = initalizeLogger()
     logger.info("[main.py] Wall-E is starting up")
     if config.get_config_value("database", "enabled") == '1':
         setupDB()
@@ -414,33 +190,31 @@ if __name__ == "__main__":
         logger.info("[main.py] trying to open " + FILENAME + ".log to be able to send its output to #bot_log channel")
         f = open(FILENAME + '.log', 'r')
         f.seek(0)
-        bot.loop.create_task(write_to_bot_log_channel())
+        bot.loop.create_task(write_to_bot_log_channel(bot, config, f))
         logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
                      "following error" + str(e))
 
-    # load the code dealing with test server interaction
-    # try:
-    #     #bot.load_extension('resources.cogs.testenv')
-    #     bot.load_extension(TestCog(bot,config))
-    # except Exception as e:
-    #     exception = '{}: {}'.format(type(e).__name__, e)
-    #     logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
+    #load the code dealing with test server interaction
+    try:
+        bot.add_cog(TestCog(bot,config))
+    except Exception as e:
+        exception = '{}: {}'.format(type(e).__name__, e)
+        logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
 
     # removing default help command to allow for custom help command
     logger.info("[main.py] default help command being removed")
     bot.remove_command("help")
     # tries to loads any commands specified in the_commands into the bot
 
-    #cogs = __import('resources')
     for cog in config.get_cogs():
         commandLoaded = True
         try:
             logger.info("[main.py] attempting to load command {}".format(cog["name"]))
-            admin = importlib.import_module( str(cog['path'])+str(cog["name"]))
-            attr = getattr(admin, str(cog["name"]))
-            bot.add_cog(attr(bot,config))
+            cogToLoad = importlib.import_module( str(cog['path'])+str(cog["name"]))
+            cogFile = getattr(cogToLoad, str(cogToLoad.getClassName()))
+            bot.add_cog(cogFile(bot,config))
         except Exception as e:
             commandLoaded = False
             exception = '{}: {}'.format(type(e).__name__, e)

@@ -2,8 +2,8 @@ from discord.ext import commands
 import logging
 import aiohttp
 from resources.utilities.embed import embed
-from resources.utilities.Paginate import paginateEmbed
-from resources.utilities.listOfRoles import getListOfUserPerms
+from resources.utilities.paginate import paginateEmbed
+from resources.utilities.list_of_perms import getListOfUserPerms
 import json
 import wolframalpha
 # import discord.client
@@ -13,8 +13,8 @@ import re
 
 logger = logging.getLogger('wall_e')
 
-
-
+def getClassName():
+    return "Misc"
 
 class Misc(commands.Cog):
 

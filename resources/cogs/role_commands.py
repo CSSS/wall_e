@@ -1,12 +1,14 @@
 from discord.ext import commands
 import discord
 import logging
-from resources.utilities.Paginate import paginateEmbed
+from resources.utilities.paginate import paginateEmbed
 from resources.utilities.embed import embed
 from operator import itemgetter
 
 logger = logging.getLogger('wall_e')
 
+def getClassName():
+    return "RoleCommands"
 
 class RoleCommands(commands.Cog):
 
