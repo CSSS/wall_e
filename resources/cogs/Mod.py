@@ -3,7 +3,6 @@ import discord
 import asyncio
 # import json
 from resources.utilities.embed import embed as em
-from main import config
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -14,7 +13,7 @@ class Mod(commands.Cog):
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-        eObj = await em(ctx, title='Minion Things', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR,
+        eObj = await em(ctx, title='Minion Things', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                         description=lol)
         if eObj is not False:
             msg = await ctx.send(embed=eObj)
@@ -22,8 +21,9 @@ class Mod(commands.Cog):
             await msg.delete()
             logger.info('[Mod rekt()] troll message deleted')
 
-    def __init__(self, bot):
+    def __init__(self, bot, config):
         self.bot = bot
+        self.config = config
 
     @commands.command(aliases=['em'])
     async def embed(self, ctx, *arg):
@@ -85,7 +85,3 @@ class Mod(commands.Cog):
                         avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
         if eObj is not False:
             await ctx.send(embed=eObj)
-
-
-def setup(bot):
-    bot.add_cog(Mod(bot))

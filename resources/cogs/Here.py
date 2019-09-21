@@ -10,8 +10,9 @@ logger = logging.getLogger('wall_e')
 
 class Here(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot, config):
         self.bot = bot
+        self.config = config
 
     def build_embed(members, channel):
         # build response
@@ -71,7 +72,3 @@ class Here(commands.Cog):
         embed = Here.build_embed(members, channel)
 
         await ctx.send(embed=embed, delete_after=300)
-
-
-def setup(bot):
-    bot.add_cog(Here(bot))

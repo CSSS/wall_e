@@ -7,8 +7,10 @@ config_file_location_local = "resources/utilities/config/local.ini"
 config_file_location_prouction = "resources/utilities/config/production.ini"
 config_file_location_dev = "resources/utilities/config/dev.ini"
 
-cog_json_location = "resouces/cogs/cogs.json"
-cog_location = "resources.cogs."
+cog_location_python_path = "resources.cogs."
+
+help_json_location = "resources/locales/"
+help_json_file_name = "help.json"
 
 class WalleConfig():
     def __init__(self, environment):
@@ -31,11 +33,12 @@ class WalleConfig():
 
         if self.config['wall_e'].has_option(section, option):
             return self.config['wall_e'].get(section, option)
+
         return 'NONE'
 
-    def set_config_value(self, section, name, value):
-        if self.config['wall_e'].has_option(section, name):
-            self.config['wall_e'].set(section, name, str(value))
+    def set_config_value(self, section, option, value):
+        if self.config['wall_e'].has_option(section, option):
+            self.config['wall_e'].set(section, option, str(value))
         else:
             raise KeyError("Section '{}' or Option '{}' does not exist".format(section, name))
 
@@ -49,6 +52,11 @@ class WalleConfig():
             if int(cogs['cogs_enabled'][cog]) == 1:
                 cogDict = {}
                 cogDict['name'] = cog
-                cogDict['path'] = cog_location
+                cogDict['path'] = cog_location_python_path
                 cogs_to_load.append(cogDict)
         return cogs_to_load
+
+    def get_help_json(self):
+        with open(help_json_location + help_json_file_name) as f:
+            helpDict = json.load(f)
+        return helpDict

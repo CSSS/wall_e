@@ -1,28 +1,36 @@
 from discord.ext import commands
 import discord
 import subprocess
-from main import config
 import logging
-if config.get_config_value("wall_e", "ENVIRONMENT") == 1:
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import psycopg2
 import asyncio
 from resources.utilities.send import send as helper_send
+import importlib
+import matplotlib.pyplot as plt
+import numpy as np
 
 logger = logging.getLogger('wall_e')
 
 
 class Administration(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot, config):
+        self.config = config
+
+        if self.config.get_config_value("database", "enabled") == 1:
+            import psycopg2
         self.bot = bot
 
     def validCog(self, name):
-        for cog in settings.cogs:
+        for cog in self.config.get_cogs():
             if cog["name"] == name:
-                return True, cog["folder"]
+                return True, cog["path"]
         return False, ''
+
+
+    @commands.command()
+    async def exit(self, ctx):
+        if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+            await self.bot.close()
 
     @commands.command()
     async def load(self, ctx, name):
@@ -36,7 +44,9 @@ class Administration(commands.Cog):
                             + " which doesn't exist.")
                 return
             try:
-                self.bot.load_extension(folder + '.' + name)
+                admin = importlib.import_module( folder+name)
+                attr = getattr(admin, name)
+                self.bot.add_cog(attr(self.bot,self.config))
                 await ctx.send("{} command loaded.".format(name))
                 logger.info("[Administration load()] " + name + " has been successfully loaded")
             except(AttributeError, ImportError) as e:
@@ -58,7 +68,7 @@ class Administration(commands.Cog):
                 logger.info("[Administration load()] " + str(ctx.message.author) + " tried loading " + name
                             + " which doesn't exist.")
                 return
-            self.bot.unload_extension(folder + '.' + name)
+            self.bot.remove_cog(name)
             await ctx.send("{} command unloaded".format(name))
             logger.info("[Administration unload()] " + name + " has been successfully loaded")
         else:
@@ -76,10 +86,12 @@ class Administration(commands.Cog):
                 logger.info("[Administration load()] " + str(ctx.message.author) + " tried loading " + name
                             + " which doesn't exist.")
                 return
-            self.bot.unload_extension(folder + '.' + name)
+            self.bot.remove_cog(name)
             try:
-                self.bot.load_extension(folder + '.' + name)
-                await ctx.send("`{} command reloaded`".format(folder + '.' + name))
+                admin = importlib.import_module( folder+name)
+                attr = getattr(admin, name)
+                self.bot.add_cog(attr(self.bot,self.config))
+                await ctx.send("`{} command reloaded`".format(folder + name))
                 logger.info("[Administration reload()] " + name + " has been successfully reloaded")
             except(AttributeError, ImportError) as e:
                 await ctx.send("Command load failed: {}, {}".format(type(e), str(e)))
@@ -185,14 +197,18 @@ class Administration(commands.Cog):
     def connectToDatabase(self):
         try:
             host = None
-            if 'localhost' == settings.ENVIRONMENT:
+            if 'localhost' == self.config.get_config_value("wall_e", "ENVIRONMENT"):
                 host = '127.0.0.1'
             else:
-                host = settings.COMPOSE_PROJECT_NAME + '_wall_e_db'
-            dbConnectionString = ("dbname='" + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "' "
-                                  "host='" + host + "' password='" + settings.WALL_E_DB_PASSWORD + "'")
+                host =self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME") + '_wall_e_db'
+            wall_e_db_dbname =  self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
+            wall_e_db_user =  self.config.get_config_value('database', 'WALL_E_DB_USER')
+            wall_e_db_password = self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
+
+            dbConnectionString = ("dbname='" + wall_e_db_dbname + "' user='" + wall_e_db_user + "' "
+                                  "host='" + host + "' password='" + wall_e_db_password + "'")
             logger.info("[Administration connectToDatabase()] dbConnectionString=[dbname="
-                        "'" + settings.WALL_E_DB_DBNAME + "' user='" + settings.WALL_E_DB_USER + "' host='" + host
+                        "'" + wall_e_db_dbname + "' user='" + wall_e_db_user + "' host='" + host
                         + "' password='******']")
             conn = psycopg2.connect(dbConnectionString)
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -214,7 +230,7 @@ class Administration(commands.Cog):
                 await ctx.send("unable to connect to the database")
             else:
                 await ctx.send("please specify which columns you want to count="
-                               + str(list(self.get_column_headers_from_database())))
+                               + str(list(conn)))
             return
         else:
             dicResult = self.determineXYFrequency(self.connectToDatabase(), args)
@@ -336,7 +352,3 @@ class Administration(commands.Cog):
                         return
                 logger.info("[Administration frequency()] updating firstIndex and lastIndex to " + str(firstIndex)
                             + " and " + str(lastIndex) + " respectively")
-
-
-def setup(bot):
-    bot.add_cog(Administration(bot))

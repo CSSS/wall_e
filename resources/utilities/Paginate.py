@@ -2,13 +2,12 @@
 # import discord
 import asyncio
 import logging
-from main import config
-import resources.utilities.embed as imported_embed
+from resources.utilities.embed import embed as imported_embed
 
 logger = logging.getLogger('wall_e')
 
 
-async def paginateEmbed(bot, ctx, descriptionToEmbed, title=" "):
+async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
     numOfPages = len(descriptionToEmbed)
     logger.info("[Paginate paginateEmbed()] called with following argument: title=" + title
                 + "\n\ndescriptionToEmbed=" + str(descriptionToEmbed) + "\n\n")
@@ -20,10 +19,14 @@ async def paginateEmbed(bot, ctx, descriptionToEmbed, title=" "):
     while True:
         logger.info("[Paginate paginateEmbed()] loading page " + str(currentPage))
         logger.info("[Paginate paginateEmbed()] loading roles " + str(descriptionToEmbed[currentPage]))
-
-        embedObj = await imported_embed(ctx, title=title, author=settings.BOT_NAME, avatar=settings.BOT_AVATAR,
-                                        description=descriptionToEmbed[currentPage], footer='{}/{}'.format(
-                                            currentPage + 1, numOfPages))
+        embedObj = await imported_embed(
+            ctx,
+            title=title,
+            author=config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            description=descriptionToEmbed[currentPage],
+            footer="{}/{}".format(currentPage + 1, numOfPages)
+        )
         if embedObj is not None:
             logger.info("[Paginate paginateEmbed()] embed succesfully created and populated for page "
                         + str(currentPage))

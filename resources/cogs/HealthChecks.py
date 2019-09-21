@@ -1,19 +1,24 @@
 from discord.ext import commands
 from resources.utilities.embed import embed
-from main import config
 import logging
 logger = logging.getLogger('wall_e')
 
 
 class HealthChecks(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot, config):
         self.bot = bot
+        self.config = config
 
     @commands.command()
     async def ping(self, ctx):
         logger.info("[HealthChecks ping()] ping command detected from " + str(ctx.message.author))
-        eObj = await embed(ctx, description='Pong!', author=settings.BOT_NAME, avatar=settings.BOT_AVATAR)
+        eObj = await embed(
+            ctx,
+            description='Pong!',
+            author = self.config.get_config_value('bot_profile', 'BOT_NAME') ,
+            avatar = self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+        )
         if eObj is not False:
             await ctx.send(embed=eObj)
 
@@ -29,7 +34,3 @@ class HealthChecks(commands.Cog):
         eObj = await embed(ctx, author=user, avatar=avatar, description=arg)
         if eObj is not False:
             await ctx.send(embed=eObj)
-
-
-def setup(bot):
-    bot.add_cog(HealthChecks(bot))
