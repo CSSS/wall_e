@@ -22,16 +22,16 @@ pipeline {
             }
         }
         stage('Deploy-To-Test-Server'){
-            steps{
-                script{
-                    withEnv{[
+            steps {
+                script {
+                    withEnv([
                         'ENVIRONMENT=TEST',
                         "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}",
                         'POSTGRES_DB_USER=postgres',
                         'POSTGRES_DB_DBNAME=postgres',
                         'WALL_E_DB_USER=wall_e',
                         'WALL_E_DB_DBNAME=csss_discord_db'
-                    ]}
+                    ])
                     {
                         "./deploy-to-test-server.sh"
                     }
