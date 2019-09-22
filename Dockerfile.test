@@ -11,6 +11,11 @@ ENV UNIT_TEST_RESULTS=$UNIT_TEST_RESULTS
 WORKDIR $DOCKER_CONTAINER_TEST_RESULT_DIRECTORY
 
 COPY test-requirements.txt ./
+
+# being done because of https://github.com/psycopg/psycopg2/issues/684
+RUN cat requirements.txt  | grep -v "psycopg2-binary" > requirements.txt
+RUN echo psycopg2 >> requirements.txt
+
 COPY requirements.txt ./
 
 COPY wall_e ./
@@ -24,9 +29,7 @@ RUN pip install --no-cache-dir -r test-requirements.txt
 #needed in order to properly install matplotlib
 RUN apk add --update alpine-sdk libffi-dev
 
-# being done because of https://github.com/psycopg/psycopg2/issues/684
-RUN cat requirements.txt  | grep -v "psycopg2-binary" > requirements.txt
-RUN echo psycopg2 >> requirements.txt
+
 
 RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt &&  apk --update add postgresql-client
 
