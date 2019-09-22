@@ -14,6 +14,7 @@ if [ "${testContainerFailed}" -eq "1" ]; then
     discordOutput=$(docker logs ${pyTestContainerName} | tail -12)
     output=$(docker logs ${pyTestContainerName})
     printf $discordOutput > wall_e_file
+    echo $output
     exit 1
 fi
 printf "successful" > wall_e_file
