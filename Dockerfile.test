@@ -21,7 +21,11 @@ COPY setup.cfg ./
 
 RUN pip install --no-cache-dir -r test-requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+# being done because of https://github.com/psycopg/psycopg2/issues/684
+RUN cat requirements.txt  | grep -v "psycopg2-binary" > requirements.txt
+RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt &&  apk --update add postgresql-client
+
+RUN pip install --no-cache-dir psycopg2
 
 RUN mkdir -p $UNIT_TEST_RESULTS
 
