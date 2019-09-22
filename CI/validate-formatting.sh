@@ -11,7 +11,7 @@ docker build -t ${pyTestContainerNameLowerCase} \
 
 mkdir -p ${UNIT_TEST_RESULTS}
 docker run -d \
-    --mount type=bind,source="${UNIT_TEST_RESULTS}",target=${DOCKER_CONTAINER_TEST_RESULT_DIRECTORY}/${UNIT_TEST_RESULTS} \
+    --mount type=bind,source="${WORKSPACE}/${UNIT_TEST_RESULTS}",target="${DOCKER_CONTAINER_TEST_RESULT_DIRECTORY}/${UNIT_TEST_RESULTS}" \
     --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase}
 
 sleep 20
