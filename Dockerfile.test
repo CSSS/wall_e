@@ -17,9 +17,11 @@ COPY requirements.txt ./
 # being done because of https://github.com/psycopg/psycopg2/issues/684
 RUN cat requirements.txt
 RUN cat requirements.txt | grep -v "psycopg2-binary"
-RUN cat requirements.txt | grep -v "psycopg2-binary" > requirements.txt
+RUN cat requirements.txt | grep -v "psycopg2-binary" >> docker-requirements.txt
+# apparently ">" won't work in a Dockerfile
+# so resorting to double redirect in to another file
 
-RUN echo psycopg2 >> requirements.txt
+RUN echo psycopg2 >> docker-requirements.txt
 
 COPY wall_e ./
 
@@ -32,9 +34,7 @@ RUN pip install --no-cache-dir -r test-requirements.txt
 #needed in order to properly install matplotlib
 RUN apk add --update alpine-sdk libffi-dev
 
-
-
-RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir -r requirements.txt &&  apk --update add postgresql-client
+RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir -r docker-requirements.txt &&  apk --update add postgresql-client
 
 RUN mkdir -p $UNIT_TEST_RESULTS
 
