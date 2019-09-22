@@ -5,9 +5,11 @@ pyTestContainerName="${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 docker rm -f ${pyTestContainerName}
 pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower($0)}')
 docker image rm -f ${pyTestContainerNameLowerCase}
-docker build -t ${pyTestContainerNameLowerCase} \
+cmd="docker build -t ${pyTestContainerNameLowerCase} \
     --build-arg DOCKER_CONTAINER_TEST_RESULT_DIRECTORY=${DOCKER_CONTAINER_TEST_RESULT_DIRECTORY} \
-    UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f Dockerfile.test .
+    UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f Dockerfile.test ."
+echo $cmd
+$cmd
 
 mkdir -p ${UNIT_TEST_RESULTS}
 docker run -d \
