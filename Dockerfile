@@ -2,7 +2,7 @@ FROM python:3.5.5-alpine
 
 WORKDIR /usr/src/app
 
-COPY wall_e/requirements.txt .
+COPY requirements.txt .
 
 RUN apk add --update alpine-sdk libffi-dev
 
