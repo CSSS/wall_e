@@ -15,21 +15,6 @@ WORKDIR $CONTAINER_HOME_DIR
 
 COPY test-requirements.txt ./
 
-COPY requirements.txt ./
-
-# being done because of https://github.com/psycopg/psycopg2/issues/684
-RUN cat requirements.txt | grep -v "psycopg2-binary" >> docker-requirements.txt
-# apparently ">" won't work in a Dockerfile
-# so resorting to double redirect in to another file
-
-#RUN apk add --no-cache --virtual .build-deps \
-#    gcc \
-#    python3-dev \
-#    musl-dev \
-#    postgresql-dev \
-#    && pip install --no-cache-dir psycopg2 \
-#    && apk del --no-cache .build-deps
-
 COPY wall_e ./
 
 COPY pytest.ini ./
@@ -38,17 +23,6 @@ COPY setup.cfg ./
 
 RUN pip install --no-cache-dir -r test-requirements.txt
 
-# needed in order to properly install matplotlib
-# RUN apk add --update alpine-sdk libffi-dev
-
-#RUN apk add freetype-dev && \
-#    pip install --no-cache-dir -r docker-requirements.txt && \
-#    apk --update add postgresql-client
-
 RUN mkdir -p $UNIT_TEST_RESULTS
-
-# for discord pip module
-# RUN apk add musl-dev gcc libffi-dev make
-# RUN pip install --no-cache-dir discord.py[voice]==1.2.3
 
 CMD ["sh" , "-c", "py.test --junitxml=${UNIT_TEST_RESULTS}/all-unit-tests.xml" ]
