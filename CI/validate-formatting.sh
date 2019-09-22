@@ -13,12 +13,5 @@ testContainerFailed=$?
 if [ "${testContainerFailed}" -eq "1" ]; then
     discordOutput=$(docker logs ${pyTestContainerName} | tail -12)
     output=$(docker logs ${pyTestContainerName})
-    # send following to discord
-    # description: BRANCH_NAME + '\n' + discordOutput
-    # footer: env.GIT_COMMIT
-    # link: env.BUILD_URL
-    # successful: false
-    # title: "Failing build"
-    # webhookURL: $WEBHOOKURL
-    error output
 fi
+printf $discordOutput >> wall_e_file
