@@ -21,9 +21,6 @@ class Administration(commands.Cog):
 
     def __init__(self, bot, config):
         self.config = config
-        print("initializing admin")
-
-
         self.bot = bot
 
     def validCog(self, name):
@@ -35,7 +32,7 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def exit(self, ctx):
-        if 'LOCALHOST' == config.get_config_value('basic_config', 'ENVIRONMENT'):
+        if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
             await self.bot.close()
 
     @commands.command()
