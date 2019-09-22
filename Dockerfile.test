@@ -17,7 +17,7 @@ COPY requirements.txt ./
 # being done because of https://github.com/psycopg/psycopg2/issues/684
 RUN cat requirements.txt
 RUN cat requirements.txt | grep -v "psycopg2-binary"
-RUN cat requirements.txt | grep -v "psycopg2-binary" >> requirements.txt
+RUN cat requirements.txt | grep -v "psycopg2-binary" > requirements.txt
 
 RUN echo psycopg2 >> requirements.txt
 
