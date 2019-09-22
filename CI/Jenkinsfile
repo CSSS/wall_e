@@ -22,7 +22,7 @@ pipeline {
             }
         }
     }
-    stage('Deploy-To-Test-Server'){
+    stage('Deploy_To_Test_Server'){
         steps{
             script{
                 withEnv{[
