@@ -14,10 +14,11 @@ $cmd
 echo "first step"
 mkdir -p ${UNIT_TEST_RESULTS}
 echo "second step"
-docker run -d \
+cmd="docker run -d \
     --mount type=bind,source="${WORKSPACE}/${UNIT_TEST_RESULTS}",target="${DOCKER_CONTAINER_TEST_RESULT_DIRECTORY}/${UNIT_TEST_RESULTS}" \
-    --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase}
-
+    --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase}"
+echo $cmd
+$cmd
 echo "third step"
 sleep 20
 echo "fourth step"
