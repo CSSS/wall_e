@@ -1,4 +1,3 @@
-import aiohttp
 import datetime
 from discord.ext import commands
 import importlib
@@ -13,15 +12,17 @@ from resources.cogs.test_cog import TestCog
 from resources.utilities.config.config import WalleConfig as config
 from resources.utilities.database import setupDB, setupStatsOfCommandsDBTable
 from resources.utilities.embed import embed as imported_embed
-from resources.utilities.logger import initalizeLogger, createLogFile
+from resources.utilities.logger import initalizeLogger
 from resources.utilities.log_channel import write_to_bot_log_channel
 
 bot = commands.Bot(command_prefix='.')
 config = config(os.environ['ENVIRONMENT'])
 
+
 def check_test_environment(config, ctx):
-    if config.get_config_value('database', 'BRANCH_NAME')  == 'TEST':
-        if ctx.message.guild is not None and ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
+    if config.get_config_value('database', 'BRANCH_NAME') == 'TEST':
+        if ctx.message.guild is not None and \
+        ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
             return False
     return True
 
