@@ -111,7 +111,6 @@ pipeline {
         }
       }
     }
-  }
   post {
     success {
       withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
