@@ -9,7 +9,7 @@ docker build -t ${pyTestContainerNameLowerCase} \
     --build-arg UNIT_TEST_RESULTS=mount/unit_results.xml  -f Dockerfile.test .
 mkdir -p ${UNIT_TEST_RESULTS}
 docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase} \
---mount type=bind,source="${UNIT_TEST_RESULTS}",target=${UNIT_TEST_RESULTS}
+    --mount type=bind,source="${UNIT_TEST_RESULTS}",target=${UNIT_TEST_RESULTS}
 sleep 20
 docker inspect ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep  '0'
 testContainerFailed=$?
