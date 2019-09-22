@@ -27,8 +27,14 @@ pipeline {
         stage('Create New Docker Image'){
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
-                        sh "./CI/create-docker-image.sh"
+                    withEnv([
+                        'CONTAINER_HOME_DIR=/usr/src/app',
+                        'UNIT_TEST_RESULTS=test_results'
+                    ])
+                    {
+                        withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
+                            sh "./CI/create-docker-image.sh"
+                        }
                     }
                 }
             }
