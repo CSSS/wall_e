@@ -16,7 +16,7 @@ pipeline {
                         'WALL_E_DB_DBNAME=csss_discord_db'
                     ])
                     {
-                        "./CI/validate-formatting.sh"
+                        sh "./CI/validate-formatting.sh"
                     }
                 }
             }
@@ -33,7 +33,7 @@ pipeline {
                         'WALL_E_DB_DBNAME=csss_discord_db'
                     ])
                     {
-                        "./CI/deploy-to-test-server.sh"
+                        sh "./CI/deploy-to-test-server.sh"
                     }
                 }
             }
