@@ -28,8 +28,7 @@ pipeline {
             steps {
                 script {
                     withEnv([
-                        'CONTAINER_HOME_DIR=/usr/src/app',
-                        'UNIT_TEST_RESULTS=test_results'
+                        'CONTAINER_HOME_DIR=/usr/src/app'
                     ])
                     {
                         withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
