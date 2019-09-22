@@ -3,8 +3,10 @@ from resources.utilities.embed import embed
 import logging
 logger = logging.getLogger('wall_e')
 
+
 def getClassName():
     return "HealthChecks"
+
 
 class HealthChecks(commands.Cog):
 
@@ -18,8 +20,8 @@ class HealthChecks(commands.Cog):
         eObj = await embed(
             ctx,
             description='Pong!',
-            author = self.config.get_config_value('bot_profile', 'BOT_NAME') ,
-            avatar = self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
         )
         if eObj is not False:
             await ctx.send(embed=eObj)

@@ -10,8 +10,10 @@ import aiohttp
 logger = logging.getLogger('wall_e')
 sfuRed = 0xA6192E
 
+
 def getClassName():
     return "SFU"
+
 
 class SFU(commands.Cog):
     def __init__(self, bot, config):
@@ -25,9 +27,15 @@ class SFU(commands.Cog):
         logger.info('[SFU sfu()] arguments given: ' + str(course))
 
         if(not course):
-            eObj = await embed(ctx, title='Missing Arguments', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               colour=sfuRed, content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
-                               footer='SFU Error')
+            eObj = await embed(
+                ctx,
+                title='Missing Arguments',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=sfuRed,
+                content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
+                footer='SFU Error'
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
             logger.info('[SFU sfu()] missing arguments, command ended')
@@ -52,9 +60,15 @@ class SFU(commands.Cog):
 
             if(len(crs) < 2):
                 # Bad args
-                eObj = await embed(ctx, title='Bad Arguments', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                                   colour=sfuRed, content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
-                                   footer='SFU Error')
+                eObj = await embed(
+                    ctx,
+                    title='Bad Arguments',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    colour=sfuRed,
+                    content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
+                    footer='SFU Error'
+                )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
                 logger.info('[SFU sfu()] bad arguments, command ended')
@@ -84,13 +98,22 @@ class SFU(commands.Cog):
                 data = json.loads(data)
             else:
                 logger.info('[SFU sfu()] get resulted in ' + str(res.status))
-                eObj = await embed(ctx, title='Results from SFU', author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                                   avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'), colour=sfuRed,
-                                   description=('Couldn\'t find anything f'
-                                                'or:\n{0}/{1}/{2}/{3}/\nMake sure you entered all the arguments '
-                                                'correctly').format(year, term.upper(), courseCode.upper(),
-                                                                    courseNum),
-                                   footer='SFU Error')
+                eObj = await embed(
+                    ctx,
+                    title='Results from SFU',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    colour=sfuRed,
+                    description=(
+                        'Couldn\'t find anything for:\n{0}/{1}/{2}/{3}/\nMake sure you entered all the arguments '
+                        'correctly').format(
+                            year,
+                            term.upper(),
+                            courseCode.upper(),
+                            courseNum
+                        ),
+                    footer='SFU Error'
+                )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
                 return
@@ -107,8 +130,15 @@ class SFU(commands.Cog):
             ["URL", link]
         ]
 
-        embedObj = await embed(ctx, title='Results from SFU', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               content=fields, colour=sfuRed, footer=footer)
+        embedObj = await embed(
+            ctx,
+            title='Results from SFU',
+            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            content=fields,
+            colour=sfuRed,
+            footer=footer
+        )
         if embedObj is not False:
             await ctx.send(embed=embedObj)
         logger.info('[SFU sfu()] out sent to server')
@@ -127,8 +157,15 @@ class SFU(commands.Cog):
                  + ' spring d200\n .outline cmpt300 next`']]
 
         if(not course):
-            eObj = await embed(ctx, title='Missing Arguments', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               colour=sfuRed, content=usage, footer='SFU Outline Error')
+            eObj = await embed(
+                ctx,
+                title='Missing Arguments',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=sfuRed,
+                content=usage,
+                footer='SFU Outline Error'
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
             logger.info('[SFU outline()] missing arguments, command ended')
@@ -164,8 +201,15 @@ class SFU(commands.Cog):
 
             if(len(crs) < 2):
                 # Bad args
-                eObj = await embed(ctx, title='Bad Arguments', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                                   colour=sfuRed, content=usage, footer='SFU Outline Error')
+                eObj = await embed(
+                    ctx,
+                    title='Bad Arguments',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    colour=sfuRed,
+                    content=usage,
+                    footer='SFU Outline Error'
+                )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
                 logger.info('[SFU outline()] bad arguments, command ended')
@@ -199,11 +243,19 @@ class SFU(commands.Cog):
                 else:
                     # Send something saying be in this order
                     logger.info('[SFU outline] args out of order or wrong')
-                    eObj = await embed(ctx, title='Bad Arguments', author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                                       avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'), colour=sfuRed,
-                                       description='Make sure your arguments are in the following order:\n<course> '
-                                       + '<term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section'
-                                       + ' are optional args', footer='SFU Outline Error')
+                    eObj = await embed(
+                        ctx,
+                        title='Bad Arguments',
+                        author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                        avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                        colour=sfuRed,
+                        description=(
+                            'Make sure your arguments are in the following order:\n<course> '
+                            '<term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section'
+                            ' are optional args'
+                        ),
+                        footer='SFU Outline Error'
+                    )
                     if eObj is not False:
                         await ctx.send(embed=eObj)
                     return
@@ -228,11 +280,21 @@ class SFU(commands.Cog):
                         break
             else:
                 logger.info('[SFU outline()] section get resulted in ' + str(res.status))
-                eObj = await embed(ctx, title='SFU Course Outlines', author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                                   avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'), colour=sfuRed, description='Couldn\'t find anything '
-                                   + 'for `' + courseCode.upper() + ' ' + str(courseNum).upper() + '`\n Maybe the '
-                                   + 'course doesn\'t exist? Or isn\'t offerend right now.', footer='SFU Outline '
-                                   + 'Error')
+                eObj = await embed(
+                    ctx,
+                    title='SFU Course Outlines',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    colour=sfuRed,
+                    description=(
+                        'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? '
+                        'Or isn\'t offered right now.'.format(
+                            courseCode.upper().
+                            str(courseNum).upper()
+                            )
+                    ),
+                    footer='SFU Outline Error'
+                )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
                 return
@@ -253,10 +315,18 @@ class SFU(commands.Cog):
             data = json.loads(data)
         else:
             logger.info('[SFU outline()] full outline get resulted in ' + str(res.status))
-            eObj = await embed(ctx, title='SFU Course Outlines', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' '
-                               + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend '
-                               + 'right now.', footer='SFU Outline Error')
+            eObj = await embed(
+                ctx,
+                title='SFU Course Outlines',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=sfuRed,
+                description=(
+                    'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? Or isn\'t '
+                    'offered right now.'.format(courseCode.upper(), str(courseNum).upper())
+                ),
+                footer='SFU Outline Error'
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
             return
@@ -270,10 +340,16 @@ class SFU(commands.Cog):
             schedule = data['courseSchedule']
         except Exception:
             logger.info('[SFU outline()] info keys didn\'t exist')
-            eObj = await embed(ctx, title='SFU Course Outlines', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               colour=sfuRed, description='Couldn\'t find anything for `' + courseCode.upper() + ' '
-                               + str(courseNum).upper() + '`\n Maybe the course doesn\'t exist? Or isn\'t offerend '
-                               + 'right now.', footer='SFU Outline Error')
+            eObj = await embed(
+                ctx,
+                title='SFU Course Outlines',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=sfuRed,
+                description=(
+                    'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? Or isn\'t offered '
+                    + 'right now.'.format(courseCode.upper(), str(courseNum).upper())),
+                footer='SFU Outline Error')
             if eObj is not False:
                 await ctx.send(embed=eObj)
             return
@@ -360,8 +436,16 @@ class SFU(commands.Cog):
             fields.append(['Corequisites', corequisites])
         fields.append(['URL', '[here]({})'.format(url)])
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
-        eObj = await embed(ctx, title='SFU Outline Results', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                           colour=sfuRed, thumbnail=img, content=fields, footer='Written by VJ')
+        eObj = await embed(
+            ctx,
+            title='SFU Outline Results',
+            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            colour=sfuRed,
+            thumbnail=img,
+            content=fields,
+            footer='Written by VJ'
+        )
         if eObj is not False:
             await ctx.send(embed=eObj)
 

@@ -3,6 +3,7 @@ import psycopg2
 
 logger = logging.getLogger('wall_e')
 
+
 ###############################
 # SETUP DATABASE CONNECTION ##
 ###############################
@@ -17,7 +18,7 @@ def setupDB(config):
             postgres_password = config.get_config_value("database", "POSTGRES_PASSWORD")
             wall_e_db_dbname = config.get_config_value("database", "WALL_E_DB_DBNAME")
             wall_e_db_user = config.get_config_value("database", "WALL_E_DB_USER")
-            wall_e_db_password =config.get_config_value("database", "WALL_E_DB_PASSWORD")
+            wall_e_db_password = config.get_config_value("database", "WALL_E_DB_PASSWORD")
 
             if 'LOCALHOST' == env:
                 host = '127.0.0.1'
@@ -31,10 +32,10 @@ def setupDB(config):
             logger.info("[main.py setupDB] PostgreSQL connection established")
             postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             postgresCurs = postgresConn.cursor()
-            # these two parts is using a complicated DO statement because apparently postgres does not have an
-            # "if not exist" clause for roles or databases, only tables moreover, this is done to localhost and not any
-            # other environment cause with the TEST guild, the databases are always brand new fresh with each time the
-            # script get launched
+            # these two parts is using a complicated DO statement because apparently postgres does not have
+            # an if not exist" clause for roles or databases, only tables moreover, this is done to localhost
+            # and not any other environment cause with the TEST guild, the databases are always brand new
+            # fresh with each time the script get launched
             if 'localhost' == env or'PRODUCTION' == env:
                 # aquired from https://stackoverflow.com/a/8099557/7734535
                 sqlQuery = """DO
@@ -99,6 +100,7 @@ def setupDB(config):
             logger.error("[main.py setupDB] enountered following exception when setting up PostgreSQL "
                          "connection\n{}".format(e))
 
+
 def setupStatsOfCommandsDBTable(config):
     if config.enabled("database"):
         try:
@@ -107,19 +109,26 @@ def setupStatsOfCommandsDBTable(config):
                 host = '127.0.0.1'
             else:
                 host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
-            dbConnectionString = ("dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
-                                  " host='" + host + "' password='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
-            logger.info("[main.py setupStatsOfCommandsDBTable()] dbConnectionString=[dbname='"
-                        + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host
-                        + "' password='******']")
+            dbConnectionString = (
+                "dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
+                "user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host + "' "
+                "password='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
+            logger.info(
+                "[main.py setupStatsOfCommandsDBTable()] dbConnectionString=[dbname='"
+                + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user="
+                "'" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host
+                + "' password='******']"
+            )
             conn = psycopg2.connect(dbConnectionString)
             logger.info("[main.py setupStatsOfCommandsDBTable()] PostgreSQL connection established")
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             curs = conn.cursor()
-            curs.execute("CREATE TABLE IF NOT EXISTS CommandStats ( \"EPOCH TIME\" BIGINT  PRIMARY KEY, YEAR BIGINT, "
-                         "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel ID\" BIGINT, \"Channel Name\" varchar(2000), "
-                         "Author varchar(2000), Command varchar(2000), \"Invoked with\" "
-                         "varchar(2000), \"Invoked subcommand\"  varchar(2000));")
+            curs.execute(
+                "CREATE TABLE IF NOT EXISTS CommandStats ( \"EPOCH TIME\" BIGINT  PRIMARY KEY, YEAR BIGINT, "
+                "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel ID\" BIGINT, \"Channel Name\" varchar(2000), "
+                "Author varchar(2000), Command varchar(2000), \"Invoked with\" "
+                "varchar(2000), \"Invoked subcommand\"  varchar(2000));"
+            )
             logger.info("[main.py setupStatsOfCommandsDBTable()] CommandStats database table created")
         except Exception as e:
             logger.error("[main.py setupStatsOfCommandsDBTable()] enountered following exception when setting up "

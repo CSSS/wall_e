@@ -8,7 +8,7 @@ import sys
 import time
 import traceback
 
-from resources.cogs.test_cog import TestCog
+from resources.cogs.manage_cog import ManageCog
 from resources.utilities.config.config import WalleConfig as config
 from resources.utilities.database import setupDB, setupStatsOfCommandsDBTable
 from resources.utilities.embed import embed as imported_embed
@@ -39,11 +39,17 @@ async def on_ready():
     logger.info('[main.py on_ready()] ------')
     config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
     config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
-    bot_name = config.get_config_value("bot_profile", "BOT_NAME")
-    bot_avatar = config.get_config_value("bot_profile", "BOT_AVATAR")
-    logger.info(f"[main.py on_ready()] BOT_NAME initialized to {bot_name}")
-    logger.info(f"[main.py on_ready()] BOT_AVATAR initialized to {bot_avatar}")
-    logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
+    logger.info(
+        "[main.py on_ready()] BOT_NAME initialized to {}".format(
+            config.get_config_value("bot_profile", "BOT_AVATAR")
+            )
+        )
+    logger.info(
+        "[main.py on_ready()] BOT_AVATAR initialized to {}".format(
+            config.get_config_value("bot_profile", "BOT_AVATAR")
+            )
+        )
+    logger.info("[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 ####################################################
 # Function that gets called when the script cant ##
@@ -86,10 +92,16 @@ async def on_command(ctx):
                 host = '127.0.0.1'
             else:
                 host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
-            dbConnectionString = ("dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
-                                  " host='" + host + "' password='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
-            logger.info("[main.py on_command()] dbConnectionString=[dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME')
-                        + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host + "' password='******']")
+            dbConnectionString = (
+                "dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
+                "user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
+                " host='" + host + "' password"
+                "='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
+            logger.info(
+                "[main.py on_command()] dbConnectionString=[dbname="
+                "'" + config.get_config_value('database', 'WALL_E_DB_DBNAME')
+                + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' "
+                "host='" + host + "' password='******']")
             conn = psycopg2.connect(dbConnectionString)
             logger.info("[main.py on_command()] PostgreSQL connection established")
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -177,7 +189,12 @@ async def on_member_join(member):
         output += "\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass"
         output += " cmpt316>\n"
         output += "\tPlease keep Academic Honesty in mind when discussing course material here.\n"
-        eObj = await imported_embed(member, description=output, author=config.get_config_value('bot_profile', 'BOT_NAME'), avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'))
+        eObj = await imported_embed(
+            member,
+            description=output,
+            author=config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=config.get_config_value('bot_profile', 'BOT_AVATAR')
+        )
         if eObj is not False:
             await member.send(embed=eObj)
             logger.info("[main.py on_member_join] embed sent to member " + str(member))
@@ -202,9 +219,9 @@ if __name__ == "__main__":
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
                      "following error" + str(e))
 
-    #load the code dealing with test server interaction
+    # load the code dealing with test server interaction
     try:
-        bot.add_cog(TestCog(bot,config))
+        bot.add_cog(ManageCog(bot, config))
     except Exception as e:
         exception = '{}: {}'.format(type(e).__name__, e)
         logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
@@ -218,9 +235,9 @@ if __name__ == "__main__":
         commandLoaded = True
         try:
             logger.info("[main.py] attempting to load command {}".format(cog["name"]))
-            cogToLoad = importlib.import_module( str(cog['path'])+str(cog["name"]))
+            cogToLoad = importlib.import_module(str(cog['path'])+str(cog["name"]))
             cogFile = getattr(cogToLoad, str(cogToLoad.getClassName()))
-            bot.add_cog(cogFile(bot,config))
+            bot.add_cog(cogFile(bot, config))
         except Exception as e:
             commandLoaded = False
             exception = '{}: {}'.format(type(e).__name__, e)

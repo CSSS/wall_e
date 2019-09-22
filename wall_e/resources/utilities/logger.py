@@ -5,6 +5,7 @@ import sys
 
 from resources.utilities.logger_setup import LoggerWriter
 
+
 ##################
 # LOGGING SETUP ##
 ##################

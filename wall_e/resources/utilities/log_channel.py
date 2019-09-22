@@ -1,7 +1,9 @@
 import asyncio
 import discord
 import logging
+import aiohttp
 logger = logging.getLogger('wall_e')
+
 
 ##################################################################################################
 # HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
@@ -18,7 +20,6 @@ async def write_to_bot_log_channel(bot, config, f):
     log_channel_name = config.get_config_value("basic_config", "BOT_LOG_CHANNEL")
     if (env == "LOCALHOST" or env == "PRODUCTION") and log_channel_name == 'NONE':
         print("no name detected for bot log channel in settings....exit")
-
 
     if env == "LOCALHOST":
         log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)

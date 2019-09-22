@@ -12,6 +12,7 @@ cog_location_python_path = "resources.cogs."
 help_json_location = "resources/locales/"
 help_json_file_name = "help.json"
 
+
 class WalleConfig():
     def __init__(self, environment):
         config = configparser.ConfigParser()
@@ -36,7 +37,7 @@ class WalleConfig():
 
         return 'NONE'
 
-    def enabled(self, section, option = "enabled"):
+    def enabled(self, section, option="enabled"):
         if option in os.environ:
             return os.environ[option] == "1"
 
@@ -46,10 +47,10 @@ class WalleConfig():
         if self.config['wall_e'].has_option(section, option):
             self.config['wall_e'].set(section, option, str(value))
         else:
-            raise KeyError("Section '{}' or Option '{}' does not exist".format(section, name))
+            raise KeyError("Section '{}' or Option '{}' does not exist".format(section, option))
 
     def cog_enabled(self, name_of_cog):
-        return (self.config['cogs_enabled'][name_of_cog] == 1);
+        return (self.config['cogs_enabled'][name_of_cog] == 1)
 
     def get_cogs(self):
         cogs_to_load = []

@@ -13,8 +13,10 @@ import re
 
 logger = logging.getLogger('wall_e')
 
+
 def getClassName():
     return "Misc"
+
 
 class Misc(commands.Cog):
 
@@ -22,7 +24,7 @@ class Misc(commands.Cog):
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
-        self.wolframClient = wolframalpha.Client( self.config.get_config_value('wolfram', 'API_TOKEN'))
+        self.wolframClient = wolframalpha.Client(self.config.get_config_value('wolfram', 'API_TOKEN'))
 
     @commands.command()
     async def poll(self, ctx, *questions):
@@ -31,8 +33,13 @@ class Misc(commands.Cog):
         ava = ctx.author.avatar_url
         if len(questions) > 12:
             logger.info("[Misc poll()] was called with too many options.")
-            eObj = await embed(ctx, title='Poll Error', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               description='Please only submit a maximum of 11 options for a multi-option question.')
+            eObj = await embed(
+                ctx,
+                title='Poll Error',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description='Please only submit a maximum of 11 options for a multi-option question.'
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
             return
@@ -47,15 +54,25 @@ class Misc(commands.Cog):
             return
         if len(questions) == 2:
             logger.info("[Misc poll()] poll with only 2 arguments detected.")
-            eObj = await embed(ctx, title='Poll Error', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               description='Please submit at least 2 options for a multi-option question.')
+            eObj = await embed(
+                ctx,
+                title='Poll Error',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description='Please submit at least 2 options for a multi-option question.'
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
             return
         elif len(questions) == 0:
             logger.info("[Misc poll()] poll with no arguments detected.")
-            eObj = await embed(ctx, title='Usage', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                               description='.poll <Question> [Option A] [Option B] ...')
+            eObj = await embed(
+                ctx,
+                title='Usage',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description='.poll <Question> [Option A] [Option B] ...'
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
             return
@@ -100,9 +117,14 @@ class Misc(commands.Cog):
             data = data['list']
             if not data:
                 logger.info("[Misc urban()] sending message indicating 404 result")
-                eObj = await embed(ctx, title="Urban Results", author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                                   colour=0xfd6a02, description=":thonk:404:thonk:You searched something dumb didn't"
-                                   " you?")
+                eObj = await embed(
+                    ctx,
+                    title="Urban Results",
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    colour=0xfd6a02,
+                    description=":thonk:404:thonk:You searched something dumb didn't you?"
+                )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
                 return
@@ -117,8 +139,14 @@ class Misc(commands.Cog):
                     ['Definition', definition],
                     ['Link', '[here]({})'.format(urbanUrl)]
                 ]
-                eObj = await embed(ctx, title='Results from Urban Dictionary', author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                                   avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'), colour=0xfd6a02, content=content)
+                eObj = await embed(
+                    ctx,
+                    title='Results from Urban Dictionary',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    colour=0xfd6a02,
+                    content=content
+                )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
 
@@ -141,16 +169,26 @@ class Misc(commands.Cog):
             content = [
                 ['Results from Wolfram Alpha', "`" + next(res.results).text + "`"
                  + "\n\n[Link]({})".format(wolframURL)]]
-            eObj = await embed(ctx, author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'), colour=0xdd1100,
-                               content=content)
+            eObj = await embed(
+                ctx,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=0xdd1100,
+                content=content
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
                 logger.info("[Misc wolfram()] result found for {}".format(arg))
         except (AttributeError, StopIteration):
             content = [
                 ['Results from Wolfram Alpha', "No results found. :thinking: \n\n[Link]({})".format(wolframURL)], ]
-            eObj = await embed(ctx, author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'), colour=0xdd1100,
-                               content=content)
+            eObj = await embed(
+                ctx,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=0xdd1100,
+                content=content
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
                 logger.error("[Misc wolfram()] result NOT found for {}".format(arg))
@@ -167,9 +205,13 @@ class Misc(commands.Cog):
                 output += word
             elif re.match(r':*:', word):
                 logger.info("[Misc emojispeak()] was called with a non-server emoji.")
-                eObj = await embed(ctx, title='EmojiSpeak Error', author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                                   avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                                   description='Please refrain from using non-server emoji.')
+                eObj = await embed(
+                    ctx,
+                    title='EmojiSpeak Error',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    description='Please refrain from using non-server emoji.'
+                )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
                 return
@@ -266,8 +308,13 @@ class Misc(commands.Cog):
                         descriptions += description + "\n\n"
                     descriptions += "\n\nExample:\n"
                     descriptions += "\n".join(entry['example'])
-                    eObj = await embed(ctx, title="Man Entry for " + str(command[0]), author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                                       avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'), description=descriptions)
+                    eObj = await embed(
+                        ctx,
+                        title="Man Entry for " + str(command[0]),
+                        author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                        avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                        description=descriptions
+                    )
                     if eObj is not False:
                         msg = await ctx.send(content=None, embed=eObj)
                         logger.info("[Misc specificDescription()] embed created and sent for "

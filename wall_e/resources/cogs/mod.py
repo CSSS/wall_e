@@ -7,16 +7,23 @@ from resources.utilities.embed import embed as em
 import logging
 logger = logging.getLogger('wall_e')
 
+
 def getClassName():
     return "Mod"
+
 
 class Mod(commands.Cog):
 
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-        eObj = await em(ctx, title='Minion Things', author=self.config.get_config_value('bot_profile', 'BOT_NAME'), avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                        description=lol)
+        eObj = await em(
+            ctx,
+            title='Minion Things',
+            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            description=lol
+        )
         if eObj is not False:
             msg = await ctx.send(embed=eObj)
             await asyncio.sleep(5)

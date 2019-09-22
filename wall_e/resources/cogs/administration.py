@@ -5,17 +5,18 @@ import logging
 import asyncio
 from resources.utilities.send import send as helper_send
 import importlib
-
 import matplotlib
 matplotlib.use("agg")
-import matplotlib.pyplot as plt
-import numpy as np
-import psycopg2
+import matplotlib.pyplot as plt # noqa
+import numpy as np # noqa
+import psycopg2 # noqa
 
 logger = logging.getLogger('wall_e')
 
+
 def getClassName():
     return "Administration"
+
 
 class Administration(commands.Cog):
 
@@ -28,7 +29,6 @@ class Administration(commands.Cog):
             if cog["name"] == name:
                 return True, cog["path"]
         return False, ''
-
 
     @commands.command()
     async def exit(self, ctx):
@@ -47,9 +47,9 @@ class Administration(commands.Cog):
                             + " which doesn't exist.")
                 return
             try:
-                admin = importlib.import_module( folder+name)
+                admin = importlib.import_module(folder+name)
                 attr = getattr(admin, name)
-                self.bot.add_cog(attr(self.bot,self.config))
+                self.bot.add_cog(attr(self.bot, self.config))
                 await ctx.send("{} command loaded.".format(name))
                 logger.info("[Administration load()] " + name + " has been successfully loaded")
             except(AttributeError, ImportError) as e:
@@ -91,9 +91,9 @@ class Administration(commands.Cog):
                 return
             self.bot.remove_cog(name)
             try:
-                admin = importlib.import_module( folder+name)
+                admin = importlib.import_module(folder+name)
                 attr = getattr(admin, name)
-                self.bot.add_cog(attr(self.bot,self.config))
+                self.bot.add_cog(attr(self.bot, self.config))
                 await ctx.send("`{} command reloaded`".format(folder + name))
                 logger.info("[Administration reload()] " + name + " has been successfully reloaded")
             except(AttributeError, ImportError) as e:
@@ -203,9 +203,9 @@ class Administration(commands.Cog):
             if 'LOCALHOST' == self.config.get_config_value("wall_e", "ENVIRONMENT"):
                 host = '127.0.0.1'
             else:
-                host =self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME") + '_wall_e_db'
-            wall_e_db_dbname =  self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
-            wall_e_db_user =  self.config.get_config_value('database', 'WALL_E_DB_USER')
+                host = self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME") + '_wall_e_db'
+            wall_e_db_dbname = self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
+            wall_e_db_user = self.config.get_config_value('database', 'WALL_E_DB_USER')
             wall_e_db_password = self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
 
             dbConnectionString = ("dbname='" + wall_e_db_dbname + "' user='" + wall_e_db_user + "' "
