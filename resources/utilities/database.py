@@ -1,9 +1,13 @@
+import logging
+import psycopg2
+
+logger = logging.getLogger('wall_e')
 
 ###############################
 # SETUP DATABASE CONNECTION ##
 ###############################
-def setupDB():
-    if int(config.get_config_value("database", "enabled")) == 1:
+def setupDB(config):
+    if config.enabled("database"):
         try:
             host = None
             env = config.get_config_value("wall_e", "ENVIRONMENT")
@@ -15,14 +19,14 @@ def setupDB():
             wall_e_db_user = config.get_config_value("database", "WALL_E_DB_USER")
             wall_e_db_password =config.get_config_value("database", "WALL_E_DB_PASSWORD")
 
-            if 'localhost' == env:
+            if 'LOCALHOST' == env:
                 host = '127.0.0.1'
             else:
                 host = compose_project_name + '_wall_e_db'
             dbConnectionString = ("dbname='" + postgres_db_dbname + "' user='" + postgres_db_user + "' "
                                   "host='" + host + "' password='" + postgres_password + "'")
             logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='" + postgres_db_dbname
-                        + "' user='" + postgres_db_user + "' host='" + host + "' password='*****']")
+                        + "' user='" + postgres_db_user + "' host='" + host + "' password='************']")
             postgresConn = psycopg2.connect(dbConnectionString)
             logger.info("[main.py setupDB] PostgreSQL connection established")
             postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -95,11 +99,11 @@ def setupDB():
             logger.error("[main.py setupDB] enountered following exception when setting up PostgreSQL "
                          "connection\n{}".format(e))
 
-def setupStatsOfCommandsDBTable():
-    if int(config.get_config_value("database", "enabled")) == 1:
+def setupStatsOfCommandsDBTable(config):
+    if config.enabled("database"):
         try:
             host = None
-            if 'localhost' == config.get_config_value('basic_config', 'ENVIRONMENT'):
+            if 'LOCALHOST' == config.get_config_value('basic_config', 'ENVIRONMENT'):
                 host = '127.0.0.1'
             else:
                 host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
@@ -114,7 +118,7 @@ def setupStatsOfCommandsDBTable():
             curs = conn.cursor()
             curs.execute("CREATE TABLE IF NOT EXISTS CommandStats ( \"EPOCH TIME\" BIGINT  PRIMARY KEY, YEAR BIGINT, "
                          "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel ID\" BIGINT, \"Channel Name\" varchar(2000), "
-                         "Author varchar(2000), Command varchar(2000), Argument varchar(2000), \"Invoked with\" "
+                         "Author varchar(2000), Command varchar(2000), \"Invoked with\" "
                          "varchar(2000), \"Invoked subcommand\"  varchar(2000));")
             logger.info("[main.py setupStatsOfCommandsDBTable()] CommandStats database table created")
         except Exception as e:

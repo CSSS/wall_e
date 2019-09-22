@@ -1,7 +1,9 @@
 import aiohttp
+import datetime
 from discord.ext import commands
 import importlib
 import os
+import psycopg2
 import re
 import sys
 import time
@@ -9,6 +11,7 @@ import traceback
 
 from resources.cogs.test_cog import TestCog
 from resources.utilities.config.config import WalleConfig as config
+from resources.utilities.database import setupDB, setupStatsOfCommandsDBTable
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.logger import initalizeLogger, createLogFile
 from resources.utilities.log_channel import write_to_bot_log_channel
@@ -69,73 +72,69 @@ async def on_command_error(ctx, error):
 ########################################################
 @bot.event
 async def on_command(ctx):
-    if int(config.get_config_value("database", "enabled")) == 1:
-        if check_test_environment(config, ctx) and config.get_config_value('basic_config', 'ENVIRONMENT') != 'LOCALHOST':
-            try:
-                host = None
-                if 'localhost' == config.get_config_value('basic_config', 'ENVIRONMENT'):
-                    host = '127.0.0.1'
-                else:
-                    host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
-                dbConnectionString = ("dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
-                                      " host='" + host + "' password='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
-                logger.info("[main.py on_command()] dbConnectionString=[dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME')
-                            + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host + "' password='******']")
-                conn = psycopg2.connect(dbConnectionString)
-                logger.info("[main.py on_command()] PostgreSQL connection established")
-                conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-                curs = conn.cursor()
-                index = 0
-                argument = ''
-                for arg in ctx.args:
-                    if index > 1:
-                        argument += arg + ' '
-                    index += 1
-                epoch_time = int(time.time())
-                now = datetime.datetime.now()
-                current_year = str(now.year)
-                current_month = str(now.month)
-                current_day = str(now.day)
-                current_hour = str(now.hour)
-                channel_id = str(ctx.channel.id)
-                channel_name = str(ctx.channel).replace("\'", "[single_quote]").strip()
-                if ctx.guild.get_member(ctx.message.author.id).name.isalnum():
-                    author = str(ctx.message.author).replace("\'", "[single_quote]").strip()
-                else:
-                    author = "<" + str(ctx.message.author.id).replace("\'", "[single_quote]").strip() + ">"
-                command = str(ctx.command).replace("\'", "[single_quote]").strip()
-                argument = (
-                        str(argument).replace("\'", "[single_quote]").strip() if command != "embed"
-                        else "redacted due to large size")
-                method_of_invoke = str(ctx.invoked_with).replace("\'", "[single_quote]").strip()
-                invoked_subcommand = str(ctx.invoked_subcommand).replace("\'", "[single_quote]").strip()
+    if config.enabled("database"):
+        try:
+            host = None
+            if 'LOCALHOST' == config.get_config_value('basic_config', 'ENVIRONMENT'):
+                host = '127.0.0.1'
+            else:
+                host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
+            dbConnectionString = ("dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
+                                  " host='" + host + "' password='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
+            logger.info("[main.py on_command()] dbConnectionString=[dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME')
+                        + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host + "' password='******']")
+            conn = psycopg2.connect(dbConnectionString)
+            logger.info("[main.py on_command()] PostgreSQL connection established")
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            curs = conn.cursor()
+            index = 0
+            argument = ''
+            for arg in ctx.args:
+                if index > 1:
+                    argument += arg + ' '
+                index += 1
+            epoch_time = int(time.time())
+            now = datetime.datetime.now()
+            current_year = str(now.year)
+            current_month = str(now.month)
+            current_day = str(now.day)
+            current_hour = str(now.hour)
+            channel_id = str(ctx.channel.id)
+            channel_name = str(ctx.channel).replace("\'", "[single_quote]").strip()
+            if ctx.guild.get_member(ctx.message.author.id).name.isalnum():
+                author = str(ctx.message.author).replace("\'", "[single_quote]").strip()
+            else:
+                author = "<" + str(ctx.message.author.id).replace("\'", "[single_quote]").strip() + ">"
+            command = str(ctx.command).replace("\'", "[single_quote]").strip()
+            method_of_invoke = str(ctx.invoked_with).replace("\'", "[single_quote]").strip()
+            invoked_subcommand = str(ctx.invoked_subcommand).replace("\'", "[single_quote]").strip()
 
-                # this next part is just setup to keep inserting until it finsd a primary key that is not in use
-                successful = False
-                while not successful:
-                    try:
-                        sqlCommand = ("""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR,
-                                      "Channel ID\", \"Channel Name\", Author, Command, Argument, \"Invoked with\",
-                                      "Invoked subcommand\") VALUES (""" + str(epoch_time) + """,""" + current_year
-                                      + """,""" + current_month + """,""" + current_day + """,""" + current_hour
-                                      + """,""" + channel_id + """,'""" + channel_name + """','""" + author + """', '"""
-                                      + command + """','""" + argument + """','""" + method_of_invoke + """','"""
-                                      + invoked_subcommand + """');""")
-                        logger.info("[main.py on_command()] sqlCommand=[" + sqlCommand + "]")
-                        curs.execute(sqlCommand)
-                    except psycopg2.IntegrityError as e:
-                        logger.error("[main.py on_command()] enountered following exception when trying to insert the "
-                                     "record\n{}".format(e))
-                        epoch_time += 1
-                        logger.info("[main.py on_command()] incremented the epoch time to " + str(epoch_time) + " and "
-                                    "will try again.")
-                    else:
-                        successful = True
-                curs.close()
-                conn.close()
-            except Exception as e:
-                logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL "
-                             "connection\n{}".format(e))
+            # this next part is just setup to keep inserting until it finsd a primary key that is not in use
+            successful = False
+            while not successful:
+                try:
+                    sqlCommand = ("""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR,
+                                  "Channel ID\", \"Channel Name\", Author, Command, \"Invoked with\",
+                                  "Invoked subcommand\") VALUES (""" + str(epoch_time) + """,""" + current_year
+                                  + """,""" + current_month + """,""" + current_day + """,""" + current_hour
+                                  + """,""" + channel_id + """,'""" + channel_name + """','""" + author + """', '"""
+                                  + command + """','""" + method_of_invoke + """','"""
+                                  + invoked_subcommand + """');""")
+                    logger.info("[main.py on_command()] sqlCommand=[" + sqlCommand + "]")
+                    curs.execute(sqlCommand)
+                except psycopg2.IntegrityError as e:
+                    logger.error("[main.py on_command()] enountered following exception when trying to insert the "
+                                 "record\n{}".format(e))
+                    epoch_time += 1
+                    logger.info("[main.py on_command()] incremented the epoch time to " + str(epoch_time) + " and "
+                                "will try again.")
+                else:
+                    successful = True
+            curs.close()
+            conn.close()
+        except Exception as e:
+            logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL "
+                         "connection\n{}".format(e))
 
 ########################################################
 # Function that gets called any input or output from ##
@@ -182,9 +181,9 @@ async def on_member_join(member):
 if __name__ == "__main__":
     logger, FILENAME = initalizeLogger()
     logger.info("[main.py] Wall-E is starting up")
-    if config.get_config_value("database", "enabled") == '1':
-        setupDB()
-        setupStatsOfCommandsDBTable()
+    if config.enabled("database"):
+        setupDB(config)
+        setupStatsOfCommandsDBTable(config)
     # tries to open log file in prep for write_to_bot_log_channel function
     try:
         logger.info("[main.py] trying to open " + FILENAME + ".log to be able to send its output to #bot_log channel")

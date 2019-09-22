@@ -36,6 +36,12 @@ class WalleConfig():
 
         return 'NONE'
 
+    def enabled(self, section, option = "enabled"):
+        if option in os.environ:
+            return os.environ[option] == "1"
+
+        return self.config["wall_e"].get(section, option) == "1"
+
     def set_config_value(self, section, option, value):
         if self.config['wall_e'].has_option(section, option):
             self.config['wall_e'].set(section, option, str(value))

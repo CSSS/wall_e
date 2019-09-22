@@ -5,8 +5,12 @@ import logging
 import asyncio
 from resources.utilities.send import send as helper_send
 import importlib
+
+import matplotlib
+matplotlib.use("agg")
 import matplotlib.pyplot as plt
 import numpy as np
+import psycopg2
 
 logger = logging.getLogger('wall_e')
 
@@ -17,9 +21,9 @@ class Administration(commands.Cog):
 
     def __init__(self, bot, config):
         self.config = config
+        print("initializing admin")
 
-        if self.config.get_config_value("database", "enabled") == 1:
-            import psycopg2
+
         self.bot = bot
 
     def validCog(self, name):
@@ -31,7 +35,7 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def exit(self, ctx):
-        if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
+        if 'LOCALHOST' == config.get_config_value('basic_config', 'ENVIRONMENT'):
             await self.bot.close()
 
     @commands.command()
@@ -199,7 +203,7 @@ class Administration(commands.Cog):
     def connectToDatabase(self):
         try:
             host = None
-            if 'localhost' == self.config.get_config_value("wall_e", "ENVIRONMENT"):
+            if 'LOCALHOST' == self.config.get_config_value("wall_e", "ENVIRONMENT"):
                 host = '127.0.0.1'
             else:
                 host =self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME") + '_wall_e_db'
