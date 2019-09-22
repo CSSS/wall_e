@@ -22,7 +22,7 @@ config = config(os.environ['ENVIRONMENT'])
 def check_test_environment(config, ctx):
     if config.get_config_value('database', 'BRANCH_NAME') == 'TEST':
         if ctx.message.guild is not None and \
-        ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
+            ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
             return False
     return True
 
@@ -39,9 +39,9 @@ async def on_ready():
     logger.info('[main.py on_ready()] ------')
     config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
     config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
-    logger.info('[main.py on_ready()] BOT_NAME initialized to ' + str(config.get_config_value("bot_profile", "BOT_NAME")))
-    logger.info('[main.py on_ready()] BOT_AVATAR initialized to ' + str(config.get_config_value("bot_profile", "BOT_AVATAR")))
-    logger.info('[main.py on_ready()] ' + bot.user.name + ' is now ready for commands')
+    logger.info(f"[main.py on_ready()] BOT_NAME initialized to {config.get_config_value("bot_profile", "BOT_NAME")}")
+    logger.info(f"[main.py on_ready()] BOT_AVATAR initialized to {config.get_config_value("bot_profile", "BOT_AVATAR")}")
+    logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 ####################################################
 # Function that gets called when the script cant ##
@@ -53,8 +53,12 @@ async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             fmt = 'Missing argument: {0}'
             logger.error('[main.py on_command_error()] ' + fmt.format(error.param))
-            eObj = await imported_embed(ctx, author=config.get_config_value('bot_profile', 'BOT_NAME'), avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                                        description=fmt.format(error.param))
+            eObj = await imported_embed(
+                ctx,
+                author=config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description=fmt.format(error.param)
+            )
             if eObj is not False:
                 await ctx.send(embed=eObj)
         else:

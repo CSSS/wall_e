@@ -1,27 +1,34 @@
 FROM python:3.5.5-alpine
 
-ARG DOCKER_CONTAINER_TEST_RESULT_DIRECTORY
+ARG CONTAINER_HOME_DIR
 
-ENV DOCKER_CONTAINER_TEST_RESULT_DIRECTORY=$DOCKER_CONTAINER_TEST_RESULT_DIRECTORY
+ENV CONTAINER_HOME_DIR=$CONTAINER_HOME_DIR
 
 ARG UNIT_TEST_RESULTS
 
 ENV UNIT_TEST_RESULTS=$UNIT_TEST_RESULTS
 
-WORKDIR $DOCKER_CONTAINER_TEST_RESULT_DIRECTORY
+
+
+
+WORKDIR $CONTAINER_HOME_DIR
 
 COPY test-requirements.txt ./
 
 COPY requirements.txt ./
 
 # being done because of https://github.com/psycopg/psycopg2/issues/684
-RUN cat requirements.txt
-RUN cat requirements.txt | grep -v "psycopg2-binary"
 RUN cat requirements.txt | grep -v "psycopg2-binary" >> docker-requirements.txt
 # apparently ">" won't work in a Dockerfile
 # so resorting to double redirect in to another file
 
-RUN echo psycopg2 >> docker-requirements.txt
+#RUN apk add --no-cache --virtual .build-deps \
+#    gcc \
+#    python3-dev \
+#    musl-dev \
+#    postgresql-dev \
+#    && pip install --no-cache-dir psycopg2 \
+#    && apk del --no-cache .build-deps
 
 COPY wall_e ./
 
@@ -31,10 +38,12 @@ COPY setup.cfg ./
 
 RUN pip install --no-cache-dir -r test-requirements.txt
 
-#needed in order to properly install matplotlib
-RUN apk add --update alpine-sdk libffi-dev
+# needed in order to properly install matplotlib
+#RUN apk add --update alpine-sdk libffi-dev
 
-RUN apk add freetype-dev && apk add postgresql-dev && pip install --no-cache-dir -r docker-requirements.txt &&  apk --update add postgresql-client
+#RUN apk add freetype-dev && \
+#    pip install --no-cache-dir -r docker-requirements.txt && \
+#    apk --update add postgresql-client
 
 RUN mkdir -p $UNIT_TEST_RESULTS
 

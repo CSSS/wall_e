@@ -4,7 +4,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Test') {
+        stage('Validate Formatting') {
             steps {
                 script {
                     withEnv([
@@ -15,7 +15,7 @@ pipeline {
                         'WALL_E_DB_USER=wall_e',
                         'WALL_E_DB_DBNAME=csss_discord_db',
                         'UNIT_TEST_RESULTS=test_results',
-                        'DOCKER_CONTAINER_TEST_RESULT_DIRECTORY=/usr/src/app'
+                        'CONTAINER_HOME_DIR=/usr/src/app'
                     ])
                     {
                         sh "./CI/validate-formatting.sh"
@@ -23,7 +23,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy-To-Test-Server'){
+        stage('Deploy To Test Guild'){
             steps {
                 script {
                     withEnv([
@@ -40,7 +40,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy to PROD Guild') {
           when {
             branch 'master'
           }
