@@ -47,5 +47,8 @@ RUN pip install --no-cache-dir -r test-requirements.txt
 
 RUN mkdir -p $UNIT_TEST_RESULTS
 
+RUN apk add gcc
+
 RUN pip install --no-cache-dir discord.py[voice]==1.2.3
+
 CMD ["sh" , "-c", "py.test --junitxml=${UNIT_TEST_RESULTS}/all-unit-tests.xml" ]
