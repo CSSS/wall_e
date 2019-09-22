@@ -24,6 +24,13 @@ pipeline {
                 }
             }
         }
+        stage('Create New Docker Image'){
+            steps {
+                script {
+                    sh "./CI/create-docker-image.sh"
+                }
+            }
+        }
         stage('Deploy To Test Guild'){
             steps {
                 script {

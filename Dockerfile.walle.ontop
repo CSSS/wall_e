@@ -1,0 +1,7 @@
+FROM sfucsssorg/wall_e
+
+WORKDIR /usr/src/app
+
+COPY wall_e ./
+
+CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
