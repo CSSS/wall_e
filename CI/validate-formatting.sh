@@ -7,7 +7,7 @@ pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower
 docker image rm -f ${pyTestContainerNameLowerCase}
 cmd="docker build -t ${pyTestContainerNameLowerCase} \
     --build-arg DOCKER_CONTAINER_TEST_RESULT_DIRECTORY=${DOCKER_CONTAINER_TEST_RESULT_DIRECTORY} \
-    UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f Dockerfile.test ."
+    --build-arg UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f Dockerfile.test ."
 echo $cmd
 $cmd
 
