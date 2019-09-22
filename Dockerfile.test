@@ -48,7 +48,7 @@ RUN pip install --no-cache-dir -r test-requirements.txt
 RUN mkdir -p $UNIT_TEST_RESULTS
 
 # for discord pip module
-RUN apk add musl-dev
+RUN apk add musl-dev gcc
 
 RUN pip install --no-cache-dir discord.py[voice]==1.2.3
 
