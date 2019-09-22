@@ -15,7 +15,8 @@ pipeline {
                         'WALL_E_DB_USER=wall_e',
                         'WALL_E_DB_DBNAME=csss_discord_db',
                         'UNIT_TEST_RESULTS=test_results',
-                        'CONTAINER_HOME_DIR=/usr/src/app'
+                        'CONTAINER_HOME_DIR=/usr/src/app',
+                        'RESULT_FILE=wall_e_results'
                     ])
                     {
                         sh "./CI/validate-formatting.sh"
@@ -32,7 +33,8 @@ pipeline {
                         'POSTGRES_DB_USER=postgres',
                         'POSTGRES_DB_DBNAME=postgres',
                         'WALL_E_DB_USER=wall_e',
-                        'WALL_E_DB_DBNAME=csss_discord_db'
+                        'WALL_E_DB_DBNAME=csss_discord_db',
+                        'RESULT_FILE=wall_e_results'
                     ])
                     {
                         sh "./CI/deploy-to-test-server.sh"

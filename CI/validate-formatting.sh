@@ -29,17 +29,9 @@ docker inspect ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep  '0'
 testContainerFailed=$?
 echo "fifth step"
 if [ "${testContainerFailed}" -eq "1" ]; then
-    echo "sixth step"
     discordOutput=$(docker logs ${pyTestContainerName} | tail -12)
-    echo "seventh step"
-    output=$(docker logs ${pyTestContainerName})
-    echo "eighth step"
-    printf $discordOutput > wall_e_file
-    echo "ninth step"
-    echo -e $output
-    echo "tenth step"
+    printf $discordOutput > ${RESULT_FILE}
     exit 1
 fi
-echo "eleventh step"
-printf "successful" > wall_e_file
+printf "successful" > ${RESULT_FILE}
 exit 0
