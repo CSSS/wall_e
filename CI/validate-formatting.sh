@@ -6,7 +6,9 @@ docker rm -f ${pyTestContainerName}
 pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower($0)}')
 docker image rm -f ${pyTestContainerNameLowerCase}
 docker build -t ${pyTestContainerNameLowerCase} -f Dockerfile.test .
-docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase}
+mkdir -p ${UNIT_TEST_RESULTS}
+docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase} \
+--mount type=bind,source="${UNIT_TEST_RESULTS}",target=${UNIT_TEST_RESULTS}
 sleep 20
 docker inspect ${pyTestContainerName} --format='{{.State.ExitCode}}' | grep  '0'
 testContainerFailed=$?
