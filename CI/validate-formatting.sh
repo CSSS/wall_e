@@ -3,7 +3,7 @@
 pyTestContainerName="${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 ./lineEndings.sh
 docker rm -f ${pyTestContainerName}
-pyTestContainerNameLowerCase=$(echo "$a" | awk '{print tolower(${pyTestContainerName})}')
+pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower($0)}')
 docker image rm -f ${pyTestContainerNameLowerCase}
 docker build -t ${pyTestContainerNameLowerCase} -f Dockerfile.test .
 docker run -d -e --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase}

@@ -3,8 +3,8 @@
 testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
 testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 docker rm -f ${testContainerName} ${testContainerDBName}
-COMPOSE_PROJECT_NAME_lowerCase=$(echo "$a" | awk '{print tolower(${COMPOSE_PROJECT_NAME})}')
-testContainerName_lowerCase=$(echo "$a" | awk '{print tolower(${testContainerName})}')
+COMPOSE_PROJECT_NAME_lowerCase=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
+testContainerName_lowerCase=$(echo "$testContainerName" | awk '{print tolower($0)}')
 docker network rm ${COMPOSE_PROJECT_NAME_lowerCase}_default
 docker image rm -f ${testContainerName_lowerCase}
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
