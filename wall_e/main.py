@@ -22,7 +22,7 @@ config = config(os.environ['ENVIRONMENT'])
 def check_test_environment(config, ctx):
     if config.get_config_value('database', 'BRANCH_NAME') == 'TEST':
         if ctx.message.guild is not None and \
-            ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
+           ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
             return False
     return True
 
@@ -39,8 +39,10 @@ async def on_ready():
     logger.info('[main.py on_ready()] ------')
     config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
     config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
-    logger.info(f"[main.py on_ready()] BOT_NAME initialized to {config.get_config_value("bot_profile", "BOT_NAME")}")
-    logger.info(f"[main.py on_ready()] BOT_AVATAR initialized to {config.get_config_value("bot_profile", "BOT_AVATAR")}")
+    bot_name = config.get_config_value("bot_profile", "BOT_NAME")
+    bot_avatar = config.get_config_value("bot_profile", "BOT_AVATAR")
+    logger.info(f"[main.py on_ready()] BOT_NAME initialized to {bot_name}")
+    logger.info(f"[main.py on_ready()] BOT_AVATAR initialized to {bot_avatar}")
     logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 ####################################################
