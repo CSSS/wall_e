@@ -6,9 +6,12 @@ docker rm -f ${pyTestContainerName}
 pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower($0)}')
 docker image rm -f ${pyTestContainerNameLowerCase}
 docker build -t ${pyTestContainerNameLowerCase} \
-    --build-arg UNIT_TEST_RESULTS=mount/unit_results.xml  -f Dockerfile.test .
+    --build-arg DOCKER_CONTAINER_TEST_RESULT_DIRECTORY=${DOCKER_CONTAINER_TEST_RESULT_DIRECTORY} \
+    UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f Dockerfile.test .
+
 mkdir -p ${UNIT_TEST_RESULTS}
-docker run -d --mount type=bind,source="${WORKSPACE}/${UNIT_TEST_RESULTS}",target=${UNIT_TEST_RESULTS} \
+docker run -d \
+    --mount type=bind,source="${UNIT_TEST_RESULTS}",target=${DOCKER_CONTAINER_TEST_RESULT_DIRECTORY}/${UNIT_TEST_RESULTS} \
     --net=host --name ${pyTestContainerName} ${pyTestContainerNameLowerCase}
 
 sleep 20

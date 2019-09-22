@@ -14,7 +14,8 @@ pipeline {
                         'POSTGRES_DB_DBNAME=postgres',
                         'WALL_E_DB_USER=wall_e',
                         'WALL_E_DB_DBNAME=csss_discord_db',
-                        'UNIT_TEST_RESULTS=mount/unit_results.xml'
+                        'UNIT_TEST_RESULTS=mount/unit_results.xml',
+                        'DOCKER_CONTAINER_TEST_RESULT_DIRECTORY=/usr/src/app'
                     ])
                     {
                         sh "./CI/validate-formatting.sh"
