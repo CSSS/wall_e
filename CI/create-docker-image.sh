@@ -14,7 +14,7 @@ files_changed=($(git diff --name-only $(echo ${past_2_commits[*]})))
 docker image rm -f wall_e || true
 cmd="docker build -t ${IMAGENAME} \
     --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} \
-    --build-arg UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f ${DOCKERFILE}. ."
+    --build-arg UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f ${DOCKERFILE} ."
 echo $cmd
 $cmd
 docker tag ${IMAGENAME} ${DOCKERREGISTRY}/${IMAGENAME}
@@ -28,7 +28,7 @@ do
         docker image rm -f wall_e || true
         cmd="docker build -t ${IMAGENAME} \
             --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} \
-            --build-arg UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f ${DOCKERFILE}. ."
+            --build-arg UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f ${DOCKERFILE} ."
         echo $cmd
         $cmd
         docker tag ${IMAGENAME} ${DOCKERREGISTRY}/${IMAGENAME}
