@@ -17,6 +17,10 @@ cmd="docker build -t ${IMAGENAME} \
     --build-arg UNIT_TEST_RESULTS=${UNIT_TEST_RESULTS} -f ${DOCKERFILE} ."
 echo $cmd
 $cmd
+
+cat "{DOCKER_HUB_PASSWORD}" > DOCKER_PASSWORD
+cat DOCKER_PASSWORD | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
+
 docker tag ${IMAGENAME} ${DOCKERREGISTRY}/${IMAGENAME}
 docker tag ${IMAGENAME} ${DOCKERREGISTRY}/${IMAGENAME}:${VERSION}
 docker push ${DOCKERREGISTRY}/${IMAGENAME}

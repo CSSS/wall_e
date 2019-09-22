@@ -27,7 +27,9 @@ pipeline {
         stage('Create New Docker Image'){
             steps {
                 script {
-                    sh "./CI/create-docker-image.sh"
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
+                        sh "./CI/create-docker-image.sh"
+                    }
                 }
             }
         }
