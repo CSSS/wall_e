@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
 testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 docker rm -f ${testContainerName} ${testContainerDBName}
