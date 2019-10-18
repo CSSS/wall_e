@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 pyTestContainerName="${COMPOSE_PROJECT_NAME}_wall_e_pytest"
