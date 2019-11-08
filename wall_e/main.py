@@ -41,7 +41,7 @@ async def on_ready():
     config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
     logger.info(
         "[main.py on_ready()] BOT_NAME initialized to {}".format(
-            config.get_config_value("bot_profile", "BOT_AVATAR")
+            config.get_config_value("bot_profile", "BOT_NAME")
             )
         )
     logger.info(
@@ -49,7 +49,7 @@ async def on_ready():
             config.get_config_value("bot_profile", "BOT_AVATAR")
             )
         )
-    logger.info("[main.py on_ready()] {bot.user.name} is now ready for commands")
+    logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
 
 ####################################################
 # Function that gets called when the script cant ##
@@ -87,11 +87,7 @@ async def on_command_error(ctx, error):
 async def on_command(ctx):
     if config.enabled("database"):
         try:
-            host = None
-            if 'LOCALHOST' == config.get_config_value('basic_config', 'ENVIRONMENT'):
-                host = '127.0.0.1'
-            else:
-                host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
+            host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
             dbConnectionString = (
                 "dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
                 "user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
