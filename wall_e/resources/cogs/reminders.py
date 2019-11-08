@@ -28,11 +28,7 @@ class Reminders(commands.Cog):
 
         # setting up database connection
         try:
-            host = None
-            if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
-                host = '127.0.0.1'
-            else:
-                host = self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
+            host = self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
             dbConnectionString = (
                 "dbname='{}' user='{}' host='{}' password='{}'".format(
                     self.config.get_config_value('database', 'WALL_E_DB_DBNAME'),
