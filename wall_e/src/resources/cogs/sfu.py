@@ -449,8 +449,8 @@ class SFU(commands.Cog):
         if eObj is not False:
             await ctx.send(embed=eObj)
 
-    def __del__(self):
-        self.req.close()
+    async def __del__(self):
+        await self.req.close()
 
 
 def setup(bot):
