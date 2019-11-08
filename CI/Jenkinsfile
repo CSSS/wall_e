@@ -19,7 +19,7 @@ pipeline {
                         'RESULT_FILE=wall_e_results'
                     ])
                     {
-                        sh "./CI/validate-formatting.sh"
+                        sh "./wall_e/test/validate-formatting.sh"
                     }
                 }
             }
