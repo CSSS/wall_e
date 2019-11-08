@@ -3,7 +3,7 @@ set -e
 
 pyTestContainerName="${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 ls -l
-./lineEndings.sh
+./wall_e/test/lineEndings.sh
 docker rm -f ${pyTestContainerName} || true
 pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower($0)}')
 docker image rm -f ${pyTestContainerNameLowerCase}
