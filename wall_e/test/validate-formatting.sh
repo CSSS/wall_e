@@ -3,7 +3,7 @@ set -e -o xtrace
 
 whoami
 
-pyTestContainerName="${COMPOSE_PROJECT_NAME}_wall_e_pytest"
+pyTestContainerName="${COMPOSE_PROJECT_NAME}XXwall_e_pytest"
 ls -l
 ./wall_e/test/lineEndings.sh
 docker rm -f ${pyTestContainerName} || true
