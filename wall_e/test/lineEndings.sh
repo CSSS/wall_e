@@ -36,5 +36,4 @@ traverse_files(){
 
 	done
 }
-
 traverse_files 1
