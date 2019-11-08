@@ -102,7 +102,6 @@ async def on_command(ctx):
             logger.info("[main.py on_command()] PostgreSQL connection established")
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             curs = conn.cursor()
-            index = 0
             epoch_time = int(time.time())
             now = datetime.datetime.now()
             current_year = str(now.year)

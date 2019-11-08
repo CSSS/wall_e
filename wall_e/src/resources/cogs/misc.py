@@ -356,7 +356,6 @@ class Misc(commands.Cog):
             await self.GeneralDescription(ctx)
         else:
             await self.specificDescription(ctx, arg)
-    
+
     async def __del__(self):
         await self.session.close()
-

@@ -67,8 +67,9 @@ async def write_to_bot_log_channel(bot, config, f):
                             lastIndex += 2000
                             if len(output[firstIndex:lastIndex]) == 0:
                                 finished = True
-                    except RuntimeError as run:
-                        logger.info("[main.py write_to_bog_log_channek] experienced RuntimeError, will assume that an authorized uer exited")
+                    except RuntimeError:
+                        logger.info("[main.py write_to_bog_log_channek] experienced RuntimeError, "
+                                    "will assume that an authorized uer exited")
                         break
                     except Exception as exc:
                         exc_str = '{}: {}'.format(type(exc).__name__, exc)
