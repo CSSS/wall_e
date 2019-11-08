@@ -47,9 +47,9 @@ class Administration(commands.Cog):
                             + " which doesn't exist.")
                 return
             try:
-                admin = importlib.import_module(folder+name)
-                attr = getattr(admin, name)
-                self.bot.add_cog(attr(self.bot, self.config))
+                cogToLoad = importlib.import_module(folder+name)
+                cogFile = getattr(cogToLoad, str(cogToLoad.getClassName()))
+                self.bot.add_cog(cogFile(self.bot, self.config))
                 await ctx.send("{} command loaded.".format(name))
                 logger.info("[Administration load()] " + name + " has been successfully loaded")
             except(AttributeError, ImportError) as e:
@@ -71,7 +71,8 @@ class Administration(commands.Cog):
                 logger.info("[Administration load()] " + str(ctx.message.author) + " tried loading " + name
                             + " which doesn't exist.")
                 return
-            self.bot.remove_cog(name)
+            cogToUnload = importlib.import_module(folder+name)
+            self.bot.remove_cog(cogToUnload.getClassName())
             await ctx.send("{} command unloaded".format(name))
             logger.info("[Administration unload()] " + name + " has been successfully loaded")
         else:
@@ -89,11 +90,11 @@ class Administration(commands.Cog):
                 logger.info("[Administration load()] " + str(ctx.message.author) + " tried loading " + name
                             + " which doesn't exist.")
                 return
-            self.bot.remove_cog(name)
+            cogToReload = importlib.import_module(folder+name)
+            self.bot.remove_cog(cogToReload.getClassName())
             try:
-                admin = importlib.import_module(folder+name)
-                attr = getattr(admin, name)
-                self.bot.add_cog(attr(self.bot, self.config))
+                cogFile = getattr(cogToReload, cogToReload.getClassName())
+                self.bot.add_cog(cogFile(self.bot, self.config))
                 await ctx.send("`{} command reloaded`".format(folder + name))
                 logger.info("[Administration reload()] " + name + " has been successfully reloaded")
             except(AttributeError, ImportError) as e:
@@ -199,11 +200,7 @@ class Administration(commands.Cog):
 
     def connectToDatabase(self):
         try:
-            host = None
-            if 'LOCALHOST' == self.config.get_config_value("wall_e", "ENVIRONMENT"):
-                host = '127.0.0.1'
-            else:
-                host = self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME") + '_wall_e_db'
+            host = self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME") + '_wall_e_db'
             wall_e_db_dbname = self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
             wall_e_db_user = self.config.get_config_value('database', 'WALL_E_DB_USER')
             wall_e_db_password = self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
