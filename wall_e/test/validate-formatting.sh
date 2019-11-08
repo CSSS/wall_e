@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+whoami
+
 pyTestContainerName="${COMPOSE_PROJECT_NAME}_wall_e_pytest"
 ls -l
 ./wall_e/test/lineEndings.sh
