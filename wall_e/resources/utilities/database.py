@@ -10,7 +10,6 @@ logger = logging.getLogger('wall_e')
 def setupDB(config):
     if config.enabled("database"):
         try:
-            host = None
             env = config.get_config_value("wall_e", "ENVIRONMENT")
             compose_project_name = config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME")
             postgres_db_dbname = config.get_config_value("database", "POSTGRES_DB_DBNAME")
@@ -20,10 +19,7 @@ def setupDB(config):
             wall_e_db_user = config.get_config_value("database", "WALL_E_DB_USER")
             wall_e_db_password = config.get_config_value("database", "WALL_E_DB_PASSWORD")
 
-            if 'LOCALHOST' == env:
-                host = '127.0.0.1'
-            else:
-                host = compose_project_name + '_wall_e_db'
+            host = compose_project_name + '_wall_e_db'
             dbConnectionString = ("dbname='" + postgres_db_dbname + "' user='" + postgres_db_user + "' "
                                   "host='" + host + "' password='" + postgres_password + "'")
             logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='" + postgres_db_dbname
@@ -104,11 +100,7 @@ def setupDB(config):
 def setupStatsOfCommandsDBTable(config):
     if config.enabled("database"):
         try:
-            host = None
-            if 'LOCALHOST' == config.get_config_value('basic_config', 'ENVIRONMENT'):
-                host = '127.0.0.1'
-            else:
-                host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
+            host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
             dbConnectionString = (
                 "dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
                 "user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' host='" + host + "' "
