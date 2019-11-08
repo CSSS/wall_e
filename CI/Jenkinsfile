@@ -19,7 +19,7 @@ pipeline {
                         'RESULT_FILE=wall_e_results'
                     ])
                     {
-                        sh "./wall_e/test/validate-formatting.sh"
+                        sh "sudo ./wall_e/test/validate-formatting.sh"
                     }
                 }
             }
