@@ -14,9 +14,15 @@ pipeline {
                         'POSTGRES_DB_DBNAME=postgres',
                         'WALL_E_DB_USER=wall_e',
                         'WALL_E_DB_DBNAME=csss_discord_db',
-                        'UNIT_TEST_RESULTS=test_results',
+
                         'CONTAINER_HOME_DIR=/usr/src/app',
-                        'RESULT_FILE=wall_e_results'
+                        'CONTAINER_TEST_DIR=${CONTAINER_HOME_DIR}/tests',
+                        'CONTAINER_SRC_DIR=${CONTAINER_HOME_DIR}/src',
+
+                        'LOCALHOST_SRC_DIR=${WORKDIR}/wall_e/src/',
+                        'LOCALHOST_TEST_DIR=${WORKDIR}/tests',
+                        'DOCKER_TEST_IMAGE=${COMPOSE_PROJECT_NAME}_wall_e_pytest',
+                        'DOCKER_TEST_CONTAINER=${COMPOSE_PROJECT_NAME}_pytest',
                     ])
                     {
                         sh "sudo ./wall_e/test/validate-formatting.sh"
