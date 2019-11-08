@@ -35,7 +35,7 @@ class WalleConfig():
         if self.config['wall_e'].has_option(section, option):
             return self.config['wall_e'].get(section, option)
 
-        return 'NONE'
+        raise KeyError("Key was not detected for option '{}'".format(option))
 
     def enabled(self, section, option="enabled"):
         if option in os.environ:
