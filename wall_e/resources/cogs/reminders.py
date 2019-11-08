@@ -266,24 +266,24 @@ class Reminders(commands.Cog):
             elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
                 logger.info(
                     "[Reminders get_messages()] branch is =[{}]".format(
-                        self.config.get_config_value('database', 'BRANCH_NAME')
+                        self.config.get_config_value('basic_config', 'BRANCH_NAME')
                     )
                 )
                 reminder_chan = discord.utils.get(
                     self.bot.guilds[0].channels,
-                    name=self.config.get_config_value('database', 'BRANCH_NAME').lower() + '_reminders'
+                    name=self.config.get_config_value('basic_config', 'BRANCH_NAME').lower() + '_reminders'
                 )
                 if reminder_chan is None:
                     reminder_chan = await self.bot.guilds[0].create_text_channel(
-                        self.config.get_config_value('database', 'BRANCH_NAME') + '_reminders'
+                        self.config.get_config_value('basic_config', 'BRANCH_NAME') + '_reminders'
                     )
                     REMINDER_CHANNEL_ID = reminder_chan.id
                     if REMINDER_CHANNEL_ID is None:
                         logger.info(
                             "[Reminders get_messages()] the channel designated for reminders [{}_reminders] in {} "
                             "does not exist and I was unable to create it, exiting now....".format(
-                                self.config.get_config_value('database', 'BRANCH_NAME'),
-                                self.config.get_config_value('database', 'BRANCH_NAME')
+                                self.config.get_config_value('basic_config', 'BRANCH_NAME'),
+                                self.config.get_config_value('basic_config', 'BRANCH_NAME')
                             )
                         )
                         exit(1)
@@ -293,7 +293,7 @@ class Reminders(commands.Cog):
                     logger.info(
                         "[Reminders get_messages()] reminder channel exists in {} and was "
                         "detected.".format(
-                            self.config.get_config_value('database', 'BRANCH_NAME')
+                            self.config.get_config_value('basic_config', 'BRANCH_NAME')
                         )
                     )
                     REMINDER_CHANNEL_ID = reminder_chan.id

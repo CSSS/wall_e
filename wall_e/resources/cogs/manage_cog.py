@@ -27,9 +27,9 @@ class ManageCog(commands.Cog):
     # this command is used by the TEST guild to ensur that each TEST container will only process incoming commands
     # that originate from channels that match the name of their branch
     def check_test_environment(self, ctx):
-        if self.config.get_config_value('database', 'BRANCH_NAME') == 'TEST':
+        if self.config.get_config_value('basic_config', 'BRANCH_NAME') == 'TEST':
             if ctx.message.guild is not None and\
-               ctx.channel.name != self.config.get_config_value('database', 'BRANCH_NAME').lower():
+               ctx.channel.name != self.config.get_config_value('basic_config', 'BRANCH_NAME').lower():
                 return False
         return True
 
@@ -42,10 +42,10 @@ class ManageCog(commands.Cog):
                 "[testenv.py on_ready()] aquired list of channels = " + str(self.bot.guilds[0].channels)
             )
             channels = self.bot.guilds[0].channels
-            branch_name = self.config.get_config_value('database', 'BRANCH_NAME').lower()
+            branch_name = self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
             if discord.utils.get(channels, name=branch_name) is None:
                 logger.info(
                     "[testenv.py on_ready()] creating the text channel"
-                    " " + self.config.get_config_value('database', 'BRANCH_NAME').lower()
+                    " " + self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
                     )
                 await self.bot.guilds[0].create_text_channel(branch_name)

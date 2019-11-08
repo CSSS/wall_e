@@ -20,9 +20,9 @@ config = config(os.environ['ENVIRONMENT'])
 
 
 def check_test_environment(config, ctx):
-    if config.get_config_value('database', 'BRANCH_NAME') == 'TEST':
+    if config.get_config_value('basic_config', 'BRANCH_NAME') == 'TEST':
         if ctx.message.guild is not None and \
-           ctx.channel.name != config.get_config_value('database', 'BRANCH_NAME').lower():
+           ctx.channel.name != config.get_config_value('basic_config', 'BRANCH_NAME').lower():
             return False
     return True
 
@@ -103,23 +103,13 @@ async def on_command(ctx):
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             curs = conn.cursor()
             index = 0
-            argument = ''
-            for arg in ctx.args:
-                if index > 1:
-                    argument += arg + ' '
-                index += 1
             epoch_time = int(time.time())
             now = datetime.datetime.now()
             current_year = str(now.year)
             current_month = str(now.month)
             current_day = str(now.day)
             current_hour = str(now.hour)
-            channel_id = str(ctx.channel.id)
             channel_name = str(ctx.channel).replace("\'", "[single_quote]").strip()
-            if ctx.guild.get_member(ctx.message.author.id).name.isalnum():
-                author = str(ctx.message.author).replace("\'", "[single_quote]").strip()
-            else:
-                author = "<" + str(ctx.message.author.id).replace("\'", "[single_quote]").strip() + ">"
             command = str(ctx.command).replace("\'", "[single_quote]").strip()
             method_of_invoke = str(ctx.invoked_with).replace("\'", "[single_quote]").strip()
             invoked_subcommand = str(ctx.invoked_subcommand).replace("\'", "[single_quote]").strip()
@@ -129,10 +119,10 @@ async def on_command(ctx):
             while not successful:
                 try:
                     sqlCommand = ("""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR,
-                                  "Channel ID\", \"Channel Name\", Author, Command, \"Invoked with\",
+                                  \"Channel Name\", Command, \"Invoked with\",
                                   "Invoked subcommand\") VALUES (""" + str(epoch_time) + """,""" + current_year
                                   + """,""" + current_month + """,""" + current_day + """,""" + current_hour
-                                  + """,""" + channel_id + """,'""" + channel_name + """','""" + author + """', '"""
+                                  + """,'""" + channel_name + """', '"""
                                   + command + """','""" + method_of_invoke + """','"""
                                   + invoked_subcommand + """');""")
                     logger.info("[main.py on_command()] sqlCommand=[" + sqlCommand + "]")

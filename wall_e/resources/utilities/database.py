@@ -117,8 +117,8 @@ def setupStatsOfCommandsDBTable(config):
             curs = conn.cursor()
             curs.execute(
                 "CREATE TABLE IF NOT EXISTS CommandStats ( \"EPOCH TIME\" BIGINT  PRIMARY KEY, YEAR BIGINT, "
-                "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel ID\" BIGINT, \"Channel Name\" varchar(2000), "
-                "Author varchar(2000), Command varchar(2000), \"Invoked with\" "
+                "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel Name\" varchar(2000), "
+                "Command varchar(2000), \"Invoked with\" "
                 "varchar(2000), \"Invoked subcommand\"  varchar(2000));"
             )
             logger.info("[main.py setupStatsOfCommandsDBTable()] CommandStats database table created")
