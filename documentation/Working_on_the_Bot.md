@@ -116,9 +116,9 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
  ## Test Cases  
 
  ### Administration  
-  1. `.unload Reminders`
+  1. `.unload reminders`
   1. `.unload nothing`
-  1. `.load Reminders`
+  1. `.load reminders`
   1. `.load nothing`
   1. `.reload reminders`
   1. `.reload nothing`
@@ -143,7 +143,7 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
   1. `.wolfram Marvel`
   1. `.wolfram giberasdfasdfadfasdf`
   1. `.emojispeak`
-  1. `.emojispeak 1234_’abcd`
+  1. `.emojispeak 1234_abcd`
   1. `.help`  
      1. Please ensure that the pagination is not effected by doing the following  
         1. go to the last page and then hit next when on the last page to make sure it goes back to the beginning  
