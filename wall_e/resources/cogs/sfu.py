@@ -289,7 +289,7 @@ class SFU(commands.Cog):
                     description=(
                         'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? '
                         'Or isn\'t offered right now.'.format(
-                            courseCode.upper().
+                            courseCode.upper(),
                             str(courseNum).upper()
                             )
                     ),
