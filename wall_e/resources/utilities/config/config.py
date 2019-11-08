@@ -3,6 +3,9 @@ import os
 import json
 import configparser
 
+import logging
+logger = logging.getLogger('wall_e')
+
 config_file_location_local = "resources/utilities/config/local.ini"
 config_file_location_prouction = "resources/utilities/config/production.ini"
 config_file_location_dev = "resources/utilities/config/dev.ini"
@@ -32,10 +35,11 @@ class WalleConfig():
         if option in os.environ:
             return os.environ[option]
 
-        if self.config['wall_e'].has_option(section, option):
+        if self.config['wall_e'].has_option(section, option) and self.config['wall_e'].get(section, option) != '':
             return self.config['wall_e'].get(section, option)
 
-        raise KeyError("Key was not detected for option '{}'".format(option))
+        logger.info("[get_config_value] no key found for option {} under section {}".format(option, section))
+        return "NONE"
 
     def enabled(self, section, option="enabled"):
         if option in os.environ:
