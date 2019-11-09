@@ -41,66 +41,7 @@ async def on_ready():
         )
     logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
 
-########################################################
-# Function that gets called whenever a commmand      ##
-# gets called, being use for data gathering purposes ##
-########################################################
-@bot.event
-async def on_command(ctx):
-    if config.enabled("database"):
-        try:
-            host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
-            dbConnectionString = (
-                "dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
-                "user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
-                " host='" + host + "' password"
-                "='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
-            logger.info(
-                "[main.py on_command()] dbConnectionString=[dbname="
-                "'" + config.get_config_value('database', 'WALL_E_DB_DBNAME')
-                + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' "
-                "host='" + host + "' password='******']")
-            conn = psycopg2.connect(dbConnectionString)
-            logger.info("[main.py on_command()] PostgreSQL connection established")
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            curs = conn.cursor()
-            epoch_time = int(time.time())
-            now = datetime.datetime.now()
-            current_year = str(now.year)
-            current_month = str(now.month)
-            current_day = str(now.day)
-            current_hour = str(now.hour)
-            channel_name = str(ctx.channel).replace("\'", "[single_quote]").strip()
-            command = str(ctx.command).replace("\'", "[single_quote]").strip()
-            method_of_invoke = str(ctx.invoked_with).replace("\'", "[single_quote]").strip()
-            invoked_subcommand = str(ctx.invoked_subcommand).replace("\'", "[single_quote]").strip()
 
-            # this next part is just setup to keep inserting until it finsd a primary key that is not in use
-            successful = False
-            while not successful:
-                try:
-                    sqlCommand = ("""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR,
-                                  \"Channel Name\", Command, \"Invoked with\",
-                                  "Invoked subcommand\") VALUES (""" + str(epoch_time) + """,""" + current_year
-                                  + """,""" + current_month + """,""" + current_day + """,""" + current_hour
-                                  + """,'""" + channel_name + """', '"""
-                                  + command + """','""" + method_of_invoke + """','"""
-                                  + invoked_subcommand + """');""")
-                    logger.info("[main.py on_command()] sqlCommand=[" + sqlCommand + "]")
-                    curs.execute(sqlCommand)
-                except psycopg2.IntegrityError as e:
-                    logger.error("[main.py on_command()] enountered following exception when trying to insert the "
-                                 "record\n{}".format(e))
-                    epoch_time += 1
-                    logger.info("[main.py on_command()] incremented the epoch time to " + str(epoch_time) + " and "
-                                "will try again.")
-                else:
-                    successful = True
-            curs.close()
-            conn.close()
-        except Exception as e:
-            logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL "
-                         "connection\n{}".format(e))
 
 ########################################################
 # Function that gets called any input or output from ##
