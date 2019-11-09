@@ -22,7 +22,7 @@ class WalleConfig():
         config.optionxform = str
         if (environment == "LOCALHOST"):
             config.read(config_file_location_local)
-        elif (environment == 'DEV'):
+        elif (environment == 'TEST'):
             config.read(config_file_location_dev)
         elif (environment == "PRODUCTION"):
             config.read(config_file_location_prouction)
