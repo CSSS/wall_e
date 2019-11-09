@@ -35,11 +35,11 @@ docker build -t ${pyTestContainerNameLowerCase} \
     --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR}  .
 
 docker run -d \
+    --name ${DOCKER_TEST_CONTAINER} ${pyTestContainerNameLowerCase}
 #    -v ${LOCALHOST_SRC_DIR}:${CONTAINER_SRC_DIR} \
 #    --volumes-from csss_jenkins \
 #    -v ${LOCALHOST_TEST_DIR}:${CONTAINER_TEST_DIR} \
 #    --net=host \
-    --name ${DOCKER_TEST_CONTAINER} ${pyTestContainerNameLowerCase}
 sleep 20
 sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/all-unit-tests.xml ${LOCALHOST_TEST_DIR}/stuff.xml
 
