@@ -64,6 +64,7 @@ class ManageCog(commands.Cog):
 
     # this command is used by the TEST guild to create the channel from which this TEST container will process
     # commands
+    @commands.Cog.listener()
     async def on_ready(self):
         logger.info("[testenv.py on_ready()] aquired list of channels = " + str(self.bot.guilds[0].channels))
         if self.config.get_config_value("wall_e", "ENVIRONMENT") == 'TEST':
