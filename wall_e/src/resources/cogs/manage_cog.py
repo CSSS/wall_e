@@ -27,7 +27,7 @@ class ManageCog(commands.Cog):
     # this command is used by the TEST guild to ensur that each TEST container will only process incoming commands
     # that originate from channels that match the name of their branch
     def check_test_environment(self, ctx):
-        if self.config.get_config_value('basic_config', 'BRANCH_NAME') == 'TEST':
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
             if ctx.message.guild is not None and\
                ctx.channel.name != self.config.get_config_value('basic_config', 'BRANCH_NAME').lower():
                 return False
