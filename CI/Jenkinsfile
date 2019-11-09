@@ -17,13 +17,13 @@ pipeline {
                         export WALL_E_DB_DBNAME=csss_discord_db;
 
                         export CONTAINER_HOME_DIR=/usr/src/app;
-                        export CONTAINER_TEST_DIR=${CONTAINER_HOME_DIR}/tests;
-                        export CONTAINER_SRC_DIR=${CONTAINER_HOME_DIR}/src;
+                        export CONTAINER_TEST_DIR=${env.CONTAINER_HOME_DIR}/tests;
+                        export CONTAINER_SRC_DIR=${env.CONTAINER_HOME_DIR}/src;
 
                         export LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/;
                         export LOCALHOST_TEST_DIR=${WORKSPACE}/tests;
-                        export DOCKER_TEST_IMAGE=${COMPOSE_PROJECT_NAME}_wall_e_pytest;
-                        export DOCKER_TEST_CONTAINER=${COMPOSE_PROJECT_NAME}_pytest;
+                        export DOCKER_TEST_IMAGE=${env.COMPOSE_PROJECT_NAME}_wall_e_pytest;
+                        export DOCKER_TEST_CONTAINER=${env.COMPOSE_PROJECT_NAME}_pytest;
                         ./wall_e/test/validate-formatting.sh
                     \"
                 """
