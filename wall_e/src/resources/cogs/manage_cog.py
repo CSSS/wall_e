@@ -33,6 +33,35 @@ class ManageCog(commands.Cog):
                 return False
         return True
 
+
+    ####################################################
+    # Function that gets called when the script cant ##
+    # understand the command that the user invoked   ##
+    ####################################################
+    @self.bot.event
+    async def on_command_error(self, ctx, error):
+        if check_test_environment(self.config, ctx):
+            if isinstance(error, commands.MissingRequiredArgument):
+                fmt = 'Missing argument: {0}'
+                logger.error('[main.py on_command_error()] ' + fmt.format(error.param))
+                eObj = await imported_embed(
+                    ctx,
+                    author=config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    description=fmt.format(error.param)
+                )
+                if eObj is not False:
+                    await ctx.send(embed=eObj)
+            else:
+                # only prints out an error to the log if the string that was entered doesnt contain just "."
+                pattern = r'[^\.]'
+                if re.search(pattern, str(error)[9:-14]):
+                    # author = ctx.author.nick or ctx.author.name
+                    # await ctx.send('Error:\n```Sorry '+author+', seems like the command
+                    # \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
+                    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                    return
+
     # this command is used by the TEST guild to create the channel from which this TEST container will process
     # commands
     async def on_ready(self):

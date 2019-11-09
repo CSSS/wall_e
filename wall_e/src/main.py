@@ -18,14 +18,6 @@ from resources.utilities.log_channel import write_to_bot_log_channel
 bot = commands.Bot(command_prefix='.')
 config = config(os.environ['ENVIRONMENT'])
 
-
-def check_test_environment(config, ctx):
-    if config.get_config_value('basic_config', 'BRANCH_NAME') == 'TEST':
-        if ctx.message.guild is not None and \
-           ctx.channel.name != config.get_config_value('basic_config', 'BRANCH_NAME').lower():
-            return False
-    return True
-
 ##################################################
 # signals to all functions that use            ##
 # "wait_until_ready" that the bot is now ready ##
@@ -50,34 +42,6 @@ async def on_ready():
             )
         )
     logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
-
-####################################################
-# Function that gets called when the script cant ##
-# understand the command that the user invoked   ##
-####################################################
-@bot.event
-async def on_command_error(ctx, error):
-    if check_test_environment(config, ctx):
-        if isinstance(error, commands.MissingRequiredArgument):
-            fmt = 'Missing argument: {0}'
-            logger.error('[main.py on_command_error()] ' + fmt.format(error.param))
-            eObj = await imported_embed(
-                ctx,
-                author=config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=fmt.format(error.param)
-            )
-            if eObj is not False:
-                await ctx.send(embed=eObj)
-        else:
-            # only prints out an error to the log if the string that was entered doesnt contain just "."
-            pattern = r'[^\.]'
-            if re.search(pattern, str(error)[9:-14]):
-                # author = ctx.author.nick or ctx.author.name
-                # await ctx.send('Error:\n```Sorry '+author+', seems like the command
-                # \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
-                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-                return
 
 ########################################################
 # Function that gets called whenever a commmand      ##
