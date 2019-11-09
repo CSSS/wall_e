@@ -21,7 +21,7 @@ pipeline {
                         "LOCALHOST_TEST_DIR=${WORKSPACE}/tests"
                     ])
                     {
-                        sh 'echo DOCKER_TEST_IMAGE=${DOCKER_TEST_IMAGE}'
+                        sh 'echo LOCALHOST_TEST_DIR=${LOCALHOST_TEST_DIR}'
                         sh 'sudo ./wall_e/test/validate-formatting.sh'
                     }
                 }

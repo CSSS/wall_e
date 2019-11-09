@@ -12,9 +12,10 @@ export CONTAINER_SRC_DIR=${CONTAINER_HOME_DIR}/src
 export DOCKER_TEST_IMAGE=${COMPOSE_PROJECT_NAME}_wall_e_pytest
 export DOCKER_TEST_CONTAINER=${COMPOSE_PROJECT_NAME}_pytest
 
-ls -l
+echo LOCALHOST_TEST_DIR=${LOCALHOST_TEST_DIR}
+
 ./wall_e/test/lineEndings.sh
-echo DOCKER_TEST_IMAGE=${DOCKER_TEST_IMAGE}
+
 pyTestContainerName="${DOCKER_TEST_IMAGE}"
 docker rm -f ${pyTestContainerName} || true
 pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower($0)}')
