@@ -33,7 +33,7 @@ docker build -t ${pyTestContainerNameLowerCase} \
     --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR}  .
 
 docker run -d \
-    -v ${LOCALHOST_SRC_DIR}:{CONTAINER_SRC_DIR} \
+    -v ${LOCALHOST_SRC_DIR}:${CONTAINER_SRC_DIR} \
     --mount \
     type=bind,source="${LOCALHOST_TEST_DIR}",target="${CONTAINER_TEST_DIR}" \
     --net=host --name ${DOCKER_TEST_CONTAINER} ${pyTestContainerNameLowerCase}
