@@ -31,15 +31,12 @@ pipeline {
         }
         stage('Create New Docker Image'){
             steps {
-                script {
-                    withEnv([
-                        'CONTAINER_HOME_DIR=/usr/src/app'
-                    ])
-                    {
-                        withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
-                            sh "./CI/create-docker-image.sh"
-                        }
-                    }
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
+                    sh label: '', script : """sudo bash -c \'
+                        export CONTAINER_HOME_DIR=/usr/src/app;
+                        export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
+                        sudo ./CI/create-docker-image.sh
+                    \'"""
                 }
             }
         }
