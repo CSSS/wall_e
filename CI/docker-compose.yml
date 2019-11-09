@@ -3,7 +3,7 @@ services:  #Services that are needed for the wall_e app
     wall_e: #the wall_e app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_wall_e
         build:
             context: . #Saying that all of my source files are at the root path
-            dockerfile: Dockerfile.walle.ontop
+            dockerfile: Dockerfile.walle
         environment:
             - ENVIRONMENT
             - BOT_LOG_CHANNEL_ID
