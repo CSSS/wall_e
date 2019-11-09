@@ -35,27 +35,22 @@ pipeline {
                     sh label: '', script : """sudo bash -c \'
                         export CONTAINER_HOME_DIR=/usr/src/app;
                         export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
-                        sudo ./CI/create-docker-image.sh
+                        ./CI/create-docker-image.sh
                     \'"""
                 }
             }
         }
         stage('Deploy To Test Guild'){
             steps {
-                script {
-                    withEnv([
-                        'ENVIRONMENT=TEST',
-                        "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}",
-                        'POSTGRES_DB_USER=postgres',
-                        'POSTGRES_DB_DBNAME=postgres',
-                        'WALL_E_DB_USER=wall_e',
-                        'WALL_E_DB_DBNAME=csss_discord_db',
-                        'RESULT_FILE=wall_e_results'
-                    ])
-                    {
-                        sh "./CI/deploy-to-test-server.sh"
-                    }
-                }
+                sh label: '', script: """"sudo bash -c \'
+                    export ENVIRONMENT=TEST;
+                    export COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME};
+                    export POSTGRES_DB_USER=postgres;
+                    export POSTGRES_DB_DBNAME=postgres;
+                    export WALL_E_DB_USER=wall_e;
+                    export WALL_E_DB_DBNAME=csss_discord_db;
+                    ./CI/deploy-to-test-server.sh;
+                \'"""
             }
         }
         stage('Deploy to PROD Guild') {
