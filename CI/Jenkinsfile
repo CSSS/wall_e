@@ -9,7 +9,7 @@ pipeline {
                 script {
                     withEnv([
                         'ENVIRONMENT=TEST',
-                        "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}",
+                        'COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}',
                         'POSTGRES_DB_USER=postgres',
                         'POSTGRES_DB_DBNAME=postgres',
                         'WALL_E_DB_USER=wall_e',
@@ -25,7 +25,7 @@ pipeline {
                         'DOCKER_TEST_CONTAINER=${COMPOSE_PROJECT_NAME}_pytest',
                     ])
                     {
-                        sh "sudo ./wall_e/test/validate-formatting.sh"
+                        sh 'sudo ./wall_e/test/validate-formatting.sh'
                     }
                 }
             }
