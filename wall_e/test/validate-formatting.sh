@@ -32,7 +32,8 @@ mkdir -p ${LOCALHOST_TEST_DIR}
 docker build -t ${DOCKER_TEST_IMAGE} \
     -f CI/Dockerfile.test \
     --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} \
-    --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR}  .
+    --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR} \
+    --build-arg TEST_RESULT_FILE_NAME=${TEST_RESULT_FILE_NAME} .
 
 docker run -d \
     --name ${DOCKER_TEST_CONTAINER} ${DOCKER_TEST_IMAGE}
