@@ -25,6 +25,7 @@ pipeline {
                         'DOCKER_TEST_CONTAINER=${COMPOSE_PROJECT_NAME}_pytest'
                     ])
                     {
+                        sh 'echo DOCKER_TEST_IMAGE=${DOCKER_TEST_IMAGE}'
                         sh 'sudo ./wall_e/test/validate-formatting.sh'
                     }
                 }

@@ -5,7 +5,7 @@ whoami
 
 ls -l
 ./wall_e/test/lineEndings.sh
-echo ${DOCKER_TEST_IMAGE}
+echo DOCKER_TEST_IMAGE=${DOCKER_TEST_IMAGE}
 pyTestContainerName="${DOCKER_TEST_IMAGE}"
 docker rm -f ${pyTestContainerName} || true
 pyTestContainerNameLowerCase=$(echo "$pyTestContainerName" | awk '{print tolower($0)}')
