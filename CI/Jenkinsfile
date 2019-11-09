@@ -16,9 +16,9 @@ pipeline {
                         'WALL_E_DB_DBNAME=csss_discord_db',
 
                         'CONTAINER_HOME_DIR=/usr/src/app',
-                        "LOCALHOST_SRC_DIR=${WORKDIR}/wall_e/src/",
-                        "LOCALHOST_SRC_DIR=${WORKDIR}/wall_e/src/",
-                        "LOCALHOST_TEST_DIR=${WORKDIR}/tests"
+                        "LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/",
+                        "LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/",
+                        "LOCALHOST_TEST_DIR=${WORKSPACE}/tests"
                     ])
                     {
                         sh 'echo DOCKER_TEST_IMAGE=${DOCKER_TEST_IMAGE}'
