@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 import logging
 logger = logging.getLogger('wall_e')
+import re
+import traceback
 
 
 def getClassName():
