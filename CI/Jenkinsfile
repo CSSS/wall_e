@@ -51,6 +51,9 @@ pipeline {
                     export POSTGRES_DB_DBNAME=postgres;
                     export WALL_E_DB_USER=wall_e;
                     export WALL_E_DB_DBNAME=csss_discord_db;
+                    export POSTGRES_PASSWORD=postgresPassword;
+                    export WALL_E_DB_PASSWORD=wallEPassword;
+                    
                     ./CI/deploy-to-test-server.sh;
                 \'"""
             }
