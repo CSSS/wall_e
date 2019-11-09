@@ -20,10 +20,10 @@ echo LOCALHOST_SRC_DIR=${LOCALHOST_SRC_DIR}
 echo LOCALHOST_TEST_DIR=${LOCALHOST_TEST_DIR}
 echo DOCKER_TEST_IMAGE=${DOCKER_TEST_IMAGE}
 echo DOCKER_TEST_CONTAINER=${DOCKER_TEST_CONTAINER}
-
-docker rm -f ${DOCKER_TEST_IMAGE} || true
 pyTestContainerNameLowerCase=$(echo "$DOCKER_TEST_IMAGE" | awk '{print tolower($0)}')
-docker image rm -f ${pyTestContainerNameLowerCase}
+
+docker rm -f ${pyTestContainerNameLowerCase} || true
+docker image rm -f ${DOCKER_TEST_IMAGE}
 
 rm -r ${LOCALHOST_TEST_DIR} || true
 mkdir -p ${LOCALHOST_TEST_DIR}
