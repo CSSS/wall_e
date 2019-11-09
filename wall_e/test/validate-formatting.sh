@@ -25,7 +25,7 @@ docker rm -f ${DOCKER_TEST_IMAGE} || true
 pyTestContainerNameLowerCase=$(echo "$DOCKER_TEST_IMAGE" | awk '{print tolower($0)}')
 docker image rm -f ${pyTestContainerNameLowerCase}
 
-rm -r ${LOCALHOST_TEST_DIR}
+rm -r ${LOCALHOST_TEST_DIR} || true
 mkdir -p ${LOCALHOST_TEST_DIR}
 
 
