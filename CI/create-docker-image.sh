@@ -13,7 +13,7 @@ files_changed=($(git diff --name-only $(echo ${past_2_commits[*]})))
 
 for file_changed in "${files_changed[@]}"
 do
-    if [ "${file_changed}" == "requirements.txt" ]; then
+    if [ "${file_changed}" == "wall_e/src/requirements.txt" ]; then
         echo "{DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
         docker image rm -f wall_e || true
         docker build -t ${IMAGENAME} \
