@@ -38,7 +38,7 @@ class ManageCog(commands.Cog):
     # Function that gets called when the script cant ##
     # understand the command that the user invoked   ##
     ####################################################
-    @self.bot.event
+    @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if check_test_environment(self.config, ctx):
             if isinstance(error, commands.MissingRequiredArgument):
