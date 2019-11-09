@@ -6,25 +6,27 @@ pipeline {
     stages {
         stage('Validate Formatting') {
             steps {
-                script {
-                    withEnv([
-                        'ENVIRONMENT=TEST',
-                        "COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME}",
-                        'POSTGRES_DB_USER=postgres',
-                        'POSTGRES_DB_DBNAME=postgres',
-                        'WALL_E_DB_USER=wall_e',
-                        'WALL_E_DB_DBNAME=csss_discord_db',
+                sh """
+                    sudo bash -c \"
+                        export ENVIRONMENT=TEST;
+                        export COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME};
 
-                        'CONTAINER_HOME_DIR=/usr/src/app',
-                        "LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/",
-                        "LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/",
-                        "LOCALHOST_TEST_DIR=${WORKSPACE}/tests"
-                    ])
-                    {
-                        sh 'echo LOCALHOST_TEST_DIR=${LOCALHOST_TEST_DIR}'
-                        sh 'sudo ./wall_e/test/validate-formatting.sh'
-                    }
-                }
+                        export POSTGRES_DB_USER=postgres;
+                        export POSTGRES_DB_DBNAME=postgres;
+                        export WALL_E_DB_USER=wall_e;
+                        export WALL_E_DB_DBNAME=csss_discord_db;
+
+                        export CONTAINER_HOME_DIR=/usr/src/app;
+                        export CONTAINER_TEST_DIR=${CONTAINER_HOME_DIR}/tests;
+                        export CONTAINER_SRC_DIR=${CONTAINER_HOME_DIR}/src;
+
+                        export LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/;
+                        export LOCALHOST_TEST_DIR=${WORKSPACE}/tests;
+                        export DOCKER_TEST_IMAGE=${COMPOSE_PROJECT_NAME}_wall_e_pytest;
+                        export DOCKER_TEST_CONTAINER=${COMPOSE_PROJECT_NAME}_pytest;
+                        ./wall_e/test/validate-formatting.sh
+                    \"
+                """
             }
         }
         stage('Create New Docker Image'){
