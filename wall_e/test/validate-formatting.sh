@@ -48,9 +48,9 @@ docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}' | grep  '
 testContainerFailed=$?
 if [ "${testContainerFailed}" -eq "1" ]; then
     discordOutput=$(docker logs ${DOCKER_TEST_CONTAINER} | tail -12)
-    printf $discordOutput > ${RESULT_FILE}
+#    printf $discordOutput > ${RESULT_FILE}
     exit 1
 fi
 
-printf "successful" > ${RESULT_FILE}
+#printf "successful" > ${RESULT_FILE}
 exit 0
