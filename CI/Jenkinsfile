@@ -20,7 +20,9 @@ pipeline {
                     export CONTAINER_SRC_DIR=\${CONTAINER_HOME_DIR}/src;
 
                     export LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/;
-                    export LOCALHOST_TEST_DIR=${WORKSPACE}/tests;
+                    export LOCALHOST_TEST_DIR=test_results;
+                    export TEST_RESULT_FILE_NAME=all-unit-tests.xml;
+                    export LOCALHOST_TEST_DIR=${WORKSPACE}/\${LOCALHOST_TEST_DIR};
 
                     export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
                     export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;

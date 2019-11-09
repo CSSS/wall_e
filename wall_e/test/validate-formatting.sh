@@ -41,7 +41,7 @@ docker run -d \
 #    -v ${LOCALHOST_TEST_DIR}:${CONTAINER_TEST_DIR} \
 #    --net=host \
 sleep 20
-sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/all-unit-tests.xml ${LOCALHOST_TEST_DIR}/stuff.xml
+sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/${TEST_RESULT_FILE_NAME} ${LOCALHOST_TEST_DIR}/${TEST_RESULT_FILE_NAME}
 
 docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}' | grep  '0'
 
