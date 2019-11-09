@@ -40,7 +40,7 @@ class ManageCog(commands.Cog):
     ####################################################
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        if check_test_environment(self.config, ctx):
+        if self.check_test_environment(self.config, ctx):
             if isinstance(error, commands.MissingRequiredArgument):
                 fmt = 'Missing argument: {0}'
                 logger.error('[main.py on_command_error()] ' + fmt.format(error.param))
