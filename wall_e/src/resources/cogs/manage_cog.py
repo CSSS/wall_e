@@ -35,7 +35,7 @@ class ManageCog(commands.Cog):
     # that originate from channels that match the name of their branch
     def check_test_environment(self, ctx):
         if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-            if ctx.message.guild is not None and\
+            if ctx.message.guild is not None and \
                ctx.channel.name != self.config.get_config_value('basic_config', 'BRANCH_NAME').lower():
                 return False
         return True
@@ -46,7 +46,7 @@ class ManageCog(commands.Cog):
     ########################################################
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        if self.config.enabled("database"):
+        if self.check_test_environment(ctx) and self.config.enabled("database"):
             try:
                 host = self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
                 dbConnectionString = (
