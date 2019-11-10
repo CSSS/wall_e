@@ -1,10 +1,6 @@
-import datetime
 from discord.ext import commands
 import importlib
 import os
-import psycopg2
-import sys
-import time
 
 from resources.cogs.manage_cog import ManageCog
 from resources.utilities.config.config import WalleConfig as config

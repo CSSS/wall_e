@@ -1,9 +1,14 @@
+import datetime
 import discord
 from discord.ext import commands
 import logging
-logger = logging.getLogger('wall_e')
+import psycopg2
 import re
+import sys
+import time
 import traceback
+
+logger = logging.getLogger('wall_e')
 
 
 def getClassName():
@@ -41,18 +46,18 @@ class ManageCog(commands.Cog):
     ########################################################
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        if config.enabled("database"):
+        if self.config.enabled("database"):
             try:
-                host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
+                host = self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
                 dbConnectionString = (
-                    "dbname='" + config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
-                    "user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "'"
+                    "dbname='" + self.config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
+                    "user='" + self.config.get_config_value('database', 'WALL_E_DB_USER') + "'"
                     " host='" + host + "' password"
-                    "='" + config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
+                    "='" + self.config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
                 logger.info(
                     "[main.py on_command()] dbConnectionString=[dbname="
-                    "'" + config.get_config_value('database', 'WALL_E_DB_DBNAME')
-                    + "' user='" + config.get_config_value('database', 'WALL_E_DB_USER') + "' "
+                    "'" + self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
+                    + "' user='" + self.config.get_config_value('database', 'WALL_E_DB_USER') + "' "
                     "host='" + host + "' password='******']")
                 conn = psycopg2.connect(dbConnectionString)
                 logger.info("[main.py on_command()] PostgreSQL connection established")
@@ -108,8 +113,8 @@ class ManageCog(commands.Cog):
                 logger.error('[main.py on_command_error()] ' + fmt.format(error.param))
                 eObj = await imported_embed(
                     ctx,
-                    author=config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=fmt.format(error.param)
                 )
                 if eObj is not False:
