@@ -37,8 +37,6 @@ async def on_ready():
         )
     logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
 
-
-
 ########################################################
 # Function that gets called any input or output from ##
 # the script					     ##
