@@ -53,7 +53,7 @@ pipeline {
                     export WALL_E_DB_DBNAME=csss_discord_db;
                     export POSTGRES_PASSWORD=postgresPassword;
                     export WALL_E_DB_PASSWORD=wallEPassword;
-                    
+
                     ./CI/deploy-to-test-server.sh;
                 \'"""
             }
@@ -63,71 +63,35 @@ pipeline {
             branch 'master'
           }
           steps {
-            script {
-              withEnv([
-                'ENVIRONMENT=PRODUCTION',
-                'POSTGRES_DB_USER=postgres',
-                'POSTGRES_DB_DBNAME=postgres',
-                'WALL_E_DB_USER=wall_e',
-                'WALL_E_DB_DBNAME=csss_discord_db',
-                'COMPOSE_PROJECT_NAME=PRODUCTION_MASTER'
-              ]) {
-                String tokenEnv = 'TOKEN'
-                String wolframEnv = 'WOLFRAMAPI'
+          sh label: '', script: """sudo bash -c \'
+              export ENVIRONMENT=PRODUCTION;
+              export COMPOSE_PROJECT_NAME=PRODUCTION_MASTER;
 
-                GString productionContainerName = "${COMPOSE_PROJECT_NAME}_wall_e"
-                GString productionContainerDBName = "${COMPOSE_PROJECT_NAME}_wall_e_db"
+              export POSTGRES_DB_USER=postgres;
+              export POSTGRES_DB_DBNAME=postgres;
+              export WALL_E_DB_USER=wall_e;
+              export WALL_E_DB_DBNAME=csss_discord_db;
 
-                String postgresDbPassword='POSTGRES_PASSWORD'
+              export CONTAINER_HOME_DIR=/usr/src/app;
+              export CONTAINER_TEST_DIR=\${CONTAINER_HOME_DIR}/tests;
+              export CONTAINER_SRC_DIR=\${CONTAINER_HOME_DIR}/src;
 
-                String walleDbPassword='WALL_E_DB_PASSWORD'
+              export LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/;
+              export LOCALHOST_TEST_DIR=test_results;
+              export TEST_RESULT_FILE_NAME=all-unit-tests.xml;
+              export LOCALHOST_TEST_DIR=${WORKSPACE}/\${LOCALHOST_TEST_DIR};
 
-                String logChannelEnv = 'BOT_LOG_CHANNEL_ID'
-                withCredentials([
-                  string(credentialsId: 'BOT_USER_TOKEN', variable: "${tokenEnv}"),
-                  string(credentialsId: 'WOLFRAMAPI', variable: "${wolframEnv}"),
-                  string(credentialsId: 'BOT_LOG_CHANNEL_ID', variable: "${logChannelEnv}"),
-                  string(credentialsId: 'POSTGRES_PASSWORD', variable: "${postgresDbPassword}"),
-                  string(credentialsId: 'WALL_E_DB_PASSWORD', variable: "${walleDbPassword}"),
-                ]) {
-                  sh "docker rm -f ${productionContainerName} || true"
-                  sh "docker image rm -f ${productionContainerName.toLowerCase()} || true"
-                  sh "docker volume create --name=\"${COMPOSE_PROJECT_NAME}_logs\""
-                  sh "docker-compose up -d"
-                }
-                sleep 20
-                def containerFailed = sh script: "docker ps -a -f name=${productionContainerName} --format \"{{.Status}}\" | head -1 | grep 'Up'", returnStatus: true
-                def containerDBFailed = sh script: "docker ps -a -f name=${productionContainerDBName} --format \"{{.Status}}\" | head -1 | grep 'Up'", returnStatus: true
-                if (containerFailed) {
-                  def discordOutput = sh (
-                    script: "docker logs ${productionContainerName} | tail -12",
-                    returnStdout: true
-                  ).trim()
-                  def output = sh (
-                    script: "docker logs ${productionContainerName}",
-                    returnStdout: true
-                  ).trim()
-                  withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
-                    discordSend description: BRANCH_NAME + '\n' + discordOutput, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: 'Failing build', webhookURL: "$WEBHOOKURL"
-                  }
-                  error output
-                }
-                if (containerDBFailed){
-                  def discordOutput = sh (
-                    script: "docker logs ${productionContainerDBName} | tail -12",
-                    returnStdout: true
-                  ).trim()
-                  def output = sh (
-                    script: "docker logs ${productionContainerDBName}",
-                    returnStdout: true
-                  ).trim()
-                  withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
-                    discordSend description: BRANCH_NAME + '\n' + discordOutput, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: false, title: 'Failing build', webhookURL: "$WEBHOOKURL"
-                  }
-                  error output
-                }
-              }
-            }
+              export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
+              export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
+
+              export POSTGRES_PASSWORD=postgresPassword;
+              export WALL_E_DB_PASSWORD=wallEPassword;
+
+              export BOT_LOG_CHANNEL=dem_logs;
+              export REMINDER_CHANNEL=bot_commands_and_misc;
+
+              ./CI/deploy-to-prod-server.sh;
+          \'"""
           }
         }
     }

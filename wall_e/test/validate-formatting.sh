@@ -44,9 +44,8 @@ docker run -d \
 sleep 20
 sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/${TEST_RESULT_FILE_NAME} ${LOCALHOST_TEST_DIR}/${TEST_RESULT_FILE_NAME}
 
-docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}' | grep  '0'
+testContainerFailed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}')
 
-testContainerFailed=$?
 if [ "${testContainerFailed}" -eq "1" ]; then
     discordOutput=$(docker logs ${DOCKER_TEST_CONTAINER} | tail -12)
 #    printf $discordOutput > ${RESULT_FILE}
