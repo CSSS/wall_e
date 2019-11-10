@@ -90,11 +90,11 @@ class ManageCog(commands.Cog):
                         logger.info("[main.py on_command()] sqlCommand=[" + sqlCommand + "]")
                         curs.execute(sqlCommand)
                     except psycopg2.IntegrityError as e:
-                        logger.error("[main.py on_command()] enountered following exception when trying to insert the "
-                                     "record\n{}".format(e))
+                        logger.error("[main.py on_command()] enountered following exception when trying to insert the"
+                                     " record\n{}".format(e))
                         epoch_time += 1
-                        logger.info("[main.py on_command()] incremented the epoch time to " + str(epoch_time) + " and "
-                                    "will try again.")
+                        logger.info("[main.py on_command()] incremented the epoch time to " + str(epoch_time) + " and"
+                                    " will try again.")
                     else:
                         successful = True
                 curs.close()

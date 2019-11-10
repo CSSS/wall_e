@@ -249,7 +249,7 @@ class Reminders(commands.Cog):
                         self.config.get_config_value('basic_config', 'ENVIRONMENT')
                     )
                 )
-                reminder_chan = discord.utils.get( self.bot.guilds[0].channels, name=reminder_channel_name )
+                reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=reminder_channel_name)
                 if reminder_chan is None:
                     logger.info("[Reminders get_messages()] reminder channel does not exist in PRODUCTION.")
                     reminder_chan = await self.bot.guilds[0].create_text_channel(reminder_channel_name)
