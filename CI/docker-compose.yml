@@ -6,8 +6,9 @@ services:  #Services that are needed for the wall_e app
             dockerfile: CI/Dockerfile.walle
         environment:
             - ENVIRONMENT
-            - BOT_LOG_CHANNEL_ID
-            - WOLFRAMAPI
+            - BOT_LOG_CHANNEL
+            - API_TOKEN
+            - REMINDER_CHANNEL
             - TOKEN
             - COMPOSE_PROJECT_NAME
             - BRANCH_NAME
