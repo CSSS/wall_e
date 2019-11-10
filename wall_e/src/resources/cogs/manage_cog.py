@@ -8,6 +8,8 @@ import sys
 import time
 import traceback
 
+from resources.utilities.embed import embed as imported_embed
+
 logger = logging.getLogger('wall_e')
 
 
