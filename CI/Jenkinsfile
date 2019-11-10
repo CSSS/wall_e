@@ -53,6 +53,7 @@ pipeline {
                     export WALL_E_DB_DBNAME=csss_discord_db;
                     export POSTGRES_PASSWORD=postgresPassword;
                     export WALL_E_DB_PASSWORD=wallEPassword;
+                    export TOKEN=${DISCORD_DEV_TOKEN};
 
                     ./CI/deploy-to-test-server.sh;
                 \'"""
