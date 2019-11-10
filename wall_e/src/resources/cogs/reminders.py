@@ -242,21 +242,22 @@ class Reminders(commands.Cog):
         REMINDER_CHANNEL_ID = None
         # determines the channel to send the reminder on
         try:
+            reminder_channel_name = self.config.get_config_value('basic_config', 'REMINDER_CHANNEL')
             if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'PRODUCTION':
                 logger.info(
                     "[Reminders get_messages()] environment is =[{}]".format(
                         self.config.get_config_value('basic_config', 'ENVIRONMENT')
                     )
                 )
-                reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name='bot_commands_and_misc')
+                reminder_chan = discord.utils.get( self.bot.guilds[0].channels, name=reminder_channel_name )
                 if reminder_chan is None:
                     logger.info("[Reminders get_messages()] reminder channel does not exist in PRODUCTION.")
-                    reminder_chan = await self.bot.guilds[0].create_text_channel('bot_commands_and_misc')
+                    reminder_chan = await self.bot.guilds[0].create_text_channel(reminder_channel_name)
                     REMINDER_CHANNEL_ID = reminder_chan.id
                     if REMINDER_CHANNEL_ID is None:
                         logger.info("[Reminders get_messages()] the channel designated for reminders "
-                                    "[bot_commands_and_misc] in PRODUCTION does not exist and I was unable to create "
-                                    "it, exiting now....")
+                                    "[{}] in PRODUCTION does not exist and I was unable to create "
+                                    "it, exiting now....".format(reminder_channel_name))
                         exit(1)
                     logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""
                                 + str(REMINDER_CHANNEL_ID) + "\"")
