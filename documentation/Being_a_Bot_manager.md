@@ -3,7 +3,7 @@
 ## Becoming a Bot_manager  
 
 1. Get added to the CODEOWNERS file  
-1. Perms you need to get from existing Bot_managers  
+1. Permissions you need to get from existing Bot_managers  
    1. Account on [Wall-E's Jenkins Server](178.128.184.141)  
    1. Password to `csss-bot-manager@sfu.ca` which gives you admin portal access to Wall-E on discord.  
 
@@ -20,6 +20,6 @@
    1. If the PR is adding a new command, documentation is needed of the following things
       1. The purpose of the command  
       1. If it is called with any arguments  
-         1. If it is, they need to either provide a good enough explanation of the arg that a user can tell what it will do before using the command. Adding an example of how to call it with the args is not necessary but good practice.  
+         1. If it is, the one making the pull request need to either provide a good enough explanation of the arg that a user can tell what it will do before using the command. Adding an example of how to call it with the args is not necessary, but it is good practice.  
 
 In the event that the host server needs to be replicated, please follow the steps outlined in the [README for machine setup](files_for_machine_setup) steps to prepare the host machine to support CI/CD.
