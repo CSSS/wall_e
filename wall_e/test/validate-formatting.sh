@@ -35,16 +35,14 @@ docker build -t ${DOCKER_TEST_IMAGE} \
     --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR} \
     --build-arg TEST_RESULT_FILE_NAME=${TEST_RESULT_FILE_NAME} .
 
-docker run -d \
-    --name ${DOCKER_TEST_CONTAINER} ${DOCKER_TEST_IMAGE}
-#    -v ${LOCALHOST_SRC_DIR}:${CONTAINER_SRC_DIR} \
-#    --volumes-from csss_jenkins \
-#    -v ${LOCALHOST_TEST_DIR}:${CONTAINER_TEST_DIR} \
-#    --net=host \
+docker run -d --name ${DOCKER_TEST_CONTAINER} ${DOCKER_TEST_IMAGE}
 sleep 20
 sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/${TEST_RESULT_FILE_NAME} ${LOCALHOST_TEST_DIR}/${TEST_RESULT_FILE_NAME}
 
 testContainerFailed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}')
+
+docker stop ${DOCKER_TEST_CONTAINER} || true
+docker rm ${DOCKER_TEST_CONTAINER} || true
 
 if [ "${testContainerFailed}" -eq "1" ]; then
     discordOutput=$(docker logs ${DOCKER_TEST_CONTAINER} | tail -12)
