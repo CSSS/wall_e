@@ -17,8 +17,10 @@ sleep 20
 containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)
 containerDBFailed=$(docker ps -a -f name=${testContainerDBName} --format "{{.Status}}" | head -1)
 if [[ "${containerFailed}" != *"Up"* ]]; then
-    discordOutput=$(docker logs ${testContainerName} | tail -12)
-    output=$(docker logs ${testContainerName})
+    docker logs ${testContainerName}
+    exit 1
+    # discordOutput=$(docker logs ${testContainerName} | tail -12)
+    # output=$(docker logs ${testContainerName})
     # send following to discord
     # description: BRANCH_NAME + '\n' + discordOutput
     # footer: env.GIT_COMMIT
@@ -26,12 +28,14 @@ if [[ "${containerFailed}" != *"Up"* ]]; then
     # successful: false
     # title: "Failing build"
     # webhookURL: $WEBHOOKURL
-    error output
+    # error output
 fi
 
 if [[ "${containerDBFailed}" != *"Up"* ]]; then
-    discordOutput=$(docker logs ${testContainerName} | tail -12)
-    output=$(docker logs ${testContainerName})
+    docker logs ${testContainerDBName}
+    exit 1
+    # discordOutput=$(docker logs ${testContainerName} | tail -12)
+    # output=$(docker logs ${testContainerName})
     # send following to discord
     # description: BRANCH_NAME + '\n' + discordOutput
     # footer: env.GIT_COMMIT
@@ -39,5 +43,5 @@ if [[ "${containerDBFailed}" != *"Up"* ]]; then
     # successful: false
     # title: "Failing build"
     # webhookURL: $WEBHOOKURL
-    error output
+    # error output
 fi
