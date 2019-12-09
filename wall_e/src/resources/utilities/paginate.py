@@ -35,9 +35,9 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
 
         # determining which reactions are needed
         if numOfPages == 1:
-            toReactUnicode = [u"0\u2705"]
+            toReactUnicode = [u"\U00002705"]
         else:
-            toReactUnicode = [u"0\u23EA", u"0\u23E9", u"0\u2705" ]
+            toReactUnicode = [u"\U000023EA", u"\U000023E9", u"\U00002705"]
 
         # setting the content if it was the first run through or not.
         if firstRun is True:
@@ -149,9 +149,9 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
 
         # determining which reactions are needed
         if numOfPages == 1:
-            toReactUnicode = [u"0\u2705"]
+            toReactUnicode = [u"\U00002705"]
         else:
-            toReactUnicode = [u"0\u23EA", u"0\u23E9", u"0\u2705" ]
+            toReactUnicode = [u"\U000023EA", u"\U000023E9", u"\U00002705"]
 
         if firstRun:
             firstRun = False
