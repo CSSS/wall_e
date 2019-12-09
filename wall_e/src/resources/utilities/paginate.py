@@ -35,9 +35,9 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
 
         # determining which reactions are needed
         if numOfPages == 1:
-            toReact = ['✅']
+            toReactUnicode = [u"0\u2705"]
         else:
-            toReact = ['⏪', '⏩', '✅']
+            toReactUnicode = [u"0\u23EA", u"0\u23E9", u"0\u2705" ]
 
         # setting the content if it was the first run through or not.
         if firstRun is True:
@@ -52,7 +52,7 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
             logger.info("[Paginate paginateEmbed()] edited message")
 
         # adding reactions deemed necessary to page
-        for reaction in toReact:
+        for reaction in toReactUnicode:
             await msg.add_reaction(reaction)
 
         logger.info("[Paginate paginateEmbed()] added all reactions to message")
@@ -149,9 +149,9 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
 
         # determining which reactions are needed
         if numOfPages == 1:
-            toReact = ['✅']
+            toReactUnicode = [u"0\u2705"]
         else:
-            toReact = ['⏪', '⏩', '✅']
+            toReactUnicode = [u"0\u23EA", u"0\u23E9", u"0\u2705" ]
 
         if firstRun:
             firstRun = False
@@ -162,7 +162,7 @@ async def paginate(bot, ctx, listToPaginate, numOfPages=0, numOfPageEntries=0, t
             await msg.clear_reactions()
             logger.info("[Paginate paginate()] edited message")
 
-        for reaction in toReact:
+        for reaction in toReactUnicode:
             await msg.add_reaction(reaction)
 
         logger.info("[Paginate paginate()] added all reactions to message")
