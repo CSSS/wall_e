@@ -53,6 +53,7 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
 
         # adding reactions deemed necessary to page
         for reaction in toReactUnicode:
+            logger.info(" reaction {} added\n", reaction);
             await msg.add_reaction(reaction)
 
         logger.info("[Paginate paginateEmbed()] added all reactions to message")
