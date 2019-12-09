@@ -116,10 +116,10 @@ def setupStatsOfCommandsDBTable(config):
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             curs = conn.cursor()
             curs.execute(
-                "CREATE TABLE IF NOT EXISTS CommandStats ( \"EPOCH TIME\" BIGINT  PRIMARY KEY, YEAR BIGINT, "
-                "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, \"Channel Name\" varchar(2000), "
-                "Command varchar(2000), \"Invoked with\" "
-                "varchar(2000), \"Invoked subcommand\"  varchar(2000));"
+                "CREATE TABLE IF NOT EXISTS CommandStats ( epoch_time BIGINT  PRIMARY KEY, YEAR BIGINT, "
+                "MONTH BIGINT, DAY BIGINT, HOUR BIGINT, channel_name varchar(2000), "
+                "Command varchar(2000), invoked_with "
+                "varchar(2000), invoked_subcommand  varchar(2000));"
             )
             logger.info("[main.py setupStatsOfCommandsDBTable()] CommandStats database table created")
         except Exception as e:

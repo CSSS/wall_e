@@ -80,9 +80,9 @@ class ManageCog(commands.Cog):
                 successful = False
                 while not successful:
                     try:
-                        sqlCommand = ("""INSERT INTO CommandStats ( \"EPOCH TIME\", YEAR, MONTH, DAY, HOUR,
-                                      \"Channel Name\", Command, \"Invoked with\",
-                                      "Invoked subcommand\") VALUES (""" + str(epoch_time) + """,""" + current_year
+                        sqlCommand = ("""INSERT INTO CommandStats ( epoch_time, YEAR, MONTH, DAY, HOUR,
+                                      channel_name, Command, invoked_with,
+                                      "invoked_subcommand\") VALUES (""" + str(epoch_time) + """,""" + current_year
                                       + """,""" + current_month + """,""" + current_day + """,""" + current_hour
                                       + """,'""" + channel_name + """', '"""
                                       + command + """','""" + method_of_invoke + """','"""
@@ -93,7 +93,7 @@ class ManageCog(commands.Cog):
                         logger.error("[main.py on_command()] enountered following exception when trying to insert the"
                                      " record\n{}".format(e))
                         epoch_time += 1
-                        logger.info("[main.py on_command()] incremented the epoch time to " + str(epoch_time) + " and"
+                        logger.info("[main.py on_command()] incremented the epoch_time to " + str(epoch_time) + " and"
                                     " will try again.")
                     else:
                         successful = True
