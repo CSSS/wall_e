@@ -43,6 +43,7 @@ testContainerFailed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State
 
 docker stop ${DOCKER_TEST_CONTAINER} || true
 docker rm ${DOCKER_TEST_CONTAINER} || true
+docker volume prune || true
 
 if [ "${testContainerFailed}" -eq "1" ]; then
     discordOutput=$(docker logs ${DOCKER_TEST_CONTAINER} | tail -12)
