@@ -19,29 +19,9 @@ containerDBFailed=$(docker ps -a -f name=${testContainerDBName} --format "{{.Sta
 if [[ "${containerFailed}" != *"Up"* ]]; then
     docker logs ${testContainerName}
     exit 1
-    # discordOutput=$(docker logs ${testContainerName} | tail -12)
-    # output=$(docker logs ${testContainerName})
-    # send following to discord
-    # description: BRANCH_NAME + '\n' + discordOutput
-    # footer: env.GIT_COMMIT
-    # link: env.BUILD_URL
-    # successful: false
-    # title: "Failing build"
-    # webhookURL: $WEBHOOKURL
-    # error output
 fi
 
 if [[ "${containerDBFailed}" != *"Up"* ]]; then
     docker logs ${testContainerDBName}
     exit 1
-    # discordOutput=$(docker logs ${testContainerName} | tail -12)
-    # output=$(docker logs ${testContainerName})
-    # send following to discord
-    # description: BRANCH_NAME + '\n' + discordOutput
-    # footer: env.GIT_COMMIT
-    # link: env.BUILD_URL
-    # successful: false
-    # title: "Failing build"
-    # webhookURL: $WEBHOOKURL
-    # error output
 fi
