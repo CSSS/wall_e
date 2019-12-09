@@ -2,32 +2,33 @@
 
 traverse_files(){
 	echo "layer="$1
-	local outter_files
-	mapfile -t outter_files < <( ls | tr '\n' '\n' )
+	local files_in_current_folder
+	mapfile -t files_in_current_folder < <( ls | tr '\n' '\n' )
 	local index
-	for (( index=0; index < ${#outter_files[@]}; index++ ))
+	for (( index=0; index < ${#files_in_current_folder[@]}; index++ ))
 	do
-		echo ${outter_files[$index]}
-		if [ -d "${outter_files[$index]}" ]
+		echo ${files_in_current_folder[$index]}
+		if [ -d "${files_in_current_folder[$index]}" ]
 		then
 			echo -e "\tits a directory"
-			dir=$(pwd)
-			echo "going to ${outter_files[$index]} from $dir"
-			cd "${outter_files[$index]}"
+			local current_directory=$(pwd)
+			echo "going to ${files_in_current_folder[$index]} from $current_directory"
+			cd "${files_in_current_folder[$index]}"
 			traverse_files $(expr $1 + 1)
 			if [ $? -eq 1 ]; then
 				return 1
 			fi
-			echo "going back to $dir"
-			cd "$dir"
-			echo "back at ${outter_files[$index]}"
+			echo "going back to $current_directory"
+			cd "$current_directory"
+			# echo "back at ${files_in_current_folder[$index]}"
 
 		else
-			fileType=$(file -i ${outter_files[$index]} | cut -d' ' -f2)
+            echo -e "\tits a regular file"
+			fileType=$(file -i ${files_in_current_folder[$index]} | cut -d' ' -f2)
 			if [ "$fileType" == "text/x-python;" ] || [ "$fileType" == "text/plain;" ]; then
-				result=$(dos2unix < ${outter_files[$index]} | cmp - ${outter_files[$index]})
+				result=$(dos2unix < ${files_in_current_folder[$index]} | cmp - ${files_in_current_folder[$index]})
 				if [ "$result" != "" ]; then
-					echo ${outter_files[$index]} is not using linux line endings!
+					echo ${files_in_current_folder[$index]} is not using linux line endings!
 					return 1
 				fi
 			fi
