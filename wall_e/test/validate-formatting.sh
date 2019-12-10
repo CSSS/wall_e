@@ -41,9 +41,6 @@ sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/${TEST_RESULT_FILE
 
 testContainerFailed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}')
 
-docker stop ${DOCKER_TEST_CONTAINER} || true
-docker rm ${DOCKER_TEST_CONTAINER} || true
-
 if [ "${testContainerFailed}" -eq "1" ]; then
     docker logs ${DOCKER_TEST_CONTAINER}
     docker stop ${DOCKER_TEST_CONTAINER} || true
