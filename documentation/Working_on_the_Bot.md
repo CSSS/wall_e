@@ -47,7 +47,8 @@ Pre-requisites: `git` and `docker`.
 
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 2. clone the repo
-3. Save the [ini file](https://github.com/CSSS/wall_e/blob/use_pip_module/documentation/Working_on_the_Bot.md#localini) to `wall_e/src/resources/utilities/config/local.ini`. You will need to specify some settings for wall_e to work. You do this either via environment variables (step 3.1) or the ini file (step 3.2)
+3. Save the [ini file](https://github.com/CSSS/wall_e/blob/use_pip_module/documentation/Working_on_the_Bot.md#localini) to `wall_e/src/resources/utilities/config/local.ini`. You will need to specify some settings for wall_e to work. You do this either via environment variables (step 3.1) or the ini file (step 3.2)  
+
    1. Env Variables
 ```shell
 export ENVIRONMENT="LOCALHOST"
@@ -59,7 +60,8 @@ export WALL_E_DB_DBNAME="wall_e_db"
 export WALL_E_DB_USER="wall_e"
 export WALL_E_DB_PASSWORD="wallEPassword"
 export API_TOKEN="<wolframToken>" # only necessary if you intend to work on the wolfram command
-```
+```  
+
    2. INI file (the below is not the complete ini file, it only contains the fields relevant to Step 3.2)
 ```shell
 [basic_config]
@@ -99,7 +101,6 @@ docker-compose -f CI/docker-compose-mount.yml up -d
 
 ```shell
 docker build -t ${COMPOSE_PROJECT_NAME}_wall_e_test -f CI/Dockerfile.test --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests --build-arg TEST_RESULT_FILE_NAME=all-unit-tests.xml .
-mkdir -p tests
 docker run -d --name ${COMPOSE_PROJECT_NAME}_test ${COMPOSE_PROJECT_NAME}_wall_e_test
 docker logs ${COMPOSE_PROJECT_NAME}_test
 ```
