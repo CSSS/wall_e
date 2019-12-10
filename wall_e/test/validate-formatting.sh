@@ -23,7 +23,7 @@ echo DOCKER_TEST_CONTAINER=${DOCKER_TEST_CONTAINER}
 DOCKER_TEST_IMAGE=$(echo "$DOCKER_TEST_IMAGE" | awk '{print tolower($0)}')
 
 docker rm -f ${DOCKER_TEST_CONTAINER} || true
-docker image rm -f ${DOCKER_TEST_IMAGE}
+docker image rm -f ${DOCKER_TEST_IMAGE} || true
 
 rm -r ${LOCALHOST_TEST_DIR} || true
 mkdir -p ${LOCALHOST_TEST_DIR}
@@ -45,9 +45,11 @@ if [ "${testContainerFailed}" -eq "1" ]; then
     docker logs ${DOCKER_TEST_CONTAINER}
     docker stop ${DOCKER_TEST_CONTAINER} || true
     docker rm ${DOCKER_TEST_CONTAINER} || true
+    docker image rm -f ${DOCKER_TEST_IMAGE} || true
     exit 1
 fi
 
 docker stop ${DOCKER_TEST_CONTAINER} || true
 docker rm ${DOCKER_TEST_CONTAINER} || true
+docker image rm -f ${DOCKER_TEST_IMAGE} || true
 exit 0
