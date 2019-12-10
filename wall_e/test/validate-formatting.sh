@@ -43,13 +43,18 @@ testContainerFailed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State
 
 docker stop ${DOCKER_TEST_CONTAINER} || true
 docker rm ${DOCKER_TEST_CONTAINER} || true
-docker volume prune || true
 
 if [ "${testContainerFailed}" -eq "1" ]; then
-    discordOutput=$(docker logs ${DOCKER_TEST_CONTAINER} | tail -12)
+    docker logs ${DOCKER_TEST_CONTAINER}
+    docker stop ${DOCKER_TEST_CONTAINER} || true
+    docker rm ${DOCKER_TEST_CONTAINER} || true
+    docker volume prune -f || true
 #    printf $discordOutput > ${RESULT_FILE}
     exit 1
 fi
 
+docker stop ${DOCKER_TEST_CONTAINER} || true
+docker rm ${DOCKER_TEST_CONTAINER} || true
+docker volume prune -f || true
 #printf "successful" > ${RESULT_FILE}
 exit 0
