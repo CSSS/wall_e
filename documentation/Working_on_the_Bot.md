@@ -47,11 +47,9 @@ Pre-requisites: `git` and `docker`.
 
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 2. clone the repo
-3. Save the infi file to `wall_e/src/resources/utilities/config/local.ini`
-4. Run the following commands
+3. Save the [ini file](https://github.com/CSSS/wall_e/blob/use_pip_module/documentation/Working_on_the_Bot.md#localini) to `wall_e/src/resources/utilities/config/local.ini`. You will need to specify some settings for wall_e to work. You do this either via environment variables (step 3.1) or the ini file (step 3.2)
+   1. Env Variables
 ```shell
-git clone <the url of your forked repo>
-cd wall_e
 export ENVIRONMENT="LOCALHOST"
 export TOKEN="<discordBotToken>" # the `token` you obtained during the authentication step  
 export POSTGRES_DB_DBNAME="postgres"
@@ -60,8 +58,30 @@ export POSTGRES_PASSWORD="postgresPassword"
 export WALL_E_DB_DBNAME="wall_e_db"
 export WALL_E_DB_USER="wall_e"
 export WALL_E_DB_PASSWORD="wallEPassword"
-export COMPOSE_PROJECT_NAME="localhost"
 export API_TOKEN="<wolframToken>" # only necessary if you intend to work on the wolfram command
+```
+   2. INI file (the below is not the complete ini file, it only contains the fields relevant to Step 3.2)
+```shell
+[basic_config]
+TOKEN = <discordBotToken>
+
+[wolfram]
+API_TOKEN = <wolframToken>
+
+[database]
+POSTGRES_DB_USER = "postgres"
+POSTGRES_DB_DBNAME = "postgres"
+POSTGRES_PASSWORD = "postgresPassword"
+WALL_E_DB_USER = "wall_e"
+WALL_E_DB_DBNAME = "wall_e_db"
+WALL_E_DB_PASSWORD = "wallEPassword"
+```
+
+4. Commands for the bot
+
+```shell
+# for launching the bot
+export COMPOSE_PROJECT_NAME="localhost"
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 docker-compose -f CI/docker-compose-mount.yml up -d
 
@@ -69,22 +89,22 @@ docker-compose -f CI/docker-compose-mount.yml up -d
 docker stop ${COMPOSE_PROJECT_NAME}_wall_e
 docker-compose -f CI/docker-compose-mount.yml up -d
 
-# if your changes require also re-creating the database. these commands need to be run before "docker-compose -f CI/docker-compose-mount.yml up -d"
+# if your changes require also re-creating the database.
 docker stop ${COMPOSE_PROJECT_NAME}_wall_e_db
 docker rm ${COMPOSE_PROJECT_NAME}_wall_e_db
+docker stop ${COMPOSE_PROJECT_NAME}_wall_e
+docker-compose -f CI/docker-compose-mount.yml up -d
 ```
-1. Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
+5. Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
 
 ```shell
-docker build -t ${COMPOSE_PROJECT_NAME}_wall_e_test -f CI/Dockerfile.test --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests .
-mkdir -p ${PWD}/tests
-docker run -d -e --net=host --mount type=bind,source="${PWD}/tests",target=/usr/src/app/tests --name ${COMPOSE_PROJECT_NAME}_test ${COMPOSE_PROJECT_NAME}_wall_e_test
+docker build -t ${COMPOSE_PROJECT_NAME}_wall_e_test -f CI/Dockerfile.test --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests --build-arg TEST_RESULT_FILE_NAME=all-unit-tests.xml .
+mkdir -p tests
+docker run -d --name ${COMPOSE_PROJECT_NAME}_test ${COMPOSE_PROJECT_NAME}_wall_e_test
+docker logs ${COMPOSE_PROJECT_NAME}_test
 ```
 
-   1. `python3.5 -m pip install test-requirements.txt` [only necessary if you have not already installed the test requirements]
-   1. `py.test`
-   1. `./lineEndings.sh` [if any files are reported to not be using Linux line endings, please change them.]
-1. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
+6. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)  
    1. After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [below rules](https://github.com/CSSS/wall_e/blob/update_README/Working_on_the_Bot.md#making-a-pr-to-master) for PRs push your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
 ## Making a PR to master  
