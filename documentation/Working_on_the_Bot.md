@@ -43,55 +43,44 @@
 
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) at the end of the documentation for future reference :)
 
-Pre-requisites: `git`.  
+Pre-requisites: `git` and `docker`.  
 
-1. Python3.5 Instructions  
-   1. Mac  
-      1. Download and install the Mac Python3.5 package [here](https://www.python.org/downloads/release/python-350/)  
-      1. Run following commands:
-         1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
-         1. `python3.5 get-pip.py`
-   1. Ubuntu  
-      1. Run following commands:
-         1. `sudo apt-get install -y python 3.5`
-   1. Arch  
-      1. Run following commands:
-         1. `wget https://aur.archlinux.org/cgit/aur.git/snapshot/python35.tar.gz`
-         1. `tar xvf python35.tar.gz`
-         1. `cd python35`
-         1. `sudo pacman -S tk valgrind`
-         1. `makepkg`
-         1. `sudo pacman -U python35-3.5.6-1-x86_64.pkg.tar.xz`
-         1. `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
-         1. `sudo -H python3.5 get-pip.py`
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
-1. From commandline, run following commands  
-   1. `git clone <the url of your forked repo>`  
-   1. `cd wall_e`
-   1. `sudo -H python3.5 -m pip install virtualenv`
-   1. `python3.5 -m venv ENV`  
-   1. `. ENV/bin/activate`  
-   1. `python3.5 -m pip install -r requirements.txt`  
-   1. PostgreSQL Instructions [only if you need to do work on a command that involves the database]  
-      1. [Mac](https://www.postgresql.org/download/macosx/)
-      1. [Ubuntu](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
-      1. [ArchWiki](https://wiki.archlinux.org/index.php/PostgreSQL)
-   1. Using Your Own Discord Test Server  
-      1. Setting up the `ENVIRONMENT` variable
-         1. If you need the DB for your work on the bot: `export ENVIRONMENT='localhost'`
-         2. If you do not need to setup the DB for your work on the bot: `export ENVIRONMENT='localhost_noDB'`
-      1. Run `export TOKEN=token` with the `token` you obtained during the authentication step  
-      1. Run `export WOLFRAMAPI='apikey'` with an API key obtained from [here](https://products.wolframalpha.com/api/)  
-         1. You can also do `export WOLFRAMAPI='dev'` if you dont want to open a WolframAlpha account [this doesnt work if you need to do work that involves the `.wolfram` command]  
-      1. If you are using the database with your testing  
-         1. Run `export POSTGRES_DB_USER='<admin user of your local postgres instance>'`
-         1. Run `export POSTGRES_DB_DBNAME='<default database of the admin user on your local postgres instance>'`
-         1. Run `export POSTGRES_PASSWORD='<password for the admin user on your local postgres instance>'`
-         1. Run `export WALL_E_DB_USER='<whatever username you want to use for the wall_e user on the database>'`
-         1. Run `export WALL_E_DB_DBNAME='<whatever name you want to use for the wall_e database on your local postgres instance>'`
-         1. Run `export WALL_E_DB_PASSWORD='<whatever password you want to set for the wall_e user on your local postgres instance>'`
-      1. Run `python3.5 main.py`  
+2. clone the repo
+3. Save the infi file to `wall_e/src/resources/utilities/config/local.ini`
+4. Run the following commands
+```shell
+git clone <the url of your forked repo>
+cd wall_e
+export ENVIRONMENT="LOCALHOST"
+export TOKEN="<discordBotToken>" # the `token` you obtained during the authentication step  
+export POSTGRES_DB_DBNAME="postgres"
+export POSTGRES_DB_USER="postgres"
+export POSTGRES_PASSWORD="postgresPassword"
+export WALL_E_DB_DBNAME="wall_e_db"
+export WALL_E_DB_USER="wall_e"
+export WALL_E_DB_PASSWORD="wallEPassword"
+export COMPOSE_PROJECT_NAME="localhost"
+export API_TOKEN="<wolframToken>" # only necessary if you intend to work on the wolfram command
+docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
+docker-compose -f CI/docker-compose-mount.yml up -d
+
+# if you have made changes to your code and want to test the changes
+docker stop ${COMPOSE_PROJECT_NAME}_wall_e
+docker-compose -f CI/docker-compose-mount.yml up -d
+
+# if your changes require also re-creating the database. these commands need to be run before "docker-compose -f CI/docker-compose-mount.yml up -d"
+docker stop ${COMPOSE_PROJECT_NAME}_wall_e_db
+docker rm ${COMPOSE_PROJECT_NAME}_wall_e_db
+```
 1. Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
+
+```shell
+docker build -t ${COMPOSE_PROJECT_NAME}_wall_e_test -f CI/Dockerfile.test --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests .
+mkdir -p ${PWD}/tests
+docker run -d -e --net=host --mount type=bind,source="${PWD}/tests",target=/usr/src/app/tests --name ${COMPOSE_PROJECT_NAME}_test ${COMPOSE_PROJECT_NAME}_wall_e_test
+```
+
    1. `python3.5 -m pip install test-requirements.txt` [only necessary if you have not already installed the test requirements]
    1. `py.test`
    1. `./lineEndings.sh` [if any files are reported to not be using Linux line endings, please change them.]
@@ -206,3 +195,45 @@ These are the things you need to ensure are covered in your PR, otherwise the CO
   1. If absolutely necessary, you can email the bot-managers with the details at `csss-bot-manager@sfu.ca`. Please note that if your email is not detailed enough, the bot managers may not necessarily respond. Please over-provide with regards to what the error is, how it happened and any logs and etc rather than under-provide.
 
  ## FAQs  
+
+ ## local.ini
+
+```shell
+[basic_config]
+ENVIRONMENT = localhost
+TOKEN =
+BOT_LOG_CHANNEL = local_logs
+
+
+[bot_profile]
+BOT_NAME =
+BOT_AVATAR =
+
+[wolfram]
+API_TOKEN =
+
+[frequency]
+enabled = 1
+
+[database]
+enabled = 1
+POSTGRES_DB_USER =
+POSTGRES_DB_DBNAME =
+POSTGRES_PASSWORD =
+WALL_E_DB_USER =
+WALL_E_DB_DBNAME =
+WALL_E_DB_PASSWORD =
+
+[graph]
+enabled = 1
+
+[cogs_enabled]
+administration = 1
+health_checks = 1
+here = 1
+misc = 1
+mod = 1
+reminders = 1
+role_commands = 1
+sfu = 1
+```
