@@ -4,7 +4,7 @@ set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
 IMAGENAME="wall_e"
-DOCKERREGISTRY="sfucsssorg/wall_e"
+DOCKERREGISTRY="sfucsssorg"
 VERSION="0.0.1"
 DOCKERFILE="CI/Dockerfile.requirements"
 
