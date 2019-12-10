@@ -6,7 +6,7 @@ ENV CONTAINER_HOME_DIR=$CONTAINER_HOME_DIR
 
 WORKDIR $CONTAINER_HOME_DIR
 
-COPY requirements.txt .
+COPY wall_e/src/requirements.txt .
 
 RUN apk add --update alpine-sdk libffi-dev && \
     apk add freetype-dev && \
