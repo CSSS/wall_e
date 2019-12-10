@@ -48,13 +48,9 @@ if [ "${testContainerFailed}" -eq "1" ]; then
     docker logs ${DOCKER_TEST_CONTAINER}
     docker stop ${DOCKER_TEST_CONTAINER} || true
     docker rm ${DOCKER_TEST_CONTAINER} || true
-    docker volume prune -f || true
-#    printf $discordOutput > ${RESULT_FILE}
     exit 1
 fi
 
 docker stop ${DOCKER_TEST_CONTAINER} || true
 docker rm ${DOCKER_TEST_CONTAINER} || true
-docker volume prune -f || true
-#printf "successful" > ${RESULT_FILE}
 exit 0
