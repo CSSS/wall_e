@@ -32,7 +32,6 @@ traverse_files(){
 					return 1
 				fi
 			fi
-			echo -e "\tits a regular file"
 		fi
 
 	done
