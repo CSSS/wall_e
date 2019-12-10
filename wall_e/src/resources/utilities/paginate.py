@@ -45,8 +45,6 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
             msg = await ctx.send(content=None, embed=embedObj)
             logger.info("[Paginate paginateEmbed()] sent message")
         else:
-            await msg.edit(embed=None)  # this is only here cause there seems to be a bug with editing embeds where
-            # it will still retain some traces of the former embed
             await msg.edit(embed=embedObj)
             await msg.clear_reactions()
             logger.info("[Paginate paginateEmbed()] edited message")
