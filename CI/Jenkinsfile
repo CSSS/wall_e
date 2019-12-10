@@ -37,6 +37,8 @@ pipeline {
                     sh label: '', script : """bash -c \'
                         export CONTAINER_HOME_DIR=/usr/src/app;
                         export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
+                        export DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD};
+                        export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
                         ./CI/create-docker-image.sh
                     \'"""
                 }
