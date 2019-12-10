@@ -1,9 +1,0 @@
-FROM sfucsssorg/wall_e
-
-ARG CONTAINER_HOME_DIR
-
-ENV CONTAINER_HOME_DIR=$CONTAINER_HOME_DIR
-
-WORKDIR $CONTAINER_HOME_DIR
-
-CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
