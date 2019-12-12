@@ -24,7 +24,7 @@ class Misc(commands.Cog):
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
-        self.wolframClient = wolframalpha.Client(self.config.get_config_value('wolfram', 'API_TOKEN'))
+        self.wolframClient = wolframalpha.Client(self.config.get_config_value('wolfram', 'WOLFRAM_API_TOKEN'))
 
     @commands.command()
     async def poll(self, ctx, *questions):
