@@ -77,27 +77,28 @@ pipeline {
                             string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN'),
                             string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD'),
                             string(credentialsId: 'WALL_E_DB_PASSWORD', variable: 'WALL_E_DB_PASSWORD')]) {
-          sh label: '', script: """bash -c \'
-              export ENVIRONMENT=PRODUCTION;
-              export BRANCH_NAME=${BRANCH_NAME};
-              export COMPOSE_PROJECT_NAME=PRODUCTION_MASTER;
+              sh label: '', script: """bash -c \'
+                  export ENVIRONMENT=PRODUCTION;
+                  export BRANCH_NAME=${BRANCH_NAME};
+                  export COMPOSE_PROJECT_NAME=PRODUCTION_MASTER;
 
-              export POSTGRES_DB_USER=postgres;
-              export POSTGRES_DB_DBNAME=postgres;
-              export POSTGRES_PASSWORD=${POSTGRES_PASSWORD};
+                  export POSTGRES_DB_USER=postgres;
+                  export POSTGRES_DB_DBNAME=postgres;
+                  export POSTGRES_PASSWORD=${POSTGRES_PASSWORD};
 
-              export WALL_E_DB_USER=wall_e;
-              export WALL_E_DB_DBNAME=csss_discord_db;
-              export WALL_E_DB_PASSWORD=${WALL_E_DB_PASSWORD};
+                  export WALL_E_DB_USER=wall_e;
+                  export WALL_E_DB_DBNAME=csss_discord_db;
+                  export WALL_E_DB_PASSWORD=${WALL_E_DB_PASSWORD};
 
-              export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
-              export TOKEN=${TOKEN};
+                  export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
+                  export TOKEN=${TOKEN};
 
-              export BOT_LOG_CHANNEL=bot_logs;
-              export REMINDER_CHANNEL=bot_commands_and_misc;
+                  export BOT_LOG_CHANNEL=bot_logs;
+                  export REMINDER_CHANNEL=bot_commands_and_misc;
 
-              ./CI/server_scripts/deploy-to-prod-server.sh;
-          \'"""
+                  ./CI/server_scripts/deploy-to-prod-server.sh;
+              \'"""
+            }
           }
         }
     }
