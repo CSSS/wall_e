@@ -4,14 +4,14 @@ import logging
 logger = logging.getLogger('wall_e')
 
 
-def getLastIndex(content, index, reservedSpace):
+def get_last_index(content, index, reservedSpace):
     # this when the the size of contents is too big for a single discord message, this means
     # that the message has to be split. and in order to make the output most visually appealing
     # when splitting it is to see if there is a newline on which  the message can be split instead.
     # if there is no suitable newline, it will instead just cut down an existing line
-    logger.info("[send.py getLastIndex()] index =[{}] reservedSpace =[{}]".format(index, reservedSpace))
+    logger.info("[send.py get_last_index()] index =[{}] reservedSpace =[{}]".format(index, reservedSpace))
     if len(content) - index < 2000 - reservedSpace:
-        logger.info("[send.py  getLastIndex()] returning length of content =[{}]".format(len(content)))
+        logger.info("[send.py  get_last_index()] returning length of content =[{}]".format(len(content)))
         return len(content)
     else:
         indexOfNewLine = content.rfind('\n', index, index + (2000 - reservedSpace))
@@ -19,7 +19,7 @@ def getLastIndex(content, index, reservedSpace):
             lastIndex = indexOfNewLine
         else:
             lastIndex = 2000 - reservedSpace
-        logger.info("[send.py getLastIndex()] indexOfNewLine =[{}]".format(indexOfNewLine))
+        logger.info("[send.py get_last_index()] indexOfNewLine =[{}]".format(indexOfNewLine))
         return lastIndex
 
 
@@ -45,7 +45,7 @@ async def send(ctx, content=None, tts=False, embed=None, file=None, files=None,
         if suffix is not None:
             reservedSpace += len(suffix)
         logger.info("[send.py send()] reservedSpace = [{}]".format(reservedSpace))
-        lastIndex = getLastIndex(content, 0, reservedSpace)
+        lastIndex = get_last_index(content, 0, reservedSpace)
         first = True  # this is only necessary because it wouldnt make sense to have any potential embeds or file[s]
         # with each message
         firstIndex = 0
@@ -79,7 +79,7 @@ async def send(ctx, content=None, tts=False, embed=None, file=None, files=None,
                 )
                 await ctx.send(formattedContent, tts=tts, delete_after=delete_after, nonce=nonce)
             firstIndex = lastIndex
-            lastIndex = getLastIndex(content, firstIndex + 1, reservedSpace)
+            lastIndex = get_last_index(content, firstIndex + 1, reservedSpace)
             logger.info("[send.py send()] lastIndex updated to {}".format(lastIndex))
             if len(content[firstIndex:lastIndex]) == 0:
                 finished = True

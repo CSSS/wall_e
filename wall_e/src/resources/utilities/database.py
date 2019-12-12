@@ -7,7 +7,7 @@ logger = logging.getLogger('wall_e')
 ###############################
 # SETUP DATABASE CONNECTION ##
 ###############################
-def setupDB(config):
+def setup_database(config):
     if config.enabled("database", option="DB_ENABLED"):
         try:
             env = config.get_config_value("wall_e", "ENVIRONMENT")
@@ -23,9 +23,9 @@ def setupDB(config):
             dbConnectionString = (
                 "dbname='{}' user='{}' host='{}'".format(postgres_db_dbname, postgres_db_user, host)
             )
-            logger.info("[database.py setupDB] Postgres User dbConnectionString=[{}]".format(dbConnectionString))
+            logger.info("[database.py setup_database] Postgres User dbConnectionString=[{}]".format(dbConnectionString))
             postgresConn = psycopg2.connect("{} password='{}'".format(dbConnectionString, postgres_password))
-            logger.info("[database.py setupDB] PostgreSQL connection established")
+            logger.info("[database.py setup_database] PostgreSQL connection established")
             postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             postgresCurs = postgresConn.cursor()
             # these two parts is using a complicated DO statement because apparently postgres does not have
@@ -51,7 +51,7 @@ def setupDB(config):
                 postgresCurs.execute("CREATE ROLE {} WITH NOSUPERUSER INHERIT "
                                      "NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS ENCRYPTED "
                                      "PASSWORD '{}';".format(wall_e_db_user, wall_e_db_password))
-            logger.info("[database.py setupDB] {} role created".format(wall_e_db_user))
+            logger.info("[database.py setup_database] {} role created".format(wall_e_db_user))
             if 'localhost' == env or 'PRODUCTION' == env:
                 sqlQuery = """SELECT datname from pg_database"""
                 postgresCurs.execute(sqlQuery)
@@ -66,9 +66,9 @@ def setupDB(config):
                             wall_e_db_user
                         )
                     )
-                    logger.info("[database.py setupDB] {} database created".format(wall_e_db_dbname))
+                    logger.info("[database.py setup_database] {} database created".format(wall_e_db_dbname))
                 else:
-                    logger.info("[database.py setupDB] {} database already exists".format(wall_e_db_dbname))
+                    logger.info("[database.py setup_database] {} database already exists".format(wall_e_db_dbname))
             else:
                 postgresCurs.execute(
                     "CREATE DATABASE {} WITH OWNER {} TEMPLATE = template0;".format(
@@ -76,14 +76,14 @@ def setupDB(config):
                         wall_e_db_user
                     )
                 )
-                logger.info("[database.py setupDB] {} database created".format(wall_e_db_dbname))
+                logger.info("[database.py setup_database] {} database created".format(wall_e_db_dbname))
             # this section exists cause of this backup.sql that I had exported from an instance of a Postgres with
             # which I had created the csss_discord_db
             # https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
             dbConnectionString = ("dbname='{}' user='{}' host='{}'".format(wall_e_db_dbname, wall_e_db_user, host))
-            logger.info("[database.py setupDB] Wall_e User dbConnectionString=[{}]".format(dbConnectionString))
+            logger.info("[database.py setup_database] Wall_e User dbConnectionString=[{}]".format(dbConnectionString))
             walleConn = psycopg2.connect("{} password='{}'".format(dbConnectionString, wall_e_db_password))
-            logger.info("[database.py setupDB] PostgreSQL connection established")
+            logger.info("[database.py setup_database] PostgreSQL connection established")
             walleConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             walleCurs = walleConn.cursor()
             walleCurs.execute("SET statement_timeout = 0;")
@@ -99,11 +99,11 @@ def setupDB(config):
             walleCurs.execute("CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;")
             # walleCurs.execute("COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';")
         except Exception as e:
-            logger.error("[database.py setupDB] enountered following exception when setting up PostgreSQL "
+            logger.error("[database.py setup_database] enountered following exception when setting up PostgreSQL "
                          "connection\n{}".format(e))
 
 
-def setupStatsOfCommandsDBTable(config):
+def setup_stats_of_command_database_table(config):
     if config.enabled("database", option="DB_ENABLED"):
         try:
             host = '{}_wall_e_db'.format(config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
@@ -113,7 +113,7 @@ def setupStatsOfCommandsDBTable(config):
                     host
                 ))
             logger.info(
-                "[database.py setupStatsOfCommandsDBTable()] dbConnectionString=[{}]".format(dbConnectionString)
+                "[database.py setup_stats_of_command_database_table()] dbConnectionString=[{}]".format(dbConnectionString)
             )
             conn = psycopg2.connect(
                 "{} password='{}'".format(
@@ -121,7 +121,7 @@ def setupStatsOfCommandsDBTable(config):
                     config.get_config_value('database', 'WALL_E_DB_PASSWORD')
                 )
             )
-            logger.info("[database.py setupStatsOfCommandsDBTable()] PostgreSQL connection established")
+            logger.info("[database.py setup_stats_of_command_database_table()] PostgreSQL connection established")
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             curs = conn.cursor()
             curs.execute(
@@ -130,7 +130,7 @@ def setupStatsOfCommandsDBTable(config):
                 "Command varchar(2000), invoked_with "
                 "varchar(2000), invoked_subcommand  varchar(2000));"
             )
-            logger.info("[database.py setupStatsOfCommandsDBTable()] CommandStats database table created")
+            logger.info("[database.py setup_stats_of_command_database_table()] CommandStats database table created")
         except Exception as e:
-            logger.error("[database.py setupStatsOfCommandsDBTable()] enountered following exception when setting up "
+            logger.error("[database.py setup_stats_of_command_database_table()] enountered following exception when setting up "
                          "PostgreSQL connection\n{}".format(e))

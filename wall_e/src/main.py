@@ -4,9 +4,9 @@ import os
 
 from resources.cogs.manage_cog import ManageCog
 from resources.utilities.config.config import WallEConfig as config
-from resources.utilities.database import setupDB, setupStatsOfCommandsDBTable
+from resources.utilities.database import setup_database, setup_stats_of_command_database_table
 from resources.utilities.embed import embed as imported_embed
-from resources.utilities.logger_setup import initalizeLogger
+from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
 
 bot = commands.Bot(command_prefix='.')
@@ -85,11 +85,11 @@ async def on_member_join(member):
 # STARTING POINT ##
 ####################
 if __name__ == "__main__":
-    logger, FILENAME = initalizeLogger()
+    logger, FILENAME = initialize_logger()
     logger.info("[main.py] Wall-E is starting up")
     if config.enabled("database", option="DB_ENABLED"):
-        setupDB(config)
-        setupStatsOfCommandsDBTable(config)
+        setup_database(config)
+        setup_stats_of_command_database_table(config)
     # tries to open log file in prep for write_to_bot_log_channel function
     try:
         logger.info("[main.py] trying to open {}.log to be able to send "

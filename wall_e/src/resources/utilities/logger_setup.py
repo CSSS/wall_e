@@ -17,7 +17,7 @@ class LoggerWriter:
         pass
 
 
-def initalizeLogger():
+def initialize_logger():
     # setting up log requirements
     logger = logging.getLogger('wall_e')
     logger.setLevel(logging.DEBUG)
@@ -28,11 +28,11 @@ def initalizeLogger():
     logger.addHandler(stream_handler)
     sys.stdout = LoggerWriter(logger, logging.INFO)
     sys.stderr = LoggerWriter(logger, logging.WARNING)
-    FILENAME = createLogFile(formatter, logger)
+    FILENAME = create_log_file(formatter, logger)
     return logger, FILENAME
 
 
-def createLogFile(formatter, logger):
+def create_log_file(formatter, logger):
     DATE = datetime.datetime.now(pytz.timezone('US/Pacific')).strftime("%Y_%m_%d_%H_%M_%S")
     FILENAME = "logs/{}_wall_e".format(DATE)
     filehandler = logging.FileHandler("{}.log".format(FILENAME))

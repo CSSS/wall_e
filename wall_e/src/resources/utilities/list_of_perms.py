@@ -2,7 +2,7 @@
 # https://discordpy.readthedocs.io/en/rewrite/api.html#discord.Permissions
 
 
-async def getListOfUserPerms(ctx, userID=False):
+async def get_list_of_user_permissions(ctx, userID=False):
     if userID is not False:
         userPermToCheck = ctx.guild.get_member(id)
     else:

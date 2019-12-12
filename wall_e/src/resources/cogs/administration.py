@@ -130,7 +130,7 @@ class Administration(commands.Cog):
                            "to execute this command, incident will be reported")
 
     def get_column_headers_from_database(self):
-        dbConn = self.connectToDatabase()
+        dbConn = self.connect_to_database()
         if dbConn is not None:
             dbCurr = dbConn.cursor()
             dbCurr.execute("Select * FROM commandstats LIMIT 0")
@@ -141,17 +141,17 @@ class Administration(commands.Cog):
         else:
             return None
 
-    def determineXYFrequency(self, dbConn, filters=None):
+    def determine_x_y_frequency(self, dbConn, filters=None):
         conn = dbConn
         if conn is None:
             return None
         dbCurr = conn.cursor()
-        logger.info("[Administration determineXYFrequency()] trying to "
+        logger.info("[Administration determine_x_y_frequency()] trying to "
                     "create a dictionary from {} with the filters:\n\t{}".format(dbCurr, filters))
         combinedFilter = '", "'.join(str(e) for e in filters)
         combinedFilter = "\"{}\"".format(combinedFilter)
         sqlQuery = "select {} from commandstats;".format(combinedFilter)
-        logger.info("[Administration determineXYFrequency()] initial sql query to determine what entries needs to be"
+        logger.info("[Administration determine_x_y_frequency()] initial sql query to determine what entries needs to be"
                     " created with the filter specified above:\n\t{}".format(sqlQuery))
         dbCurr.execute(sqlQuery)
         # getting all the rows that need to be graphed
@@ -166,7 +166,7 @@ class Administration(commands.Cog):
         # how much each unique entry
         # was appeared and needs that info added to frequency dictionary
         while len(results) > 0:
-            logger.info("[Administration determineXYFrequency()] "
+            logger.info("[Administration determine_x_y_frequency()] "
                         "{}th index results of sql query=[{}]".format(index, results[0]))
             whereClause = ''  # where clause that keeps track of things that need to be added to the
             # overarchingWhereClause
@@ -179,29 +179,29 @@ class Administration(commands.Cog):
                     entry += '{}_'.format(results[0][idx])
                     whereClause += "\"{}\"='{}' AND ".format(val, results[0][idx])
             logger.info(
-                "[Administration determineXYFrequency()] where clause for determining which "
+                "[Administration determine_x_y_frequency()] where clause for determining which "
                 "entries match the entry [{}]:\n\t{}".format(entry, whereClause)
             )
             sqlQuery = "select {} from commandstats WHERE {};".format(combinedFilter, whereClause)
             logger.info(
-                "[Administration determineXYFrequency()] query that includes the above specified where "
+                "[Administration determine_x_y_frequency()] query that includes the above specified where "
                 "clause for determining how many elements match the filter of [{}]:\n\t{}".format(entry, sqlQuery)
             )
             dbCurr.execute(sqlQuery)
             resultsOfQueryForSpecificEntry = dbCurr.fetchall()
             frequency[entry] = len(resultsOfQueryForSpecificEntry)
             logger.info(
-                "[Administration determineXYFrequency()] determined that {} "
+                "[Administration determine_x_y_frequency()] determined that {} "
                 "entries exist for filter {}".format(frequency[entry], entry)
             )
             if index > 0:
                 overarchingWHereClause += ' AND NOT ( {} )'.format(whereClause)
             else:
                 overarchingWHereClause += ' NOT ( {} )'.format(whereClause)
-            logger.info("[Administration determineXYFrequency()] updated where clause for discriminating against all "
+            logger.info("[Administration determine_x_y_frequency()] updated where clause for discriminating against all "
                         "entries that have already been recorded:\n\t{}".format(overarchingWHereClause))
             sqlQuery = "select {} from commandstats WHERE ({});".format(combinedFilter, overarchingWHereClause)
-            logger.info("[Administration determineXYFrequency()] updated sql query to determine what remaining "
+            logger.info("[Administration determine_x_y_frequency()] updated sql query to determine what remaining "
                         "entries potentially need to be created after ruling out entries that match the where clause"
                         ":\n\t{}".format(sqlQuery))
             dbCurr.execute(sqlQuery)
@@ -211,7 +211,7 @@ class Administration(commands.Cog):
         dbConn.close()
         return frequency
 
-    def connectToDatabase(self):
+    def connect_to_database(self):
         try:
             host = '{}_wall_e_db'.format(self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME"))
             wall_e_db_dbname = self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
@@ -220,13 +220,13 @@ class Administration(commands.Cog):
 
             dbConnectionString = ("dbname='{}' user='{}' "
                                   "host='{}'".format(wall_e_db_dbname, wall_e_db_user, host))
-            logger.info("[Administration connectToDatabase()] dbConnectionString=[{}]".format(dbConnectionString))
+            logger.info("[Administration connect_to_database()] dbConnectionString=[{}]".format(dbConnectionString))
             conn = psycopg2.connect("{} password='{}'".format(dbConnectionString, wall_e_db_password))
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            logger.info("[Administration connectToDatabase()] PostgreSQL connection established")
+            logger.info("[Administration connect_to_database()] PostgreSQL connection established")
             return conn
         except Exception as e:
-            logger.error("[Administration connectToDatabase()] enountered following exception when setting up "
+            logger.error("[Administration connect_to_database()] enountered following exception when setting up "
                          "PostgreSQL connection\n{}".format(e))
             return None
 
@@ -245,7 +245,7 @@ class Administration(commands.Cog):
                                    + str(list(conn)))
                 return
             else:
-                dicResult = self.determineXYFrequency(self.connectToDatabase(), args)
+                dicResult = self.determine_x_y_frequency(self.connect_to_database(), args)
                 if dicResult is None:
                     logger.info("[Administration frequency()] unable to connect to the database")
                     await ctx.send("unable to connect to the database")

@@ -7,10 +7,10 @@ from resources.utilities.embed import embed as imported_embed
 logger = logging.getLogger('wall_e')
 
 
-async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
+async def paginate_embed(bot, ctx, config, descriptionToEmbed, title=" "):
     numOfPages = len(descriptionToEmbed)
     logger.info(
-        "[paginate.py paginateEmbed()] called with following argument: "
+        "[paginate.py paginate_embed()] called with following argument: "
         "title={}\n\ndescriptionToEmbed={}\n\n".format(title, descriptionToEmbed)
     )
 
@@ -19,8 +19,8 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
     msg = None
 
     while True:
-        logger.info("[paginate.py paginateEmbed()] loading page {}".format(currentPage))
-        logger.info("[paginate.py paginateEmbed()] loading roles {}".format(descriptionToEmbed[currentPage]))
+        logger.info("[paginate.py paginate_embed()] loading page {}".format(currentPage))
+        logger.info("[paginate.py paginate_embed()] loading roles {}".format(descriptionToEmbed[currentPage]))
         embedObj = await imported_embed(
             ctx,
             title=title,
@@ -30,7 +30,7 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
             footer="{}/{}".format(currentPage + 1, numOfPages)
         )
         if embedObj is not None:
-            logger.info("[paginate.py paginateEmbed()] embed succesfully created and populated for page "
+            logger.info("[paginate.py paginate_embed()] embed succesfully created and populated for page "
                         + str(currentPage))
         else:
             return
@@ -45,23 +45,23 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
         if firstRun is True:
             firstRun = False
             msg = await ctx.send(content=None, embed=embedObj)
-            logger.info("[paginate.py paginateEmbed()] sent message")
+            logger.info("[paginate.py paginate_embed()] sent message")
         else:
             await msg.edit(embed=embedObj)
             await msg.clear_reactions()
-            logger.info("[paginate.py paginateEmbed()] edited message")
+            logger.info("[paginate.py paginate_embed()] edited message")
 
         # adding reactions deemed necessary to page
         for reaction in toReactUnicode:
             await msg.add_reaction(reaction)
 
-        logger.info("[paginate.py paginateEmbed()] added all reactions to message")
+        logger.info("[paginate.py paginate_embed()] added all reactions to message")
 
         def checkReaction(reaction, user):
             if not user.bot:  # just making sure the bot doesnt take its own reactions
                 # into consideration
                 e = str(reaction.emoji)
-                logger.info("[paginate.py paginateEmbed()] reaction {} detected from {}".format(e, user))
+                logger.info("[paginate.py paginate_embed()] reaction {} detected from {}".format(e, user))
                 return e.startswith(('⏪', '⏩', '✅'))
 
         userReacted = False
@@ -69,7 +69,7 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
             try:
                 userReacted = await bot.wait_for('reaction_add', timeout=20, check=checkReaction)
             except asyncio.TimeoutError:
-                logger.info("[paginate.py paginateEmbed()] timed out waiting for the user's reaction.")
+                logger.info("[paginate.py paginate_embed()] timed out waiting for the user's reaction.")
 
             if userReacted:
                 if '⏪' == userReacted[0].emoji:
@@ -78,7 +78,7 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
                     if currentPage < 0:
                         currentPage = numOfPages - 1
                     logger.info(
-                        "[paginate.py paginateEmbed()] user indicates they want to go back "
+                        "[paginate.py paginate_embed()] user indicates they want to go back "
                         "a page from {} to {}".format(prevPage, currentPage)
                     )
 
@@ -88,19 +88,19 @@ async def paginateEmbed(bot, ctx, config, descriptionToEmbed, title=" "):
                     if currentPage == numOfPages:
                         currentPage = 0
                     logger.info(
-                        "[paginate.py paginateEmbed()] user indicates they want to go forward "
+                        "[paginate.py paginate_embed()] user indicates they want to go forward "
                         "a page from {} to {}".format(prevPage, currentPage)
                     )
 
                 elif '✅' == userReacted[0].emoji:
                     logger.info(
-                        "[paginate.py paginateEmbed()] user indicates they are done with the "
+                        "[paginate.py paginate_embed()] user indicates they are done with the "
                         "roles command, deleting roles message"
                     )
                     await msg.delete()
                     return
             else:
-                logger.info("[paginate.py paginateEmbed()] deleting message")
+                logger.info("[paginate.py paginate_embed()] deleting message")
                 await msg.delete()
                 return
 

@@ -2,8 +2,8 @@ from discord.ext import commands
 import logging
 import aiohttp
 from resources.utilities.embed import embed
-from resources.utilities.paginate import paginateEmbed
-from resources.utilities.list_of_perms import getListOfUserPerms
+from resources.utilities.paginate import paginate_embed
+from resources.utilities.list_of_perms import get_list_of_user_permissions
 import json
 import wolframalpha
 # import discord.client
@@ -247,14 +247,14 @@ class Misc(commands.Cog):
         logger.info("[Misc emojispeak()] sending {} says ".format(ctx.author.mention, output))
         await ctx.send("{} says {}".format(ctx.author.mention, output))
 
-    async def GeneralDescription(self, ctx):
+    async def general_description(self, ctx):
         numberOfCommandsPerPage = 5
-        logger.info("[Misc GeneralDescription()] help command detected from {}".format(ctx.message.author))
-        logger.info("[Misc GeneralDescription()] attempting to load command info from help.json")
+        logger.info("[Misc general_description()] help command detected from {}".format(ctx.message.author))
+        logger.info("[Misc general_description()] attempting to load command info from help.json")
         helpDict = self.config.get_help_json()
-        logger.info("[Misc GeneralDescription()] loaded "
+        logger.info("[Misc general_description()] loaded "
                     "commands from help.json=\n{}".format(json.dumps(helpDict, indent=3)))
-        user_perms = await getListOfUserPerms(ctx)
+        user_perms = await get_list_of_user_permissions(ctx)
         user_roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
         descriptionToEmbed = [""]
         x, page = 0, 0
@@ -263,11 +263,11 @@ class Misc(commands.Cog):
                 for role in entry[entry['access']]:
                     if (role in user_roles or (role == 'public')):
                         if 'Class' in entry['name'] and 'Bot_manager' in user_roles:
-                            logger.info("[Misc GeneralDescription()] "
+                            logger.info("[Misc general_description()] "
                                         "adding {} to page {} of the descriptionToEmbed".format(entry, page))
                             descriptionToEmbed[page] += "\n**{}**: \n".format(entry['name'])
                         else:
-                            logger.info("[Misc GeneralDescription()] "
+                            logger.info("[Misc general_description()] "
                                         "adding {} to page {} of the descriptionToEmbed".format(entry, page))
                             descriptionToEmbed[page] += (
                                 "*{}* - {}\n\n".format("/".join(entry['name']), entry['description'][0])
@@ -280,7 +280,7 @@ class Misc(commands.Cog):
             elif entry['access'] == "permissions":
                 for permission in entry[entry['access']]:
                     if permission in user_perms:
-                        logger.info("[Misc GeneralDescription()] "
+                        logger.info("[Misc general_description()] "
                                     "adding {} to page {} of the descriptionToEmbed".format(entry, page))
                         descriptionToEmbed[page] += (
                             "*{}* - {}\n\n".format("/".join(entry['name']), entry['description'][0])
@@ -292,20 +292,20 @@ class Misc(commands.Cog):
                             x = 0
                         break
             else:
-                logger.info("[Misc GeneralDescription()] {} has a wierd "
+                logger.info("[Misc general_description()] {} has a wierd "
                             "access level of {}....not sure how to handle "
                             "it so not adding it to the descriptionToEmbed".format(entry, entry['access']))
-        logger.info("[Misc GeneralDescription()] transfer successful")
-        await paginateEmbed(self.bot, ctx, self.config, descriptionToEmbed, title="Help Page")
+        logger.info("[Misc general_description()] transfer successful")
+        await paginate_embed(self.bot, ctx, self.config, descriptionToEmbed, title="Help Page")
 
-    async def specificDescription(self, ctx, command):
+    async def specific_description(self, ctx, command):
         helpDict = self.config.get_help_json()
-        logger.info("[Misc specificDescription()] invoked by user {} for "
+        logger.info("[Misc specific_description()] invoked by user {} for "
                     "command ".format(command))
         for entry in helpDict['commands']:
             for name in entry['name']:
                 if name == command[0]:
-                    logger.info("[Misc specificDescription()] loading the "
+                    logger.info("[Misc specific_description()] loading the "
                                 "entry for command {} :\n\n{}".format(command[0], entry))
                     descriptions = ""
                     for description in entry['description']:
@@ -321,16 +321,16 @@ class Misc(commands.Cog):
                     )
                     if eObj is not False:
                         msg = await ctx.send(content=None, embed=eObj)
-                        logger.info("[Misc specificDescription()] embed created and sent for "
+                        logger.info("[Misc specific_description()] embed created and sent for "
                                     "command {}".format(command[0]))
                         await msg.add_reaction('✅')
-                        logger.info("[Misc specificDescription()] reaction added to message")
+                        logger.info("[Misc specific_description()] reaction added to message")
 
                         def checkReaction(reaction, user):
                             if not user.bot:  # just making sure the bot doesnt take its own reactions
                                 # into consideration
                                 e = str(reaction.emoji)
-                                logger.info("[Misc specificDescription()] "
+                                logger.info("[Misc specific_description()] "
                                             "reaction {} detected from {}".format(e, user))
                                 return e.startswith(('✅'))
 
@@ -339,16 +339,16 @@ class Misc(commands.Cog):
                             try:
                                 userReacted = await self.bot.wait_for('reaction_add', timeout=20, check=checkReaction)
                             except asyncio.TimeoutError:
-                                logger.info("[Misc specificDescription()] "
+                                logger.info("[Misc specific_description()] "
                                             "timed out waiting for the user's reaction.")
                             if userReacted:
                                 if '✅' == userReacted[0].emoji:
-                                    logger.info("[Misc specificDescription()] user indicates they are done with the "
+                                    logger.info("[Misc specific_description()] user indicates they are done with the "
                                                 "roles command, deleting roles message")
                                     await msg.delete()
                                     return
                             else:
-                                logger.info("[Misc specificDescription()] deleting message")
+                                logger.info("[Misc specific_description()] deleting message")
                                 await msg.delete()
                                 return
 
@@ -358,9 +358,9 @@ class Misc(commands.Cog):
         logger.info("[Misc help()] help command detected "
                     "from {} with the argument {}".format(ctx.message.author, arg))
         if len(arg) == 0:
-            await self.GeneralDescription(ctx)
+            await self.general_description(ctx)
         else:
-            await self.specificDescription(ctx, arg)
+            await self.specific_description(ctx, arg)
 
     async def __del__(self):
         await self.session.close()

@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 import logging
-from resources.utilities.paginate import paginateEmbed
+from resources.utilities.paginate import paginate_embed
 from resources.utilities.embed import embed
 from operator import itemgetter
 
@@ -239,7 +239,7 @@ class RoleCommands(commands.Cog):
                 x = 0
             logString += '{}\t'.format(name)
         logger.info("[RoleCommands whois()] following members were found in the role: {}".format(logString))
-        await paginateEmbed(
+        await paginate_embed(
             self.bot,
             ctx,
             self.config,
@@ -279,7 +279,7 @@ class RoleCommands(commands.Cog):
                 x = 0
         logger.info("[RoleCommands roles()] transfer successful")
 
-        await paginateEmbed(self.bot, ctx, self.config, descriptionToEmbed, title="Self-Assignable Roles")
+        await paginate_embed(self.bot, ctx, self.config, descriptionToEmbed, title="Self-Assignable Roles")
 
     @commands.command()
     async def Roles(self, ctx):
@@ -312,7 +312,7 @@ class RoleCommands(commands.Cog):
                 x = 0
         logger.info("[RoleCommands Roles()] transfer successful")
 
-        await paginateEmbed(self.bot, ctx, self.config, descriptionToEmbed, title="Mod/Exec/XP Assigned Roles")
+        await paginate_embed(self.bot, ctx, self.config, descriptionToEmbed, title="Mod/Exec/XP Assigned Roles")
 
     @commands.command()
     async def purgeroles(self, ctx):
