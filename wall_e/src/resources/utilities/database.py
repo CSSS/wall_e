@@ -8,7 +8,7 @@ logger = logging.getLogger('wall_e')
 # SETUP DATABASE CONNECTION ##
 ###############################
 def setupDB(config):
-    if config.enabled("database"):
+    if config.enabled("database", option="DB_ENABLED"):
         try:
             env = config.get_config_value("wall_e", "ENVIRONMENT")
             compose_project_name = config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME")
@@ -20,11 +20,10 @@ def setupDB(config):
             wall_e_db_password = config.get_config_value("database", "WALL_E_DB_PASSWORD")
 
             host = compose_project_name + '_wall_e_db'
-            dbConnectionString = ("dbname='" + postgres_db_dbname + "' user='" + postgres_db_user + "' "
-                                  "host='" + host + "' password='" + postgres_password + "'")
-            logger.info("[main.py setupDB] Postgres User dbConnectionString=[dbname='" + postgres_db_dbname
-                        + "' user='" + postgres_db_user + "' host='" + host + "' password='************']")
-            postgresConn = psycopg2.connect(dbConnectionString)
+            dbConnectionStringBeginning = ("dbname='" + postgres_db_dbname + "' user='" + postgres_db_user + "' "
+                                  "host='" + host + "'")
+            logger.info("[main.py setupDB] Postgres User dbConnectionString=[" + dbConnectionStringBeginning+"]")
+            postgresConn = psycopg2.connect(dbConnectionStringBeginning + " password='" + postgres_password + "'" )
             logger.info("[main.py setupDB] PostgreSQL connection established")
             postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             postgresCurs = postgresConn.cursor()
@@ -72,11 +71,10 @@ def setupDB(config):
             # this section exists cause of this backup.sql that I had exported from an instance of a Postgres with
             # which I had created the csss_discord_db
             # https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
-            dbConnectionString = ("dbname='" + wall_e_db_dbname + "' user='" + postgres_db_user + "'"
-                                  " host='" + host + "' password='" + postgres_password + "'")
-            logger.info("[main.py setupDB] Wall_e User dbConnectionString=[dbname='" + wall_e_db_dbname + "'"
-                        " user='" + postgres_db_user + "' host='" + host + "' password='*****']")
-            walleConn = psycopg2.connect(dbConnectionString)
+            dbConnectionStringBeginning = ("dbname='" + wall_e_db_dbname + "' user='" + wall_e_db_user + "' "
+                                  "host='" + host + "'")
+            logger.info("[main.py setupDB] Wall_e User dbConnectionString=[" + dbConnectionStringBeginning + "]")
+            walleConn = psycopg2.connect(dbConnectionStringBeginning + " password='" + wall_e_db_password + "'")
             logger.info("[main.py setupDB] PostgreSQL connection established")
             walleConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             walleCurs = walleConn.cursor()
@@ -91,14 +89,14 @@ def setupDB(config):
             walleCurs.execute("SET client_min_messages = warning;")
             walleCurs.execute("SET row_security = off;")
             walleCurs.execute("CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;")
-            walleCurs.execute("COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';")
+            # walleCurs.execute("COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';")
         except Exception as e:
             logger.error("[main.py setupDB] enountered following exception when setting up PostgreSQL "
                          "connection\n{}".format(e))
 
 
 def setupStatsOfCommandsDBTable(config):
-    if config.enabled("database"):
+    if config.enabled("database", option="DB_ENABLED"):
         try:
             host = config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
             dbConnectionString = (
