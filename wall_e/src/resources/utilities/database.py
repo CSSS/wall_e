@@ -23,7 +23,10 @@ def setup_database(config):
             dbConnectionString = (
                 "dbname='{}' user='{}' host='{}'".format(postgres_db_dbname, postgres_db_user, host)
             )
-            logger.info("[database.py setup_database] Postgres User dbConnectionString=[{}]".format(dbConnectionString))
+            logger.info(
+                "[database.py setup_database] "
+                "Postgres User dbConnectionString=[{}]".format(dbConnectionString)
+            )
             postgresConn = psycopg2.connect("{} password='{}'".format(dbConnectionString, postgres_password))
             logger.info("[database.py setup_database] PostgreSQL connection established")
             postgresConn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -113,7 +116,8 @@ def setup_stats_of_command_database_table(config):
                     host
                 ))
             logger.info(
-                "[database.py setup_stats_of_command_database_table()] dbConnectionString=[{}]".format(dbConnectionString)
+                "[database.py setup_stats_of_command_database_table()] "
+                "dbConnectionString=[{}]".format(dbConnectionString)
             )
             conn = psycopg2.connect(
                 "{} password='{}'".format(
@@ -132,5 +136,8 @@ def setup_stats_of_command_database_table(config):
             )
             logger.info("[database.py setup_stats_of_command_database_table()] CommandStats database table created")
         except Exception as e:
-            logger.error("[database.py setup_stats_of_command_database_table()] enountered following exception when setting up "
-                         "PostgreSQL connection\n{}".format(e))
+            logger.error(
+                "[database.py setup_stats_of_command_database_table()] enountered "
+                "following exception when setting up "
+                "PostgreSQL connection\n{}".format(e)
+            )

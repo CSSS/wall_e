@@ -151,7 +151,8 @@ class Administration(commands.Cog):
         combinedFilter = '", "'.join(str(e) for e in filters)
         combinedFilter = "\"{}\"".format(combinedFilter)
         sqlQuery = "select {} from commandstats;".format(combinedFilter)
-        logger.info("[Administration determine_x_y_frequency()] initial sql query to determine what entries needs to be"
+        logger.info("[Administration determine_x_y_frequency()] initial "
+                    "sql query to determine what entries needs to be"
                     " created with the filter specified above:\n\t{}".format(sqlQuery))
         dbCurr.execute(sqlQuery)
         # getting all the rows that need to be graphed
@@ -198,7 +199,8 @@ class Administration(commands.Cog):
                 overarchingWHereClause += ' AND NOT ( {} )'.format(whereClause)
             else:
                 overarchingWHereClause += ' NOT ( {} )'.format(whereClause)
-            logger.info("[Administration determine_x_y_frequency()] updated where clause for discriminating against all "
+            logger.info("[Administration determine_x_y_frequency()] "
+                        "updated where clause for discriminating against all "
                         "entries that have already been recorded:\n\t{}".format(overarchingWHereClause))
             sqlQuery = "select {} from commandstats WHERE ({});".format(combinedFilter, overarchingWHereClause)
             logger.info("[Administration determine_x_y_frequency()] updated sql query to determine what remaining "
