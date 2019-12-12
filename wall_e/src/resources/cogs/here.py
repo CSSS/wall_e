@@ -21,9 +21,9 @@ class Here(commands.Cog):
     def build_embed(members, channel):
         # build response
 
-        title = "Users in **#" + channel.name + "**"
+        title = "Users in **#{}**".format(channel.name)
 
-        logger.info("[Here here()] creating an embed with title \"" + title + "\"")
+        logger.info("[Here Administration()] creating an embed with title \"{}\"".format(title))
         embed = discord.Embed(type="rich")
         embed.title = title
         embed.color = discord.Color.blurple()
@@ -33,7 +33,7 @@ class Here(commands.Cog):
         elif len(members) > 50:
             string = "There's a lot of people here.\n"
         else:
-            string = "The following (" + str(len(members)) + ") users have permission for this channel.\n"
+            string = "The following ({}) users have permission for this channel.\n".format(len(members))
 
             # newline separated lists of members and their nicknames
             nicks = "\n".join([member.display_name for member in members])
@@ -56,7 +56,7 @@ class Here(commands.Cog):
 
     @commands.command()
     async def here(self, ctx, *search):
-        logger.info("[Here here()] " + str(ctx.message.author) + " called here with {} arguments: {}".format(
+        logger.info("[Here here()] {} called here with {} arguments: {}".format(ctx.message.author,
                     len(search), ', '.join(search)))
 
         # find people in the channel
@@ -71,7 +71,7 @@ class Here(commands.Cog):
                                if query.lower() in m.display_name.lower() or query.lower() in str(m).lower()]) > 0]
             members = allowed
 
-        logger.info("[Here here()] found " + str(len(members)) + " users in " + channel.name)
+        logger.info("[Here here()] found {} users in {}".format(len(members), channel.name))
 
         embed = Here.build_embed(members, channel)
 

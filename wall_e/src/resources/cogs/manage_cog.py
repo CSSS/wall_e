@@ -20,14 +20,14 @@ def getClassName():
 class ManageCog(commands.Cog):
 
     def __init__(self, bot, config):
-        logger.info("[testenv.py __init__()] initializing the TestCog")
+        logger.info("[ManageCog __init__()] initializing the TestCog")
         bot.add_check(self.check_test_environment)
         self.bot = bot
         self.config = config
 
     @commands.command(hidden=True)
     async def debuginfo(self, ctx):
-        logger.info("[testenv.py debuginfo()] debuginfo command detected from " + str(ctx.message.author))
+        logger.info("[ManageCog debuginfo()] debuginfo command detected from {}".format(ctx.message.author))
         if self.config.get_config_value("wall_e", "ENVIRONMENT") == 'TEST':
             fmt = '```You are testing the latest commit of branch or pull request: {0}```'
             await ctx.send(fmt.format(self.config.get_config_value('database', 'BRANCH_NAME')))
@@ -48,21 +48,25 @@ class ManageCog(commands.Cog):
     ########################################################
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        if self.check_test_environment(ctx) and  self.config.enabled("database", option="DB_ENABLED"):
+        if self.check_test_environment(ctx) and  \
+           self.config.enabled("database", option="DB_ENABLED"):
             try:
-                host = self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
+                host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
                 dbConnectionString = (
-                    "dbname='" + self.config.get_config_value('database', 'WALL_E_DB_DBNAME') + "' "
-                    "user='" + self.config.get_config_value('database', 'WALL_E_DB_USER') + "'"
-                    " host='" + host + "' password"
-                    "='" + self.config.get_config_value('database', 'WALL_E_DB_PASSWORD') + "'")
+                    "dbname='{}' user='{}' host='{}'".format(
+                        self.config.get_config_value('database', 'WALL_E_DB_DBNAME'),
+                        self.config.get_config_value('database', 'WALL_E_DB_USER'),
+                        host)
+                )
                 logger.info(
-                    "[main.py on_command()] dbConnectionString=[dbname="
-                    "'" + self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
-                    + "' user='" + self.config.get_config_value('database', 'WALL_E_DB_USER') + "' "
-                    "host='" + host + "' password='******']")
-                conn = psycopg2.connect(dbConnectionString)
-                logger.info("[main.py on_command()] PostgreSQL connection established")
+                    "[ManageCog on_command()] dbConnectionString=[{}]".format(dbConnectionString))
+                conn = psycopg2.connect(
+                    "{} password=''".format(
+                        dbConnectionString,
+                        self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
+                    )
+                )
+                logger.info("[ManageCog on_command()] PostgreSQL connection established")
                 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
                 curs = conn.cursor()
                 epoch_time = int(time.time())
@@ -80,27 +84,37 @@ class ManageCog(commands.Cog):
                 successful = False
                 while not successful:
                     try:
-                        sqlCommand = ("""INSERT INTO CommandStats ( epoch_time, YEAR, MONTH, DAY, HOUR,
-                                      channel_name, Command, invoked_with,
-                                      "invoked_subcommand\") VALUES (""" + str(epoch_time) + """,""" + current_year
-                                      + """,""" + current_month + """,""" + current_day + """,""" + current_hour
-                                      + """,'""" + channel_name + """', '"""
-                                      + command + """','""" + method_of_invoke + """','"""
-                                      + invoked_subcommand + """');""")
-                        logger.info("[main.py on_command()] sqlCommand=[" + sqlCommand + "]")
+                        sqlCommand = (
+                            "INSERT INTO CommandStats ( epoch_time, YEAR, "
+                            "MONTH, DAY, HOUR, channel_name, Command, invoked_with, "
+                            "invoked_subcommand) VALUES ({},{} ,{},{},{} ,'{}', "
+                            "'{}','{}','{}');".format(
+                                epoch_time,
+                                current_year,
+                                current_month,
+                                current_day,
+                                current_hour,
+                                channel_name,
+                                command,
+                                method_of_invoke,
+                                invoked_subcommand
+                            )
+                        )
+                        logger.info("[ManageCog on_command()] sqlCommand=[{}]".format(sqlCommand))
                         curs.execute(sqlCommand)
                     except psycopg2.IntegrityError as e:
-                        logger.error("[main.py on_command()] enountered following exception when trying to insert the"
+                        logger.error("[ManageCog on_command()] "
+                                     "enountered following exception when trying to insert the"
                                      " record\n{}".format(e))
                         epoch_time += 1
-                        logger.info("[main.py on_command()] incremented the epoch_time to " + str(epoch_time) + " and"
-                                    " will try again.")
+                        logger.info("[ManageCog on_command()] incremented the epoch_time to {} and"
+                                    " will try again.".format(epoch_time))
                     else:
                         successful = True
                 curs.close()
                 conn.close()
             except Exception as e:
-                logger.error("[main.py on_command()] enountered following exception when setting up PostgreSQL "
+                logger.error("[ManageCog on_command()] enountered following exception when setting up PostgreSQL "
                              "connection\n{}".format(e))
 
     ####################################################
@@ -111,13 +125,12 @@ class ManageCog(commands.Cog):
     async def on_command_error(self, ctx, error):
         if self.check_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
-                fmt = 'Missing argument: {0}'
-                logger.error('[main.py on_command_error()] ' + fmt.format(error.param))
+                logger.error('[ManageCog on_command_error()] Missing argument: {0}'.format(error.param))
                 eObj = await imported_embed(
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description=fmt.format(error.param)
+                    description="Missing argument: {}".format(error.param)
                 )
                 if eObj is not False:
                     await ctx.send(embed=eObj)
@@ -135,16 +148,17 @@ class ManageCog(commands.Cog):
     # commands
     @commands.Cog.listener()
     async def on_ready(self):
-        logger.info("[testenv.py on_ready()] aquired list of channels = " + str(self.bot.guilds[0].channels))
+        logger.info("[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels))
         if self.config.get_config_value("wall_e", "ENVIRONMENT") == 'TEST':
             logger.info(
-                "[testenv.py on_ready()] aquired list of channels = " + str(self.bot.guilds[0].channels)
+                "[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels)
             )
             channels = self.bot.guilds[0].channels
             branch_name = self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
             if discord.utils.get(channels, name=branch_name) is None:
                 logger.info(
-                    "[testenv.py on_ready()] creating the text channel"
-                    " " + self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
+                    "[ManageCog on_ready()] creating the text channel {}".format(
+                        self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
                     )
+                )
                 await self.bot.guilds[0].create_text_channel(branch_name)

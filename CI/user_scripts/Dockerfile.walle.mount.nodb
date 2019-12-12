@@ -1,0 +1,3 @@
+FROM sfucsssorg/wall_e
+
+CMD ["python", "./main.py" ]

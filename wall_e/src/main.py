@@ -3,10 +3,10 @@ import importlib
 import os
 
 from resources.cogs.manage_cog import ManageCog
-from resources.utilities.config.config import WalleConfig as config
+from resources.utilities.config.config import WallEConfig as config
 from resources.utilities.database import setupDB, setupStatsOfCommandsDBTable
 from resources.utilities.embed import embed as imported_embed
-from resources.utilities.logger import initalizeLogger
+from resources.utilities.logger_setup import initalizeLogger
 from resources.utilities.log_channel import write_to_bot_log_channel
 
 bot = commands.Bot(command_prefix='.')
@@ -20,8 +20,8 @@ config = config(os.environ['ENVIRONMENT'])
 @bot.event
 async def on_ready():
     logger.info('[main.py on_ready()] Logged in as')
-    logger.info('[main.py on_ready()] ' + bot.user.name)
-    logger.info('[main.py on_ready()] ' + str(bot.user.id))
+    logger.info('[main.py on_ready()] {}'.format(bot.user.name))
+    logger.info('[main.py on_ready()] {}'.format(str(bot.user.id)))
     logger.info('[main.py on_ready()] ------')
     config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
     config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
@@ -79,7 +79,7 @@ async def on_member_join(member):
         )
         if eObj is not False:
             await member.send(embed=eObj)
-            logger.info("[main.py on_member_join] embed sent to member " + str(member))
+            logger.info("[main.py on_member_join] embed sent to member {}".format(member))
 
 ####################
 # STARTING POINT ##
@@ -92,14 +92,15 @@ if __name__ == "__main__":
         setupStatsOfCommandsDBTable(config)
     # tries to open log file in prep for write_to_bot_log_channel function
     try:
-        logger.info("[main.py] trying to open " + FILENAME + ".log to be able to send its output to #bot_log channel")
-        f = open(FILENAME + '.log', 'r')
+        logger.info("[main.py] trying to open {}.log to be able to send "
+                    "its output to #bot_log channel".format(FILENAME))
+        f = open('{}.log'.format(FILENAME), 'r')
         f.seek(0)
         bot.loop.create_task(write_to_bot_log_channel(bot, config, f))
         logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
-                     "following error" + str(e))
+                     "following error{}".format(e))
 
     # load the code dealing with test server interaction
     try:
@@ -125,6 +126,6 @@ if __name__ == "__main__":
             exception = '{}: {}'.format(type(e).__name__, e)
             logger.error('[main.py] Failed to load command {}\n{}'.format(cog, exception))
         if commandLoaded:
-            logger.info("[main.py] " + cog["name"] + " successfully loaded")
+            logger.info("[main.py] {} successfully loaded".format(cog["name"]))
     # final step, running the bot with the passed in environment TOKEN variable
     bot.run(config.get_config_value("basic_config", "TOKEN"))

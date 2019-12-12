@@ -10,7 +10,7 @@ COMPOSE_PROJECT_NAME_lowerCase=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolo
 testContainerName_lowerCase=$(echo "$testContainerName" | awk '{print tolower($0)}')
 docker image rm -f ${testContainerName_lowerCase} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
-docker-compose -f CI/docker-compose.yml up -d
+docker-compose -f CI/server_scripts/docker-compose.yml up -d
 sleep 20
 
 containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)

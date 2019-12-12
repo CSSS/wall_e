@@ -28,7 +28,7 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def poll(self, ctx, *questions):
-        logger.info("[Misc poll()] poll command detected from user " + str(ctx.message.author))
+        logger.info("[Misc poll()] poll command detected from user {}".format(ctx.message.author))
         name = ctx.author.display_name
         ava = ctx.author.avatar_url
         if len(questions) > 12:
@@ -87,7 +87,7 @@ class Misc(commands.Cog):
             question = questions.pop(0)
             options = 0
             for m, n in zip(numbersEmoji, questions):
-                optionString += m + ": " + n + "\n"
+                optionString += "{}: {}\n".format(m, n)
                 options += 1
 
             content = [['Options:', optionString]]
@@ -102,18 +102,18 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def urban(self, ctx, *arg):
-        logger.info("[Misc urban()] urban command detected from user " + str(ctx.message.author)
-                    + " with argument =\"" + str(arg) + "\"")
+        logger.info("[Misc urban()] urban command detected "
+                    "from user {} with argument =\"{}\"".format(ctx.message.author, arg))
         queryString = urllib.parse.urlencode({'term': " ".join(arg)})
         url = 'http://api.urbandictionary.com/v0/define?{}'.format(queryString)
-        logger.info("[Misc urban()] following url  constructed for get request =\"" + str(url) + "\"")
+        logger.info("[Misc urban()] following url  constructed for get request =\"{}\"".format(url))
         async with self.session.get(url) as res:
             data = ''
             if res.status == 200:
                 logger.info("[Misc urban()] Get request successful")
                 data = await res.json()
             else:
-                logger.info("[Misc urban()] Get request failed resulted in " + str(res.status))
+                logger.info("[Misc urban()] Get request failed resulted in {}".format(res.status))
             data = data['list']
             if not data:
                 logger.info("[Misc urban()] sending message indicating 404 result")
@@ -129,11 +129,12 @@ class Misc(commands.Cog):
                     await ctx.send(embed=eObj)
                 return
             else:
-                logger.info("[Misc urban()] constructing embed object with definition of \"" + " ".join(arg) + "\"")
+                logger.info("[Misc urban()] constructing "
+                            "embed object with definition of \"{}\"".format(" ".join(arg)))
                 urbanUrl = 'https://www.urbandictionary.com/define.php?{}'.format(queryString)
                 # truncate to fit in embed, field values must be 1024 or fewer in length
                 definition = (
-                        data[0]['definition'][:1021] + '...' if len(data[0]['definition']) > 1024
+                        '{}...'.format(data[0]['definition'][:1021]) if len(data[0]['definition']) > 1024
                         else data[0]['definition'])
                 content = [
                     ['Definition', definition],
@@ -153,8 +154,8 @@ class Misc(commands.Cog):
     @commands.command()
     async def wolfram(self, ctx, *arg):
         arg = " ".join(arg)
-        logger.info("[Misc wolfram()] wolfram command detected from user " + str(ctx.message.author)
-                    + " with argument =\"" + str(arg) + "\"")
+        logger.info("[Misc wolfram()] wolfram command detected "
+                    "from user {} with argument =\"{}\"".format(ctx.message.author, arg))
         logger.info("[Misc wolfram()] URL being contructed")
         commandURL = arg.replace("+", "%2B")
         commandURL = commandURL.replace("(", "%28")
@@ -167,8 +168,7 @@ class Misc(commands.Cog):
         res = self.wolframClient.query(arg)
         try:
             content = [
-                ['Results from Wolfram Alpha', "`" + next(res.results).text + "`"
-                 + "\n\n[Link]({})".format(wolframURL)]]
+                ['Results from Wolfram Alpha', "`{}`\n\n[Link]({})".format(next(res.results).text, wolframURL)]]
             eObj = await embed(
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
@@ -195,8 +195,8 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def emojispeak(self, ctx, *args):
-        logger.info("[Misc emojispeak()] emojispeak command detected from user " + str(ctx.message.author) + " with "
-                    "argument =\"" + str(args) + "\"")
+        logger.info("[Misc emojispeak()] emojispeak command "
+                    "detected from user {} with argument =\"{}\"".format(ctx.message.author, args))
         numArr = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:"]
         output = ""
         for word in args:
@@ -227,7 +227,7 @@ class Misc(commands.Cog):
                     else:
                         # If letter, output regional indicator emoji
                         if char.isalpha():
-                            output += ":regional_indicator_" + char.lower() + ":"
+                            output += ":regional_indicator_{}:".format(char.lower())
                         # If number, output number emoji
                         elif char.isdigit():
                             output += numArr[int(char)]
@@ -242,17 +242,18 @@ class Misc(commands.Cog):
                             output += char
             output += " "
         # Mention the user, and send the emote speak
-        logger.info("[Misc emojispeak()] deleting" + str(ctx.message))
+        logger.info("[Misc emojispeak()] deleting {}".format(ctx.message))
         await ctx.message.delete()
-        logger.info("[Misc emojispeak()] sending" + str(ctx.author.mention) + " says " + output)
-        await ctx.send(ctx.author.mention + " says " + output)
+        logger.info("[Misc emojispeak()] sending {} says ".format(ctx.author.mention, output))
+        await ctx.send("{} says {}".format(ctx.author.mention, output))
 
     async def GeneralDescription(self, ctx):
         numberOfCommandsPerPage = 5
-        logger.info("[Misc help()] help command detected from " + str(ctx.message.author))
-        logger.info("[Misc help()] attempting to load command info from help.json")
+        logger.info("[Misc GeneralDescription()] help command detected from {}".format(ctx.message.author))
+        logger.info("[Misc GeneralDescription()] attempting to load command info from help.json")
         helpDict = self.config.get_help_json()
-        logger.info("[Misc help()] loaded commands from help.json=\n" + str(json.dumps(helpDict, indent=3)))
+        logger.info("[Misc GeneralDescription()] loaded "
+                    "commands from help.json=\n{}".format(json.dumps(helpDict, indent=3)))
         user_perms = await getListOfUserPerms(ctx)
         user_roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
         descriptionToEmbed = [""]
@@ -262,14 +263,15 @@ class Misc(commands.Cog):
                 for role in entry[entry['access']]:
                     if (role in user_roles or (role == 'public')):
                         if 'Class' in entry['name'] and 'Bot_manager' in user_roles:
-                            logger.info("[Misc help()] adding " + str(entry) + " to page"
-                                        " " + str(page) + " of the descriptionToEmbed")
-                            descriptionToEmbed[page] += "\n**" + entry['name'] + "**: " + "\n"
+                            logger.info("[Misc GeneralDescription()] "
+                                        "adding {} to page {} of the descriptionToEmbed".format(entry, page))
+                            descriptionToEmbed[page] += "\n**{}**: \n".format(entry['name'])
                         else:
-                            logger.info("[Misc help()] adding " + str(entry) + " to page"
-                                        " " + str(page) + " of the descriptionToEmbed")
-                            descriptionToEmbed[page] += ("*" + "/".join(entry['name']) + "* -"
-                                                         " " + entry['description'][0] + "\n\n")
+                            logger.info("[Misc GeneralDescription()] "
+                                        "adding {} to page {} of the descriptionToEmbed".format(entry, page))
+                            descriptionToEmbed[page] += (
+                                "*{}* - {}\n\n".format("/".join(entry['name']), entry['description'][0])
+                            )
                             x += 1
                             if x == numberOfCommandsPerPage:
                                 descriptionToEmbed.append("")
@@ -278,10 +280,11 @@ class Misc(commands.Cog):
             elif entry['access'] == "permissions":
                 for permission in entry[entry['access']]:
                     if permission in user_perms:
-                        logger.info("[Misc help()] adding " + str(entry) + " to page"
-                                    " " + str(page) + " of the descriptionToEmbed")
-                        descriptionToEmbed[page] += ("*" + "/".join(entry['name']) + "* -"
-                                                     " " + entry['description'][0] + "\n\n")
+                        logger.info("[Misc GeneralDescription()] "
+                                    "adding {} to page {} of the descriptionToEmbed".format(entry, page))
+                        descriptionToEmbed[page] += (
+                            "*{}* - {}\n\n".format("/".join(entry['name']), entry['description'][0])
+                        )
                         x += 1
                         if x == numberOfCommandsPerPage:
                             descriptionToEmbed.append("")
@@ -289,28 +292,29 @@ class Misc(commands.Cog):
                             x = 0
                         break
             else:
-                logger.info("[Misc help()] " + str(entry) + " has a wierd access level of " + str(entry['access'])
-                            + "....not sure how to handle it so not adding it to the descriptionToEmbed")
-        logger.info("[Misc help()] transfer successful")
+                logger.info("[Misc GeneralDescription()] {} has a wierd "
+                            "access level of {}....not sure how to handle "
+                            "it so not adding it to the descriptionToEmbed".format(entry, entry['access']))
+        logger.info("[Misc GeneralDescription()] transfer successful")
         await paginateEmbed(self.bot, ctx, self.config, descriptionToEmbed, title="Help Page")
 
     async def specificDescription(self, ctx, command):
         helpDict = self.config.get_help_json()
-        logger.info("[Misc specificDescription()] invoked by user " + str(ctx.message.author) + " for "
-                    "command " + str(command))
+        logger.info("[Misc specificDescription()] invoked by user {} for "
+                    "command ".format(command))
         for entry in helpDict['commands']:
             for name in entry['name']:
                 if name == command[0]:
-                    logger.info("[Misc specificDescription()] loading the entry for command"
-                                " " + str(command[0]) + " :\n\n" + str(entry))
+                    logger.info("[Misc specificDescription()] loading the "
+                                "entry for command {} :\n\n{}".format(command[0], entry))
                     descriptions = ""
                     for description in entry['description']:
-                        descriptions += description + "\n\n"
+                        descriptions += "{}\n\n".format(description)
                     descriptions += "\n\nExample:\n"
                     descriptions += "\n".join(entry['example'])
                     eObj = await embed(
                         ctx,
-                        title="Man Entry for " + str(command[0]),
+                        title="Man Entry for {}".format(command[0]),
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                         description=descriptions
@@ -318,7 +322,7 @@ class Misc(commands.Cog):
                     if eObj is not False:
                         msg = await ctx.send(content=None, embed=eObj)
                         logger.info("[Misc specificDescription()] embed created and sent for "
-                                    "command " + str(command[0]))
+                                    "command {}".format(command[0]))
                         await msg.add_reaction('✅')
                         logger.info("[Misc specificDescription()] reaction added to message")
 
@@ -326,8 +330,8 @@ class Misc(commands.Cog):
                             if not user.bot:  # just making sure the bot doesnt take its own reactions
                                 # into consideration
                                 e = str(reaction.emoji)
-                                logger.info("[Misc specificDescription()] reaction " + e + " detected "
-                                            "from " + str(user))
+                                logger.info("[Misc specificDescription()] "
+                                            "reaction {} detected from {}".format(e, user))
                                 return e.startswith(('✅'))
 
                         userReacted = False
@@ -335,7 +339,8 @@ class Misc(commands.Cog):
                             try:
                                 userReacted = await self.bot.wait_for('reaction_add', timeout=20, check=checkReaction)
                             except asyncio.TimeoutError:
-                                logger.info("[Misc specificDescription()] timed out waiting for the user's reaction.")
+                                logger.info("[Misc specificDescription()] "
+                                            "timed out waiting for the user's reaction.")
                             if userReacted:
                                 if '✅' == userReacted[0].emoji:
                                     logger.info("[Misc specificDescription()] user indicates they are done with the "
@@ -350,8 +355,8 @@ class Misc(commands.Cog):
     @commands.command(aliases=['man'])
     async def help(self, ctx, *arg):
         await ctx.send("     help me.....")
-        logger.info("[Misc help()] help command detected from " + str(ctx.message.author) + " with the "
-                    "argument " + str(arg))
+        logger.info("[Misc help()] help command detected "
+                    "from {} with the argument {}".format(ctx.message.author, arg))
         if len(arg) == 0:
             await self.GeneralDescription(ctx)
         else:

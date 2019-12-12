@@ -16,7 +16,7 @@ class HealthChecks(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        logger.info("[HealthChecks ping()] ping command detected from " + str(ctx.message.author))
+        logger.info("[HealthChecks ping()] ping command detected from {}".format(ctx.message.author))
         eObj = await embed(
             ctx,
             description='Pong!',
@@ -31,9 +31,9 @@ class HealthChecks(commands.Cog):
         user = ctx.author.display_name
         arg = ''
         for argument in args:
-            arg += argument + ' '
-        logger.info("[HealthChecks echo()] echo command detected from " + str(ctx.message.author) + " with argument "
-                    + str(arg))
+            arg += ' '.format(argument)
+        logger.info("[HealthChecks echo()] echo command "
+                    "detected from {} with argument {}".format(ctx.message.author, arg))
         avatar = ctx.author.avatar_url
         eObj = await embed(ctx, author=user, avatar=avatar, description=arg)
         if eObj is not False:

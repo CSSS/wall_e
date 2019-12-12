@@ -2,22 +2,22 @@ version: '3' #docker-compose version
 services:  #Services that are needed for the wall_e app
     wall_e: #the wall_e app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_wall_e
         build:
-            context: ../ #Saying that all of my source files are at the root path
-            dockerfile: CI/Dockerfile.walle
+            context: ../../ #Saying that all of my source files are at the root path
+            dockerfile: CI/server_scripts/Dockerfile.walle
         environment:
-            - ENVIRONMENT
-            - BOT_LOG_CHANNEL
-            - API_TOKEN
-            - REMINDER_CHANNEL
             - TOKEN
-            - COMPOSE_PROJECT_NAME
+            - BOT_LOG_CHANNEL
+            - REMINDER_CHANNEL
             - BRANCH_NAME
-            - WALL_E_DB_USER
-            - WALL_E_DB_DBNAME
-            - WALL_E_DB_PASSWORD
+            - ENVIRONMENT
+            - COMPOSE_PROJECT_NAME
+            - WOLFRAM_API_TOKEN
             - POSTGRES_DB_USER
             - POSTGRES_DB_DBNAME
             - POSTGRES_PASSWORD
+            - WALL_E_DB_USER
+            - WALL_E_DB_DBNAME
+            - WALL_E_DB_PASSWORD
         volumes: #volume are for hot reload
             - logs:/usr/src/app/logs
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container

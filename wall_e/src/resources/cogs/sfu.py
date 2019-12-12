@@ -23,8 +23,8 @@ class SFU(commands.Cog):
 
     @commands.command()
     async def sfu(self, ctx, *course):
-        logger.info('[SFU sfu()] sfu command detected from user ' + str(ctx.message.author))
-        logger.info('[SFU sfu()] arguments given: ' + str(course))
+        logger.info('[SFU sfu()] sfu command detected from user {}'.format(ctx.message.author))
+        logger.info('[SFU sfu()] arguments given: {}'.format(course))
 
         if(not course):
             eObj = await embed(
@@ -97,7 +97,7 @@ class SFU(commands.Cog):
                     data += str(chunk.decode())
                 data = json.loads(data)
             else:
-                logger.info('[SFU sfu()] get resulted in ' + str(res.status))
+                logger.info('[SFU sfu()] get resulted in {}'.format(res.status))
                 eObj = await embed(
                     ctx,
                     title='Results from SFU',
@@ -145,16 +145,16 @@ class SFU(commands.Cog):
 
     @commands.command()
     async def outline(self, ctx, *course):
-        logger.info('[SFU outline()] outline command detected from user ' + str(ctx.message.author))
-        logger.info('[SFU outline()] arguments given: ' + str(course))
+        logger.info('[SFU outline()] outline command detected from user {}'.format(ctx.message.author))
+        logger.info('[SFU outline()] arguments given: {}'.format(course))
 
         usage = [
                 ['Usage', '`.outline <course> [<term> <section> next]`\n*<term>, <section>, and next are optional ar'
-                    + 'guments*\nInclude the keyword `next` to look at the next semester\'s outline. Note: `next` is'
-                    + ' used for course registration purposes and if the next semester info isn\'t available it\'ll '
-                    + 'return an error.'],
+                    'guments*\nInclude the keyword `next` to look at the next semester\'s outline. Note: `next` is'
+                    ' used for course registration purposes and if the next semester info isn\'t available it\'ll '
+                    'return an error.'],
                 ['Example', '`.outline cmpt300\n .outline cmpt300 fall\n .outline cmpt300 d200\n .outline cmpt300'
-                 + ' spring d200\n .outline cmpt300 next`']]
+                 ' spring d200\n .outline cmpt300 next`']]
 
         if(not course):
             eObj = await embed(
@@ -279,7 +279,7 @@ class SFU(commands.Cog):
                         section = x['value']
                         break
             else:
-                logger.info('[SFU outline()] section get resulted in ' + str(res.status))
+                logger.info('[SFU outline()] section get resulted in {}'.format(res.status))
                 eObj = await embed(
                     ctx,
                     title='SFU Course Outlines',
@@ -301,7 +301,7 @@ class SFU(commands.Cog):
 
         url = 'http://www.sfu.ca/bin/wcm/course-outlines?{0}/{1}/{2}/{3}/{4}'.format(year, term, courseCode,
                                                                                      courseNum, section)
-        logger.info('[SFU outline()] url for get constructed: ' + url)
+        logger.info('[SFU outline()] url for get constructed: {}'.format(url))
 
         res = await self.req.get(url)
 
@@ -314,7 +314,7 @@ class SFU(commands.Cog):
 
             data = json.loads(data)
         else:
-            logger.info('[SFU outline()] full outline get resulted in ' + str(res.status))
+            logger.info('[SFU outline()] full outline get resulted in {}'.format(res.status))
             eObj = await embed(
                 ctx,
                 title='SFU Course Outlines',
@@ -348,7 +348,7 @@ class SFU(commands.Cog):
                 colour=sfuRed,
                 description=(
                     'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? Or isn\'t offered '
-                    + 'right now.'.format(courseCode.upper(), str(courseNum).upper())),
+                    'right now.'.format(courseCode.upper(), str(courseNum).upper())),
                 footer='SFU Outline Error')
             if eObj is not False:
                 await ctx.send(embed=eObj)
@@ -370,12 +370,12 @@ class SFU(commands.Cog):
         crs = ''
         for x in schedule:
             # [LEC] days time, room, campus
-            secCode = '[' + x['sectionCode'] + ']'
+            secCode = '[{}]'.format(x['sectionCode'])
             days = x['days']
-            tme = x['startTime'] + '-' + x['endTime']
-            room = x['buildingCode'] + ' ' + x['roomNumber']
+            tme = '{}-{}'.format(x['startTime'], x['endTime'])
+            room = '{} {}'.format(x['buildingCode'], x['roomNumber'])
             campus = x['campus']
-            crs = crs + secCode + ' ' + days + ' ' + tme + ', ' + room + ', ' + campus + '\n'
+            crs = '{}{} {} {}, {}, {}\n'.format(crs, secCode, days, tme, room, campus)
 
         classTimes = crs
 
@@ -386,16 +386,21 @@ class SFU(commands.Cog):
         date = ''
         try:
             # Course might not have an exam
-            tim = data['examSchedule'][0]['startTime'] + '-' + data['examSchedule'][0]['endTime']
+            tim = '{}-{}'.format(data['examSchedule'][0]['startTime'], data['examSchedule'][0]['endTime'])
             date = data['examSchedule'][0]['startDate'].split()
-            date = date[0] + ' ' + date[1] + ' ' + date[2]
+            date = '{} {] {}'.format(date[0], date[1], date[2])
 
-            examTimes = tim + ' ' + date
+            examTimes = '{} {}'.format(tim, date)
 
             # Room info much later
-            roomInfo = data['examSchedule'][0]['buildingCode'] + ' ' + data['schedule']['roomNumber'] + ', '
-            + data['examSchedule'][0]['campus']
-            examTimes += '\n' + roomInfo
+            roomInfo = (
+                '{} {}, {}'.format(
+                    data['examSchedule'][0]['buildingCode'],
+                    data['schedule']['roomNumber'],
+                    data['examSchedule'][0]['campus']
+                )
+            )
+            examTimes += '\n{}'.format(roomInfo)
         except Exception:
             pass
         # Other details
@@ -405,7 +410,7 @@ class SFU(commands.Cog):
             details = html.unescape(data['info']['courseDetails'])
             details = re.sub('<[^<]+?>', '', details)
             if(len(details) > 200):
-                details = details[:200] + '\n(...)'
+                details = '{}\n(...)'.format(details[:200])
         except Exception:
             details = 'None'
         try:

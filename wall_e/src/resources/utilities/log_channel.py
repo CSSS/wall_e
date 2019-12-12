@@ -19,7 +19,10 @@ async def write_to_bot_log_channel(bot, config, f):
     branch_name = config.get_config_value("basic_config", "BRANCH_NAME")
     log_channel_name = config.get_config_value("basic_config", "BOT_LOG_CHANNEL")
     if (env == "LOCALHOST" or env == "PRODUCTION") and log_channel_name == 'NONE':
-        print("no name detected for bot log channel in settings....exit")
+        logger.info(
+            "[log_channel.py write_to_bot_log_channel()] "
+            "no name detected for bot log channel in settings....exit"
+        )
 
     if env == "LOCALHOST":
         log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
@@ -27,7 +30,7 @@ async def write_to_bot_log_channel(bot, config, f):
             log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
         bot_log_channel = log_channel.id
     elif env == "TEST":
-        log_channel_name = branch_name.lower() + '_logs'
+        log_channel_name = '_logs'.format(branch_name.lower())
         log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
         if log_channel is None:
             log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
@@ -38,11 +41,15 @@ async def write_to_bot_log_channel(bot, config, f):
 
     channel = bot.get_channel(bot_log_channel)  # channel ID goes here
     if channel is None:
-        logger.error("[main.py write_to_bot_log_channel] could not retrieve the bot_log channel with id "
-                     + str(bot_log_channel) + " . Please investigate further")
+        logger.error(
+            "[log_channel.py write_to_bot_log_channel] could not retrieve the bot_log channel "
+            "with id {} . Please investigate further".format(bot_log_channel)
+        )
     else:
-        logger.info("[main.py write_to_bot_log_channel] bot_log channel with id " + str(bot_log_channel)
-                    + " successfully retrieved.")
+        logger.info(
+            "[log_channel.py write_to_bot_log_channel] bot_log channel "
+            "with id {} successfully retrieved.".format(bot_log_channel)
+        )
         while not bot.is_closed():
             f.flush()
             line = f.readline()
@@ -51,7 +58,7 @@ async def write_to_bot_log_channel(bot, config, f):
                     # this was done so that no one gets accidentally pinged from the bot log channel
                     line = line.replace("@", "[at]")
                     if line[0] == ' ':
-                        line = "." + line
+                        line = ".{}".format(line)
                     output = line
                     # done because discord has a character limit of 2000 for each message
                     # so what basically happens is it first tries to send the full message, then if it cant, it
@@ -67,8 +74,14 @@ async def write_to_bot_log_channel(bot, config, f):
                             lastIndex += 2000
                             if len(output[firstIndex:lastIndex]) == 0:
                                 finished = True
+                    except RuntimeError:
+                        logger.info("[log_channel.py write_to_bot_log_channel] encountered RuntimeError, "
+                                    " will assume that the user is attempting to exit")
+                        break
                     except Exception as exc:
                         exc_str = '{}: {}'.format(type(exc).__name__, exc)
-                        logger.error('[main.py write_to_bot_log_channel] write to channel failed\n{}'.format(exc_str))
+                        logger.error(
+                            '[log_channel.py write_to_bot_log_channel] write to channel failed\n{}'.format(exc_str)
+                        )
                 line = f.readline()
             await asyncio.sleep(1)

@@ -36,7 +36,7 @@ class Mod(commands.Cog):
 
     @commands.command(aliases=['em'])
     async def embed(self, ctx, *arg):
-        logger.info('[Mod embed()] embed function detected by user ' + str(ctx.message.author))
+        logger.info('[Mod embed()] embed function detected by user {}'.format(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod embed()] invoking message deleted')
 
@@ -73,7 +73,7 @@ class Mod(commands.Cog):
 
     @commands.command(aliases=['warn'])
     async def modspeak(self, ctx, *arg):
-        logger.info('[Mod modspeak()] modspeack function detected by minion ' + str(ctx.message.author))
+        logger.info('[Mod modspeak()] modspeack function detected by minion {}'.format(ctx.message.author))
         await ctx.message.delete()
         logger.info('[Mod modspeak()] invoking message deleted')
 
@@ -88,7 +88,7 @@ class Mod(commands.Cog):
 
         msg = ''
         for wrd in arg:
-            msg += wrd + ' '
+            msg += ' '.format(wrd)
 
         eObj = await em(ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name,
                         avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')

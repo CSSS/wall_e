@@ -16,7 +16,7 @@ help_json_location = "resources/locales/"
 help_json_file_name = "help.json"
 
 
-class WalleConfig():
+class WallEConfig():
     def __init__(self, environment):
         config = configparser.ConfigParser()
         config.optionxform = str
@@ -27,7 +27,7 @@ class WalleConfig():
         elif (environment == "PRODUCTION"):
             config.read(config_file_location_prouction)
         else:
-            print("incorrect environment specified {}".format(environment))
+            logger.info("[WallEConfig __init__()] incorrect environment specified {}".format(environment))
         self.config = {}
         self.config['wall_e'] = config
 
@@ -38,13 +38,15 @@ class WalleConfig():
         if self.config['wall_e'].has_option(section, option) and self.config['wall_e'].get(section, option) != '':
             return self.config['wall_e'].get(section, option)
 
-        logger.info("[get_config_value] no key found for option {} under section {}".format(option, section))
+        logger.info(
+            "[WallEConfig get_config_value()] no key found for option {} under section {}".format(option, section)
+        )
         return "NONE"
 
     def enabled(self, section, option="enabled"):
         if option in os.environ:
             return os.environ[option] == "1"
-        
+
         return self.config["wall_e"].get(section, option) == "1"
 
     def set_config_value(self, section, option, value):
@@ -60,7 +62,8 @@ class WalleConfig():
         cogs_to_load = []
         cogs = self.config['wall_e']
         for cog in cogs['cogs_enabled']:
-            if int(cogs['cogs_enabled'][cog]) == 1 and ( ( cog != 'reminders' ) or ( cog == 'reminders' and self.enabled("database", option="DB_ENABLED") ) ):
+            if int(cogs['cogs_enabled'][cog]) == 1 and ((cog != 'reminders') or
+               (cog == 'reminders' and self.enabled("database", option="DB_ENABLED"))):
                 cogDict = {}
                 cogDict['name'] = cog
                 cogDict['path'] = cog_location_python_path

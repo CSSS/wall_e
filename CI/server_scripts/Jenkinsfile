@@ -27,7 +27,7 @@ pipeline {
                     export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
                     export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
 
-                    ./CI/validate-formatting.sh;
+                    ./CI/server_scripts/validate-formatting.sh;
                 \'"""
             }
         }
@@ -39,7 +39,7 @@ pipeline {
                         export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
                         export DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD};
                         export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
-                        ./CI/create-docker-image.sh
+                        ./CI/server_scripts/create-docker-image.sh
                     \'"""
                 }
             }
@@ -59,7 +59,7 @@ pipeline {
                         export WALL_E_DB_PASSWORD=wallEPassword;
                         export TOKEN=${TOKEN};
 
-                        ./CI/deploy-to-test-server.sh;
+                        ./CI/server_scripts/deploy-to-test-server.sh;
                     \'"""
                 }
             }
@@ -96,7 +96,7 @@ pipeline {
               export BOT_LOG_CHANNEL=dem_logs;
               export REMINDER_CHANNEL=bot_commands_and_misc;
 
-              ./CI/deploy-to-prod-server.sh;
+              ./CI/server_scripts/deploy-to-prod-server.sh;
           \'"""
           }
         }

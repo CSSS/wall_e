@@ -1,0 +1,3 @@
+FROM sfucsssorg/wall_e
+
+CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]

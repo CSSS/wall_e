@@ -2,8 +2,8 @@ version: '3' #docker-compose version
 services:  #Services that are needed for the wall_e app
     wall_e: #the wall_e app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_wall_e
         build:
-            context: ../ #root path to start at just for the Dockerfile
-            dockerfile: CI/Dockerfile.walle.mount
+            context: ../../ #root path to start at just for the Dockerfile
+            dockerfile: CI/user_scripts/Dockerfile.walle.mount
         environment:
             - ENVIRONMENT
             - TOKEN
@@ -30,7 +30,7 @@ services:  #Services that are needed for the wall_e app
             - sfu
         volumes: #volume are for hot reload
             - logs:/usr/src/app/logs
-            - ../wall_e/src:/usr/src/app #volumes use the current directory, not the context directory for file paths
+            - ../../wall_e/src:/usr/src/app #volumes use the current directory, not the context directory for file paths
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
