@@ -298,23 +298,27 @@ class Reminders(commands.Cog):
                         )
                     )
                     REMINDER_CHANNEL_ID = reminder_chan.id
-            else:
-                reminder_chan = discord.utils.get(
-                    self.bot.guilds[0].channels,
-                    name=self.config.get_config_value('basic_config', 'ENVIRONMENT').lower() + '_reminders'
+            elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
+                reminder_channel_name = self.config.get_config_value('basic_config', 'REMINDER_CHANNEL')
+                logger.info(
+                    "[Reminders get_messages()] environment is =[{}]".format(
+                        self.config.get_config_value('basic_config', 'ENVIRONMENT')
+                    )
                 )
-                if reminder_chan is None:
-                    reminder_chan = await self.bot.guilds[0].create_text_channel('localhost_reminders')
+                reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=reminder_channel_name)
+                if (reminder_chan is None):
+                    logger.info("[Remindes get_messages()] reminder channel does not exist in local dev.")
+                    reminder_chan = await self.bot.guilds[0].create_text_channel(reminder_channel_name)
                     REMINDER_CHANNEL_ID = reminder_chan.id
                     if REMINDER_CHANNEL_ID is None:
-                        logger.info("[Reminders get_messages()] the channel designated for reminders "
-                                    "[localhost_reminders] does not exist and I was unable to create it, "
-                                    "exiting now....")
-                        exit(1)
-                    logger.info("[Reminders get_messages()] variable \"REMINDER_CHANNEL_ID\" is set to \""
-                                + str(REMINDER_CHANNEL_ID) + "\"")
+                            logger.info("[Reminders get_messages()] the channel designated for reminders "
+                                    "[{}] in local dev does not exist and I was unable to create it "
+                                    "it, exiting now.....".format(reminder_channel_name))
+                            exit(1)
+                    logger.info("[Reminders get_messages()] variables \"REMINDER_CHANNEL_ID\" is set to \""
+                            + str(REMINDER_CHANNEL_ID) + "\"")
                 else:
-                    logger.info("[Reminders get_messages()] reminder channel exists and was detected.")
+                    logger.info("[Reminders get_messages()] reminder channel exists in local dev and was detected.")
                     REMINDER_CHANNEL_ID = reminder_chan.id
         except Exception as e:
             logger.error("[Reminders get_messages()] enountered following exception when connecting to reminder "
