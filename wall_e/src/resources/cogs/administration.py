@@ -221,65 +221,30 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def frequency(self, ctx, *args):
-        logger.info("[Administration frequency()] frequency command detected from " + str(ctx.message.author)
-                    + " with arguments [" + str(args) + "]")
-        if len(args) == 0:
-            conn = self.get_column_headers_from_database()
-            if conn is None:
-                logger.info("[Administration frequency()] unable to connect to the database")
-                await ctx.send("unable to connect to the database")
-            else:
-                await ctx.send("please specify which columns you want to count="
-                               + str(list(conn)))
-            return
-        else:
-            dicResult = self.determineXYFrequency(self.connectToDatabase(), args)
-            if dicResult is None:
-                logger.info("[Administration frequency()] unable to connect to the database")
-                await ctx.send("unable to connect to the database")
+        if (self.config.enabled("database")):
+            logger.info("[Administration frequency()] frequency command detected from " + str(ctx.message.author)
+                        + " with arguments [" + str(args) + "]")
+            if len(args) == 0:
+                conn = self.get_column_headers_from_database()
+                if conn is None:
+                    logger.info("[Administration frequency()] unable to connect to the database")
+                    await ctx.send("unable to connect to the database")
+                else:
+                    await ctx.send("please specify which columns you want to count="
+                                   + str(list(conn)))
                 return
-        dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
-        logger.info("[Administration frequency()] sorted dicResults by value")
-        if len(dicResult) <= 50:
-            logger.info("[Administration frequency()] dicResults's length is <= 50")
-            labels = [i[0] for i in dicResult]
-            numbers = [i[1] for i in dicResult]
-            plt.rcdefaults()
-            fig, ax = plt.subplots()
-            y_pos = np.arange(len(labels))
-            for i, v in enumerate(numbers):
-                ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
-            ax.barh(y_pos, numbers, align='center', color='green')
-            ax.set_yticks(y_pos)
-            ax.set_yticklabels(labels)
-            ax.invert_yaxis()  # labels read top-to-bottom
-            if len(args) > 1:
-                title = '_'.join(str(arg) for arg in args[:len(args) - 1])
-                title += "_" + args[len(args) - 1]
             else:
-                title = args[0]
-            ax.set_title("How may times each " + title + " appears in the database since Sept 21, 2018")
-            fig.set_size_inches(18.5, 10.5)
-            fig.savefig('image.png')
-            logger.info("[Administration frequency()] graph created and saved")
-            plt.close(fig)
-            await ctx.send(file=discord.File('image.png'))
-            logger.info("[Administration frequency()] graph image file has been sent")
-        else:
-            logger.info("[Administration frequency()] dicResults's length is > 50")
-            numberOfPages = int(len(dicResult) / 50)
-            if len(dicResult) % 50 != 0:
-                numberOfPages += 1
-            numOfBarsPerPage = int(len(dicResult) / numberOfPages) + 1
-            firstIndex, lastIndex = 0, numOfBarsPerPage - 1
-            msg = None
-            currentPage = 0
-            while firstIndex < len(dicResult):
-                logger.info("[Administration frequency()] creating a graph with entries " + str(firstIndex)
-                            + " to " + str(lastIndex))
-                toReact = ['⏪', '⏩', '✅']
-                labels = [i[0] for i in dicResult][firstIndex:lastIndex]
-                numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
+                dicResult = self.determineXYFrequency(self.connectToDatabase(), args)
+                if dicResult is None:
+                    logger.info("[Administration frequency()] unable to connect to the database")
+                    await ctx.send("unable to connect to the database")
+                    return
+            dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
+            logger.info("[Administration frequency()] sorted dicResults by value")
+            if len(dicResult) <= 50:
+                logger.info("[Administration frequency()] dicResults's length is <= 50")
+                labels = [i[0] for i in dicResult]
+                numbers = [i[1] for i in dicResult]
                 plt.rcdefaults()
                 fig, ax = plt.subplots()
                 y_pos = np.arange(len(labels))
@@ -289,7 +254,6 @@ class Administration(commands.Cog):
                 ax.set_yticks(y_pos)
                 ax.set_yticklabels(labels)
                 ax.invert_yaxis()  # labels read top-to-bottom
-                ax.set_xlabel("Page " + str(currentPage) + "/" + str(numberOfPages - 1))
                 if len(args) > 1:
                     title = '_'.join(str(arg) for arg in args[:len(args) - 1])
                     title += "_" + args[len(args) - 1]
@@ -300,55 +264,92 @@ class Administration(commands.Cog):
                 fig.savefig('image.png')
                 logger.info("[Administration frequency()] graph created and saved")
                 plt.close(fig)
-                if msg is None:
-                    msg = await ctx.send(file=discord.File('image.png'))
-                else:
-                    await msg.delete()
-                    msg = await ctx.send(file=discord.File('image.png'))
-                for reaction in toReact:
-                    await msg.add_reaction(reaction)
-
-                def checkReaction(reaction, user):
-                    if not user.bot:  # just making sure the bot doesnt take its own reactions
-                        # into consideration
-                        e = str(reaction.emoji)
-                        logger.info("[numOfBarsPerPage frequency()] reaction " + e + " detected from " + str(user))
-                        return e.startswith(('⏪', '⏩', '✅'))
-
+                await ctx.send(file=discord.File('image.png'))
                 logger.info("[Administration frequency()] graph image file has been sent")
-                userReacted = False
-                while userReacted is False:
-                    try:
-                        userReacted = await self.bot.wait_for('reaction_add', timeout=20, check=checkReaction)
-                    except asyncio.TimeoutError:
-                        logger.info("[Administration frequency()] timed out waiting for the user's reaction.")
-                    if userReacted:
-                        if '⏪' == userReacted[0].emoji:
-                            firstIndex -= numOfBarsPerPage
-                            lastIndex -= numOfBarsPerPage
-                            currentPage -= 1
-                            if firstIndex < 0:
-                                firstIndex, lastIndex = numOfBarsPerPage * 3, numOfBarsPerPage * 4
-                                currentPage = numberOfPages - 1
-                            logger.info("[Administration frequency()] user indicates they want to go back to page "
-                                        + str(currentPage))
-                        elif '⏩' == userReacted[0].emoji:
-                            firstIndex += numOfBarsPerPage
-                            lastIndex += numOfBarsPerPage
-                            currentPage += 1
-                            if firstIndex > len(dicResult):
-                                firstIndex, lastIndex = 0, numOfBarsPerPage
-                                currentPage = 0
-                            logger.info("[Administration frequency()] user indicates they want to go to page "
-                                        + str(currentPage))
-                        elif '✅' == userReacted[0].emoji:
-                            logger.info("[Administration frequency()] user indicates they are done with the roles "
-                                        "command, deleting roles message")
+            else:
+                logger.info("[Administration frequency()] dicResults's length is > 50")
+                numberOfPages = int(len(dicResult) / 50)
+                if len(dicResult) % 50 != 0:
+                    numberOfPages += 1
+                numOfBarsPerPage = int(len(dicResult) / numberOfPages) + 1
+                firstIndex, lastIndex = 0, numOfBarsPerPage - 1
+                msg = None
+                currentPage = 0
+                while firstIndex < len(dicResult):
+                    logger.info("[Administration frequency()] creating a graph with entries " + str(firstIndex)
+                                + " to " + str(lastIndex))
+                    toReact = ['⏪', '⏩', '✅']
+                    labels = [i[0] for i in dicResult][firstIndex:lastIndex]
+                    numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
+                    plt.rcdefaults()
+                    fig, ax = plt.subplots()
+                    y_pos = np.arange(len(labels))
+                    for i, v in enumerate(numbers):
+                        ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
+                    ax.barh(y_pos, numbers, align='center', color='green')
+                    ax.set_yticks(y_pos)
+                    ax.set_yticklabels(labels)
+                    ax.invert_yaxis()  # labels read top-to-bottom
+                    ax.set_xlabel("Page " + str(currentPage) + "/" + str(numberOfPages - 1))
+                    if len(args) > 1:
+                        title = '_'.join(str(arg) for arg in args[:len(args) - 1])
+                        title += "_" + args[len(args) - 1]
+                    else:
+                        title = args[0]
+                    ax.set_title("How may times each " + title + " appears in the database since Sept 21, 2018")
+                    fig.set_size_inches(18.5, 10.5)
+                    fig.savefig('image.png')
+                    logger.info("[Administration frequency()] graph created and saved")
+                    plt.close(fig)
+                    if msg is None:
+                        msg = await ctx.send(file=discord.File('image.png'))
+                    else:
+                        await msg.delete()
+                        msg = await ctx.send(file=discord.File('image.png'))
+                    for reaction in toReact:
+                        await msg.add_reaction(reaction)
+    
+                    def checkReaction(reaction, user):
+                        if not user.bot:  # just making sure the bot doesnt take its own reactions
+                            # into consideration
+                            e = str(reaction.emoji)
+                            logger.info("[numOfBarsPerPage frequency()] reaction " + e + " detected from " + str(user))
+                            return e.startswith(('⏪', '⏩', '✅'))
+
+                    logger.info("[Administration frequency()] graph image file has been sent")
+                    userReacted = False
+                    while userReacted is False:
+                        try:
+                            userReacted = await self.bot.wait_for('reaction_add', timeout=20, check=checkReaction)
+                        except asyncio.TimeoutError:
+                            logger.info("[Administration frequency()] timed out waiting for the user's reaction.")
+                        if userReacted:
+                            if '⏪' == userReacted[0].emoji:
+                                firstIndex -= numOfBarsPerPage
+                                lastIndex -= numOfBarsPerPage
+                                currentPage -= 1
+                                if firstIndex < 0:
+                                    firstIndex, lastIndex = numOfBarsPerPage * 3, numOfBarsPerPage * 4
+                                    currentPage = numberOfPages - 1
+                                logger.info("[Administration frequency()] user indicates they want to go back to page "
+                                            + str(currentPage))
+                            elif '⏩' == userReacted[0].emoji:
+                                firstIndex += numOfBarsPerPage
+                                lastIndex += numOfBarsPerPage
+                                currentPage += 1
+                                if firstIndex > len(dicResult):
+                                    firstIndex, lastIndex = 0, numOfBarsPerPage
+                                    currentPage = 0
+                                logger.info("[Administration frequency()] user indicates they want to go to page "
+                                            + str(currentPage))
+                            elif '✅' == userReacted[0].emoji:
+                                logger.info("[Administration frequency()] user indicates they are done with the roles "
+                                            "command, deleting roles message")
+                                await msg.delete()
+                                return
+                        else:
+                            logger.info("[Administration frequency()] deleting message")
                             await msg.delete()
                             return
-                    else:
-                        logger.info("[Administration frequency()] deleting message")
-                        await msg.delete()
-                        return
-                logger.info("[Administration frequency()] updating firstIndex and lastIndex to " + str(firstIndex)
-                            + " and " + str(lastIndex) + " respectively")
+                    logger.info("[Administration frequency()] updating firstIndex and lastIndex to " + str(firstIndex)
+                                + " and " + str(lastIndex) + " respectively")
