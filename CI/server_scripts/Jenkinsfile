@@ -52,11 +52,13 @@ pipeline {
                         export ENVIRONMENT=TEST;
                         export BRANCH_NAME=${BRANCH_NAME};
                         export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
+
                         export POSTGRES_DB_USER=postgres;
                         export POSTGRES_DB_DBNAME=postgres;
+                        export POSTGRES_PASSWORD=postgresPassword;
+
                         export WALL_E_DB_USER=wall_e;
                         export WALL_E_DB_DBNAME=csss_discord_db;
-                        export POSTGRES_PASSWORD=postgresPassword;
                         export WALL_E_DB_PASSWORD=wallEPassword;
                         export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
                         export TOKEN=${TOKEN};
@@ -71,33 +73,27 @@ pipeline {
             branch 'master'
           }
           steps {
+            withCredentials([string(credentialsId: 'DISCORD_PROD_TOKEN', variable: 'TOKEN'),
+                            string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN'),
+                            string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD'),
+                            string(credentialsId: 'WALL_E_DB_PASSWORD', variable: 'WALL_E_DB_PASSWORD')]) {
           sh label: '', script: """bash -c \'
               export ENVIRONMENT=PRODUCTION;
+              export BRANCH_NAME=${BRANCH_NAME};
               export COMPOSE_PROJECT_NAME=PRODUCTION_MASTER;
 
               export POSTGRES_DB_USER=postgres;
               export POSTGRES_DB_DBNAME=postgres;
+              export POSTGRES_PASSWORD=${POSTGRES_PASSWORD};
+
               export WALL_E_DB_USER=wall_e;
               export WALL_E_DB_DBNAME=csss_discord_db;
-
-              export CONTAINER_HOME_DIR=/usr/src/app;
-              export CONTAINER_TEST_DIR=\${CONTAINER_HOME_DIR}/tests;
-              export CONTAINER_SRC_DIR=\${CONTAINER_HOME_DIR}/src;
-
-              export LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/;
-              export LOCALHOST_TEST_DIR=test_results;
-              export TEST_RESULT_FILE_NAME=all-unit-tests.xml;
-              export LOCALHOST_TEST_DIR=${WORKSPACE}/\${LOCALHOST_TEST_DIR};
-
-              export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
-              export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
-
-              export POSTGRES_PASSWORD=postgresPassword;
-              export WALL_E_DB_PASSWORD=wallEPassword;
+              export WALL_E_DB_PASSWORD=${WALL_E_DB_PASSWORD};
 
               export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
+              export TOKEN=${TOKEN};
 
-              export BOT_LOG_CHANNEL=dem_logs;
+              export BOT_LOG_CHANNEL=bot_logs;
               export REMINDER_CHANNEL=bot_commands_and_misc;
 
               ./CI/server_scripts/deploy-to-prod-server.sh;
