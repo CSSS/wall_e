@@ -57,6 +57,7 @@ pipeline {
                         export WALL_E_DB_DBNAME=csss_discord_db;
                         export POSTGRES_PASSWORD=postgresPassword;
                         export WALL_E_DB_PASSWORD=wallEPassword;
+                        export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
                         export TOKEN=${TOKEN};
 
                         ./CI/server_scripts/deploy-to-test-server.sh;
@@ -92,6 +93,8 @@ pipeline {
 
               export POSTGRES_PASSWORD=postgresPassword;
               export WALL_E_DB_PASSWORD=wallEPassword;
+
+              export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
 
               export BOT_LOG_CHANNEL=dem_logs;
               export REMINDER_CHANNEL=bot_commands_and_misc;
