@@ -44,7 +44,7 @@ class WalleConfig():
     def enabled(self, section, option="enabled"):
         if option in os.environ:
             return os.environ[option] == "1"
-
+        
         return self.config["wall_e"].get(section, option) == "1"
 
     def set_config_value(self, section, option, value):
@@ -60,7 +60,7 @@ class WalleConfig():
         cogs_to_load = []
         cogs = self.config['wall_e']
         for cog in cogs['cogs_enabled']:
-            if int(cogs['cogs_enabled'][cog]) == 1:
+            if int(cogs['cogs_enabled'][cog]) == 1 and ( ( cog != 'reminders' ) or ( cog == 'reminders' and self.enabled("database", option="DB_ENABLED") ) ):
                 cogDict = {}
                 cogDict['name'] = cog
                 cogDict['path'] = cog_location_python_path
