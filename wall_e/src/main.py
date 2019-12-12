@@ -87,7 +87,7 @@ async def on_member_join(member):
 if __name__ == "__main__":
     logger, FILENAME = initalizeLogger()
     logger.info("[main.py] Wall-E is starting up")
-    if config.enabled("database"):
+    if config.enabled("database", option="DB_ENABLED"):
         setupDB(config)
         setupStatsOfCommandsDBTable(config)
     # tries to open log file in prep for write_to_bot_log_channel function
@@ -127,4 +127,4 @@ if __name__ == "__main__":
         if commandLoaded:
             logger.info("[main.py] " + cog["name"] + " successfully loaded")
     # final step, running the bot with the passed in environment TOKEN variable
-    bot.run(config.get_config_value("wall_e", "TOKEN"))
+    bot.run(config.get_config_value("basic_config", "TOKEN"))
