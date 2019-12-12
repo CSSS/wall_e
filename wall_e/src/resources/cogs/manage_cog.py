@@ -48,7 +48,7 @@ class ManageCog(commands.Cog):
     ########################################################
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        if self.check_test_environment(ctx) and self.config.enabled("database"):
+        if self.check_test_environment(ctx) and  self.config.enabled("database", option="DB_ENABLED"):
             try:
                 host = self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME') + '_wall_e_db'
                 dbConnectionString = (
