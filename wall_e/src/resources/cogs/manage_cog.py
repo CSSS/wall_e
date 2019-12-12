@@ -61,7 +61,7 @@ class ManageCog(commands.Cog):
                 logger.info(
                     "[ManageCog on_command()] dbConnectionString=[{}]".format(dbConnectionString))
                 conn = psycopg2.connect(
-                    "{} password=''".format(
+                    "{} password='{}'".format(
                         dbConnectionString,
                         self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
                     )
