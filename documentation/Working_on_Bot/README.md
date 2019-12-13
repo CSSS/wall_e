@@ -1,7 +1,16 @@
 # Working on the Bot
 
 - [Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
-- [Running the Bot](https://github.com/CSSS/wall_e/wiki/3.-Running-the-Bot)  
+- [Running the Bot](#running-the-bot)  
+  - [With the Database](#with-the-database)
+    - [Step 1. Re-creating the database](#step-1-re-creating-the-database)
+    - [Step 2. Launching the Bot](#step-2-launching-the-bot)
+  - [Without the Database](#without-the-database)
+    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-database-1)
+    - [Step 2. Launching the Bot](#step-2-launching-the-bot-1)
+- [Testing the Bot](#testing-the-bot)
+  - [Part 1. Run through the linter](#part-1-run-through-the-linter)
+  - [Part 2. Testing on the CSSS Bot Test Server](#part-2-testing-on-csss-bot-test-server)
 - [Making a PR to master](https://github.com/CSSS/wall_e/wiki/4.-Making-a-PR-to-master)  
 - [Test Cases](#test-cases)  
 - [Reporting Issues](https://github.com/CSSS/wall_e/wiki/5.-Reporting-Issues)  
@@ -10,26 +19,27 @@
 
 ## Running the Bot
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](documentation/Working_on_Bot#faqs) for future reference :)
+>> Due to some compatibility issues that occured in the past when wall_e was dockerized only on the server, the dev environment for wall_e was changed so that each developer doesn't have to fight with OS issues that come with some python modules that are a bit iffy. as long as you can get `docker` and `docker-compose` working, you are golden to work on wall_e.
 
 Pre-requisites: `git` and `docker`.  
 
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 2. clone the repo
 3. Wall_E Setting Specification.
-   1. Wall_e needs some settings in order to determine how some parts should be treated. The biggest component this impacts is whether or not you use wall_e with or without a containerized container. [refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/6.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
+   1. Wall_e needs some settings in order to determine how some parts should be treated. The biggest component this impacts is whether or not you use wall_e with or without a containerized container. [refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
       1. Ways to specify settings:
          1. Specify via Env varibles.
-            1. Just export the settings [here](https://github.com/CSSS/wall_e/wiki/6.-contents-of-local.ini) with the specified values
-         2. Specify via [`wall_e/src/resources/utilities/config/local.ini`](https://github.com/CSSS/wall_e/blob/use_pip_module/documentation/Working_on_the_Bot.md#localini).
+            1. Just export the settings [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) with the specified values
+         2. Specify via [`wall_e/src/resources/utilities/config/local.ini`](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini).
             1. Be sure to not remove the headers on the ini. Also, please keep in mind that if you specify the same setting both via environment variable and via `.ini` file,  the environment variable will take precedence.
          3. Via `docker-compose-mount-nodb.yml` or `docker-compose-mount.yml`.
             1. Can be done following [these instructions](https://docs.docker.com/compose/environment-variables/#set-environment-variables-in-containers). Note that this is the same as via Env variables. The only difference is using this option will not result in the env variable be declared in your shell environment variable.
          4. As you may see from the link in the previous point, docker provides multiple ways to pass variables. You can use any that work for you.
-4. Commands for the bot
-> Due to some compatibility issues that occured in the past when wall_e was dockerized only on the server, the dev environment for wall_e was changed so that each developer doesn't have to fight with OS issues that come with some python modules that are a bit iffy. as long as you can get `docker` and `docker-compose` working, you are golden to work on wall_e.
+
+
 ### With the database
 
-#### Step 1. Re-creating the database
+#### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you
  * made changes to the wall_e/src/requirements.txt file or
  * made changes to the CI/server_scripts/Dockerfile.base file
@@ -57,7 +67,7 @@ export DB_ENABLED=1;
 
 ### Without the Database
 
-#### Step 1. Re-creating the database
+#### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you
  * made changes to the wall_e/src/requirements.txt file or
  * made changes to the CI/server_scripts/Dockerfile.base file
@@ -71,7 +81,6 @@ export COMPOSE_PROJECT_NAME=whatever_you_want;
 
 #### Step 2. Launching the Bot
 
-#### Launching the bot
 ```shell
 export ENVIRONMENT=LOCALHOST;
 export DB_ENABLED=0;
