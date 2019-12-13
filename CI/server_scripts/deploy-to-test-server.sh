@@ -20,7 +20,7 @@ docker network rm ${COMPOSE_PROJECT_NAME_lowerCase}_default || true
 docker image rm -f ${testImageName_lowerCase} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
-docker-compose -f CI/server_scripts/docker-compose.yml up -d
+docker-compose --force-recreate -f CI/server_scripts/docker-compose.yml up -d
 sleep 20
 
 export containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)

@@ -29,7 +29,7 @@ rm -r ${LOCALHOST_TEST_DIR} || true
 mkdir -p ${LOCALHOST_TEST_DIR}
 
 
-docker build -t ${DOCKER_TEST_IMAGE} \
+docker build --no-cache -t ${DOCKER_TEST_IMAGE} \
     -f CI/Dockerfile.test \
     --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} \
     --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR} \

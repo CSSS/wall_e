@@ -23,7 +23,7 @@ re_create_image () {
     docker stop "${testContainerDBName}" "${testContainerName}" "${prodContainerName}" || true
     docker rm "${testContainerDBName}" "${testContainerName}" "${prodContainerName}" || true
     docker image rm -f "${prodImageName}" "${testImageName}" "${IMAGENAME}" "${DOCKERREGISTRY}/${IMAGENAME}" || true
-    docker build -t ${IMAGENAME} -f ${DOCKERFILE} --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} .
+    docker build --no-cache -t ${IMAGENAME} -f ${DOCKERFILE} --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} .
     docker tag ${IMAGENAME} ${DOCKERREGISTRY}/${IMAGENAME}
     echo "${DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
     docker push ${DOCKERREGISTRY}/${IMAGENAME}
