@@ -9,7 +9,24 @@
 
 
 ## Running the Bot
+>If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](documentation/Working_on_Bot#faqs) for future reference :)
 
+Pre-requisites: `git` and `docker`.  
+
+1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
+2. clone the repo
+3. Wall_E Setting Specification.
+   1. Wall_e needs some settings in order to determine how some parts should be treated. The biggest component this impacts is whether or not you use wall_e with or without a containerized container. [refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/6.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
+      1. Ways to specify settings:
+         1. Specify via Env varibles.
+            1. Just export the settings [here](https://github.com/CSSS/wall_e/wiki/6.-contents-of-local.ini) with the specified values
+         2. Specify via [`wall_e/src/resources/utilities/config/local.ini`](https://github.com/CSSS/wall_e/blob/use_pip_module/documentation/Working_on_the_Bot.md#localini).
+            1. Be sure to not remove the headers on the ini. Also, please keep in mind that if you specify the same setting both via environment variable and via `.ini` file,  the environment variable will take precedence.
+         3. Via `docker-compose-mount-nodb.yml` or `docker-compose-mount.yml`.
+            1. Can be done following [these instructions](https://docs.docker.com/compose/environment-variables/#set-environment-variables-in-containers). Note that this is the same as via Env variables. The only difference is using this option will not result in the env variable be declared in your shell environment variable.
+         4. As you may see from the link in the previous point, docker provides multiple ways to pass variables. You can use any that work for you.
+4. Commands for the bot
+> Due to some compatibility issues that occured in the past when wall_e was dockerized only on the server, the dev environment for wall_e was changed so that each developer doesn't have to fight with OS issues that come with some python modules that are a bit iffy. as long as you can get `docker` and `docker-compose` working, you are golden to work on wall_e.
 ### With the database
 
 #### Step 1. Re-creating the database
@@ -66,6 +83,21 @@ export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 
 ./CI/user_scripts/deploy-to-test-server-nodb.sh;
 ```
+
+## Testing the bot
+
+### Part 1. Run through the [linter](https://en.wikipedia.org/wiki/Lint_%28software%29)
+
+Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
+
+```shell
+docker build -t ${COMPOSE_PROJECT_NAME}_wall_e_test -f CI/Dockerfile.test --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests --build-arg TEST_RESULT_FILE_NAME=all-unit-tests.xml .
+docker run -d --name ${COMPOSE_PROJECT_NAME}_test ${COMPOSE_PROJECT_NAME}_wall_e_test
+docker logs ${COMPOSE_PROJECT_NAME}_test
+```
+
+### Part 2. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
+After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [rules](https://github.com/CSSS/wall_e/wiki/4.-Making-a-PR-to-master) for PRs before pushing your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
 ## Test Cases  
 
