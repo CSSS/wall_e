@@ -35,7 +35,7 @@ class WallEConfig():
             for (key, value) in self.config['wall_e'].items(each_section):
                 if key in os.environ:
                     self.set_config_value(each_section, key, os.environ[key])
-                    os.environ[key]=' '
+                    os.environ[key] = ' '
 
     def get_config_value(self, section, option):
 
