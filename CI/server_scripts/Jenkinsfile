@@ -33,8 +33,10 @@ pipeline {
             }
         }
         stage('Create New Dev Docker Image'){
-            when not {
+            when {
+                not {
                 branch 'master'
+                }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
