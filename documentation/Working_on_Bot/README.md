@@ -3,14 +3,14 @@
 - [Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
 - [Running the Bot](#running-the-bot)  
   - [With the Database](#with-the-database)
-    - [Step 1. Re-creating the database](#step-1-re-creating-the-database)
+    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-docker-base-image)
     - [Step 2. Launching the Bot](#step-2-launching-the-bot)
   - [Without the Database](#without-the-database)
-    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-database-1)
+    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-docker-base-image-1)
     - [Step 2. Launching the Bot](#step-2-launching-the-bot-1)
 - [Testing the Bot](#testing-the-bot)
-  - [Part 1. Run through the linter](#part-1-run-through-the-linter)
-  - [Part 2. Testing on the CSSS Bot Test Server](#part-2-testing-on-csss-bot-test-server)
+  - [Step 1. Run through the linter](#step-1-run-through-the-linter)
+  - [Step 2. Testing on the CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
 - [Making a PR to master](https://github.com/CSSS/wall_e/wiki/4.-Making-a-PR-to-master)  
 - [Test Cases](#test-cases)  
 - [Reporting Issues](https://github.com/CSSS/wall_e/wiki/5.-Reporting-Issues)  
@@ -19,7 +19,7 @@
 
 ## Running the Bot
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](documentation/Working_on_Bot#faqs) for future reference :)
->> Due to some compatibility issues that occured in the past when wall_e was dockerized only on the server, the dev environment for wall_e was changed so that each developer doesn't have to fight with OS issues that come with some python modules that are a bit iffy. as long as you can get `docker` and `docker-compose` working, you are golden to work on wall_e.
+>Due to some compatibility issues that occured in the past when wall_e was dockerized only on the server, the dev environment for wall_e was changed so that each developer doesn't have to fight with OS issues that come with some python modules that are a bit iffy. as long as you can get `docker` and `docker-compose` working, you are golden to work on wall_e.
 
 Pre-requisites: `git` and `docker`.  
 
@@ -95,7 +95,7 @@ export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 
 ## Testing the bot
 
-### Part 1. Run through the [linter](https://en.wikipedia.org/wiki/Lint_%28software%29)
+### Step 1. Run through the [linter](https://en.wikipedia.org/wiki/Lint_%28software%29)
 
 Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
 
@@ -105,7 +105,7 @@ docker run -d --name ${COMPOSE_PROJECT_NAME}_test ${COMPOSE_PROJECT_NAME}_wall_e
 docker logs ${COMPOSE_PROJECT_NAME}_test
 ```
 
-### Part 2. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
+### Step 2. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
 After you have tested on your own Discord Test Server, Create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [rules](https://github.com/CSSS/wall_e/wiki/4.-Making-a-PR-to-master) for PRs before pushing your changes to [Wall-E](https://github.com/CSSS/wall_e). Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
 ## Test Cases  
