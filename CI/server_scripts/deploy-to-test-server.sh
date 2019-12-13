@@ -7,6 +7,7 @@ export testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
 export testImageName_lowerCase=$(echo "$testContainerName" | awk '{print tolower($0)}')
 export COMPOSE_PROJECT_NAME_lowerCase=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
+export DOCKER_COMPOSE_FILE="CI/server_scripts/docker-compose.yml"
 
 if [ "${BRANCH_NAME}" = "MASTER" ]; then
     export ORIGIN_IMAGE="wall_e"
@@ -20,7 +21,7 @@ docker network rm ${COMPOSE_PROJECT_NAME_lowerCase}_default || true
 docker image rm -f ${testImageName_lowerCase} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
-docker-compose -f CI/server_scripts/docker-compose.yml up --force-recreate  -d
+docker-compose -f "${DOCKER_COMPOSE_FILE}" up --force-recreate  -d
 sleep 20
 
 export containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)

@@ -5,23 +5,25 @@
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
-testBaseImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_base | awk '{print tolower($0)}')
-testWallEImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e | awk '{print tolower($0)}')
-testWallEContainer="${COMPOSE_PROJECT_NAME}"_wall_e
-export JENKINS_HOME=$(pwd)
-
+export testBaseImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_base | awk '{print tolower($0)}')
+export testWallEImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e | awk '{print tolower($0)}')
+export testWallEContainer="${COMPOSE_PROJECT_NAME}"_wall_e
+export DOCKERFILE="CI/server_scripts/Dockerfile.base"
+export current_commit=$(git log -1 --pretty=format:"%H")
+export REQUIREMENTS_FILE_LOCATION="wall_e/src/requirements.txt"
+export CONTAINER_HOME_DIR="/usr/src/app"
+export COMMIT_FOLDER="wall_e_commits"
 
 re_create_image () {
     docker stop "${testWallEContainer}" || true
     docker rm "${testWallEContainer}" || true
     docker image rm -f "${testBaseImageName_lowerCase}" "${testWallEImageName_lowerCase}" || true
-    docker build --no-cache -t ${testBaseImageName_lowerCase} -f CI/server_scripts/Dockerfile.base --build-arg CONTAINER_HOME_DIR=/usr/src/app .
-    current_commit=$(git log -1 --pretty=format:"%H")
-    mkdir -p "${JENKINS_HOME}"/wall_e_commits
-    echo "${current_commit}" > "${JENKINS_HOME}"/wall_e_commits/"${COMPOSE_PROJECT_NAME}"
+    docker build --no-cache -t ${testBaseImageName_lowerCase} -f "${DOCKERFILE}" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .
+    mkdir -p "${JENKINS_HOME}"/"${COMMIT_FOLDER}"
+    echo "${current_commit}" > "${JENKINS_HOME}"/"${COMMIT_FOLDER}"/"${COMPOSE_PROJECT_NAME}"
     exit 0
 }
-if [ ! -f "${JENKINS_HOME}"/wall_e_commits/"${COMPOSE_PROJECT_NAME}" ]; then
+if [ ! -f "${JENKINS_HOME}"/"${COMMIT_FOLDER}"/"${COMPOSE_PROJECT_NAME}" ]; then
     # either this is the first time created a docker image for this wall-e copy or the previous file that contains
     # what commit was last worked on is lost. either way we need to destory the docker image so the docker-compose will
     # re-create it and save the current commit to a file in preparation for the next commit
@@ -31,12 +33,11 @@ else
     echo "previus commit detected. Will now test to se if re-creation is needed"
     # the file that contains the commit exists and we will check all changes done to see if any of them touched
     # the 2 files that mandate destroying the docker image
-    current_commit=$(git log -1 --pretty=format:"%H")
-    previous_commit=$(cat "${JENKINS_HOME}"/wall_e_commits/"${COMPOSE_PROJECT_NAME}")
+    previous_commit=$(cat "${JENKINS_HOME}"/"${COMMIT_FOLDER}"/"${COMPOSE_PROJECT_NAME}")
     files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
     for file_changed in "${files_changed[@]}"
     do
-        if [[ "${file_changed}" == "wall_e/src/requirements.txt" || "${file_changed}" == "${DOCKERFILE}" ]]; then
+        if [[ "${file_changed}" == "${REQUIREMENTS_FILE_LOCATION}" || "${file_changed}" == "${DOCKERFILE}" ]]; then
             echo "will need to re-create docker image ${testBaseImageName_lowerCase}"
             re_create_image
         fi
@@ -44,5 +45,5 @@ else
 fi
 
 echo "No modifications were needed to base image"
-echo "${current_commit}" > "${JENKINS_HOME}"/wall_e_commits/"${COMPOSE_PROJECT_NAME}"
+echo "${current_commit}" > "${JENKINS_HOME}"/"${COMMIT_FOLDER}"/"${COMPOSE_PROJECT_NAME}"
 exit 0
