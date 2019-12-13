@@ -31,9 +31,13 @@ class WallEConfig():
         self.config = {}
         self.config['wall_e'] = config
 
+        for each_section in self.config['wall_e'].sections():
+            for (key, value) in self.config['wall_e'].items(each_section):
+                if key in os.environ:
+                    self.set_config_value(each_section, key, os.environ[key])
+                    os.environ[key]=' '
+
     def get_config_value(self, section, option):
-        if option in os.environ:
-            return os.environ[option]
 
         if self.config['wall_e'].has_option(section, option) and self.config['wall_e'].get(section, option) != '':
             return self.config['wall_e'].get(section, option)
@@ -44,8 +48,6 @@ class WallEConfig():
         return "NONE"
 
     def enabled(self, section, option="enabled"):
-        if option in os.environ:
-            return os.environ[option] == "1"
 
         return self.config["wall_e"].get(section, option) == "1"
 
