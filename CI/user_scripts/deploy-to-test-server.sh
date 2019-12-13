@@ -11,7 +11,7 @@ testContainerName_lowerCase=$(echo "$testContainerName" | awk '{print tolower($0
 docker network rm ${COMPOSE_PROJECT_NAME_lowerCase}_default || true
 docker image rm -f ${testContainerName_lowerCase} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
-docker-compose --force-recreate -f CI/user_scripts/docker-compose-mount.yml up -d
+docker-compose -f CI/user_scripts/docker-compose-mount.yml up --force-recreate -d
 sleep 20
 
 containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)
