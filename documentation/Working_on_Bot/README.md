@@ -11,14 +11,15 @@
 - [Testing the Bot](#testing-the-bot)
   - [Step 1. Run through the linter](#step-1-run-through-the-linter)
   - [Step 2. Testing on the CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
-- [Making a PR to master](https://github.com/CSSS/wall_e/wiki/4.-Making-a-PR-to-master)  
+- [Making a PR to master](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master)  
 - [Test Cases](#test-cases)  
-- [Reporting Issues](https://github.com/CSSS/wall_e/wiki/5.-Reporting-Issues)  
+- [Reporting Issues](https://github.com/CSSS/wall_e/wiki/4.-Reporting-Issues)  
 - [FAQs](#faqs)  
 
 
 ## Running the Bot
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](documentation/Working_on_Bot#faqs) for future reference :)
+
 >Due to some compatibility issues that occured in the past when wall_e was dockerized only on the server, the dev environment for wall_e was changed so that each developer doesn't have to fight with OS issues that come with some python modules that are a bit iffy. as long as you can get `docker` and `docker-compose` working, you are golden to work on wall_e.
 
 Pre-requisites: `git` and `docker`.  
