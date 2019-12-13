@@ -32,7 +32,26 @@ pipeline {
                 \'"""
             }
         }
-        stage('Create New Docker Image'){
+        stage('Create New Dev Docker Image'){
+            when not {
+                branch 'master'
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
+                    sh label: '', script : """bash -c \'
+                        export CONTAINER_HOME_DIR=/usr/src/app;
+                        export BRANCH_NAME=${BRANCH_NAME};
+                        export JENKINS_HOME=${JENKINS_HOME};
+                        export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
+                        ./CI/server_scripts/create-dev-docker-image.sh
+                    \'"""
+                }
+            }
+        }
+        stage('Create New PROD Docker Image'){
+            when {
+                branch 'master'
+            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
                     sh label: '', script : """bash -c \'
@@ -40,11 +59,13 @@ pipeline {
                         export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
                         export DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD};
                         export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
-                        ./CI/server_scripts/create-docker-image.sh
+                        export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
+                        ./CI/server_scripts/create-prod-docker-image.sh
                     \'"""
                 }
             }
         }
+
         stage('Deploy To Test Guild'){
             steps {
                 withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN'),
@@ -69,6 +90,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to PROD Guild') {
             when {
                 branch 'master'

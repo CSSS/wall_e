@@ -7,9 +7,69 @@
 - [Reporting Issues](https://github.com/CSSS/wall_e/wiki/5.-Reporting-Issues)  
 - [FAQs](#faqs)  
 
- ## Test Cases  
 
- ### Administration  
+## Running the Bot
+
+### With the database
+
+#### Step 1. Re-creating the database
+You will need to recreate the base docker image if you
+ * made changes to the wall_e/src/requirements.txt file or
+ * made changes to the CI/server_scripts/Dockerfile.base file
+
+Commands to Run
+```shell
+export CONTAINER_HOME_DIR=/usr/src/app;
+export COMPOSE_PROJECT_NAME=whatever_you_want;
+./CI/user_scripts/create-dev-docker-image.sh
+```
+
+#### Step 2. Launching the Bot
+```shell
+export ENVIRONMENT=LOCALHOST;
+
+# if you did not need to re-create the base image you can use
+export ORIGIN_IMAGE="sfucsssorg/wall_e"
+# otherwise, you will need to use the below commmand
+export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
+
+export DB_ENABLED=1;
+
+./CI/user_scripts/deploy-to-test-server.sh;
+```
+
+### Without the Database
+
+#### Step 1. Re-creating the database
+You will need to recreate the base docker image if you
+ * made changes to the wall_e/src/requirements.txt file or
+ * made changes to the CI/server_scripts/Dockerfile.base file
+
+Commands To Run
+```shell
+export CONTAINER_HOME_DIR=/usr/src/app;
+export COMPOSE_PROJECT_NAME=whatever_you_want;
+./CI/user_scripts/create-dev-docker-image.sh
+```
+
+#### Step 2. Launching the Bot
+
+#### Launching the bot
+```shell
+export ENVIRONMENT=LOCALHOST;
+export DB_ENABLED=0;
+
+# if you did not need to re-create the base image you can use
+export ORIGIN_IMAGE="sfucsssorg/wall_e"
+# otherwise, you will need to use the below commmand
+export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
+
+./CI/user_scripts/deploy-to-test-server-nodb.sh;
+```
+
+## Test Cases  
+
+### Administration  
   1. `.unload reminders`
   1. `.unload nothing`
   1. `.load reminders`
@@ -19,15 +79,15 @@
   1. `.exc ls -l`
   1.  `.frequency`
   1. `.frequency command`  
- ### HealthChecks  
+### HealthChecks  
   1. `.ping`  
   1. `.echo this is the test case`
   1. `.echo "this is the test case"`
   1. `.echo 'this is the test case'`
- ### Here  
+### Here  
   1. `.here`
   1. `.here wall`
- ### Misc  
+### Misc  
   1. `.poll avengers?`## Local Setup  
 
   1. `.poll`
@@ -46,9 +106,9 @@
         1. make sure that the done emoji does delete the help output  
   1. `.help here`
   1. `.help nothing`
- ### Mod
+### Mod
 
- ### Reminders
+### Reminders
   1. `.remindmein`
   1. `.remindmein 10 seconds to turn in my assignment`
      1. *wait 10 seconds*
@@ -56,7 +116,7 @@
   1. `.showreminders`
   1. `.deletereminder <messageId from previous output>`
   1. `.showreminders`
- ### RoleCommands
+### RoleCommands
   1. `.newrole`
   1. `.newrole <role that already exists>`
   1. `.newrole <new role>`
@@ -76,7 +136,7 @@
   1. `.roles`
   1. `.Roles`
   1. `.purgeroles`
- ### SFU
+### SFU
    1. `.sfu cmpt 300`
    1. `.sfu cmpt300`
    1. `.sfu cmpt666`
@@ -93,15 +153,14 @@
    1. `.outline blah`
    1. `.outline`
 
- ## FAQs  
+## FAQs  
 
-issue: Experiencing a networking issue with docker-compose
+### Issue: Experiencing a networking issue with docker-compose
 
+```shell
 I get the following issue when using docker-compose
 
 `ERROR: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network`
 
-
-resolution:
-
-If you are using a VPN, please disconnect and try again.
+```
+resolution: If you are using a VPN, please disconnect and try again.

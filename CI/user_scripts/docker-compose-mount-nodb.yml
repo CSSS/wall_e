@@ -4,6 +4,8 @@ services:  #Services that are needed for the wall_e app
         build:
             context: ../../ #root path to start at just for the Dockerfile
             dockerfile: CI/user_scripts/Dockerfile.walle.mount.nodb
+            args:
+                - ORIGIN_IMAGE
         environment:
             - ENVIRONMENT
             - TOKEN
