@@ -68,10 +68,8 @@ export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 
 #### Re-launching the bot after making changes
 ```shell
-# if you have made changes to your code and want to test the changes
-docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on your discord guild
-./CI/user_scripts/deploy-to-test-server.sh;
 
+## Stage 1
 # if you made any new changes to the either of the files specified below,
  - wall_e/src/requirements.txt file
  - CI/server_scripts/Dockerfile.base file
@@ -80,8 +78,9 @@ export CONTAINER_HOME_DIR=/usr/src/app;
 export COMPOSE_PROJECT_NAME="project_name"
  ./CI/user_scripts/create-dev-docker-image.sh
 
-# if your changes require also re-creating the database.
-docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on your discord guild
+
+## Stage 2
+# enter the command `.exit` on your discord guild
 ./CI/user_scripts/deploy-to-test-server.sh;
 ```
 
@@ -122,10 +121,7 @@ export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 
 #### Re-launching the bot after making changes
 ```shell
-# if you have made changes to your code and want to test the changes
-docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on your discord guild
-./CI/user_scripts/deploy-to-test-server-nodb.sh;
-
+## Stage 1:
 # if you made any new changes to the either of the files specified below,
  - wall_e/src/requirements.txt file
  - CI/server_scripts/Dockerfile.base file
@@ -133,6 +129,12 @@ docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on you
 export CONTAINER_HOME_DIR=/usr/src/app;
 export COMPOSE_PROJECT_NAME="project_name"
  ./CI/user_scripts/create-dev-docker-image.sh
+
+
+# if you have made changes to your code and want to test the changes
+# enter the command `.exit` on your discord guild
+./CI/user_scripts/deploy-to-test-server-nodb.sh;
+
 ```
 
 #### view logs in active time
