@@ -176,8 +176,7 @@ After you have tested on your own Discord Test Server, Create a PR to the [Wall-
   1. `.here`
   1. `.here wall`
 ### Misc  
-  1. `.poll avengers?`## Local Setup  
-
+  1. `.poll avengers?`
   1. `.poll`
   1. `.poll “go to the moon?” “yes” “no” “boye you crazy??”`
   1. `.poll 1 2 3 4 5 6 7 8 9 10 11 12 13`
