@@ -48,22 +48,48 @@ You will need to recreate the base docker image if you
 Commands to Run
 ```shell
 export CONTAINER_HOME_DIR=/usr/src/app;
-export COMPOSE_PROJECT_NAME=whatever_you_want;
-./CI/user_scripts/create-dev-docker-image.sh
+export COMPOSE_PROJECT_NAME="project_name"
+ ./CI/user_scripts/create-dev-docker-image.sh
 ```
 
 #### Step 2. Launching the Bot
 ```shell
 export ENVIRONMENT=LOCALHOST;
+//ensure that DB_ENBLED is set to 1 via whatever method you want
+export COMPOSE_PROJECT_NAME="project_name"
 
 # if you did not need to re-create the base image you can use
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
 # otherwise, you will need to use the below commmand
 export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 
-export DB_ENABLED=1;
-
 ./CI/user_scripts/deploy-to-test-server.sh;
+```
+
+#### Re-launching the bot after making changes
+```shell
+# if you have made changes to your code and want to test the changes
+docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on your discord guild
+./CI/user_scripts/deploy-to-test-server.sh;
+
+# if you made any new changes to the either of the files specified below,
+ - wall_e/src/requirements.txt file
+ - CI/server_scripts/Dockerfile.base file
+# run the following commands:
+export CONTAINER_HOME_DIR=/usr/src/app;
+export COMPOSE_PROJECT_NAME="project_name"
+ ./CI/user_scripts/create-dev-docker-image.sh
+
+# if your changes require also re-creating the database.
+docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on your discord guild
+docker stop ${COMPOSE_PROJECT_NAME}_wall_e_db
+docker rm ${COMPOSE_PROJECT_NAME}_wall_e_db
+./CI/user_scripts/deploy-to-test-server.sh;
+```
+
+#### view logs in active time
+```shell
+ docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
 ```
 
 ### Without the Database
@@ -76,7 +102,7 @@ You will need to recreate the base docker image if you
 Commands To Run
 ```shell
 export CONTAINER_HOME_DIR=/usr/src/app;
-export COMPOSE_PROJECT_NAME=whatever_you_want;
+export COMPOSE_PROJECT_NAME="project_name"
 ./CI/user_scripts/create-dev-docker-image.sh
 ```
 
@@ -84,7 +110,8 @@ export COMPOSE_PROJECT_NAME=whatever_you_want;
 
 ```shell
 export ENVIRONMENT=LOCALHOST;
-export DB_ENABLED=0;
+//ensure that DB_ENBLED is set to 0 via whatever method you want
+export COMPOSE_PROJECT_NAME="project_name"
 
 # if you did not need to re-create the base image you can use
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
@@ -92,6 +119,27 @@ export ORIGIN_IMAGE="sfucsssorg/wall_e"
 export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 
 ./CI/user_scripts/deploy-to-test-server-nodb.sh;
+```
+
+
+#### Re-launching the bot after making changes
+```shell
+# if you have made changes to your code and want to test the changes
+docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on your discord guild
+./CI/user_scripts/deploy-to-test-server-nodb.sh;
+
+# if you made any new changes to the either of the files specified below,
+ - wall_e/src/requirements.txt file
+ - CI/server_scripts/Dockerfile.base file
+# run the following commands:
+export CONTAINER_HOME_DIR=/usr/src/app;
+export COMPOSE_PROJECT_NAME="project_name"
+ ./CI/user_scripts/create-dev-docker-image.sh
+```
+
+#### view logs in active time
+```shell
+ docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
 ```
 
 ## Testing the bot
