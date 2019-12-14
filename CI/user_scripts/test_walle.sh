@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+# PURPOSE: to be used by the user when they want to test their code against the linter
+
 docker stop ${COMPOSE_PROJECT_NAME}_test || true
 docker rm ${COMPOSE_PROJECT_NAME}_test || true
 docker image rm ${COMPOSE_PROJECT_NAME}_wall_e_test || true

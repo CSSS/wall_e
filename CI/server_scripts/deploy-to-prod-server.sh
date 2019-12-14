@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# PURPOSE: used be jenkins to launch Wall_e to the CSSS PROD Discord Guild
+
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 

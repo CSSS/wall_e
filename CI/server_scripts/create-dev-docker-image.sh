@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-## intended to be used by jnekins whenever it needs to re-create the base docker image for a test branch
+## PURPOSE: intended to be used by jenkins whenever it needs to re-create the base docker image for a test branch
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 

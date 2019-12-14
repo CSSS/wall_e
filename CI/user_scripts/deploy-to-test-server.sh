@@ -1,8 +1,13 @@
 #!/bin/bash
 
-# USED BY USER TO LAUNCH THE BOT TO TEST GUILD CHANNEL
+
+# PURPOSE: TO BE USED BY THE USER WHEN THEY WANT TO DEPLOY WALL_E TO THEIR OWN DISCORD GUILD
+# WITH THE USE OF A DATABASE
+
+
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
+
 testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
 docker rm -f ${testContainerName} ${testContainerDBName} || true

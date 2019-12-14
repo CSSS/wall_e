@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-## TODO: MATCH THE FORMAT TO CREATE-DEV-DOCKER-IMAGE SO THAT IT WILL READ THE PREVIOUS COMMIT FROM A FILE RATHER THAN
-## ASSUME IT WAS ONLY THE PREVIOUS COMMIT.
+## PURPOSE: intended to be used by jenkins whenever it needs to re-create the base docker image for a master branch
+
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 

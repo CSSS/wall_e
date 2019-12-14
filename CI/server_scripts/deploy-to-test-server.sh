@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# USED BY JENKINS TO LAUNCH THE BOT TO TEST GUILD CHANNEL
+# PURPOSE: used be jenkins to launch Wall_e to the CSSS TEST Discord Guild
+
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 export testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"

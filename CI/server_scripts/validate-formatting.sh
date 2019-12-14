@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# PURPOSE: used by jenkins to run the code past the linter
+
 set -e -o xtrace
 
 ./wall_e/test/lineEndings.sh
