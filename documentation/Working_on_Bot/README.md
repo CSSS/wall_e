@@ -28,12 +28,12 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 2. clone the repo
 3. Wall_E Setting Specification.
    1. Wall_e needs some settings in order to determine how some parts should be treated. The biggest component this impacts is whether or not you use wall_e with or without a dockerized database. [refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
-      1. Ways to specify settings: (please note that all the following options require the ini file with the same structure located [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) to at location `wall_e/src/resources/utilities/config/local.ini`. This is so that wall_e know what settings it will be taking in, even if the values in the ini file do not indicate the actual values it will take in.)
+      1. Ways to specify settings: (please note that all the following options require the ini file with the same structure located [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) to be placed at location `wall_e/src/resources/utilities/config/local.ini`. This is so that wall_e know what settings it will be taking in, even if the values in the ini file do not indicate the actual values it will take in.)
          1. Specify via Env varibles.
             1. Just export the settings [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) with the specified values.
          2. Specify via [`wall_e/src/resources/utilities/config/local.ini`](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini).
             1. Be sure to not remove the headers on the ini. Also, please keep in mind that if you specify the same setting both via environment variable and via `.ini` file,  the environment variable will take precedence.
-         3. Via `docker-compose-mount-nodb.yml` or `docker-compose-mount.yml`.
+         3. Via `CI/user_scripts/docker-compose-mount-nodb.yml` or `CI/user_scripts/docker-compose-mount.yml`.
             1. Can be done following [these instructions](https://docs.docker.com/compose/environment-variables/#set-environment-variables-in-containers). Note that this is the same as via Env variables. The only difference is using this option will not result in the env variable be declared in your shell environment variable.
          4. As you may see from the link in the previous point, docker provides multiple ways to pass variables. You can use any that work for you.
 
@@ -82,8 +82,6 @@ export COMPOSE_PROJECT_NAME="project_name"
 
 # if your changes require also re-creating the database.
 docker stop ${COMPOSE_PROJECT_NAME}_wall_e # or enter the command `.exit` on your discord guild
-docker stop ${COMPOSE_PROJECT_NAME}_wall_e_db
-docker rm ${COMPOSE_PROJECT_NAME}_wall_e_db
 ./CI/user_scripts/deploy-to-test-server.sh;
 ```
 
@@ -149,9 +147,7 @@ export COMPOSE_PROJECT_NAME="project_name"
 Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
 
 ```shell
-docker build -t ${COMPOSE_PROJECT_NAME}_wall_e_test -f CI/Dockerfile.test --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests --build-arg TEST_RESULT_FILE_NAME=all-unit-tests.xml .
-docker run -d --name ${COMPOSE_PROJECT_NAME}_test ${COMPOSE_PROJECT_NAME}_wall_e_test
-docker logs ${COMPOSE_PROJECT_NAME}_test
+./CI/user_scripts/test_walle.sh
 ```
 
 ### Step 2. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
