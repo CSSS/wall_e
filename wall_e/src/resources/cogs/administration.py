@@ -215,7 +215,7 @@ class Administration(commands.Cog):
 
     def connect_to_database(self):
         try:
-            host = '{}_wall_e_db'.format(self.config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME"))
+            host = '{}_wall_e_db'.format(self.config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME"))
             wall_e_db_dbname = self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
             wall_e_db_user = self.config.get_config_value('database', 'WALL_E_DB_USER')
             wall_e_db_password = self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')

@@ -28,7 +28,7 @@ class ManageCog(commands.Cog):
     @commands.command(hidden=True)
     async def debuginfo(self, ctx):
         logger.info("[ManageCog debuginfo()] debuginfo command detected from {}".format(ctx.message.author))
-        if self.config.get_config_value("wall_e", "ENVIRONMENT") == 'TEST':
+        if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             fmt = '```You are testing the latest commit of branch or pull request: {0}```'
             await ctx.send(fmt.format(self.config.get_config_value('database', 'BRANCH_NAME')))
         return
@@ -149,7 +149,7 @@ class ManageCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         logger.info("[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels))
-        if self.config.get_config_value("wall_e", "ENVIRONMENT") == 'TEST':
+        if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             logger.info(
                 "[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels)
             )

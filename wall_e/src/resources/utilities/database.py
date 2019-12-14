@@ -10,8 +10,8 @@ logger = logging.getLogger('wall_e')
 def setup_database(config):
     if config.enabled("database", option="DB_ENABLED"):
         try:
-            env = config.get_config_value("wall_e", "ENVIRONMENT")
-            compose_project_name = config.get_config_value("wall_e", "COMPOSE_PROJECT_NAME")
+            env = config.get_config_value("basic_config", "ENVIRONMENT")
+            compose_project_name = config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME")
             postgres_db_dbname = config.get_config_value("database", "POSTGRES_DB_DBNAME")
             postgres_db_user = config.get_config_value("database", "POSTGRES_DB_USER")
             postgres_password = config.get_config_value("database", "POSTGRES_PASSWORD")
