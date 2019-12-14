@@ -10,7 +10,6 @@ from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
 
 bot = commands.Bot(command_prefix='.')
-config = config(os.environ['ENVIRONMENT'])
 
 ##################################################
 # signals to all functions that use            ##
@@ -86,6 +85,8 @@ async def on_member_join(member):
 ####################
 if __name__ == "__main__":
     logger, FILENAME = initialize_logger()
+    config = config(os.environ['ENVIRONMENT'])
+
     logger.info("[main.py] Wall-E is starting up")
     if config.enabled("database", option="DB_ENABLED"):
         setup_database(config)
