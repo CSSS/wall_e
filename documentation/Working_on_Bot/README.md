@@ -25,7 +25,7 @@
 Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-ce/debian/#set-up-the-repository) and [`docker-compose`](https://docs.docker.com/compose/install/#install-compose)
 
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
-2. clone the repo
+2. Clone the repo
 3. Wall_E Setting Specification.
    1. Wall_e needs some settings in order to determine how some parts should be treated. The biggest component this impacts is whether or not you use wall_e with or without a dockerized database. [refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
       1. Ways to specify settings: (please note that all the following options require the ini file with the same structure located [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) to be placed at location `wall_e/src/resources/utilities/config/local.ini`. This is so that wall_e know what settings it will be taking in, even if the values in the ini file do not indicate the actual values it will take in.)
