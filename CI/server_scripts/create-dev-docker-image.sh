@@ -19,7 +19,7 @@ re_create_image () {
     docker stop "${testWallEContainer}" || true
     docker rm "${testWallEContainer}" || true
     docker image rm -f "${testBaseImageName_lowerCase}" "${testWallEImageName_lowerCase}" || true
-    docker build --no-cache -t ${testBaseImageName_lowerCase} -f "${DOCKERFILE}" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}".
+    docker build --no-cache -t ${testBaseImageName_lowerCase} -f "${DOCKERFILE}" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .
     mkdir -p "${JENKINS_HOME}"/"${COMMIT_FOLDER}"
     echo "${current_commit}" > "${JENKINS_HOME}"/"${COMMIT_FOLDER}"/"${COMPOSE_PROJECT_NAME}"
     exit 0
