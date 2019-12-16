@@ -166,7 +166,7 @@ After you have tested on your own Discord Test Server, create a PR to the [Wall-
 
 ```shell
 
-`ERROR: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network`
+ERROR: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
 
 ```
 resolution: If you are using a VPN, please disconnect and try again.
