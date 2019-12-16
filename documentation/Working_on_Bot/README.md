@@ -20,7 +20,7 @@
 ## Running the Bot
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) for future reference :)
 
->Due to some compatibility issues that occured in the past when wall_e was dockerized only on the server, the dev environment for wall_e was changed so that each developer doesn't have to fight with OS issues that come with some python modules that are a bit iffy. as long as you can get `docker` and `docker-compose` working, you are golden to work on wall_e.
+> Due to some compatibility issue that occurs with some of the modules on some OSs, walL_e has been dockerized for both server-side running and local development. In order to work with wall_e, you need only `docker` and `docker-compose` working.
 
 Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-ce/debian/#set-up-the-repository) and [`docker-compose`](https://docs.docker.com/compose/install/#install-compose)
 
