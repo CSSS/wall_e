@@ -30,7 +30,7 @@
   1. `.emojispeak`
   1. `.emojispeak 1234_abcd`
   1. `.help`
-     1. Please ensure that the pagination is not effected by doing the following
+     1. Please ensure that the pagination is not affected by doing the following
         1. go to the last page and then hit next when on the last page to make sure it goes back to the beginning
         1. go to the last page from the first page by hitting previous
         1. make sure that the done emoji does delete the help output
