@@ -25,8 +25,6 @@ re_create_image () {
     exit 0
 }
 
-re_create_image
-
 if [ ! -f "${JENKINS_HOME}"/"${COMMIT_FOLDER}"/"${COMPOSE_PROJECT_NAME}" ]; then
     # either this is the first time created a docker image for this wall-e copy or the previous file that contains
     # what commit was last worked on is lost. either way we need to destory the docker image so the docker-compose will
