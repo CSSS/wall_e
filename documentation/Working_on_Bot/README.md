@@ -1,6 +1,6 @@
 # Working on the Bot
 
-- [Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
+- [Wiki: Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
 - [Running the Bot](#running-the-bot)  
   - [With the Database](#with-the-database)
     - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-docker-base-image)
@@ -11,9 +11,9 @@
 - [Testing the Bot](#testing-the-bot)
   - [Step 1. Run through the linter](#step-1-run-through-the-linter)
   - [Step 2. Testing on the CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
-- [Making a PR to master](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master)  
+- [Wiki: Making a PR to master](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master)  
 - [Test Cases](#test-cases)  
-- [Reporting Issues](https://github.com/CSSS/wall_e/wiki/4.-Reporting-Issues)  
+- [Wiki: Reporting Issues](https://github.com/CSSS/wall_e/wiki/4.-Reporting-Issues)  
 - [FAQs](#faqs)  
 
 
