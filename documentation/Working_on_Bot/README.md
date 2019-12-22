@@ -12,7 +12,7 @@
   - [Step 1. Run through the linter](#step-1-run-through-the-linter)
   - [Step 2. Testing on the CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
 - [Wiki: Making a PR to master](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master)  
-- [Test Cases](#test-cases)  
+- [Test Cases](Test_Cases.md)  
 - [Wiki: Reporting Issues](https://github.com/CSSS/wall_e/wiki/4.-Reporting-Issues)  
 - [FAQs](#faqs)  
 
