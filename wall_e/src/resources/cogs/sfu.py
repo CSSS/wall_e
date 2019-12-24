@@ -388,7 +388,7 @@ class SFU(commands.Cog):
             # Course might not have an exam
             tim = '{}-{}'.format(data['examSchedule'][0]['startTime'], data['examSchedule'][0]['endTime'])
             date = data['examSchedule'][0]['startDate'].split()
-            date = '{} {] {}'.format(date[0], date[1], date[2])
+            date = '{} {} {}'.format(date[0], date[1], date[2])
 
             examTimes = '{} {}'.format(tim, date)
 
