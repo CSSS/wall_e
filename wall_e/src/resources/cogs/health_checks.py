@@ -31,7 +31,7 @@ class HealthChecks(commands.Cog):
         user = ctx.author.display_name
         arg = ''
         for argument in args:
-            arg += ' '.format(argument)
+            arg += '{} '.format(argument)
         logger.info("[HealthChecks echo()] echo command "
                     "detected from {} with argument {}".format(ctx.message.author, arg))
         avatar = ctx.author.avatar_url
