@@ -88,7 +88,7 @@ class Mod(commands.Cog):
 
         msg = ''
         for wrd in arg:
-            msg += ' '.format(wrd)
+            msg += '{} '.format(wrd)
 
         eObj = await em(ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name,
                         avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
