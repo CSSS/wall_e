@@ -16,7 +16,7 @@ export ORIGIN_IMAGE="sfucsssorg/wall_e"
 docker rm -f ${testContainerName} || true
 docker image rm -f ${testImageName_lowerCase} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
-docker-compose -f "${DOCKER_COMPOSE_FILE}" up --force-recreate -d
+docker-compose -f "${DOCKER_COMPOSE_FILE}" up -d
 sleep 20
 
 containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)
