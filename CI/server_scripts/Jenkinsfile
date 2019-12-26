@@ -39,7 +39,6 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
                     sh label: '', script : """bash -c \'
                         export CONTAINER_HOME_DIR=/usr/src/app;
                         export BRANCH_NAME=${BRANCH_NAME};
@@ -47,7 +46,6 @@ pipeline {
                         export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
                         ./CI/server_scripts/create-dev-docker-image.sh
                     \'"""
-                }
             }
         }
         stage('Create New PROD Docker Image'){
@@ -61,6 +59,7 @@ pipeline {
                         export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
                         export DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD};
                         export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
+                        export BRANCH_NAME=${BRANCH_NAME};
                         export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
                         ./CI/server_scripts/create-prod-docker-image.sh
                     \'"""
