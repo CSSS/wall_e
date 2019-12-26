@@ -59,7 +59,7 @@ class WallEConfig():
                     option,
                 )
             )
-            self.config['wall_e'].set(section, option, r(str(value)))
+            self.config['wall_e'].set(section, option, r"{}".format(str(value)))
         else:
             raise KeyError("Section '{}' or Option '{}' does not exist".format(section, option))
 
