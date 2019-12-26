@@ -33,11 +33,6 @@ pipeline {
             }
         }
         stage('Create New Dev Docker Image'){
-            when {
-                not {
-                branch 'master'
-                }
-            }
             steps {
                     sh label: '', script : """bash -c \'
                         export CONTAINER_HOME_DIR=/usr/src/app;
