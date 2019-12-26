@@ -54,13 +54,12 @@ class WallEConfig():
     def set_config_value(self, section, option, value):
         if self.config['wall_e'].has_option(section, option):
             logger.info(
-                "[WallEConfig set_config_value()] setings section [{}] option [{}] to value [{}]".format(
+                "[WallEConfig set_config_value()] setting value for section [{}] option [{}]".format(
                     section,
                     option,
-                    str(value)
                 )
             )
-            self.config['wall_e'].set(section, option, str(value))
+            self.config['wall_e'].set(section, option, r(str(value)))
         else:
             raise KeyError("Section '{}' or Option '{}' does not exist".format(section, option))
 
