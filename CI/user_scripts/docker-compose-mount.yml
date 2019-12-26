@@ -1,0 +1,51 @@
+version: '3' #docker-compose version
+services:  #Services that are needed for the wall_e app
+    wall_e: #the wall_e app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_wall_e
+        build:
+            context: ../../ #root path to start at just for the Dockerfile
+            dockerfile: CI/user_scripts/Dockerfile.walle.mount
+            args:
+                - ORIGIN_IMAGE
+        environment:
+            - ENVIRONMENT
+            - TOKEN
+            - BOT_LOG_CHANNEL
+            - REMINDER_CHANNEL
+            - COMPOSE_PROJECT_NAME
+            - BOT_NAME
+            - BOT_AVATAR
+            - WOLFRAM_API_TOKEN
+            - DB_ENABLED
+            - WALL_E_DB_USER
+            - WALL_E_DB_DBNAME
+            - WALL_E_DB_PASSWORD
+            - POSTGRES_DB_USER
+            - POSTGRES_DB_DBNAME
+            - POSTGRES_PASSWORD
+            - administration
+            - health_checks
+            - here
+            - misc
+            - mod
+            - reminders
+            - role_commands
+            - sfu
+        volumes: #volume are for hot reload
+            - logs:/usr/src/app/logs
+            - ../../wall_e/src:/usr/src/app #volumes use the current directory, not the context directory for file paths
+        depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
+            - "db"
+        container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
+
+        #needed in order to allow debugging to happen when using CMD ash
+        #stdin_open: true
+        #tty: true
+    db: #declaration of the postgres container
+        environment:
+            - POSTGRES_PASSWORD
+        image: postgres:alpine #using postgres image
+        container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
+volumes:
+    logs:
+        external:
+            name: "${COMPOSE_PROJECT_NAME}_logs"

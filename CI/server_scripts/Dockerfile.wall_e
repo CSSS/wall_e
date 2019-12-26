@@ -1,0 +1,7 @@
+ARG ORIGIN_IMAGE
+
+FROM $ORIGIN_IMAGE
+
+COPY wall_e/src ./
+
+CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
