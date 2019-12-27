@@ -1,0 +1,139 @@
+pipeline {
+    agent any
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+    }
+    stages {
+        stage('Validate Formatting') {
+            steps {
+                sh label: '', script: """bash -c \'
+                    export ENVIRONMENT=TEST;
+                    export COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME};
+
+                    export POSTGRES_DB_USER=postgres;
+                    export POSTGRES_DB_DBNAME=postgres;
+                    export WALL_E_DB_USER=wall_e;
+                    export WALL_E_DB_DBNAME=csss_discord_db;
+
+                    export CONTAINER_HOME_DIR=/usr/src/app;
+                    export CONTAINER_TEST_DIR=\${CONTAINER_HOME_DIR}/tests;
+                    export CONTAINER_SRC_DIR=\${CONTAINER_HOME_DIR}/src;
+
+                    export LOCALHOST_SRC_DIR=${WORKSPACE}/wall_e/src/;
+                    export LOCALHOST_TEST_DIR=test_results;
+                    export TEST_RESULT_FILE_NAME=all-unit-tests.xml;
+                    export LOCALHOST_TEST_DIR=${WORKSPACE}/\${LOCALHOST_TEST_DIR};
+
+                    export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
+                    export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
+
+                    ./CI/server_scripts/validate-formatting.sh;
+                \'"""
+            }
+        }
+        stage('Create New Dev Docker Image'){
+            when {
+                not {
+                branch 'master'
+                }
+            }
+            steps {
+                    sh label: '', script : """bash -c \'
+                        export CONTAINER_HOME_DIR=/usr/src/app;
+                        export BRANCH_NAME=${BRANCH_NAME};
+                        export JENKINS_HOME=${JENKINS_HOME};
+                        export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
+                        ./CI/server_scripts/create-dev-docker-image.sh
+                    \'"""
+            }
+        }
+        stage('Create New PROD Docker Image'){
+            when {
+                branch 'master'
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
+                    sh label: '', script : """bash -c \'
+                        export CONTAINER_HOME_DIR=/usr/src/app;
+                        export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
+                        export DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD};
+                        export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
+                        export BRANCH_NAME=${BRANCH_NAME};
+                        export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
+                        ./CI/server_scripts/create-prod-docker-image.sh
+                    \'"""
+                }
+            }
+        }
+
+        stage('Deploy To Test Guild'){
+            steps {
+                withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN'),
+                string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')]) {
+                    sh label: '', script: """bash -c \'
+                        export ENVIRONMENT=TEST;
+                        export BRANCH_NAME=${BRANCH_NAME};
+                        export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
+
+                        export POSTGRES_DB_USER=postgres;
+                        export POSTGRES_DB_DBNAME=postgres;
+                        export POSTGRES_PASSWORD=postgresPassword;
+
+                        export WALL_E_DB_USER=wall_e;
+                        export WALL_E_DB_DBNAME=csss_discord_db;
+                        export WALL_E_DB_PASSWORD=wallEPassword;
+                        export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
+                        export TOKEN=${TOKEN};
+
+                        ./CI/server_scripts/deploy-to-test-server.sh;
+                    \'"""
+                }
+            }
+        }
+
+        stage('Deploy to PROD Guild') {
+            when {
+                branch 'master'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'DISCORD_PROD_TOKEN', variable: 'TOKEN'),
+                string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN'),
+                string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD'),
+                string(credentialsId: 'WALL_E_DB_PASSWORD', variable: 'WALL_E_DB_PASSWORD')]) {
+                    sh label: '', script: """bash -c \'
+                        export ENVIRONMENT=PRODUCTION;
+                        export BRANCH_NAME=${BRANCH_NAME};
+                        export COMPOSE_PROJECT_NAME=PRODUCTION_MASTER;
+
+                        export POSTGRES_DB_USER=postgres;
+                        export POSTGRES_DB_DBNAME=postgres;
+                        export POSTGRES_PASSWORD=${POSTGRES_PASSWORD};
+
+                        export WALL_E_DB_USER=wall_e;
+                        export WALL_E_DB_DBNAME=csss_discord_db;
+                        export WALL_E_DB_PASSWORD=${WALL_E_DB_PASSWORD};
+
+                        export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
+                        export TOKEN=${TOKEN};
+
+                        export BOT_LOG_CHANNEL=bot_logs;
+                        export REMINDER_CHANNEL=bot_commands_and_misc;
+
+                        ./CI/server_scripts/deploy-to-prod-server.sh;
+                    \'"""
+                }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                junit 'test_results/all-unit-tests.xml'
+                //withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                //    discordSend description: BRANCH_NAME, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: true, title: 'Successful build', webhookURL: "$WEBHOOKURL"
+                //}
+            }
+        }
+    }
+}

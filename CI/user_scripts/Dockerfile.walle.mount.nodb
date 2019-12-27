@@ -1,0 +1,5 @@
+ARG ORIGIN_IMAGE
+
+FROM $ORIGIN_IMAGE
+
+CMD ["python", "./main.py" ]

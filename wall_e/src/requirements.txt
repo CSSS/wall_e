@@ -1,0 +1,10 @@
+yarl<1.2
+bs4
+discord.py[voice]==1.2.5
+pytz==2018.5
+parsedatetime==2.4
+wolframalpha==3.0.1
+configparser
+psycopg2-binary
+numpy==1.15.2
+matplotlib==3.0.0

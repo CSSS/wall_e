@@ -158,3 +158,6 @@ token
 notes/
 sftp-config.json
 test-bot.iml
+logs/
+
+wall_e/resources/utilities/config/local.ini
