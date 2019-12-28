@@ -5,7 +5,7 @@
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
-rm ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
 export testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
