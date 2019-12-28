@@ -147,7 +147,6 @@ pipeline {
                 }
                 summary = sh (script : "docker logs PRODUCTION_MASTER_wall_e --tail 12")
 
-                }
                 withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
                     discordSend description: summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: (currentBuild.currentResult == "SUCCESS"), title: theTitle, webhookURL: "$WEBHOOKURL"
                 }
