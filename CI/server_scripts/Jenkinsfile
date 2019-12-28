@@ -133,19 +133,21 @@ pipeline {
                     junit 'test_results/all-unit-tests.xml'
                 }
 
-                summary = sh (script: """bash -c \'
+                sh label: '', script: """bash -c \'
                     export BRANCH_NAME=${BRANCH_NAME};
                     export CHANGE_ID=${env.CHANGE_ID};
-                    ./CI/server_scripts/get_docker_logs.sh;
-                \'""", returnStdout: true).trim()
+                    ./CI/server_scripts/get_docker_logs.sh &> OUTPUT;
+                \'"""
 
+                def summary=readFile('OUTPUT').trim()
+
+                echo "the summary=$summary";
                 colorCode = (currentBuild.currentResult == "SUCCESS") ? '#00FF00' : '#FF0000'
                 if (currentBuild.currentResult == "SUCCESS"){
                     theTitle = "SUCCESS"
                 }else{
                     theTitle = "ISSUE DETECTED"
                 }
-                summary = sh (script : "docker logs PRODUCTION_MASTER_wall_e --tail 12")
 
                 withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
                     discordSend description: summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: (currentBuild.currentResult == "SUCCESS"), title: theTitle, webhookURL: "$WEBHOOKURL"
