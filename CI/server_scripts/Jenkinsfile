@@ -136,9 +136,9 @@ pipeline {
                 if (fileExists('test_results/all-unit-tests.xml')){
                     junit 'test_results/all-unit-tests.xml'
                 }
-
+                def summary = ''
                 if (fileExists('OUTPUT')){
-                    def summary=readFile('OUTPUT').trim()
+                    summary=readFile('OUTPUT').trim()
                     theTitle = "ISSUE DETECTED"
                     status = false
                 }else{
