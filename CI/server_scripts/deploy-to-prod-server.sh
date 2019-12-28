@@ -5,6 +5,8 @@
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
+rm ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+
 export testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
 export testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export DOCKER_COMPOSE_FILE="CI/server_scripts/docker-compose.yml"
@@ -24,6 +26,7 @@ containerDBFailed=$(docker ps -a -f name=${testContainerDBName} --format "{{.Sta
 
 if [[ "${containerFailed}" != *"Up"* ]]; then
     docker logs ${testContainerName}
+    docker logs ${testContainerName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
     # discordOutput=$(docker logs ${testContainerName} | tail -12)
     # output=$(docker logs ${testContainerName})
@@ -39,6 +42,7 @@ fi
 
 if [[ "${containerDBFailed}" != *"Up"* ]]; then
     docker logs ${testContainerDBName}
+    docker logs ${testContainerName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
     # discordOutput=$(docker logs ${testContainerName} | tail -12)
     # output=$(docker logs ${testContainerName})

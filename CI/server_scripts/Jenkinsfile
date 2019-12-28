@@ -27,6 +27,7 @@ pipeline {
 
                     export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
                     export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
+                    export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
                     ./CI/server_scripts/validate-formatting.sh;
                 \'"""
@@ -85,6 +86,7 @@ pipeline {
                         export WALL_E_DB_PASSWORD=wallEPassword;
                         export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
                         export TOKEN=${TOKEN};
+                        export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
                         ./CI/server_scripts/deploy-to-test-server.sh;
                     \'"""
@@ -120,6 +122,8 @@ pipeline {
                         export BOT_LOG_CHANNEL=bot_logs;
                         export REMINDER_CHANNEL=bot_commands_and_misc;
 
+                        export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
+
                         ./CI/server_scripts/deploy-to-prod-server.sh;
                     \'"""
                 }
@@ -132,12 +136,6 @@ pipeline {
                 if (fileExists('test_results/all-unit-tests.xml')){
                     junit 'test_results/all-unit-tests.xml'
                 }
-
-                sh label: '', script: """bash -c \'
-                    export BRANCH_NAME=${BRANCH_NAME};
-                    export CHANGE_ID=${env.CHANGE_ID};
-                    ./CI/server_scripts/get_docker_logs.sh &> OUTPUT;
-                \'"""
 
                 def summary=readFile('OUTPUT').trim()
 
