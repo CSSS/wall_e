@@ -137,18 +137,26 @@ pipeline {
                     junit 'test_results/all-unit-tests.xml'
                 }
 
-                def summary=readFile('OUTPUT').trim()
-
-                echo "the summary=$summary";
-                colorCode = (currentBuild.currentResult == "SUCCESS") ? '#00FF00' : '#FF0000'
-                if (currentBuild.currentResult == "SUCCESS"){
-                    theTitle = "SUCCESS"
-                }else{
+                if (fileExists('OUTPUT')){
+                    def summary=readFile('OUTPUT').trim()
                     theTitle = "ISSUE DETECTED"
+                    status = false
+                }else{
+                    if (currentBuild.currentResult == "SUCCESS"){
+                        theTitle = "SUCCESS"
+                        summary = "No issues detected"
+                        status = true
+                    }else{
+                        theTitle = "ISSUE DETECTED"
+                        summary = "Please look at Jenkins for more info"
+                        status = false
+                    }
                 }
+                echo "the summary=$summary";
+
 
                 withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
-                    discordSend description: summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: (currentBuild.currentResult == "SUCCESS"), title: theTitle, webhookURL: "$WEBHOOKURL"
+                    discordSend description: BRANCH_NAME + '\n' + summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
                 }
             }
         }
