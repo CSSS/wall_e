@@ -18,7 +18,7 @@ help_json_file_name = "help.json"
 
 class WallEConfig():
     def __init__(self, environment):
-        config = configparser.ConfigParser()
+        config = configparser.ConfigParser(interpolation=None)
         config.optionxform = str
         if (environment == "LOCALHOST"):
             config.read(config_file_location_local)
