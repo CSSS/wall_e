@@ -48,7 +48,7 @@ testContainerFailed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State
 
 if [ "${testContainerFailed}" -eq "1" ]; then
     docker logs ${DOCKER_TEST_CONTAINER}
-    docker logs DOCKER_TEST_CONTAINER --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+    docker logs ${DOCKER_TEST_CONTAINER} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     docker stop ${DOCKER_TEST_CONTAINER} || true
     docker rm ${DOCKER_TEST_CONTAINER} || true
     docker image rm -f ${DOCKER_TEST_IMAGE} || true
