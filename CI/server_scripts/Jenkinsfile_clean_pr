@@ -6,7 +6,7 @@ node {
     // PR to master Closed without Merge: Restart branch containers
     // PR to any branch Closed: Delete PR's channels and containers
 
-    withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: 'TOKEN')]) {
+    withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN')]) {
 
       // Parse GitHub webhook's payload
       def object = readJSON text: "${payload}"

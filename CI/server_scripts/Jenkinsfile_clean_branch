@@ -3,7 +3,7 @@ node {
     // Trigger: GitHub webhook whenever a branch is deleted
     // Action: Delete branch's testing channels and containers
 
-    withCredentials([string(credentialsId: 'TEST_BOT_USER_TOKEN', variable: 'TOKEN')]) {
+    withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN')]) {
 
       // Parse the GitHub webhook's payload
       def object = readJSON text: "${payload}"
