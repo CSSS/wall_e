@@ -4,6 +4,9 @@
 
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
+
+rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
+
 export testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
 export testImageName_lowerCase=$(echo "$testContainerName" | awk '{print tolower($0)}')
@@ -29,10 +32,12 @@ export containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.
 export containerDBFailed=$(docker ps -a -f name=${testContainerDBName} --format "{{.Status}}" | head -1)
 if [[ "${containerFailed}" != *"Up"* ]]; then
     docker logs ${testContainerName}
+    docker logs ${testContainerName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
 fi
 
 if [[ "${containerDBFailed}" != *"Up"* ]]; then
     docker logs ${testContainerDBName}
+    docker logs ${testContainerDBName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
 fi
