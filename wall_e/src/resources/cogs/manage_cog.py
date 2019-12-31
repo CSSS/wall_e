@@ -30,7 +30,7 @@ class ManageCog(commands.Cog):
         logger.info("[ManageCog debuginfo()] debuginfo command detected from {}".format(ctx.message.author))
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             fmt = '```You are testing the latest commit of branch or pull request: {0}```'
-            await ctx.send(fmt.format(self.config.get_config_value('database', 'BRANCH_NAME')))
+            await ctx.send(fmt.format(self.config.get_config_value('basic_config', 'BRANCH_NAME')))
         return
 
     # this command is used by the TEST guild to ensur that each TEST container will only process incoming commands

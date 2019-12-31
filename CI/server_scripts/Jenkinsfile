@@ -27,6 +27,7 @@ pipeline {
 
                     export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
                     export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
+                    export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
                     ./CI/server_scripts/validate-formatting.sh;
                 \'"""
@@ -85,6 +86,7 @@ pipeline {
                         export WALL_E_DB_PASSWORD=wallEPassword;
                         export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
                         export TOKEN=${TOKEN};
+                        export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
                         ./CI/server_scripts/deploy-to-test-server.sh;
                     \'"""
@@ -120,6 +122,8 @@ pipeline {
                         export BOT_LOG_CHANNEL=bot_logs;
                         export REMINDER_CHANNEL=bot_commands_and_misc;
 
+                        export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
+
                         ./CI/server_scripts/deploy-to-prod-server.sh;
                     \'"""
                 }
@@ -129,10 +133,29 @@ pipeline {
     post {
         always {
             script {
-                junit 'test_results/all-unit-tests.xml'
-                //withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
-                //    discordSend description: BRANCH_NAME, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: true, title: 'Successful build', webhookURL: "$WEBHOOKURL"
-                //}
+                if (fileExists('test_results/all-unit-tests.xml')){
+                    junit 'test_results/all-unit-tests.xml'
+                }
+                def summary = ''
+                if (fileExists('OUTPUT')){
+                    summary=readFile('OUTPUT').trim()
+                    theTitle = "ISSUE DETECTED"
+                    status = false
+                }else{
+                    if (currentBuild.currentResult == "SUCCESS"){
+                        theTitle = "SUCCESS"
+                        summary = "No issues detected"
+                        status = true
+                    }else{
+                        theTitle = "ISSUE DETECTED"
+                        summary = "Please look at Jenkins for more info"
+                        status = false
+                    }
+                }
+
+                withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                    discordSend description: "Branch or PR Name: " + BRANCH_NAME + '\n' + summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
+                }
             }
         }
     }
