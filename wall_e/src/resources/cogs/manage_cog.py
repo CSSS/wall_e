@@ -150,9 +150,7 @@ class ManageCog(commands.Cog):
     async def on_ready(self):
         logger.info("[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels))
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
-            logger.info(
-                "[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels)
-            )
+            logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             channels = self.bot.guilds[0].channels
             branch_name = self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
             if discord.utils.get(channels, name=branch_name) is None:
