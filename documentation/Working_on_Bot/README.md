@@ -43,7 +43,9 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 #### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you
  * made changes to the wall_e/src/requirements.txt file or
+ * made changes to the wall_e/src/docker-requirements.txt file or
  * made changes to the CI/server_scripts/Dockerfile.base file
+
 
 Commands to Run
 ```shell
@@ -96,7 +98,9 @@ export COMPOSE_PROJECT_NAME="project_name"
 #### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you
  * made changes to the wall_e/src/requirements.txt file or
+ * made changes to the wall_e/src/docker-requirements.txt file or
  * made changes to the CI/server_scripts/Dockerfile.base file
+
 
 Commands To Run
 ```shell
