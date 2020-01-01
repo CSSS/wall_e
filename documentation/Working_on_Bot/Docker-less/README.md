@@ -1,13 +1,8 @@
 # Working on the Bot
 
 - [Wiki: Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
-- [Running the Bot](#running-the-bot)  
-  - [With the Database](#with-the-database)
-    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-docker-base-image)
-    - [Step 2. Launching the Bot](#step-2-launching-the-bot)
-  - [Without the Database](#without-the-database)
-    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-docker-base-image-1)
-    - [Step 2. Launching the Bot](#step-2-launching-the-bot-1)
+- [Running the Bot without Docker](#running-the-bot-without-docker)  
+  - [Launching the Bot](#launching-the-bot)
 - [Testing the Bot](#testing-the-bot)
   - [Step 1. Run through the linter](#step-1-run-through-the-linter)
   - [Step 2. Testing on the CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
