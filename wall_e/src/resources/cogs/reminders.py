@@ -16,7 +16,7 @@ import datetime
 logger = logging.getLogger('wall_e')
 
 
-def getClassName():
+def get_class_name():
     return "Reminders"
 
 
@@ -29,16 +29,16 @@ class Reminders(commands.Cog):
         # setting up database connection
         try:
             host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
-            dbConnectionString = (
+            db_connection_string = (
                 "dbname='{}' user='{}' host='{}'".format(
                     self.config.get_config_value('database', 'WALL_E_DB_DBNAME'),
                     self.config.get_config_value('database', 'WALL_E_DB_USER'),
                     host)
             )
-            logger.info("[Reminders __init__] dbConnectionString=[{}]".format(dbConnectionString))
+            logger.info("[Reminders __init__] db_connection_string=[{}]".format(db_connection_string))
             conn = psycopg2.connect(
                 "{}  password='{}'".format(
-                    dbConnectionString, self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
+                    db_connection_string, self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
                 )
             )
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
@@ -56,63 +56,63 @@ class Reminders(commands.Cog):
     @commands.command()
     async def remindmein(self, ctx, *args):
         logger.info("[Reminders remindmein()] remindme command detected from user {}".format(ctx.message.author))
-        parsedTime = ''
+        parsed_time = ''
         message = ''
-        parseTime = True
+        parse_time = True
         for index, value in enumerate(args):
-            if parseTime:
+            if parse_time:
                 if value == 'to':
-                    parseTime = False
+                    parse_time = False
                 else:
-                    parsedTime += "{} ".format(value)
+                    parsed_time += "{} ".format(value)
             else:
                 message += "{} ".format(value)
         how_to_call_command = ("\nPlease call command like so:\nremindmein <time|minutes|hours|days> to <what to "
                                "remind you about>\nExample: \".remindmein 10 minutes to turn in my assignment\"")
-        if parsedTime == '':
+        if parsed_time == '':
             logger.info("[Reminders remindmein()] was unable to extract a time")
-            eObj = await embed(
+            e_obj = await embed(
                 ctx,
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="unable to extract a time {}".format(how_to_call_command)
             )
-            if eObj is not False:
-                await ctx.send(embed=eObj)
+            if e_obj is not False:
+                await ctx.send(embed=e_obj)
             return
         if message == '':
             logger.info("[Reminders remindmein()] was unable to extract a message")
-            eObj = await embed(
+            e_obj = await embed(
                 ctx,
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="unable to extract a string {}".format(how_to_call_command)
             )
-            if eObj is not False:
-                await ctx.send(embed=eObj)
+            if e_obj is not False:
+                await ctx.send(embed=e_obj)
             return
-        timeUntil = str(parsedTime)
-        logger.info("[Reminders remindmein()] extracted time is {}".format(timeUntil))
+        time_until = str(parsed_time)
+        logger.info("[Reminders remindmein()] extracted time is {}".format(time_until))
         logger.info("[Reminders remindmein()] extracted message is {}".format(message))
-        time_struct, parse_status = parsedatetime.Calendar().parse(timeUntil)
+        time_struct, parse_status = parsedatetime.Calendar().parse(time_until)
         if parse_status == 0:
             logger.info("[Reminders remindmein()] couldn't parse the time")
-            eObj = await embed(
+            e_obj = await embed(
                 ctx,
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="Could not parse time! {}".format(how_to_call_command)
             )
-            if eObj is not False:
-                await ctx.send(embed=eObj)
+            if e_obj is not False:
+                await ctx.send(embed=e_obj)
             return
         expire_seconds = int(mktime(time_struct) - time.time())
         dt = datetime.datetime.now()
         b = dt + datetime.timedelta(seconds=expire_seconds)  # days, seconds, then other fields.
-        sqlCommand = (
+        sql_command = (
             "INSERT INTO Reminders (  reminder_date, message, author_id, author_name, message_id) VALUES "
             "(TIMESTAMP '{}', '{}', '{}', '{}',  '{}');".format(
                 b,
@@ -122,17 +122,17 @@ class Reminders(commands.Cog):
                 ctx.message.id
             )
         )
-        logger.info("[Reminders remindmein()] sqlCommand=[{}]".format(sqlCommand))
-        self.curs.execute(sqlCommand)
+        logger.info("[Reminders remindmein()] sql_command=[{}]".format(sql_command))
+        self.curs.execute(sql_command)
         fmt = 'Reminder set for {0} seconds from now'
-        eObj = await embed(
+        e_obj = await embed(
             ctx,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=fmt.format(expire_seconds)
         )
-        if eObj is not False:
-            await ctx.send(embed=eObj)
+        if e_obj is not False:
+            await ctx.send(embed=e_obj)
             logger.info("[Reminders remindmein()] reminder has been contructed and sent.")
 
     @commands.command()
@@ -141,8 +141,8 @@ class Reminders(commands.Cog):
         if self.curs is not None:
             try:
                 reminders = ''
-                sqlCommand = "SELECT * FROM Reminders WHERE author_id = '{}';".format(ctx.author.id)
-                self.curs.execute(sqlCommand)
+                sql_command = "SELECT * FROM Reminders WHERE author_id = '{}';".format(ctx.author.id)
+                self.curs.execute(sql_command)
                 logger.info("[Reminders showreminders()] retrieved all reminders belonging to user "
                             + str(ctx.message.author))
                 for row in self.curs.fetchall():
@@ -152,86 +152,86 @@ class Reminders(commands.Cog):
                 if reminders != '':
                     logger.info("[Reminders showreminders()] sent off the list of reminders to "
                                 + str(ctx.message.author))
-                    eObj = await embed(
+                    e_obj = await embed(
                         ctx,
                         title="Here are your reminders {}".format(author),
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                         content=[["MessageID\t\t\t\t\t\t\tReminder", reminders]]
                     )
-                    if eObj is not False:
-                        await ctx.send(embed=eObj)
+                    if e_obj is not False:
+                        await ctx.send(embed=e_obj)
                 else:
                     logger.info(
                         "[Reminders showreminders()] {} didnt seem to have any reminders.".format(
                             ctx.message.author
                         )
                     )
-                    eObj = await embed(
+                    e_obj = await embed(
                         ctx,
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                         description="You don't seem to have any reminders {}".format(author)
                     )
-                    if eObj is not False:
-                        await ctx.send(embed=eObj)
+                    if e_obj is not False:
+                        await ctx.send(embed=e_obj)
             except Exception as error:
-                eObj = await embed(
+                e_obj = await embed(
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description="Something screwy seems to have happened, look at the logs for more info."
                 )
-                if eObj is not False:
-                    await ctx.send(embed=eObj)
+                if e_obj is not False:
+                    await ctx.send(embed=e_obj)
                     logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
                     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
     @commands.command()
-    async def deletereminder(self, ctx, messageId):
+    async def deletereminder(self, ctx, message_id):
         logger.info("[Reminders deletereminder()] deletereminder command detected from user "
                     + str(ctx.message.author))
         try:
             if self.curs is not None:
-                sqlCommand = "SELECT * FROM Reminders WHERE message_id = '{}';".format(messageId)
-                self.curs.execute(sqlCommand)
+                sql_command = "SELECT * FROM Reminders WHERE message_id = '{}';".format(message_id)
+                self.curs.execute(sql_command)
                 result = self.curs.fetchone()
                 if result is None:
-                    eObj = await embed(
+                    e_obj = await embed(
                         ctx,
                         title='Delete Reminder',
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                         description="ERROR\nSpecified reminder could not be found"
                     )
-                    if eObj is not False:
-                        await ctx.send(embed=eObj)
+                    if e_obj is not False:
+                        await ctx.send(embed=e_obj)
                         logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
                 else:
                     if str(result[4]) == str(ctx.message.author):
                         # check to make sure its the right author
-                        sqlCommand = "DELETE FROM Reminders WHERE message_id = '{}';".format(messageId)
-                        self.curs.execute(sqlCommand)
+                        sql_command = "DELETE FROM Reminders WHERE message_id = '{}';".format(message_id)
+                        self.curs.execute(sql_command)
                         logger.info("[Reminders deletereminder()] following reminder was deleted = {}".format(result))
-                        eObj = await embed(
+                        e_obj = await embed(
                             ctx,
                             title='Delete Reminder',
                             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                             description="Following reminder has been deleted:\n{}".format(result[2])
                         )
-                        if eObj is not False:
-                            await ctx.send(embed=eObj)
+                        if e_obj is not False:
+                            await ctx.send(embed=e_obj)
                     else:
-                        eObj = await embed(
+                        e_obj = await embed(
                             ctx,
                             title='Delete Reminder',
                             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                             description="ERROR\nYou are trying to delete a reminder that is not yours"
                         )
-                        if eObj is not False:
-                            await ctx.send(embed=eObj)
+                        if e_obj is not False:
+                            await ctx.send(embed=e_obj)
                             logger.info("[Reminders deletereminder()] It seems that {} "
                                         "was trying to delete {}'s reminder.".format(ctx.message.author, result[4]))
         except Exception as error:
@@ -245,7 +245,7 @@ class Reminders(commands.Cog):
 #########################################
     async def get_messages(self):
         await self.bot.wait_until_ready()
-        REMINDER_CHANNEL_ID = None
+        reminder_channel_id = None
         # determines the channel to send the reminder on
         try:
             reminder_channel_name = self.config.get_config_value('basic_config', 'REMINDER_CHANNEL')
@@ -259,17 +259,17 @@ class Reminders(commands.Cog):
                 if reminder_chan is None:
                     logger.info("[Reminders get_messages()] reminder channel does not exist in PRODUCTION.")
                     reminder_chan = await self.bot.guilds[0].create_text_channel(reminder_channel_name)
-                    REMINDER_CHANNEL_ID = reminder_chan.id
-                    if REMINDER_CHANNEL_ID is None:
+                    reminder_channel_id = reminder_chan.id
+                    if reminder_channel_id is None:
                         logger.info("[Reminders get_messages()] the channel designated for reminders "
                                     "[{}] in PRODUCTION does not exist and I was unable to create "
                                     "it, exiting now....".format(reminder_channel_name))
                         exit(1)
                     logger.info("[Reminders get_messages()] variable "
-                                "\"REMINDER_CHANNEL_ID\" is set to \"{}\"".format(REMINDER_CHANNEL_ID))
+                                "\"reminder_channel_id\" is set to \"{}\"".format(reminder_channel_id))
                 else:
                     logger.info("[Reminders get_messages()] reminder channel exists in PRODUCTION and was detected.")
-                    REMINDER_CHANNEL_ID = reminder_chan.id
+                    reminder_channel_id = reminder_chan.id
             elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
                 logger.info(
                     "[Reminders get_messages()] branch is =[{}]".format(
@@ -284,8 +284,8 @@ class Reminders(commands.Cog):
                     reminder_chan = await self.bot.guilds[0].create_text_channel(
                          '{}_reminders'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME'))
                     )
-                    REMINDER_CHANNEL_ID = reminder_chan.id
-                    if REMINDER_CHANNEL_ID is None:
+                    reminder_channel_id = reminder_chan.id
+                    if reminder_channel_id is None:
                         logger.info(
                             "[Reminders get_messages()] the channel designated for reminders [{}_reminders] in {} "
                             "does not exist and I was unable to create it, exiting now....".format(
@@ -295,7 +295,7 @@ class Reminders(commands.Cog):
                         )
                         exit(1)
                     logger.info("[Reminders get_messages()] variable "
-                                "\"REMINDER_CHANNEL_ID\" is set to \"{}\"".format(REMINDER_CHANNEL_ID))
+                                "\"reminder_channel_id\" is set to \"{}\"".format(reminder_channel_id))
                 else:
                     logger.info(
                         "[Reminders get_messages()] reminder channel exists in {} and was "
@@ -303,7 +303,7 @@ class Reminders(commands.Cog):
                             self.config.get_config_value('basic_config', 'BRANCH_NAME')
                         )
                     )
-                    REMINDER_CHANNEL_ID = reminder_chan.id
+                    reminder_channel_id = reminder_chan.id
             elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
                 reminder_channel_name = self.config.get_config_value('basic_config', 'REMINDER_CHANNEL')
                 logger.info(
@@ -315,21 +315,21 @@ class Reminders(commands.Cog):
                 if (reminder_chan is None):
                     logger.info("[Remindes get_messages()] reminder channel does not exist in local dev.")
                     reminder_chan = await self.bot.guilds[0].create_text_channel(reminder_channel_name)
-                    REMINDER_CHANNEL_ID = reminder_chan.id
-                    if REMINDER_CHANNEL_ID is None:
+                    reminder_channel_id = reminder_chan.id
+                    if reminder_channel_id is None:
                         logger.info("[Reminders get_messages()] the channel designated for reminders "
                                     "[{}] in local dev does not exist and I was unable to create it "
                                     "it, exiting now.....".format(reminder_channel_name))
                         exit(1)
                     logger.info("[Reminders get_messages()] variables "
-                                "\"REMINDER_CHANNEL_ID\" is set to \"{}\"".format(REMINDER_CHANNEL_ID))
+                                "\"reminder_channel_id\" is set to \"{}\"".format(reminder_channel_id))
                 else:
                     logger.info("[Reminders get_messages()] reminder channel exists in local dev and was detected.")
-                    REMINDER_CHANNEL_ID = reminder_chan.id
+                    reminder_channel_id = reminder_chan.id
         except Exception as e:
             logger.error("[Reminders get_messages()] enountered following exception when connecting to reminder "
                          "channel\n{}".format(e))
-        reminder_channel = self.bot.get_channel(REMINDER_CHANNEL_ID)  # channel ID goes here
+        reminder_channel = self.bot.get_channel(reminder_channel_id)  # channel ID goes here
         while True:
             dt = datetime.datetime.now()
             try:
@@ -339,10 +339,10 @@ class Reminders(commands.Cog):
                     author_id = row[3]
                     logger.info('[Reminders get_message()] obtained the message of [{}] for '
                                 'author with id [{}] for '
-                                'REMINDER_CHANNEL [{}]'.format(reminder_message, author_id, REMINDER_CHANNEL_ID))
+                                'REMINDER_CHANNEL [{}]'.format(reminder_message, author_id, reminder_channel_id))
                     logger.info('[Reminders get_message()] sent off '
                                 'reminder to {} about \"{}\"'.format(author_id, reminder_message))
-                    eObj = await embed(
+                    e_obj = await embed(
                         reminder_channel,
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -350,8 +350,8 @@ class Reminders(commands.Cog):
                         footer='Reminder'
                     )
                     self.curs.execute("DELETE FROM Reminders WHERE reminder_id = {};".format(row[0]))
-                    if eObj is not False:
-                        await reminder_channel.send('<@{}>'.format(author_id), embed=eObj)
+                    if e_obj is not False:
+                        await reminder_channel.send('<@{}>'.format(author_id), embed=e_obj)
             except Exception as error:
                 logger.error('[Reminders get_message()] Ignoring exception when generating reminder:')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
