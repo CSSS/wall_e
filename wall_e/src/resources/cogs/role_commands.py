@@ -7,11 +7,6 @@ from operator import itemgetter
 
 logger = logging.getLogger('wall_e')
 
-
-def getClassName():
-    return "RoleCommands"
-
-
 class RoleCommands(commands.Cog):
 
     def __init__(self, bot, config):

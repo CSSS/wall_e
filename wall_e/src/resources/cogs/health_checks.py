@@ -3,11 +3,6 @@ from resources.utilities.embed import embed
 import logging
 logger = logging.getLogger('wall_e')
 
-
-def getClassName():
-    return "HealthChecks"
-
-
 class HealthChecks(commands.Cog):
 
     def __init__(self, bot, config):

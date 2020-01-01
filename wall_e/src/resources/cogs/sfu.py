@@ -10,11 +10,6 @@ import aiohttp
 logger = logging.getLogger('wall_e')
 sfuRed = 0xA6192E
 
-
-def getClassName():
-    return "SFU"
-
-
 class SFU(commands.Cog):
     def __init__(self, bot, config):
         self.bot = bot

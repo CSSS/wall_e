@@ -13,11 +13,6 @@ import psycopg2 # noqa
 
 logger = logging.getLogger('wall_e')
 
-
-def getClassName():
-    return "Administration"
-
-
 class Administration(commands.Cog):
 
     def __init__(self, bot, config):

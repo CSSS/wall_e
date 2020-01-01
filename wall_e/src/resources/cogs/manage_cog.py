@@ -12,11 +12,6 @@ from resources.utilities.embed import embed as imported_embed
 
 logger = logging.getLogger('wall_e')
 
-
-def getClassName():
-    return "ManageCog"
-
-
 class ManageCog(commands.Cog):
 
     def __init__(self, bot, config):

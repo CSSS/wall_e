@@ -1,7 +1,8 @@
 from discord.ext import commands
 import importlib
 import os
-
+import inspect
+import sys
 from resources.cogs.manage_cog import ManageCog
 from resources.utilities.config.config import WallEConfig as config
 from resources.utilities.database import setup_database, setup_stats_of_command_database_table
@@ -116,17 +117,15 @@ if __name__ == "__main__":
     # tries to loads any commands specified in the_commands into the bot
 
     for cog in config.get_cogs():
-        commandLoaded = True
         try:
             logger.info("[main.py] attempting to load command {}".format(cog["name"]))
-            cogToLoad = importlib.import_module(str(cog['path'])+str(cog["name"]))
-            cogFile = getattr(cogToLoad, str(cogToLoad.getClassName()))
-            bot.add_cog(cogFile(bot, config))
+            cog_file = importlib.import_module(str(cog['path'])+str(cog["name"]))
+            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+            cog_to_load = getattr(cog_file, cog_class_name)
+            bot.add_cog(cog_to_load(bot, config))
+            logger.info("[main.py] {} successfully loaded".format(cog["name"]))
         except Exception as e:
-            commandLoaded = False
             exception = '{}: {}'.format(type(e).__name__, e)
             logger.error('[main.py] Failed to load command {}\n{}'.format(cog, exception))
-        if commandLoaded:
-            logger.info("[main.py] {} successfully loaded".format(cog["name"]))
     # final step, running the bot with the passed in environment TOKEN variable
     bot.run(config.get_config_value("basic_config", "TOKEN"))
