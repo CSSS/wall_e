@@ -13,6 +13,7 @@ import re
 
 logger = logging.getLogger('wall_e')
 
+
 class Misc(commands.Cog):
 
     def __init__(self, bot, config):

@@ -7,6 +7,7 @@ import discord
 import logging
 logger = logging.getLogger('wall_e')
 
+
 class Here(commands.Cog):
 
     def __init__(self, bot, config):

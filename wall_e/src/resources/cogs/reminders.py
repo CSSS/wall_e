@@ -15,6 +15,7 @@ import psycopg2
 import datetime
 logger = logging.getLogger('wall_e')
 
+
 class Reminders(commands.Cog):
 
     def __init__(self, bot, config):

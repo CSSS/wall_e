@@ -7,6 +7,7 @@ from resources.utilities.embed import embed as em
 import logging
 logger = logging.getLogger('wall_e')
 
+
 class Mod(commands.Cog):
 
     async def rekt(self, ctx):
