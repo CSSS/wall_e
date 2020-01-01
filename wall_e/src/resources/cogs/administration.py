@@ -237,20 +237,23 @@ class Administration(commands.Cog):
         if self.config.enabled("database", option="DB_ENABLED"):
             logger.info("[Administration frequency()] frequency command "
                         "detected from {} with arguments [{}]".format(ctx.message.author, args))
-            conn = self.get_column_headers_from_database()
-            if conn is None:
+            column_headers = self.get_column_headers_from_database()
+            if column_headers is None:
                 logger.info("[Administration frequency()] unable to connect to the database")
                 await ctx.send("unable to connect to the database")
                 return
 
             if len(args) == 0:
                 await ctx.send("please specify which columns you want to count="
-                               + str(list(conn)))
+                               + str(list(column_headers)))
                 return
             else:
                 for arg in args:
-                    if arg is not in conn:
-                        await ctx.send("argument {} is not a valid column name".format(arg))
+                    if arg not in column_headers:
+                        await ctx.send(
+                            "argument '{}' is not a valid option\nThe list of options are"
+                            ": {}".format(arg, column_headers)
+                        )
                         return
 
                 dicResult = self.determine_x_y_frequency(self.connect_to_database(), args)
