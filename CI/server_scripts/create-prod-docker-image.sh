@@ -20,6 +20,7 @@ export BRANCH_NAME=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
 export prodImageName="production_${BRANCH_NAME}_wall_e"
 export testImageName="test_${BRANCH_NAME}_wall_e"
 export REQUIREMENTS_FILE_LOCATION="wall_e/src/requirements.txt"
+export DOCKER_REQUIREMENTS_FILE_LOCATION="wall_e/src/docker-requirements.txt"
 
 export current_commit=$(git log -1 --pretty=format:"%H")
 
@@ -45,7 +46,7 @@ else
     files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
     for file_changed in "${files_changed[@]}"
     do
-        if [[ "${file_changed}" == "${REQUIREMENTS_FILE_LOCATION}" || "${file_changed}" == "${DOCKERFILE}" ]]; then
+        if [[ "${file_changed}" == "${REQUIREMENTS_FILE_LOCATION}" || "${file_changed}" == "${DOCKERFILE}" || "${file_changed}" == "${DOCKER_REQUIREMENTS_FILE_LOCATION}" ]]; then
             echo "will need to re-create docker image ${testBaseImageName_lowerCase}"
             re_create_image
         fi
