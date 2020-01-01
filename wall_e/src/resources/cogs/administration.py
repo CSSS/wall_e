@@ -8,6 +8,7 @@ import importlib
 
 logger = logging.getLogger('wall_e')
 
+
 def getClassName():
     return "Administration"
 
