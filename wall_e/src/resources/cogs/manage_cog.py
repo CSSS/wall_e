@@ -30,7 +30,7 @@ class ManageCog(commands.Cog):
         logger.info("[ManageCog debuginfo()] debuginfo command detected from {}".format(ctx.message.author))
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             fmt = '```You are testing the latest commit of branch or pull request: {0}```'
-            await ctx.send(fmt.format(self.config.get_config_value('database', 'BRANCH_NAME')))
+            await ctx.send(fmt.format(self.config.get_config_value('basic_config', 'BRANCH_NAME')))
         return
 
     # this command is used by the TEST guild to ensur that each TEST container will only process incoming commands
@@ -150,9 +150,7 @@ class ManageCog(commands.Cog):
     async def on_ready(self):
         logger.info("[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels))
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
-            logger.info(
-                "[ManageCog on_ready()] aquired list of channels = {}".format(self.bot.guilds[0].channels)
-            )
+            logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             channels = self.bot.guilds[0].channels
             branch_name = self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
             if discord.utils.get(channels, name=branch_name) is None:
