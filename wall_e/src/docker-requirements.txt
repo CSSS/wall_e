@@ -1,0 +1,3 @@
+psycopg2-binary
+numpy==1.15.2
+matplotlib==3.0.0
