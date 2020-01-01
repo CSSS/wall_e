@@ -5,14 +5,8 @@ import logging
 import asyncio
 from resources.utilities.send import send as helper_send
 import importlib
-import matplotlib
-matplotlib.use("agg")
-import matplotlib.pyplot as plt # noqa
-import numpy as np # noqa
-import psycopg2 # noqa
 
 logger = logging.getLogger('wall_e')
-
 
 def getClassName():
     return "Administration"
@@ -23,6 +17,15 @@ class Administration(commands.Cog):
     def __init__(self, bot, config):
         self.config = config
         self.bot = bot
+        if self.config.enabled("database", option="DB_ENABLED"):
+            import matplotlib
+            matplotlib.use("agg")
+            import matplotlib.pyplot as plt # noqa
+            self.plt = plt
+            import numpy as np # noqa
+            self.np = np
+            import psycopg2 # noqa
+            self.psycopg2 = psycopg2
 
     def validCog(self, name):
         for cog in self.config.get_cogs():
@@ -223,8 +226,8 @@ class Administration(commands.Cog):
             dbConnectionString = ("dbname='{}' user='{}' "
                                   "host='{}'".format(wall_e_db_dbname, wall_e_db_user, host))
             logger.info("[Administration connect_to_database()] dbConnectionString=[{}]".format(dbConnectionString))
-            conn = psycopg2.connect("{} password='{}'".format(dbConnectionString, wall_e_db_password))
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            conn = self.psycopg2.connect("{} password='{}'".format(dbConnectionString, wall_e_db_password))
+            conn.set_isolation_level(self.psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             logger.info("[Administration connect_to_database()] PostgreSQL connection established")
             return conn
         except Exception as e:
@@ -258,9 +261,9 @@ class Administration(commands.Cog):
                 logger.info("[Administration frequency()] dicResults's length is <= 50")
                 labels = [i[0] for i in dicResult]
                 numbers = [i[1] for i in dicResult]
-                plt.rcdefaults()
-                fig, ax = plt.subplots()
-                y_pos = np.arange(len(labels))
+                self.plt.rcdefaults()
+                fig, ax = self.plt.subplots()
+                y_pos = self.np.arange(len(labels))
                 for i, v in enumerate(numbers):
                     ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                 ax.barh(y_pos, numbers, align='center', color='green')
@@ -276,7 +279,7 @@ class Administration(commands.Cog):
                 fig.set_size_inches(18.5, 10.5)
                 fig.savefig('image.png')
                 logger.info("[Administration frequency()] graph created and saved")
-                plt.close(fig)
+                self.plt.close(fig)
                 await ctx.send(file=discord.File('image.png'))
                 logger.info("[Administration frequency()] graph image file has been sent")
             else:
@@ -294,9 +297,9 @@ class Administration(commands.Cog):
                     toReact = ['⏪', '⏩', '✅']
                     labels = [i[0] for i in dicResult][firstIndex:lastIndex]
                     numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
-                    plt.rcdefaults()
-                    fig, ax = plt.subplots()
-                    y_pos = np.arange(len(labels))
+                    self.plt.rcdefaults()
+                    fig, ax = self.plt.subplots()
+                    y_pos = self.np.arange(len(labels))
                     for i, v in enumerate(numbers):
                         ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                     ax.barh(y_pos, numbers, align='center', color='green')
@@ -313,7 +316,7 @@ class Administration(commands.Cog):
                     fig.set_size_inches(18.5, 10.5)
                     fig.savefig('image.png')
                     logger.info("[Administration frequency()] graph created and saved")
-                    plt.close(fig)
+                    self.plt.close(fig)
                     if msg is None:
                         msg = await ctx.send(file=discord.File('image.png'))
                     else:
@@ -368,3 +371,5 @@ class Administration(commands.Cog):
                             return
                     logger.info("[Administration frequency()] updating firstIndex "
                                 "and lastIndex to {} and {} respectively".format(firstIndex, lastIndex))
+        else:
+            logger.info('Administration frequency()] either the database or frequency is not enabled')
