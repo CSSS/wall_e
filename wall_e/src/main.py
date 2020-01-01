@@ -120,7 +120,7 @@ if __name__ == "__main__":
         try:
             logger.info("[main.py] attempting to load command {}".format(cog["name"]))
             cog_to_load = importlib.import_module(str(cog['path'])+str(cog["name"]))
-            cog_file = getattr(cog_to_load, str(cog_to_load.getClassName()))
+            cog_file = getattr(cog_to_load, str(cog_to_load.get_class_name()))
             bot.add_cog(cog_file(bot, WallEConfig))
         except Exception as e:
             commamd_loaded = False
