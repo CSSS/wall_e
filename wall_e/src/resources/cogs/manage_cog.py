@@ -12,10 +12,6 @@ from resources.utilities.embed import embed as imported_embed
 logger = logging.getLogger('wall_e')
 
 
-def getClassName():
-    return "ManageCog"
-
-
 class ManageCog(commands.Cog):
 
     def __init__(self, bot, config):
@@ -54,17 +50,17 @@ class ManageCog(commands.Cog):
            self.config.enabled("database", option="DB_ENABLED"):
             try:
                 host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
-                dbConnectionString = (
+                db_connection_string = (
                     "dbname='{}' user='{}' host='{}'".format(
                         self.config.get_config_value('database', 'WALL_E_DB_DBNAME'),
                         self.config.get_config_value('database', 'WALL_E_DB_USER'),
                         host)
                 )
                 logger.info(
-                    "[ManageCog on_command()] dbConnectionString=[{}]".format(dbConnectionString))
-                conn = self.psycopg2.connect(
+                    "[ManageCog on_command()] db_connection_string=[{}]".format(db_connection_string))
+                conn = psycopg2.connect(
                     "{} password='{}'".format(
-                        dbConnectionString,
+                        db_connection_string,
                         self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
                     )
                 )
@@ -86,7 +82,7 @@ class ManageCog(commands.Cog):
                 successful = False
                 while not successful:
                     try:
-                        sqlCommand = (
+                        sql_command = (
                             "INSERT INTO CommandStats ( epoch_time, YEAR, "
                             "MONTH, DAY, HOUR, channel_name, Command, invoked_with, "
                             "invoked_subcommand) VALUES ({},{} ,{},{},{} ,'{}', "
@@ -102,9 +98,9 @@ class ManageCog(commands.Cog):
                                 invoked_subcommand
                             )
                         )
-                        logger.info("[ManageCog on_command()] sqlCommand=[{}]".format(sqlCommand))
-                        curs.execute(sqlCommand)
-                    except self.psycopg2.IntegrityError as e:
+                        logger.info("[ManageCog on_command()] sql_command=[{}]".format(sql_command))
+                        curs.execute(sql_command)
+                    except psycopg2.IntegrityError as e:
                         logger.error("[ManageCog on_command()] "
                                      "enountered following exception when trying to insert the"
                                      " record\n{}".format(e))
@@ -128,14 +124,14 @@ class ManageCog(commands.Cog):
         if self.check_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
                 logger.error('[ManageCog on_command_error()] Missing argument: {0}'.format(error.param))
-                eObj = await imported_embed(
+                e_obj = await imported_embed(
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description="Missing argument: {}".format(error.param)
                 )
-                if eObj is not False:
-                    await ctx.send(embed=eObj)
+                if e_obj is not False:
+                    await ctx.send(embed=e_obj)
             else:
                 # only prints out an error to the log if the string that was entered doesnt contain just "."
                 pattern = r'[^\.]'

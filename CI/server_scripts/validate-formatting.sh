@@ -25,37 +25,37 @@ echo LOCALHOST_SRC_DIR=${LOCALHOST_SRC_DIR}
 echo LOCALHOST_TEST_DIR=${LOCALHOST_TEST_DIR}
 echo DOCKER_TEST_IMAGE=${DOCKER_TEST_IMAGE}
 echo DOCKER_TEST_CONTAINER=${DOCKER_TEST_CONTAINER}
-DOCKER_TEST_IMAGE=$(echo "$DOCKER_TEST_IMAGE" | awk '{print tolower($0)}')
+docker_test_image_lower_case=$(echo "$DOCKER_TEST_IMAGE" | awk '{print tolower($0)}')
 
 docker rm -f ${DOCKER_TEST_CONTAINER} || true
-docker image rm -f ${DOCKER_TEST_IMAGE} || true
+docker image rm -f ${docker_test_image_lower_case} || true
 
 rm -r ${LOCALHOST_TEST_DIR} || true
 mkdir -p ${LOCALHOST_TEST_DIR}
 
 
-docker build --no-cache -t ${DOCKER_TEST_IMAGE} \
+docker build --no-cache -t ${docker_test_image_lower_case} \
     -f CI/Dockerfile.test \
     --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} \
     --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR} \
     --build-arg TEST_RESULT_FILE_NAME=${TEST_RESULT_FILE_NAME} .
 
-docker run -d --name ${DOCKER_TEST_CONTAINER} ${DOCKER_TEST_IMAGE}
+docker run -d --name ${DOCKER_TEST_CONTAINER} ${docker_test_image_lower_case}
 sleep 20
 sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/${TEST_RESULT_FILE_NAME} ${LOCALHOST_TEST_DIR}/${TEST_RESULT_FILE_NAME}
 
-testContainerFailed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}')
+test_container_failed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}')
 
-if [ "${testContainerFailed}" -eq "1" ]; then
+if [ "${test_container_failed}" -eq "1" ]; then
     docker logs ${DOCKER_TEST_CONTAINER}
     docker logs ${DOCKER_TEST_CONTAINER} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     docker stop ${DOCKER_TEST_CONTAINER} || true
     docker rm ${DOCKER_TEST_CONTAINER} || true
-    docker image rm -f ${DOCKER_TEST_IMAGE} || true
+    docker image rm -f ${docker_test_image_lower_case} || true
     exit 1
 fi
 
 docker stop ${DOCKER_TEST_CONTAINER} || true
 docker rm ${DOCKER_TEST_CONTAINER} || true
-docker image rm -f ${DOCKER_TEST_IMAGE} || true
+docker image rm -f ${docker_test_image_lower_case} || true
 exit 0

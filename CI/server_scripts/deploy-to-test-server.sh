@@ -7,11 +7,11 @@ set -e -o xtrace
 
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
-export testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
-export testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
-export testImageName_lowerCase=$(echo "$testContainerName" | awk '{print tolower($0)}')
-export COMPOSE_PROJECT_NAME_lowerCase=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
-export DOCKER_COMPOSE_FILE="CI/server_scripts/docker-compose.yml"
+export test_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
+export test_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
+export test_image_name_lower_case=$(echo "$test_container_name" | awk '{print tolower($0)}')
+export compose_project_name_lower_case=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
+export docker_compose_file="CI/server_scripts/docker-compose.yml"
 
 if [ "${BRANCH_NAME}" = "master" ]; then
     export ORIGIN_IMAGE="wall_e"
@@ -20,24 +20,24 @@ else
 fi
 
 
-docker rm -f ${testContainerName} ${testContainerDBName} || true
-docker network rm ${COMPOSE_PROJECT_NAME_lowerCase}_default || true
-docker image rm -f ${testImageName_lowerCase} || true
+docker rm -f ${test_container_name} ${test_container_db_name} || true
+docker network rm ${compose_project_name_lower_case}_default || true
+docker image rm -f ${test_image_name_lower_case} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
-docker-compose -f "${DOCKER_COMPOSE_FILE}" up --force-recreate  -d
+docker-compose -f "${docker_compose_file}" up --force-recreate  -d
 sleep 20
 
-export containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)
-export containerDBFailed=$(docker ps -a -f name=${testContainerDBName} --format "{{.Status}}" | head -1)
-if [[ "${containerFailed}" != *"Up"* ]]; then
-    docker logs ${testContainerName}
-    docker logs ${testContainerName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+export container_failed=$(docker ps -a -f name=${test_container_name} --format "{{.Status}}" | head -1)
+export container_db_failed=$(docker ps -a -f name=${test_container_db_name} --format "{{.Status}}" | head -1)
+if [[ "${container_failed}" != *"Up"* ]]; then
+    docker logs ${test_container_name}
+    docker logs ${test_container_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
 fi
 
-if [[ "${containerDBFailed}" != *"Up"* ]]; then
-    docker logs ${testContainerDBName}
-    docker logs ${testContainerDBName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+if [[ "${container_db_failed}" != *"Up"* ]]; then
+    docker logs ${test_container_db_name}
+    docker logs ${test_container_db_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
 fi

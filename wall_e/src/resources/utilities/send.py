@@ -4,84 +4,84 @@ import logging
 logger = logging.getLogger('wall_e')
 
 
-def get_last_index(content, index, reservedSpace):
+def get_last_index(content, index, reserved_space):
     # this when the the size of contents is too big for a single discord message, this means
     # that the message has to be split. and in order to make the output most visually appealing
     # when splitting it is to see if there is a newline on which  the message can be split instead.
     # if there is no suitable newline, it will instead just cut down an existing line
-    logger.info("[send.py get_last_index()] index =[{}] reservedSpace =[{}]".format(index, reservedSpace))
-    if len(content) - index < 2000 - reservedSpace:
+    logger.info("[send.py get_last_index()] index =[{}] reserved_space =[{}]".format(index, reserved_space))
+    if len(content) - index < 2000 - reserved_space:
         logger.info("[send.py  get_last_index()] returning length of content =[{}]".format(len(content)))
         return len(content)
     else:
-        indexOfNewLine = content.rfind('\n', index, index + (2000 - reservedSpace))
-        if indexOfNewLine != 0:
-            lastIndex = indexOfNewLine
+        index_of_new_line = content.rfind('\n', index, index + (2000 - reserved_space))
+        if index_of_new_line != 0:
+            last_index = index_of_new_line
         else:
-            lastIndex = 2000 - reservedSpace
-        logger.info("[send.py get_last_index()] indexOfNewLine =[{}]".format(indexOfNewLine))
-        return lastIndex
+            last_index = 2000 - reserved_space
+        logger.info("[send.py get_last_index()] index_of_new_line =[{}]".format(index_of_new_line))
+        return last_index
 
 
 async def send(ctx, content=None, tts=False, embed=None, file=None, files=None,
                delete_after=None, nonce=None, prefix=None, suffix=None):
     # adds the requested prefix and suffic to the contents
-    formattedContent = content
+    formatted_content = content
     if prefix is not None:
-        formattedContent = prefix + content
+        formatted_content = prefix + content
     if suffix is not None:
-        formattedContent = formattedContent + suffix
+        formatted_content = formatted_content + suffix
 
     # so what basically happens is it first tries to send the full message, then if it cant, it breaks it
     # down into 2000 sizes messages and send them individually
     try:
-        await ctx.send(formattedContent)
+        await ctx.send(formatted_content)
     except (aiohttp.ClientError, discord.errors.HTTPException):
         # used for determing how much space for each of the messages need to be reserved for the requested suffix
         # and prefix
-        reservedSpace = 0
+        reserved_space = 0
         if prefix is not None:
-            reservedSpace += len(prefix)
+            reserved_space += len(prefix)
         if suffix is not None:
-            reservedSpace += len(suffix)
-        logger.info("[send.py send()] reservedSpace = [{}]".format(reservedSpace))
-        lastIndex = get_last_index(content, 0, reservedSpace)
+            reserved_space += len(suffix)
+        logger.info("[send.py send()] reserved_space = [{}]".format(reserved_space))
+        last_index = get_last_index(content, 0, reserved_space)
         first = True  # this is only necessary because it wouldnt make sense to have any potential embeds or file[s]
         # with each message
-        firstIndex = 0
+        first_index = 0
         finished = False
         while not finished:
             if first:
                 first = False
-                formattedContent = content[firstIndex:lastIndex]
+                formatted_content = content[first_index:last_index]
                 if prefix is not None:
-                    formattedContent = prefix + formattedContent
+                    formatted_content = prefix + formatted_content
                 if suffix is not None:
-                    formattedContent = formattedContent + suffix
+                    formatted_content = formatted_content + suffix
                 logger.info(
-                    "[send.py send()] messaage sent off with firstIndex = [{}] and lastIndex = [{}]".format(
-                        firstIndex, lastIndex
+                    "[send.py send()] messaage sent off with first_index = [{}] and last_index = [{}]".format(
+                        first_index, last_index
                     )
                 )
-                await ctx.send(formattedContent, tts=tts, embed=embed, file=file, files=files,
+                await ctx.send(formatted_content, tts=tts, embed=embed, file=file, files=files,
                                delete_after=delete_after, nonce=nonce)
             else:
-                formattedContent = content[firstIndex:lastIndex]
+                formatted_content = content[first_index:last_index]
                 if prefix is not None:
-                    formattedContent = prefix + formattedContent
+                    formatted_content = prefix + formatted_content
                 if suffix is not None:
-                    formattedContent = formattedContent + suffix
+                    formatted_content = formatted_content + suffix
                 logger.info(
-                    "[send.py send()] messaage sent off with firstIndex = [{}] and lastIndex = [{}]".format(
-                        firstIndex,
-                        lastIndex
+                    "[send.py send()] messaage sent off with first_index = [{}] and last_index = [{}]".format(
+                        first_index,
+                        last_index
                     )
                 )
-                await ctx.send(formattedContent, tts=tts, delete_after=delete_after, nonce=nonce)
-            firstIndex = lastIndex
-            lastIndex = get_last_index(content, firstIndex + 1, reservedSpace)
-            logger.info("[send.py send()] lastIndex updated to {}".format(lastIndex))
-            if len(content[firstIndex:lastIndex]) == 0:
+                await ctx.send(formatted_content, tts=tts, delete_after=delete_after, nonce=nonce)
+            first_index = last_index
+            last_index = get_last_index(content, first_index + 1, reserved_space)
+            logger.info("[send.py send()] last_index updated to {}".format(last_index))
+            if len(content[first_index:last_index]) == 0:
                 finished = True
     except Exception as exc:
         exc_str = '{}: {}'.format(type(exc).__name__, exc)
