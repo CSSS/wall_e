@@ -79,14 +79,14 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
         logger.info("[embed.py embed()] length of footer [{}] being added to the field is too big".format(footer))
         return False
 
-    embObj = discord.Embed(title=title, type='rich')
-    embObj.description = description
-    embObj.set_author(name=author, icon_url=avatar)
-    embObj.colour = colour
-    embObj.set_thumbnail(url=thumbnail)
-    embObj.set_footer(text=footer)
-    # embObj.url = link
+    emb_obj = discord.Embed(title=title, type='rich')
+    emb_obj.description = description
+    emb_obj.set_author(name=author, icon_url=avatar)
+    emb_obj.colour = colour
+    emb_obj.set_thumbnail(url=thumbnail)
+    emb_obj.set_footer(text=footer)
+    # emb_obj.url = link
     # parse content to add fields
     for x in content:
-        embObj.add_field(name=x[0], value=x[1], inline=False)
-    return embObj
+        emb_obj.add_field(name=x[0], value=x[1], inline=False)
+    return emb_obj

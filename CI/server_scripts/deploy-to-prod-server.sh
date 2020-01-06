@@ -7,29 +7,29 @@ set -e -o xtrace
 
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
-export testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
-export testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
-export DOCKER_COMPOSE_FILE="CI/server_scripts/docker-compose.yml"
-export COMPOSE_PROJECT_NAME_lowerCase=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
-export testImageName_lowerCase=$(echo "$testContainerName" | awk '{print tolower($0)}')
+export prod_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
+export prod_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
+export docker_compose_file="CI/server_scripts/docker-compose.yml"
+export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
+export prod_image_name_lower_case=$(echo "$prod_container_name" | awk '{print tolower($0)}')
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
 
 
-docker rm -f ${testContainerName} || true
-docker image rm -f ${testImageName_lowerCase} || true
+docker rm -f ${prod_container_name} || true
+docker image rm -f ${prod_image_name_lower_case} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
-docker-compose -f "${DOCKER_COMPOSE_FILE}" up -d
+docker-compose -f "${docker_compose_file}" up -d
 sleep 20
 
-containerFailed=$(docker ps -a -f name=${testContainerName} --format "{{.Status}}" | head -1)
-containerDBFailed=$(docker ps -a -f name=${testContainerDBName} --format "{{.Status}}" | head -1)
+container_failed=$(docker ps -a -f name=${prod_container_name} --format "{{.Status}}" | head -1)
+container_db_failed=$(docker ps -a -f name=${prod_container_db_name} --format "{{.Status}}" | head -1)
 
-if [[ "${containerFailed}" != *"Up"* ]]; then
-    docker logs ${testContainerName}
-    docker logs ${testContainerName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+if [[ "${container_failed}" != *"Up"* ]]; then
+    docker logs ${prod_container_name}
+    docker logs ${prod_container_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
-    # discordOutput=$(docker logs ${testContainerName} | tail -12)
-    # output=$(docker logs ${testContainerName})
+    # discordOutput=$(docker logs ${prod_container_name} | tail -12)
+    # output=$(docker logs ${prod_container_name})
     # send following to discord
     # description: BRANCH_NAME + '\n' + discordOutput
     # footer: env.GIT_COMMIT
@@ -40,12 +40,12 @@ if [[ "${containerFailed}" != *"Up"* ]]; then
     # error output
 fi
 
-if [[ "${containerDBFailed}" != *"Up"* ]]; then
-    docker logs ${testContainerDBName}
-    docker logs ${testContainerName} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+if [[ "${container_db_failed}" != *"Up"* ]]; then
+    docker logs ${prod_container_db_name}
+    docker logs ${prod_container_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
-    # discordOutput=$(docker logs ${testContainerName} | tail -12)
-    # output=$(docker logs ${testContainerName})
+    # discordOutput=$(docker logs ${prod_container_name} | tail -12)
+    # output=$(docker logs ${prod_container_name})
     # send following to discord
     # description: BRANCH_NAME + '\n' + discordOutput
     # footer: env.GIT_COMMIT

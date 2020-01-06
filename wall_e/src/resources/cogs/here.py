@@ -14,7 +14,7 @@ class Here(commands.Cog):
         self.bot = bot
         self.config = config
 
-    def build_embed(members, channel):
+    def build_embed(self, members, channel):
         # build response
 
         title = "Users in **#{}**".format(channel.name)
@@ -69,6 +69,6 @@ class Here(commands.Cog):
 
         logger.info("[Here here()] found {} users in {}".format(len(members), channel.name))
 
-        embed = Here.build_embed(members, channel)
+        embed = self.build_embed(members, channel)
 
         await ctx.send(embed=embed, delete_after=300)

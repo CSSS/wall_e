@@ -13,15 +13,15 @@ class Mod(commands.Cog):
     async def rekt(self, ctx):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-        eObj = await em(
+        e_obj = await em(
             ctx,
             title='Minion Things',
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=lol
         )
-        if eObj is not False:
-            msg = await ctx.send(embed=eObj)
+        if e_obj is not False:
+            msg = await ctx.send(embed=e_obj)
             await asyncio.sleep(5)
             await msg.delete()
             logger.info('[Mod rekt()] troll message deleted')
@@ -49,23 +49,23 @@ class Mod(commands.Cog):
         fields = []
         desc = ''
         arg = list(arg)
-        argLen = len(arg)
+        arg_len = len(arg)
         # odd number of args means description plus fields
-        if not argLen % 2 == 0:
+        if not arg_len % 2 == 0:
             desc = arg[0]
             arg.pop(0)
-            argLen = len(arg)
+            arg_len = len(arg)
 
         i = 0
-        while i < argLen:
+        while i < arg_len:
             fields.append([arg[i], arg[i + 1]])
             i += 2
 
         name = ctx.author.nick or ctx.author.name
-        eObj = await em(ctx, description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d,
-                        content=fields)
-        if eObj is not False:
-            await ctx.send(embed=eObj)
+        e_obj = await em(ctx, description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d,
+                         content=fields)
+        if e_obj is not False:
+            await ctx.send(embed=e_obj)
 
     @commands.command(aliases=['warn'])
     async def modspeak(self, ctx, *arg):
@@ -86,7 +86,7 @@ class Mod(commands.Cog):
         for wrd in arg:
             msg += '{} '.format(wrd)
 
-        eObj = await em(ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name,
-                        avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
-        if eObj is not False:
-            await ctx.send(embed=eObj)
+        e_obj = await em(ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name,
+                         avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
+        if e_obj is not False:
+            await ctx.send(embed=e_obj)

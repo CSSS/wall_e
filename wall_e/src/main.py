@@ -4,7 +4,7 @@ import os
 import inspect
 import sys
 from resources.cogs.manage_cog import ManageCog
-from resources.utilities.config.config import WallEConfig as config
+from resources.utilities.config.config import WallEConfig
 from resources.utilities.database import setup_database, setup_stats_of_command_database_table
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.logger_setup import initialize_logger
@@ -23,16 +23,16 @@ async def on_ready():
     logger.info('[main.py on_ready()] {}'.format(bot.user.name))
     logger.info('[main.py on_ready()] {}'.format(str(bot.user.id)))
     logger.info('[main.py on_ready()] ------')
-    config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
-    config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
+    WallEConfig.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
+    WallEConfig.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
     logger.info(
         "[main.py on_ready()] BOT_NAME initialized to {}".format(
-            config.get_config_value("bot_profile", "BOT_NAME")
+            WallEConfig.get_config_value("bot_profile", "BOT_NAME")
             )
         )
     logger.info(
         "[main.py on_ready()] BOT_AVATAR initialized to {}".format(
-            config.get_config_value("bot_profile", "BOT_AVATAR")
+            WallEConfig.get_config_value("bot_profile", "BOT_AVATAR")
             )
         )
     logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
@@ -71,14 +71,14 @@ async def on_member_join(member):
         output += "\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass"
         output += " cmpt316>\n"
         output += "\tPlease keep Academic Honesty in mind when discussing course material here.\n"
-        eObj = await imported_embed(
+        e_obj = await imported_embed(
             member,
             description=output,
-            author=config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=config.get_config_value('bot_profile', 'BOT_AVATAR')
+            author=WallEConfig.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=WallEConfig.get_config_value('bot_profile', 'BOT_AVATAR')
         )
-        if eObj is not False:
-            await member.send(embed=eObj)
+        if e_obj is not False:
+            await member.send(embed=e_obj)
             logger.info("[main.py on_member_join] embed sent to member {}".format(member))
 
 ####################
@@ -86,19 +86,19 @@ async def on_member_join(member):
 ####################
 if __name__ == "__main__":
     logger, FILENAME = initialize_logger()
-    config = config(os.environ['ENVIRONMENT'])
+    WallEConfig = WallEConfig(os.environ['ENVIRONMENT'])
 
     logger.info("[main.py] Wall-E is starting up")
-    if config.enabled("database", option="DB_ENABLED"):
-        setup_database(config)
-        setup_stats_of_command_database_table(config)
+    if WallEConfig.enabled("database", option="DB_ENABLED"):
+        setup_database(WallEConfig)
+        setup_stats_of_command_database_table(WallEConfig)
     # tries to open log file in prep for write_to_bot_log_channel function
     try:
         logger.info("[main.py] trying to open {}.log to be able to send "
                     "its output to #bot_log channel".format(FILENAME))
         f = open('{}.log'.format(FILENAME), 'r')
         f.seek(0)
-        bot.loop.create_task(write_to_bot_log_channel(bot, config, f))
+        bot.loop.create_task(write_to_bot_log_channel(bot, WallEConfig, f))
         logger.info("[main.py] log file successfully opened and connection to bot_log channel has been made")
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     # load the code dealing with test server interaction
     try:
-        bot.add_cog(ManageCog(bot, config))
+        bot.add_cog(ManageCog(bot, WallEConfig))
     except Exception as e:
         exception = '{}: {}'.format(type(e).__name__, e)
         logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
@@ -128,4 +128,4 @@ if __name__ == "__main__":
             exception = '{}: {}'.format(type(e).__name__, e)
             logger.error('[main.py] Failed to load command {}\n{}'.format(cog, exception))
     # final step, running the bot with the passed in environment TOKEN variable
-    bot.run(config.get_config_value("basic_config", "TOKEN"))
+    bot.run(WallEConfig.get_config_value("basic_config", "TOKEN"))

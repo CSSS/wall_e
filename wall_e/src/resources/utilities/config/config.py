@@ -72,13 +72,13 @@ class WallEConfig():
         for cog in cogs['cogs_enabled']:
             if int(cogs['cogs_enabled'][cog]) == 1 and ((cog != 'reminders') or
                (cog == 'reminders' and self.enabled("database", option="DB_ENABLED"))):
-                cogDict = {}
-                cogDict['name'] = cog
-                cogDict['path'] = cog_location_python_path
-                cogs_to_load.append(cogDict)
+                cog_dict = {}
+                cog_dict['name'] = cog
+                cog_dict['path'] = cog_location_python_path
+                cogs_to_load.append(cog_dict)
         return cogs_to_load
 
     def get_help_json(self):
         with open(help_json_location + help_json_file_name) as f:
-            helpDict = json.load(f)
-        return helpDict
+            help_dict = json.load(f)
+        return help_dict

@@ -28,15 +28,15 @@ def initialize_logger():
     logger.addHandler(stream_handler)
     sys.stdout = LoggerWriter(logger, logging.INFO)
     sys.stderr = LoggerWriter(logger, logging.WARNING)
-    FILENAME = create_log_file(formatter, logger)
-    return logger, FILENAME
+    filename = create_log_file(formatter, logger)
+    return logger, filename
 
 
 def create_log_file(formatter, logger):
-    DATE = datetime.datetime.now(pytz.timezone('US/Pacific')).strftime("%Y_%m_%d_%H_%M_%S")
-    FILENAME = "logs/{}_wall_e".format(DATE)
-    filehandler = logging.FileHandler("{}.log".format(FILENAME))
+    date = datetime.datetime.now(pytz.timezone('US/Pacific')).strftime("%Y_%m_%d_%H_%M_%S")
+    filename = "logs/{}_wall_e".format(date)
+    filehandler = logging.FileHandler("{}.log".format(filename))
     filehandler.setLevel(logging.INFO)
     filehandler.setFormatter(formatter)
     logger.addHandler(filehandler)
-    return FILENAME
+    return filename

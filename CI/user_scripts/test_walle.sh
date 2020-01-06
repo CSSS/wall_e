@@ -3,6 +3,10 @@
 
 # PURPOSE: to be used by the user when they want to test their code against the linter
 
+if [ -z "${COMPOSE_PROJECT_NAME}" ]; then
+	echo "COMPOSE_PROJECT_NAME is not set, exiting."
+	exit 1
+fi
 docker stop ${COMPOSE_PROJECT_NAME}_test || true
 docker rm ${COMPOSE_PROJECT_NAME}_test || true
 docker image rm ${COMPOSE_PROJECT_NAME}_wall_e_test || true
