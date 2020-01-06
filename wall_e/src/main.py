@@ -116,13 +116,13 @@ if __name__ == "__main__":
     bot.remove_command("help")
     # tries to loads any commands specified in the_commands into the bot
 
-    for cog in config.get_cogs():
+    for cog in WallEConfig.get_cogs():
         try:
             logger.info("[main.py] attempting to load command {}".format(cog["name"]))
             cog_file = importlib.import_module(str(cog['path'])+str(cog["name"]))
             cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
             cog_to_load = getattr(cog_file, cog_class_name)
-            bot.add_cog(cog_to_load(bot, config))
+            bot.add_cog(cog_to_load(bot, WallEConfig))
             logger.info("[main.py] {} successfully loaded".format(cog["name"]))
         except Exception as e:
             exception = '{}: {}'.format(type(e).__name__, e)
