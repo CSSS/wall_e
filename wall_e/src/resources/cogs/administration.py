@@ -246,18 +246,27 @@ class Administration(commands.Cog):
         if self.config.enabled("database", option="DB_ENABLED"):
             logger.info("[Administration frequency()] frequency command "
                         "detected from {} with arguments [{}]".format(ctx.message.author, args))
+            column_headers = self.get_column_headers_from_database()
+            if column_headers is None:
+                logger.info("[Administration frequency()] unable to connect to the database")
+                await ctx.send("unable to connect to the database")
+                return
+
             if len(args) == 0:
-                conn = self.get_column_headers_from_database()
-                if conn is None:
-                    logger.info("[Administration frequency()] unable to connect to the database")
-                    await ctx.send("unable to connect to the database")
-                else:
-                    await ctx.send("please specify which columns you want to count="
-                                   + str(list(conn)))
+                await ctx.send("please specify which columns you want to count="
+                               + str(list(column_headers)))
                 return
             else:
-                dic_result = self.determine_x_y_frequency(self.connect_to_database(), args)
-                if dic_result is None:
+                for arg in args:
+                    if arg not in column_headers:
+                        await ctx.send(
+                            "argument '{}' is not a valid option\nThe list of options are"
+                            ": {}".format(arg, column_headers)
+                        )
+                        return
+
+                dicResult = self.determine_x_y_frequency(self.connect_to_database(), args)
+                if dicResult is None:
                     logger.info("[Administration frequency()] unable to connect to the database")
                     await ctx.send("unable to connect to the database")
                     return
