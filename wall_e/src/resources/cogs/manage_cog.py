@@ -58,7 +58,7 @@ class ManageCog(commands.Cog):
                 )
                 logger.info(
                     "[ManageCog on_command()] db_connection_string=[{}]".format(db_connection_string))
-                conn = psycopg2.connect(
+                conn = self.psycopg2.connect(
                     "{} password='{}'".format(
                         db_connection_string,
                         self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
@@ -100,7 +100,7 @@ class ManageCog(commands.Cog):
                         )
                         logger.info("[ManageCog on_command()] sql_command=[{}]".format(sql_command))
                         curs.execute(sql_command)
-                    except psycopg2.IntegrityError as e:
+                    except self.psycopg2.IntegrityError as e:
                         logger.error("[ManageCog on_command()] "
                                      "enountered following exception when trying to insert the"
                                      " record\n{}".format(e))
