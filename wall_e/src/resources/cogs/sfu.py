@@ -11,10 +11,6 @@ logger = logging.getLogger('wall_e')
 sfu_red = 0xA6192E
 
 
-def get_class_name():
-    return "SFU"
-
-
 class SFU(commands.Cog):
     def __init__(self, bot, config):
         self.bot = bot

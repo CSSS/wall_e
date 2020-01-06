@@ -8,10 +8,6 @@ import logging
 logger = logging.getLogger('wall_e')
 
 
-def get_class_name():
-    return "Mod"
-
-
 class Mod(commands.Cog):
 
     async def rekt(self, ctx):

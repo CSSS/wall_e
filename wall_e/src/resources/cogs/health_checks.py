@@ -4,10 +4,6 @@ import logging
 logger = logging.getLogger('wall_e')
 
 
-def get_class_name():
-    return "HealthChecks"
-
-
 class HealthChecks(commands.Cog):
 
     def __init__(self, bot, config):

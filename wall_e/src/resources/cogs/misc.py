@@ -14,10 +14,6 @@ import re
 logger = logging.getLogger('wall_e')
 
 
-def get_class_name():
-    return "Misc"
-
-
 class Misc(commands.Cog):
 
     def __init__(self, bot, config):

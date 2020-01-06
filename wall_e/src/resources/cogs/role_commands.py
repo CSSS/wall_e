@@ -8,10 +8,6 @@ from operator import itemgetter
 logger = logging.getLogger('wall_e')
 
 
-def get_class_name():
-    return "RoleCommands"
-
-
 class RoleCommands(commands.Cog):
 
     def __init__(self, bot, config):
