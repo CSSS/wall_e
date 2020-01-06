@@ -5,11 +5,8 @@ import logging
 import asyncio
 from resources.utilities.send import send as helper_send
 import importlib
-import matplotlib
-matplotlib.use("agg")
-import matplotlib.pyplot as plt # noqa
-import numpy as np # noqa
-import psycopg2 # noqa
+import inspect
+import sys
 
 logger = logging.getLogger('wall_e')
 
@@ -19,6 +16,15 @@ class Administration(commands.Cog):
     def __init__(self, bot, config):
         self.config = config
         self.bot = bot
+        if self.config.enabled("database", option="DB_ENABLED"):
+            import matplotlib
+            matplotlib.use("agg")
+            import matplotlib.pyplot as plt # noqa
+            self.plt = plt
+            import numpy as np # noqa
+            self.np = np
+            import psycopg2 # noqa
+            self.psycopg2 = psycopg2
 
     def valid_cog(self, name):
         for cog in self.config.get_cogs():
@@ -45,9 +51,10 @@ class Administration(commands.Cog):
                 )
                 return
             try:
-                cog_to_load = importlib.import_module(folder+name)
-                cog_file = getattr(cog_to_load, str(cog_to_load.get_class_name()))
-                self.bot.add_cog(cog_file(self.bot, self.config))
+                cog_file = importlib.import_module(folder+name)
+                cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+                cog_to_load = getattr(cog_file, cog_class_name)
+                self.bot.add_cog(cog_to_load(self.bot, self.config))
                 await ctx.send("{} command loaded.".format(name))
                 logger.info("[Administration load()] {} has been successfully loaded".format(name))
             except(AttributeError, ImportError) as e:
@@ -72,8 +79,9 @@ class Administration(commands.Cog):
                     "{} which doesn't exist.".format(ctx.message.author, name)
                 )
                 return
-            cog_to_unload = importlib.import_module(folder+name)
-            self.bot.remove_cog(cog_to_unload.get_class_name())
+            cog_file = importlib.import_module(folder+name)
+            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+            self.bot.remove_cog(cog_class_name)
             await ctx.send("{} command unloaded".format(name))
             logger.info("[Administration unload()] {} has been successfully loaded".format(name))
         else:
@@ -92,11 +100,12 @@ class Administration(commands.Cog):
                 logger.info("[Administration reload()] {} tried "
                             "loading {} which doesn't exist.".format(ctx.message.author, name))
                 return
-            cog_to_reload = importlib.import_module(folder+name)
-            self.bot.remove_cog(cog_to_reload.get_class_name())
+            cog_file = importlib.import_module(folder+name)
+            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+            self.bot.remove_cog(cog_class_name)
             try:
-                cog_file = getattr(cog_to_reload, cog_to_reload.get_class_name())
-                self.bot.add_cog(cog_file(self.bot, self.config))
+                cog_to_load = getattr(cog_file, cog_class_name)
+                self.bot.add_cog(cog_to_load(self.bot, self.config))
                 await ctx.send("`{} command reloaded`".format(folder + name))
                 logger.info("[Administration reload()] {} has been successfully reloaded".format(name))
             except(AttributeError, ImportError) as e:
@@ -228,8 +237,8 @@ class Administration(commands.Cog):
                     db_connection_string
                 )
             )
-            conn = psycopg2.connect("{} password='{}'".format(db_connection_string, wall_e_db_password))
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            conn = self.psycopg2.connect("{} password='{}'".format(db_connection_string, wall_e_db_password))
+            conn.set_isolation_level(self.psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             logger.info("[Administration connect_to_database()] PostgreSQL connection established")
             return conn
         except Exception as e:
@@ -272,9 +281,9 @@ class Administration(commands.Cog):
                 logger.info("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
                 numbers = [i[1] for i in dic_result]
-                plt.rcdefaults()
-                fig, ax = plt.subplots()
-                y_pos = np.arange(len(labels))
+                self.plt.rcdefaults()
+                fig, ax = self.plt.subplots()
+                y_pos = self.np.arange(len(labels))
                 for i, v in enumerate(numbers):
                     ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                 ax.barh(y_pos, numbers, align='center', color='green')
@@ -290,7 +299,7 @@ class Administration(commands.Cog):
                 fig.set_size_inches(18.5, 10.5)
                 fig.savefig('image.png')
                 logger.info("[Administration frequency()] graph created and saved")
-                plt.close(fig)
+                self.plt.close(fig)
                 await ctx.send(file=discord.File('image.png'))
                 logger.info("[Administration frequency()] graph image file has been sent")
             else:
@@ -308,9 +317,9 @@ class Administration(commands.Cog):
                     to_react = ['⏪', '⏩', '✅']
                     labels = [i[0] for i in dic_result][first_index:last_index]
                     numbers = [i[1] for i in dic_result][first_index:last_index]
-                    plt.rcdefaults()
-                    fig, ax = plt.subplots()
-                    y_pos = np.arange(len(labels))
+                    self.plt.rcdefaults()
+                    fig, ax = self.plt.subplots()
+                    y_pos = self.np.arange(len(labels))
                     for i, v in enumerate(numbers):
                         ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                     ax.barh(y_pos, numbers, align='center', color='green')
@@ -327,7 +336,7 @@ class Administration(commands.Cog):
                     fig.set_size_inches(18.5, 10.5)
                     fig.savefig('image.png')
                     logger.info("[Administration frequency()] graph created and saved")
-                    plt.close(fig)
+                    self.plt.close(fig)
                     if msg is None:
                         msg = await ctx.send(file=discord.File('image.png'))
                     else:

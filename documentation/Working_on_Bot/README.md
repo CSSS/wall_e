@@ -20,7 +20,7 @@
 ## Running the Bot
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) for future reference :)
 
-> Due to some compatibility issue that occurs with some of the modules on some OSs, walL_e has been dockerized for both server-side running and local development. In order to work with wall_e, you need only `docker` and `docker-compose` working.
+> Due to some compatibility issue that occurs with some of the modules on some OSs, walL_e has been dockerized for both server-side running and local development. In order to work with wall_e, you need only `docker` and `docker-compose` working. If you are using Windows Home or do not want to deal with docker, feel free to use the [Docker-less README](Docker-less/README.md). However, docker-less wall_e does not support any commands that use the database and we will not provide assistance for OS issues that arise from incompabilities with any part of wall_e
 
 Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-ce/debian/#set-up-the-repository) and [`docker-compose`](https://docs.docker.com/compose/install/#install-compose)
 
@@ -43,7 +43,9 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 #### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you
  * made changes to the wall_e/src/requirements.txt file or
+ * made changes to the wall_e/src/docker-requirements.txt file or
  * made changes to the CI/server_scripts/Dockerfile.base file
+
 
 Commands to Run
 ```shell
@@ -96,7 +98,9 @@ export COMPOSE_PROJECT_NAME="project_name"
 #### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you
  * made changes to the wall_e/src/requirements.txt file or
+ * made changes to the wall_e/src/docker-requirements.txt file or
  * made changes to the CI/server_scripts/Dockerfile.base file
+
 
 Commands To Run
 ```shell

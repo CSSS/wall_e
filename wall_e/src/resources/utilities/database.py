@@ -1,5 +1,5 @@
 import logging
-import psycopg2
+
 
 logger = logging.getLogger('wall_e')
 
@@ -10,6 +10,7 @@ logger = logging.getLogger('wall_e')
 def setup_database(config):
     if config.enabled("database", option="DB_ENABLED"):
         try:
+            import psycopg2
             env = config.get_config_value("basic_config", "ENVIRONMENT")
             compose_project_name = config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME")
             postgres_db_dbname = config.get_config_value("database", "POSTGRES_DB_DBNAME")
@@ -111,6 +112,7 @@ def setup_database(config):
 def setup_stats_of_command_database_table(config):
     if config.enabled("database", option="DB_ENABLED"):
         try:
+            import psycopg2
             host = '{}_wall_e_db'.format(config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
             db_connection_string = ("dbname='{}' user='{}' host='{}' ".format(
                     config.get_config_value('database', 'WALL_E_DB_DBNAME'),

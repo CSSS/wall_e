@@ -2,7 +2,6 @@ import datetime
 import discord
 from discord.ext import commands
 import logging
-import psycopg2
 import re
 import sys
 import time
@@ -20,6 +19,9 @@ class ManageCog(commands.Cog):
         bot.add_check(self.check_test_environment)
         self.bot = bot
         self.config = config
+        if self.config.enabled("database", option="DB_ENABLED"):
+            import psycopg2 # noqa
+            self.psycopg2 = psycopg2
 
     @commands.command(hidden=True)
     async def debuginfo(self, ctx):
@@ -56,14 +58,14 @@ class ManageCog(commands.Cog):
                 )
                 logger.info(
                     "[ManageCog on_command()] db_connection_string=[{}]".format(db_connection_string))
-                conn = psycopg2.connect(
+                conn = self.psycopg2.connect(
                     "{} password='{}'".format(
                         db_connection_string,
                         self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
                     )
                 )
                 logger.info("[ManageCog on_command()] PostgreSQL connection established")
-                conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+                conn.set_isolation_level(self.psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
                 curs = conn.cursor()
                 epoch_time = int(time.time())
                 now = datetime.datetime.now()
@@ -98,7 +100,7 @@ class ManageCog(commands.Cog):
                         )
                         logger.info("[ManageCog on_command()] sql_command=[{}]".format(sql_command))
                         curs.execute(sql_command)
-                    except psycopg2.IntegrityError as e:
+                    except self.psycopg2.IntegrityError as e:
                         logger.error("[ManageCog on_command()] "
                                      "enountered following exception when trying to insert the"
                                      " record\n{}".format(e))
