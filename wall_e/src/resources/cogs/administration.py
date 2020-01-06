@@ -49,9 +49,10 @@ class Administration(commands.Cog):
                 )
                 return
             try:
-                cog_to_load = importlib.import_module(folder+name)
-                cog_file = getattr(cog_to_load, str(cog_to_load.get_class_name()))
-                self.bot.add_cog(cog_file(self.bot, self.config))
+                cog_file = importlib.import_module(folder+name)
+                cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+                cog_to_load = getattr(cog_file, cog_class_name)
+                self.bot.add_cog(cog_to_load(self.bot, self.config))
                 await ctx.send("{} command loaded.".format(name))
                 logger.info("[Administration load()] {} has been successfully loaded".format(name))
             except(AttributeError, ImportError) as e:
@@ -76,8 +77,9 @@ class Administration(commands.Cog):
                     "{} which doesn't exist.".format(ctx.message.author, name)
                 )
                 return
-            cog_to_unload = importlib.import_module(folder+name)
-            self.bot.remove_cog(cog_to_unload.get_class_name())
+            cog_file = importlib.import_module(folder+name)
+            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+            self.bot.remove_cog(cog_class_name)
             await ctx.send("{} command unloaded".format(name))
             logger.info("[Administration unload()] {} has been successfully loaded".format(name))
         else:
@@ -96,11 +98,12 @@ class Administration(commands.Cog):
                 logger.info("[Administration reload()] {} tried "
                             "loading {} which doesn't exist.".format(ctx.message.author, name))
                 return
-            cog_to_reload = importlib.import_module(folder+name)
-            self.bot.remove_cog(cog_to_reload.get_class_name())
+            cog_file = importlib.import_module(folder+name)
+            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+            self.bot.remove_cog(cog_class_name)
             try:
-                cog_file = getattr(cog_to_reload, cog_to_reload.get_class_name())
-                self.bot.add_cog(cog_file(self.bot, self.config))
+                cog_to_load = getattr(cog_file, cog_class_name)
+                self.bot.add_cog(cog_to_load(self.bot, self.config))
                 await ctx.send("`{} command reloaded`".format(folder + name))
                 logger.info("[Administration reload()] {} has been successfully reloaded".format(name))
             except(AttributeError, ImportError) as e:
