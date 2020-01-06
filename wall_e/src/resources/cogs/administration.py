@@ -232,8 +232,8 @@ class Administration(commands.Cog):
                     db_connection_string
                 )
             )
-            conn = psycopg2.connect("{} password='{}'".format(db_connection_string, wall_e_db_password))
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            conn = self.psycopg2.connect("{} password='{}'".format(db_connection_string, wall_e_db_password))
+            conn.set_isolation_level(self.psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             logger.info("[Administration connect_to_database()] PostgreSQL connection established")
             return conn
         except Exception as e:
@@ -276,9 +276,9 @@ class Administration(commands.Cog):
                 logger.info("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
                 numbers = [i[1] for i in dic_result]
-                plt.rcdefaults()
-                fig, ax = plt.subplots()
-                y_pos = np.arange(len(labels))
+                self.plt.rcdefaults()
+                fig, ax = self.plt.subplots()
+                y_pos = self.np.arange(len(labels))
                 for i, v in enumerate(numbers):
                     ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                 ax.barh(y_pos, numbers, align='center', color='green')
@@ -312,9 +312,9 @@ class Administration(commands.Cog):
                     to_react = ['⏪', '⏩', '✅']
                     labels = [i[0] for i in dic_result][first_index:last_index]
                     numbers = [i[1] for i in dic_result][first_index:last_index]
-                    plt.rcdefaults()
-                    fig, ax = plt.subplots()
-                    y_pos = np.arange(len(labels))
+                    self.plt.rcdefaults()
+                    fig, ax = self.plt.subplots()
+                    y_pos = self.np.arange(len(labels))
                     for i, v in enumerate(numbers):
                         ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                     ax.barh(y_pos, numbers, align='center', color='green')
@@ -385,4 +385,4 @@ class Administration(commands.Cog):
                             await msg.delete()
                             return
                     logger.info("[Administration frequency()] updating first_index "
-                                "and last_index to {} and {} respectively".format(first_index, last_index)) 
+                                "and last_index to {} and {} respectively".format(first_index, last_index))
