@@ -270,17 +270,6 @@ class Administration(commands.Cog):
                     logger.info("[Administration frequency()] unable to connect to the database")
                     await ctx.send("unable to connect to the database")
                     return
-<<<<<<< HEAD
-            dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
-            logger.info("[Administration frequency()] sorted dicResults by value")
-            if len(dicResult) <= 50:
-                logger.info("[Administration frequency()] dicResults's length is <= 50")
-                labels = [i[0] for i in dicResult]
-                numbers = [i[1] for i in dicResult]
-                self.plt.rcdefaults()
-                fig, ax = self.plt.subplots()
-                y_pos = self.np.arange(len(labels))
-=======
             dic_result = sorted(dic_result.items(), key=lambda kv: kv[1])
             logger.info("[Administration frequency()] sorted dic_results by value")
             if len(dic_result) <= 50:
@@ -290,7 +279,6 @@ class Administration(commands.Cog):
                 plt.rcdefaults()
                 fig, ax = plt.subplots()
                 y_pos = np.arange(len(labels))
->>>>>>> 0fdd6dee6e1d38257dc7000a34ef4f4d4100541e
                 for i, v in enumerate(numbers):
                     ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                 ax.barh(y_pos, numbers, align='center', color='green')
@@ -320,15 +308,6 @@ class Administration(commands.Cog):
                 current_page = 0
                 while first_index < len(dic_result):
                     logger.info("[Administration frequency()] creating "
-<<<<<<< HEAD
-                                "a graph with entries {} to {}".format(firstIndex, lastIndex))
-                    toReact = ['⏪', '⏩', '✅']
-                    labels = [i[0] for i in dicResult][firstIndex:lastIndex]
-                    numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
-                    self.plt.rcdefaults()
-                    fig, ax = self.plt.subplots()
-                    y_pos = self.np.arange(len(labels))
-=======
                                 "a graph with entries {} to {}".format(first_index, last_index))
                     to_react = ['⏪', '⏩', '✅']
                     labels = [i[0] for i in dic_result][first_index:last_index]
@@ -336,7 +315,6 @@ class Administration(commands.Cog):
                     plt.rcdefaults()
                     fig, ax = plt.subplots()
                     y_pos = np.arange(len(labels))
->>>>>>> 0fdd6dee6e1d38257dc7000a34ef4f4d4100541e
                     for i, v in enumerate(numbers):
                         ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
                     ax.barh(y_pos, numbers, align='center', color='green')
@@ -406,12 +384,5 @@ class Administration(commands.Cog):
                             logger.info("[Administration frequency()] deleting message")
                             await msg.delete()
                             return
-<<<<<<< HEAD
-                    logger.info("[Administration frequency()] updating firstIndex "
-                                "and lastIndex to {} and {} respectively".format(firstIndex, lastIndex))
-        else:
-            logger.info('Administration frequency()] either the database or frequency is not enabled')
-=======
                     logger.info("[Administration frequency()] updating first_index "
-                                "and last_index to {} and {} respectively".format(first_index, last_index))
->>>>>>> 0fdd6dee6e1d38257dc7000a34ef4f4d4100541e
+                                "and last_index to {} and {} respectively".format(first_index, last_index)) 
