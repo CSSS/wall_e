@@ -67,12 +67,12 @@ async def write_to_bot_log_channel(bot, config, f):
                         await channel.send(output)
                     except (aiohttp.ClientError, discord.errors.HTTPException):
                         finished = False
-                        firstIndex, lastIndex = 0, 2000
+                        first_index, last_index = 0, 2000
                         while not finished:
-                            await channel.send(output[firstIndex:lastIndex])
-                            firstIndex = lastIndex
-                            lastIndex += 2000
-                            if len(output[firstIndex:lastIndex]) == 0:
+                            await channel.send(output[first_index:last_index])
+                            first_index = last_index
+                            last_index += 2000
+                            if len(output[first_index:last_index]) == 0:
                                 finished = True
                     except RuntimeError:
                         logger.info("[log_channel.py write_to_bot_log_channel] encountered RuntimeError, "

@@ -14,7 +14,7 @@ import psycopg2 # noqa
 logger = logging.getLogger('wall_e')
 
 
-def getClassName():
+def get_class_name():
     return "Administration"
 
 
@@ -24,7 +24,7 @@ class Administration(commands.Cog):
         self.config = config
         self.bot = bot
 
-    def validCog(self, name):
+    def valid_cog(self, name):
         for cog in self.config.get_cogs():
             if cog["name"] == name:
                 return True, cog["path"]
@@ -40,7 +40,7 @@ class Administration(commands.Cog):
         logger.info("[Administration load()] load command detected from {}".format(ctx.message.author))
         if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
             logger.info("[Administration load()] {} successfully authenticated".format(ctx.message.author))
-            valid, folder = self.validCog(name)
+            valid, folder = self.valid_cog(name)
             if not valid:
                 await ctx.send("```{} isn't a real cog```".format(name))
                 logger.info(
@@ -49,9 +49,9 @@ class Administration(commands.Cog):
                 )
                 return
             try:
-                cogToLoad = importlib.import_module(folder+name)
-                cogFile = getattr(cogToLoad, str(cogToLoad.getClassName()))
-                self.bot.add_cog(cogFile(self.bot, self.config))
+                cog_to_load = importlib.import_module(folder+name)
+                cog_file = getattr(cog_to_load, str(cog_to_load.get_class_name()))
+                self.bot.add_cog(cog_file(self.bot, self.config))
                 await ctx.send("{} command loaded.".format(name))
                 logger.info("[Administration load()] {} has been successfully loaded".format(name))
             except(AttributeError, ImportError) as e:
@@ -68,7 +68,7 @@ class Administration(commands.Cog):
         logger.info("[Administration unload()] unload command detected from {}".format(ctx.message.author))
         if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
             logger.info("[Administration unload()] {} successfully authenticated".format(ctx.message.author))
-            valid, folder = self.validCog(name)
+            valid, folder = self.valid_cog(name)
             if not valid:
                 await ctx.send("```{} isn't a real cog```".format(name))
                 logger.info(
@@ -76,8 +76,8 @@ class Administration(commands.Cog):
                     "{} which doesn't exist.".format(ctx.message.author, name)
                 )
                 return
-            cogToUnload = importlib.import_module(folder+name)
-            self.bot.remove_cog(cogToUnload.getClassName())
+            cog_to_unload = importlib.import_module(folder+name)
+            self.bot.remove_cog(cog_to_unload.get_class_name())
             await ctx.send("{} command unloaded".format(name))
             logger.info("[Administration unload()] {} has been successfully loaded".format(name))
         else:
@@ -90,17 +90,17 @@ class Administration(commands.Cog):
         logger.info("[Administration reload()] reload command detected from {}".format(ctx.message.author))
         if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
             logger.info("[Administration reload()] {} successfully authenticated".format(ctx.message.author))
-            valid, folder = self.validCog(name)
+            valid, folder = self.valid_cog(name)
             if not valid:
                 await ctx.send("```{} isn't a real cog```".format(name))
                 logger.info("[Administration reload()] {} tried "
                             "loading {} which doesn't exist.".format(ctx.message.author, name))
                 return
-            cogToReload = importlib.import_module(folder+name)
-            self.bot.remove_cog(cogToReload.getClassName())
+            cog_to_reload = importlib.import_module(folder+name)
+            self.bot.remove_cog(cog_to_reload.get_class_name())
             try:
-                cogFile = getattr(cogToReload, cogToReload.getClassName())
-                self.bot.add_cog(cogFile(self.bot, self.config))
+                cog_file = getattr(cog_to_reload, cog_to_reload.get_class_name())
+                self.bot.add_cog(cog_file(self.bot, self.config))
                 await ctx.send("`{} command reloaded`".format(folder + name))
                 logger.info("[Administration reload()] {} has been successfully reloaded".format(name))
             except(AttributeError, ImportError) as e:
@@ -120,8 +120,8 @@ class Administration(commands.Cog):
             logger.info("[Administration exc()] {} successfully authenticated".format(ctx.message.author))
             query = " ".join(args)
             # this got implemented for cases when the output of the command is too big to send to the channel
-            exitCode, output = subprocess.getstatusoutput(query)
-            await helper_send(ctx, "Exit Code: {}".format(exitCode))
+            exit_code, output = subprocess.getstatusoutput(query)
+            await helper_send(ctx, "Exit Code: {}".format(exit_code))
             await helper_send(ctx, output, prefix="```", suffix="```")
         else:
             logger.info("[Administration exc()] unauthorized "
@@ -130,36 +130,36 @@ class Administration(commands.Cog):
                            "to execute this command, incident will be reported")
 
     def get_column_headers_from_database(self):
-        dbConn = self.connect_to_database()
-        if dbConn is not None:
-            dbCurr = dbConn.cursor()
-            dbCurr.execute("Select * FROM commandstats LIMIT 0")
-            colnames = [desc[0] for desc in dbCurr.description]
-            dbCurr.close()
-            dbConn.close()
+        db_conn = self.connect_to_database()
+        if db_conn is not None:
+            db_curr = db_conn.cursor()
+            db_curr.execute("Select * FROM commandstats LIMIT 0")
+            colnames = [desc[0] for desc in db_curr.description]
+            db_curr.close()
+            db_conn.close()
             return [name.strip() for name in colnames]
         else:
             return None
 
-    def determine_x_y_frequency(self, dbConn, filters=None):
-        conn = dbConn
+    def determine_x_y_frequency(self, db_conn, filters=None):
+        conn = db_conn
         if conn is None:
             return None
-        dbCurr = conn.cursor()
+        db_curr = conn.cursor()
         logger.info("[Administration determine_x_y_frequency()] trying to "
-                    "create a dictionary from {} with the filters:\n\t{}".format(dbCurr, filters))
-        combinedFilter = '", "'.join(str(e) for e in filters)
-        combinedFilter = "\"{}\"".format(combinedFilter)
-        sqlQuery = "select {} from commandstats;".format(combinedFilter)
+                    "create a dictionary from {} with the filters:\n\t{}".format(db_curr, filters))
+        combined_filter = '", "'.join(str(e) for e in filters)
+        combined_filter = "\"{}\"".format(combined_filter)
+        sql_query = "select {} from commandstats;".format(combined_filter)
         logger.info("[Administration determine_x_y_frequency()] initial "
                     "sql query to determine what entries needs to be"
-                    " created with the filter specified above:\n\t{}".format(sqlQuery))
-        dbCurr.execute(sqlQuery)
+                    " created with the filter specified above:\n\t{}".format(sql_query))
+        db_curr.execute(sql_query)
         # getting all the rows that need to be graphed
-        results = dbCurr.fetchall()
+        results = db_curr.fetchall()
         # where clause that will be used to determine what remaining rows still need to be added to the dictionary of
         # results
-        overarchingWHereClause = ''
+        overarching_where_clause = ''
         # dictionary that will contain the stats that need to be graphed
         frequency = {}
         index = 0
@@ -169,48 +169,48 @@ class Administration(commands.Cog):
         while len(results) > 0:
             logger.info("[Administration determine_x_y_frequency()] "
                         "{}th index results of sql query=[{}]".format(index, results[0]))
-            whereClause = ''  # where clause that keeps track of things that need to be added to the
+            where_clause = ''  # where clause that keeps track of things that need to be added to the
             # overarchingWhereClause
             entry = ''
             for idx, val in enumerate(filters):
                 if len(filters) == 1 + idx:
                     entry += str(results[0][idx])
-                    whereClause += "\"{}\"='{}'".format(val, results[0][idx])
+                    where_clause += "\"{}\"='{}'".format(val, results[0][idx])
                 else:
                     entry += '{}_'.format(results[0][idx])
-                    whereClause += "\"{}\"='{}' AND ".format(val, results[0][idx])
+                    where_clause += "\"{}\"='{}' AND ".format(val, results[0][idx])
             logger.info(
                 "[Administration determine_x_y_frequency()] where clause for determining which "
-                "entries match the entry [{}]:\n\t{}".format(entry, whereClause)
+                "entries match the entry [{}]:\n\t{}".format(entry, where_clause)
             )
-            sqlQuery = "select {} from commandstats WHERE {};".format(combinedFilter, whereClause)
+            sql_query = "select {} from commandstats WHERE {};".format(combined_filter, where_clause)
             logger.info(
                 "[Administration determine_x_y_frequency()] query that includes the above specified where "
-                "clause for determining how many elements match the filter of [{}]:\n\t{}".format(entry, sqlQuery)
+                "clause for determining how many elements match the filter of [{}]:\n\t{}".format(entry, sql_query)
             )
-            dbCurr.execute(sqlQuery)
-            resultsOfQueryForSpecificEntry = dbCurr.fetchall()
-            frequency[entry] = len(resultsOfQueryForSpecificEntry)
+            db_curr.execute(sql_query)
+            results_of_query_for_specific_entry = db_curr.fetchall()
+            frequency[entry] = len(results_of_query_for_specific_entry)
             logger.info(
                 "[Administration determine_x_y_frequency()] determined that {} "
                 "entries exist for filter {}".format(frequency[entry], entry)
             )
             if index > 0:
-                overarchingWHereClause += ' AND NOT ( {} )'.format(whereClause)
+                overarching_where_clause += ' AND NOT ( {} )'.format(where_clause)
             else:
-                overarchingWHereClause += ' NOT ( {} )'.format(whereClause)
+                overarching_where_clause += ' NOT ( {} )'.format(where_clause)
             logger.info("[Administration determine_x_y_frequency()] "
                         "updated where clause for discriminating against all "
-                        "entries that have already been recorded:\n\t{}".format(overarchingWHereClause))
-            sqlQuery = "select {} from commandstats WHERE ({});".format(combinedFilter, overarchingWHereClause)
+                        "entries that have already been recorded:\n\t{}".format(overarching_where_clause))
+            sql_query = "select {} from commandstats WHERE ({});".format(combined_filter, overarching_where_clause)
             logger.info("[Administration determine_x_y_frequency()] updated sql query to determine what remaining "
                         "entries potentially need to be created after ruling out entries that match the where clause"
-                        ":\n\t{}".format(sqlQuery))
-            dbCurr.execute(sqlQuery)
-            results = dbCurr.fetchall()
+                        ":\n\t{}".format(sql_query))
+            db_curr.execute(sql_query)
+            results = db_curr.fetchall()
             index += 1
-        dbCurr.close()
-        dbConn.close()
+        db_curr.close()
+        db_conn.close()
         return frequency
 
     def connect_to_database(self):
@@ -220,10 +220,19 @@ class Administration(commands.Cog):
             wall_e_db_user = self.config.get_config_value('database', 'WALL_E_DB_USER')
             wall_e_db_password = self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
 
-            dbConnectionString = ("dbname='{}' user='{}' "
-                                  "host='{}'".format(wall_e_db_dbname, wall_e_db_user, host))
-            logger.info("[Administration connect_to_database()] dbConnectionString=[{}]".format(dbConnectionString))
-            conn = psycopg2.connect("{} password='{}'".format(dbConnectionString, wall_e_db_password))
+            db_connection_string = (
+                "dbname='{}' user='{}' host='{}'".format(
+                    wall_e_db_dbname,
+                    wall_e_db_user,
+                    host
+                )
+            )
+            logger.info(
+                "[Administration connect_to_database()] db_connection_string=[{}]".format(
+                    db_connection_string
+                )
+            )
+            conn = psycopg2.connect("{} password='{}'".format(db_connection_string, wall_e_db_password))
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             logger.info("[Administration connect_to_database()] PostgreSQL connection established")
             return conn
@@ -256,17 +265,17 @@ class Administration(commands.Cog):
                         )
                         return
 
-                dicResult = self.determine_x_y_frequency(self.connect_to_database(), args)
-                if dicResult is None:
+                dic_result = self.determine_x_y_frequency(self.connect_to_database(), args)
+                if dic_result is None:
                     logger.info("[Administration frequency()] unable to connect to the database")
                     await ctx.send("unable to connect to the database")
                     return
-            dicResult = sorted(dicResult.items(), key=lambda kv: kv[1])
-            logger.info("[Administration frequency()] sorted dicResults by value")
-            if len(dicResult) <= 50:
-                logger.info("[Administration frequency()] dicResults's length is <= 50")
-                labels = [i[0] for i in dicResult]
-                numbers = [i[1] for i in dicResult]
+            dic_result = sorted(dic_result.items(), key=lambda kv: kv[1])
+            logger.info("[Administration frequency()] sorted dic_results by value")
+            if len(dic_result) <= 50:
+                logger.info("[Administration frequency()] dic_results's length is <= 50")
+                labels = [i[0] for i in dic_result]
+                numbers = [i[1] for i in dic_result]
                 plt.rcdefaults()
                 fig, ax = plt.subplots()
                 y_pos = np.arange(len(labels))
@@ -289,20 +298,20 @@ class Administration(commands.Cog):
                 await ctx.send(file=discord.File('image.png'))
                 logger.info("[Administration frequency()] graph image file has been sent")
             else:
-                logger.info("[Administration frequency()] dicResults's length is > 50")
-                numberOfPages = int(len(dicResult) / 50)
-                if len(dicResult) % 50 != 0:
-                    numberOfPages += 1
-                numOfBarsPerPage = int(len(dicResult) / numberOfPages) + 1
-                firstIndex, lastIndex = 0, numOfBarsPerPage - 1
+                logger.info("[Administration frequency()] dic_results's length is > 50")
+                number_of_pages = int(len(dic_result) / 50)
+                if len(dic_result) % 50 != 0:
+                    number_of_pages += 1
+                number_of_bars_per_page = int(len(dic_result) / number_of_pages) + 1
+                first_index, last_index = 0, number_of_bars_per_page - 1
                 msg = None
-                currentPage = 0
-                while firstIndex < len(dicResult):
+                current_page = 0
+                while first_index < len(dic_result):
                     logger.info("[Administration frequency()] creating "
-                                "a graph with entries {} to {}".format(firstIndex, lastIndex))
-                    toReact = ['⏪', '⏩', '✅']
-                    labels = [i[0] for i in dicResult][firstIndex:lastIndex]
-                    numbers = [i[1] for i in dicResult][firstIndex:lastIndex]
+                                "a graph with entries {} to {}".format(first_index, last_index))
+                    to_react = ['⏪', '⏩', '✅']
+                    labels = [i[0] for i in dic_result][first_index:last_index]
+                    numbers = [i[1] for i in dic_result][first_index:last_index]
                     plt.rcdefaults()
                     fig, ax = plt.subplots()
                     y_pos = np.arange(len(labels))
@@ -312,7 +321,7 @@ class Administration(commands.Cog):
                     ax.set_yticks(y_pos)
                     ax.set_yticklabels(labels)
                     ax.invert_yaxis()  # labels read top-to-bottom
-                    ax.set_xlabel("Page {}/{}".format(currentPage, numberOfPages - 1))
+                    ax.set_xlabel("Page {}/{}".format(current_page, number_of_pages - 1))
                     if len(args) > 1:
                         title = '_'.join(str(arg) for arg in args[:len(args) - 1])
                         title += "_{}".format(args[len(args) - 1])
@@ -328,10 +337,10 @@ class Administration(commands.Cog):
                     else:
                         await msg.delete()
                         msg = await ctx.send(file=discord.File('image.png'))
-                    for reaction in toReact:
+                    for reaction in to_react:
                         await msg.add_reaction(reaction)
 
-                    def checkReaction(reaction, user):
+                    def check_reaction(reaction, user):
                         if not user.bot:  # just making sure the bot doesnt take its own reactions
                             # into consideration
                             e = str(reaction.emoji)
@@ -339,33 +348,33 @@ class Administration(commands.Cog):
                             return e.startswith(('⏪', '⏩', '✅'))
 
                     logger.info("[Administration frequency()] graph image file has been sent")
-                    userReacted = False
-                    while userReacted is False:
+                    user_reacted = False
+                    while user_reacted is False:
                         try:
-                            userReacted = await self.bot.wait_for('reaction_add', timeout=20, check=checkReaction)
+                            user_reacted = await self.bot.wait_for('reaction_add', timeout=20, check=check_reaction)
                         except asyncio.TimeoutError:
                             logger.info("[Administration frequency()] timed out waiting for the user's reaction.")
-                        if userReacted:
-                            if '⏪' == userReacted[0].emoji:
-                                firstIndex -= numOfBarsPerPage
-                                lastIndex -= numOfBarsPerPage
-                                currentPage -= 1
-                                if firstIndex < 0:
-                                    firstIndex, lastIndex = numOfBarsPerPage * 3, numOfBarsPerPage * 4
-                                    currentPage = numberOfPages - 1
+                        if user_reacted:
+                            if '⏪' == user_reacted[0].emoji:
+                                first_index -= number_of_bars_per_page
+                                last_index -= number_of_bars_per_page
+                                current_page -= 1
+                                if first_index < 0:
+                                    first_index, last_index = number_of_bars_per_page * 3, number_of_bars_per_page * 4
+                                    current_page = number_of_pages - 1
                                 logger.info("[Administration frequency()] user indicates they "
                                             " want to go back to page "
-                                            + str(currentPage))
-                            elif '⏩' == userReacted[0].emoji:
-                                firstIndex += numOfBarsPerPage
-                                lastIndex += numOfBarsPerPage
-                                currentPage += 1
-                                if firstIndex > len(dicResult):
-                                    firstIndex, lastIndex = 0, numOfBarsPerPage
-                                    currentPage = 0
+                                            + str(current_page))
+                            elif '⏩' == user_reacted[0].emoji:
+                                first_index += number_of_bars_per_page
+                                last_index += number_of_bars_per_page
+                                current_page += 1
+                                if first_index > len(dic_result):
+                                    first_index, last_index = 0, number_of_bars_per_page
+                                    current_page = 0
                                 logger.info("[Administration frequency()] user indicates they want to go to page "
-                                            + str(currentPage))
-                            elif '✅' == userReacted[0].emoji:
+                                            + str(current_page))
+                            elif '✅' == user_reacted[0].emoji:
                                 logger.info("[Administration frequency()] user "
                                             "indicates they are done with the roles "
                                             "command, deleting roles message")
@@ -375,5 +384,5 @@ class Administration(commands.Cog):
                             logger.info("[Administration frequency()] deleting message")
                             await msg.delete()
                             return
-                    logger.info("[Administration frequency()] updating firstIndex "
-                                "and lastIndex to {} and {} respectively".format(firstIndex, lastIndex))
+                    logger.info("[Administration frequency()] updating first_index "
+                                "and last_index to {} and {} respectively".format(first_index, last_index))
