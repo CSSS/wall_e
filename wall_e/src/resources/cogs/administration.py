@@ -265,15 +265,15 @@ class Administration(commands.Cog):
                         )
                         return
 
-                dicResult = self.determine_x_y_frequency(self.connect_to_database(), args)
-                if dicResult is None:
+                dic_result = self.determine_x_y_frequency(self.connect_to_database(), args)
+                if dic_result is None:
                     logger.info("[Administration frequency()] unable to connect to the database")
                     await ctx.send("unable to connect to the database")
                     return
             dic_result = sorted(dic_result.items(), key=lambda kv: kv[1])
-            logger.info("[Administration frequency()] sorted dicResults by value")
+            logger.info("[Administration frequency()] sorted dic_results by value")
             if len(dic_result) <= 50:
-                logger.info("[Administration frequency()] dicResults's length is <= 50")
+                logger.info("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
                 numbers = [i[1] for i in dic_result]
                 plt.rcdefaults()
@@ -298,7 +298,7 @@ class Administration(commands.Cog):
                 await ctx.send(file=discord.File('image.png'))
                 logger.info("[Administration frequency()] graph image file has been sent")
             else:
-                logger.info("[Administration frequency()] dicResults's length is > 50")
+                logger.info("[Administration frequency()] dic_results's length is > 50")
                 number_of_pages = int(len(dic_result) / 50)
                 if len(dic_result) % 50 != 0:
                     number_of_pages += 1
