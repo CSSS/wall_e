@@ -1,5 +1,6 @@
 # CSSS Discord Bot (Wall-E)  
 
+
 ![The One and Only, Lovable Wall-E](wall_e_pic.jpg)
 
 Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki/WALL-E), is the CSSS Discord Bot. This bot is owned by the CSSS and will be maintained by the Bot_manager team.  
