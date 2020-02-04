@@ -16,6 +16,7 @@ pipeline {
             printPostContent: true
         )
     }
+    
     stages {
         stage('Validate Formatting') {
             steps {
