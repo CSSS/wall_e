@@ -8,7 +8,6 @@ pipeline {
         GenericTrigger(
             genericVariables: [
                 [key: 'jsonvalue', value: '$']
-                [key: 'repository', regexpFilter: '[^a-z_-]', value: '$.repository']
             ],
             causeString: 'Triggered on $ref',
             regexpFilterExpression: 'generic $ref',
