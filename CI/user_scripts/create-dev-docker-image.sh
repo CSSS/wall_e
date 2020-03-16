@@ -11,7 +11,7 @@ set -e -o xtrace
 export testBaseImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_base | awk '{print tolower($0)}')
 export testWallEImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e | awk '{print tolower($0)}')
 export testWallEContainer="${COMPOSE_PROJECT_NAME}"_wall_e
-export DOCKERFILE="CI/server_scripts/Dockerfile.base"
+export DOCKERFILE="CI/server_scripts/build_wall_e/Dockerfile.base"
 export CONTAINER_HOME_DIR="/usr/src/app"
 
 docker stop "${testWallEContainer}" || true

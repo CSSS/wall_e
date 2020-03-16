@@ -6,9 +6,6 @@ set -e -o xtrace
 
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
-./wall_e/test/lineEndings.sh
-
-
 echo ENVIRONMENT=${ENVIRONMENT}
 echo COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
 

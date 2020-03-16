@@ -29,24 +29,9 @@ pipeline {
                     export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
                     export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-                    ./CI/server_scripts/validate-formatting.sh;
+                    ./wall_e/test/lineEndings.sh;
+                    ./CI/server_scripts/build_wall_e/validate-formatting.sh;
                 \'"""
-            }
-        }
-        stage('Create New Dev Docker Image'){
-            when {
-                not {
-                branch 'master'
-                }
-            }
-            steps {
-                    sh label: '', script : """bash -c \'
-                        export CONTAINER_HOME_DIR=/usr/src/app;
-                        export BRANCH_NAME=${BRANCH_NAME};
-                        export JENKINS_HOME=${JENKINS_HOME};
-                        export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
-                        ./CI/server_scripts/create-dev-docker-image.sh
-                    \'"""
             }
         }
         stage('Create New PROD Docker Image'){
@@ -54,7 +39,15 @@ pipeline {
                 branch 'master'
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-perms', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
+                withCredentials(
+                    [
+                        usernamePassword(
+                            credentialsId: 'docker-hub-perms',
+                            passwordVariable: 'DOCKER_HUB_PASSWORD',
+                            usernameVariable: 'DOCKER_HUB_USER_NAME'
+                        )
+                    ]
+                ) {
                     sh label: '', script : """bash -c \'
                         export CONTAINER_HOME_DIR=/usr/src/app;
                         export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
@@ -62,7 +55,7 @@ pipeline {
                         export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
                         export BRANCH_NAME=${BRANCH_NAME};
                         export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
-                        ./CI/server_scripts/create-prod-docker-image.sh
+                        ./CI/server_scripts/build_wall_e/create-prod-docker-image.sh
                     \'"""
                 }
             }
@@ -88,7 +81,7 @@ pipeline {
                         export TOKEN=${TOKEN};
                         export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-                        ./CI/server_scripts/deploy-to-test-server.sh;
+                        ./CI/server_scripts/build_wall_e/deploy-to-test-server.sh;
                     \'"""
                 }
             }
@@ -124,7 +117,7 @@ pipeline {
 
                         export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-                        ./CI/server_scripts/deploy-to-prod-server.sh;
+                        ./CI/server_scripts/build_wall_e/deploy-to-prod-server.sh;
                     \'"""
                 }
             }

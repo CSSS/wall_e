@@ -1,0 +1,13 @@
+FROM sfucsssorg/wall_e_python
+
+ARG CONTAINER_HOME_DIR
+
+ENV CONTAINER_HOME_DIR=$CONTAINER_HOME_DIR
+
+WORKDIR $CONTAINER_HOME_DIR
+
+COPY wall_e/src/requirements.txt .
+
+RUN apk add --update libffi-dev && \
+    pip install --no-cache-dir -r requirements.txt &&  \
+    apk --update add postgresql-client

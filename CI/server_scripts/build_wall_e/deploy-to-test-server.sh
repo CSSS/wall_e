@@ -11,7 +11,7 @@ export test_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export test_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 export test_image_name_lower_case=$(echo "$test_container_name" | awk '{print tolower($0)}')
 export compose_project_name_lower_case=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
-export docker_compose_file="CI/server_scripts/docker-compose.yml"
+export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
 if [ "${BRANCH_NAME}" = "master" ]; then
     export ORIGIN_IMAGE="wall_e"
