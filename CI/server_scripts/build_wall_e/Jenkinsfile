@@ -29,7 +29,7 @@ pipeline {
                     export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
                     export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-                    ./wall_e/test/lineEndings.sh;
+                    ./wall_e/test/validate-line-endings.sh;
                     ./CI/server_scripts/build_wall_e/validate-formatting.sh;
                 \'"""
             }
