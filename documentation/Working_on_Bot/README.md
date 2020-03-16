@@ -62,6 +62,7 @@ export COMPOSE_PROJECT_NAME="project_name"
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
 # otherwise, you will need to use the below commmand
 export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
+export POSTGRES_PASSWORD="daPassword"
 
 ./CI/user_scripts/deploy-to-test-server.sh;
 ```
@@ -85,7 +86,6 @@ You will need to recreate the base docker image if you made changes to any of th
 
 Commands To Run
 ```shell
-export CONTAINER_HOME_DIR=/usr/src/app;
 export COMPOSE_PROJECT_NAME="project_name"
 ./CI/user_scripts/create-dev-docker-image.sh
 ```
