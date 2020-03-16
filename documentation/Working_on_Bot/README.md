@@ -40,6 +40,8 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 
 ### With the database
 
+*Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
+
 #### Step 1. Re-creating the docker base image (optional)
 You will need to recreate the base docker image if you made changes to any of the following files
  * CI/server_scripts/build_wall_e/python-base-requirements.txt
@@ -75,6 +77,8 @@ If you need to re-launch the bot after making some chnages, enter the command `.
 ```
 
 ### Without the Database
+
+*Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
 
 #### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you made changes to any of the following files

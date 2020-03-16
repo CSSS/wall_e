@@ -29,6 +29,8 @@ Pre-requisites: `git`, `python3.5`
 
 #### Launching the Bot
 
+*Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
+
 ```shell
 python3.5 -m virtualenv ENV
 . ENV/bin/activate
