@@ -8,6 +8,22 @@
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
+if [ -z "${COMPOSE_PROJECT_NAME}" ]; then
+	echo "COMPOSE_PROJECT_NAME is not set"
+	exit 1
+fi
+
+if [ -z "${POSTGRES_PASSWORD}" ]; then
+	echo "POSTGRES_PASSWORD is not set"
+	exit 1
+fi
+
+if [ -z "${ORIGIN_IMAGE}" ]; then
+	echo "ORIGIN_IMAGE is not set"
+	exit 1
+fi
+
+export ENVIRONMENT="LOCALHOST"
 testContainerDBName="${COMPOSE_PROJECT_NAME}_wall_e_db"
 testContainerName="${COMPOSE_PROJECT_NAME}_wall_e"
 docker rm -f ${testContainerName} ${testContainerDBName} || true

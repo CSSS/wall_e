@@ -8,10 +8,15 @@
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
+if [ -z "${COMPOSE_PROJECT_NAME}" ]; then
+	echo "COMPOSE_PROJECT_NAME is not set"
+	exit 1
+fi
+
 export testBaseImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_base | awk '{print tolower($0)}')
 export testWallEImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e | awk '{print tolower($0)}')
 export testWallEContainer="${COMPOSE_PROJECT_NAME}"_wall_e
-export DOCKERFILE="CI/server_scripts/build_wall_e/Dockerfile.base"
+export DOCKERFILE="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 export CONTAINER_HOME_DIR="/usr/src/app"
 
 docker stop "${testWallEContainer}" || true

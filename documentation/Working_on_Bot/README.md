@@ -40,24 +40,22 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 
 ### With the database
 
-#### Step 1. Re-creating the docker base image
-You will need to recreate the base docker image if you
- * made changes to the wall_e/src/requirements.txt file or
- * made changes to the wall_e/src/docker-requirements.txt file or
- * made changes to the CI/server_scripts/Dockerfile.base file
+#### Step 1. Re-creating the docker base image (optional)
+You will need to recreate the base docker image if you made changes to any of the following files
+ * CI/server_scripts/build_wall_e/python-base-requirements.txt
+ * CI/server_scripts/build_wall_e/Dockerfile.python_base
+ * wall_e/src/requirements.txt
+ * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
 
 Commands to Run
 ```shell
-export CONTAINER_HOME_DIR=/usr/src/app;
 export COMPOSE_PROJECT_NAME="project_name"
  ./CI/user_scripts/create-dev-docker-image.sh
 ```
 
 #### Step 2. Launching the Bot
 ```shell
-export ENVIRONMENT=LOCALHOST;
-//ensure that DB_ENBLED is set to 1 via whatever method you want
 export COMPOSE_PROJECT_NAME="project_name"
 
 # if you did not need to re-create the base image you can use
@@ -68,25 +66,7 @@ export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 ./CI/user_scripts/deploy-to-test-server.sh;
 ```
 
-#### Re-launching the bot after making changes
-```shell
-
-## Stage 1: stop current bot
-# enter the command `.exit` on your discord guild
-
-## Stage 2: update base image
-# if you made any new changes to the either of the files specified below,
- - wall_e/src/requirements.txt file
- - CI/server_scripts/Dockerfile.base file
-# run the following commands:
-export CONTAINER_HOME_DIR=/usr/src/app;
-export COMPOSE_PROJECT_NAME="project_name"
- ./CI/user_scripts/create-dev-docker-image.sh
-
-
-## Stage 3
-./CI/user_scripts/deploy-to-test-server.sh;
-```
+If you need to re-launch the bot after making some chnages, enter the command `.exit` on your discord guild and then run through the above instructions again.
 
 #### view logs in active time
 ```shell
@@ -96,10 +76,11 @@ export COMPOSE_PROJECT_NAME="project_name"
 ### Without the Database
 
 #### Step 1. Re-creating the docker base image
-You will need to recreate the base docker image if you
- * made changes to the wall_e/src/requirements.txt file or
- * made changes to the wall_e/src/docker-requirements.txt file or
- * made changes to the CI/server_scripts/Dockerfile.base file
+You will need to recreate the base docker image if you made changes to any of the following files
+ * CI/server_scripts/build_wall_e/python-base-requirements.txt
+ * CI/server_scripts/build_wall_e/Dockerfile.python_base
+ * wall_e/src/requirements.txt
+ * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
 
 Commands To Run
@@ -112,7 +93,6 @@ export COMPOSE_PROJECT_NAME="project_name"
 #### Step 2. Launching the Bot
 
 ```shell
-export ENVIRONMENT=LOCALHOST;
 //ensure that DB_ENBLED is set to 0 via whatever method you want
 export COMPOSE_PROJECT_NAME="project_name"
 
@@ -124,27 +104,8 @@ export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 ./CI/user_scripts/deploy-to-test-server-nodb.sh;
 ```
 
+If you need to re-launch the bot after making some chnages, enter the command `.exit` on your discord guild and then run through the above instructions again.
 
-#### Re-launching the bot after making changes
-```shell
-
-## Stage 1: stop current bot
-# enter the command `.exit` on your discord guild
-
-## Stage 2: update base image
-# if you made any new changes to the either of the files specified below,
- - wall_e/src/requirements.txt file
- - CI/server_scripts/Dockerfile.base file
-# run the following commands:
-export CONTAINER_HOME_DIR=/usr/src/app;
-export COMPOSE_PROJECT_NAME="project_name"
- ./CI/user_scripts/create-dev-docker-image.sh
-
-
- ## Stage 3
-./CI/user_scripts/deploy-to-test-server-nodb.sh;
-
-```
 
 #### view logs in active time
 ```shell
