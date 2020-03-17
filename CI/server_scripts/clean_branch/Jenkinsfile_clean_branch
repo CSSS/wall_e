@@ -5,40 +5,7 @@ node {
 
     withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN')]) {
 
-      // Parse the GitHub webhook's payload
-      def object = readJSON text: "${payload}"
-      def branchName = object.ref
-
-      // Get the Discord guild
-      def resp = httpRequest customHeaders:
-        [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-        url: 'https://discordapp.com/api/users/@me/guilds'
-      def guilds = resp.getContent()
-      def guildObject = readJSON text: guilds
-      def guildId = guildObject[0].id
-
-      // Get the guild's channels
-      resp = httpRequest customHeaders:
-        [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-        url: "https://discordapp.com/api/guilds/${guildId}/channels"
-      def channels = readJSON text: resp.getContent()
-
-      // Delete the branch's channels (testing channel, log channel, and reminder channel)
-      def prChanId = channels.find{chan -> chan.name == "${branchName}"}.id
-      def logChanId = channels.find{chan -> chan.name == "${branchName}_logs"}.id
-      def reminderChanId = channels.find{chan -> chan.name == "${branchName}_reminders"}.id
-      httpRequest customHeaders:
-        [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-        httpMode: 'DELETE', responseHandle: 'NONE',
-        url: "https://discordapp.com/api/channels/${prChanId}"
-      httpRequest customHeaders:
-        [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-        httpMode: 'DELETE', responseHandle: 'NONE',
-        url: "https://discordapp.com/api/channels/${logChanId}"
-      httpRequest customHeaders:
-        [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-        httpMode: 'DELETE', responseHandle: 'NONE',
-        url: "https://discordapp.com/api/channels/${reminderChanId}"
+      sh "./CI/server_scripts/clean_branch/delete_discord_branch_channels.sh ${branchName} ${TOKEN}"
 
       // Delete the branch's containers
       sh "./CI/destroy-dev-env.sh ${branchName}"
