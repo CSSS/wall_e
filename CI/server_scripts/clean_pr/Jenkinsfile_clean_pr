@@ -50,7 +50,7 @@ node {
             url: "https://discordapp.com/api/channels/${reminderChanId}"
 
           // Delete PR's containers
-          sh "docker rm -f TEST_PR-${prNumber}_wall_e TEST_PR-${prNumber}_wall_e_db"
+          sh "./CI/destroy-dev-env.sh ${prNumber}"
 
           // Restart a branch's containers if its PR to master was not merged
           if (merged == false && dstBranchName == 'master') {
@@ -60,7 +60,7 @@ node {
 
       // Stop a branch's containers if its PR to master is (re)opened
       if ((action == 'opened' || action == 'reopened') && dstBranchName == 'master') {
-          sh "docker kill TEST_${branchName}_wall_e TEST_${branchName}_wall_e_db"
+        sh "./CI/destroy-dev-env.sh ${branchName}"
       }
     }
    }

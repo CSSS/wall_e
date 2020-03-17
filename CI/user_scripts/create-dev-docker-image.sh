@@ -9,17 +9,15 @@ set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
 if [ -z "${COMPOSE_PROJECT_NAME}" ]; then
-	echo "COMPOSE_PROJECT_NAME is not set"
+	echo "COMPOSE_PROJECT_NAME needs to be set"
 	exit 1
 fi
 
-export testBaseImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_base | awk '{print tolower($0)}')
-export testWallEImageName_lowerCase=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e | awk '{print tolower($0)}')
-export testWallEContainer="${COMPOSE_PROJECT_NAME}"_wall_e
+export test_base_image_name_lower_case=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_base | awk '{print tolower($0)}')
 export DOCKERFILE="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 export CONTAINER_HOME_DIR="/usr/src/app"
 
-docker stop "${testWallEContainer}" || true
-docker rm "${testWallEContainer}" || true
-docker image rm -f "${testBaseImageName_lowerCase}" "${testWallEImageName_lowerCase}" || true
-docker build --no-cache -t ${testBaseImageName_lowerCase} -f "${DOCKERFILE}" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .
+./CI/destroy-dev-env.sh
+
+docker image rm -f "${test_base_image_name_lower_case}" || true
+docker build --no-cache -t ${test_base_image_name_lower_case} -f "${DOCKERFILE}" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .

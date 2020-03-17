@@ -41,7 +41,7 @@ node {
         url: "https://discordapp.com/api/channels/${reminderChanId}"
 
       // Delete the branch's containers
-      sh "docker rm -f TEST_${branchName}_wall_e TEST_${branchName}_wall_e_db"
+      sh "./CI/destroy-dev-env.sh ${branchName}"
     }
    }
 }
