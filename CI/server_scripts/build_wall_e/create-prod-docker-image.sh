@@ -11,8 +11,8 @@ if [ -z "${JENKINS_HOME}" ]; then
     exit 1
 fi
 
-if [ -z "${branch_name}" ]; then
-    echo "branch_name is not set"
+if [ -z "${BRANCH_NAME}" ]; then
+    echo "BRANCH_NAME is not set"
     exit 1
 fi
 
