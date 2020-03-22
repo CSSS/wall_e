@@ -21,6 +21,7 @@ class Misc(commands.Cog):
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
         self.wolframClient = wolframalpha.Client(self.config.get_config_value('wolfram', 'WOLFRAM_API_TOKEN'))
+        self.help_dict = self.config.get_help_json()
 
     @commands.command()
     async def poll(self, ctx, *questions):
@@ -247,14 +248,13 @@ class Misc(commands.Cog):
         number_of_commands_per_page = 5
         logger.info("[Misc general_description()] help command detected from {}".format(ctx.message.author))
         logger.info("[Misc general_description()] attempting to load command info from help.json")
-        help_dict = self.config.get_help_json()
         logger.info("[Misc general_description()] loaded "
-                    "commands from help.json=\n{}".format(json.dumps(help_dict, indent=3)))
+                    "commands from help.json=\n{}".format(json.dumps(self.help_dict, indent=3)))
         user_perms = await get_list_of_user_permissions(ctx)
         user_roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
         description_to_embed = [""]
         x, page = 0, 0
-        for entry in help_dict['commands']:
+        for entry in self.help_dict['commands']:
             if entry['access'] == "role":
                 for role in entry[entry['access']]:
                     if (role in user_roles or (role == 'public')):
@@ -295,10 +295,9 @@ class Misc(commands.Cog):
         await paginate_embed(self.bot, ctx, self.config, description_to_embed, title="Help Page")
 
     async def specific_description(self, ctx, command):
-        help_dict = self.config.get_help_json()
         logger.info("[Misc specific_description()] invoked by user {} for "
                     "command ".format(command))
-        for entry in help_dict['commands']:
+        for entry in self.help_dict['commands']:
             for name in entry['name']:
                 if name == command[0]:
                     logger.info("[Misc specific_description()] loading the "
