@@ -3,12 +3,11 @@ node {
     // Trigger: GitHub webhook whenever a branch is deleted
     // Action: Delete branch's testing channels and containers
 
-    withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN')]) {
-
-      sh "./CI/server_scripts/clean_branch/delete_discord_branch_channels.sh ${branchName} ${TOKEN}"
-
-      // Delete the branch's containers
-      sh "./CI/destroy-dev-env.sh ${branchName}"
+    withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'token')]) {
+        // Parse the GitHub webhook's payload
+        def object = readJSON text: "${payload}"
+        def branch_name = object.ref
+        sh "./CI/server_scripts/clean_branch/clear_branch_env.sh \"${branch_name}\" \"${token}\""
     }
    }
 }
