@@ -1,10 +1,11 @@
 ## PR Checklist
 
-Description:
-
-
-These are the things you need to ensure are covered in your PR, otherwise the CODEOWNERS will not approve your PR, not matter how much you ping them to do so on the Discord
-
+### Description:  
+  
+  
+### Things to Cover:  
+These are the things you need to ensure are covered in your PR, otherwise the CODEOWNERS will not approve your PR, not matter how much you ping them to do so on the Discord  
+  
  1. The description in the PR is a fair representation of what the PR is about.
  1. The PR is fixing one thing and one thing only.
  1. Logging. if you have N variables initialzed/used in your function, you should print all of them out to the log using logging module at least once or have a good reason why you arent.
