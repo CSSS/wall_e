@@ -161,7 +161,7 @@ test-bot.iml
 logs/
 
 wall_e/resources/utilities/config/local.ini
-wall_e/src/lineEndings.sh
+wall_e/src/validate-line-endings.sh
 wall_e/src/pytest.ini
 wall_e/src/setup.cfg
 wall_e/src/resources/utilities/config/local.ini

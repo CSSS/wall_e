@@ -1,6 +1,4 @@
-ARG ORIGIN_IMAGE
-
-FROM $ORIGIN_IMAGE
+FROM sfucsssorg/wall_e
 
 COPY wall_e/src ./
 
