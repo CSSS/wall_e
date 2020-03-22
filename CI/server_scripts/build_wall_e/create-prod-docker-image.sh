@@ -28,13 +28,14 @@ export wall_e_bottom_base_image_requirements_file_locatiom="CI/server_scripts/bu
 
 export commit_folder="wall_e_commits"
 
+export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
+
 export test_container_db_name="TEST_${BRANCH_NAME}_wall_e_db"
 export test_container_name="TEST_${BRANCH_NAME}_wall_e"
 export test_image_name="test_${branch_name}_wall_e"
 export prod_container_name="PRODUCTION_${BRANCH_NAME}_wall_e"
 export prod_image_name="production_${branch_name}_wall_e"
 
-export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
 
 
 export current_commit=$(git log -1 --pretty=format:"%H")
