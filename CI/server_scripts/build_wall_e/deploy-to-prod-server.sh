@@ -9,7 +9,7 @@ rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
 export prod_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 export prod_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
-export docker_compose_file="CI/server_scripts/docker-compose.yml"
+export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 export prod_image_name_lower_case=$(echo "$prod_container_name" | awk '{print tolower($0)}')
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
@@ -28,30 +28,10 @@ if [[ "${container_failed}" != *"Up"* ]]; then
     docker logs ${prod_container_name}
     docker logs ${prod_container_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
-    # discordOutput=$(docker logs ${prod_container_name} | tail -12)
-    # output=$(docker logs ${prod_container_name})
-    # send following to discord
-    # description: BRANCH_NAME + '\n' + discordOutput
-    # footer: env.GIT_COMMIT
-    # link: env.BUILD_URL
-    # successful: false
-    # title: "Failing build"
-    # webhookURL: $WEBHOOKURL
-    # error output
 fi
 
 if [[ "${container_db_failed}" != *"Up"* ]]; then
     docker logs ${prod_container_db_name}
     docker logs ${prod_container_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
     exit 1
-    # discordOutput=$(docker logs ${prod_container_name} | tail -12)
-    # output=$(docker logs ${prod_container_name})
-    # send following to discord
-    # description: BRANCH_NAME + '\n' + discordOutput
-    # footer: env.GIT_COMMIT
-    # link: env.BUILD_URL
-    # successful: false
-    # title: "Failing build"
-    # webhookURL: $WEBHOOKURL
-    # error output
 fi

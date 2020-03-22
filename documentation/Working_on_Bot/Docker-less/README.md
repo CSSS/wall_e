@@ -29,14 +29,16 @@ Pre-requisites: `git`, `python3.5`
 
 #### Launching the Bot
 
+*Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
+
 ```shell
 python3.5 -m virtualenv ENV
 . ENV/bin/activate
-cd wall_e/src/
+mkdir logs
 export ENVIRONMENT=LOCALHOST;
 //ensure that DB_ENBLED is set to 0 via whatever method you want
 python3.5 -m pip install -r requirements.txt
-python3.5 main.py
+python3.5 wall_e/src/main.py
 ```
 
 ## Testing the bot
@@ -50,11 +52,10 @@ python3.5 -m virtualenv testENV
 . testENV/bin/activate
 python3.5 -m pip install -r wall_e/test/test-requirements.txt
 cp wall_e/test/pytest.ini wall_e/src/.
-cp wall_e/test/lineEndings.sh wall_e/src/.
+cp wall_e/test/validate-line-endings.sh wall_e/src/.
 cp wall_e/test/setup.cfg wall_e/src/.
-cd wall_e/src/
-py.test --junitxml=test_results.xml
-./lineEndings.sh
+py.test --junitxml=test_results.xml wall_e/src
+./wall_e/src/validate-line-endings.sh
 ```
 
 ### Step 2. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
