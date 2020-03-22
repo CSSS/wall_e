@@ -8,6 +8,7 @@ import time
 import traceback
 
 from resources.utilities.embed import embed as imported_embed
+from resources.utilities.list_of_perms import get_list_of_user_permissions
 
 logger = logging.getLogger('wall_e')
 
@@ -17,8 +18,10 @@ class ManageCog(commands.Cog):
     def __init__(self, bot, config):
         logger.info("[ManageCog __init__()] initializing the TestCog")
         bot.add_check(self.check_test_environment)
+        bot.add_check(self.check_privilege)
         self.bot = bot
         self.config = config
+        self.help_dict = self.config.get_help_json()
         if self.config.enabled("database", option="DB_ENABLED"):
             import psycopg2 # noqa
             self.psycopg2 = psycopg2
@@ -31,7 +34,7 @@ class ManageCog(commands.Cog):
             await ctx.send(fmt.format(self.config.get_config_value('basic_config', 'BRANCH_NAME')))
         return
 
-    # this command is used by the TEST guild to ensur that each TEST container will only process incoming commands
+    # this check is used by the TEST guild to ensur that each TEST container will only process incoming commands
     # that originate from channels that match the name of their branch
     def check_test_environment(self, ctx):
         if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
@@ -39,6 +42,32 @@ class ManageCog(commands.Cog):
                ctx.channel.name != self.config.get_config_value('basic_config', 'BRANCH_NAME').lower():
                 return False
         return True
+
+    # this check is used to ensure that users can only access commands that they have the rights to
+    async def check_privilege(self, ctx):
+        if "{}".format(ctx.command) == "exit":
+            return True
+        for command_info in self.help_dict['commands']:
+            if "{}".format(ctx.command) in command_info['name']:
+                if command_info['access'] == 'roles':
+                    user_roles = [
+                        role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
+                    ]
+                    shared_roles = set(user_roles).intersection(command_info['roles'])
+                    if (len(shared_roles) == 0):
+                        await ctx.send(
+                            "You do not have adequate permission to execute this command, incident will be reported"
+                        )
+                    return (len(shared_roles) > 0)
+                if command_info['access'] == 'permissions':
+                    user_perms = await get_list_of_user_permissions(ctx)
+                    shared_perms = set(user_perms).intersection(command_info['permissions'])
+                    if (len(shared_perms) == 0):
+                        await ctx.send(
+                            "You do not have adequate permission to execute this command, incident will be reported"
+                        )
+                    return (len(shared_roles) > 0)
+        return False
 
     ########################################################
     # Function that gets called whenever a commmand      ##
@@ -139,8 +168,14 @@ class ManageCog(commands.Cog):
                     # author = ctx.author.nick or ctx.author.name
                     # await ctx.send('Error:\n```Sorry '+author+', seems like the command
                     # \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
-                    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-                    return
+                    if type(error) is discord.ext.commands.errors.CheckFailure:
+                        logger.warning(
+                            "[ManageCog on_command_error()] user {} "
+                            "probably tried to access a command they arent supposed to".format(ctx.author)
+                        )
+                    else:
+                        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                        return
 
     # this command is used by the TEST guild to create the channel from which this TEST container will process
     # commands
