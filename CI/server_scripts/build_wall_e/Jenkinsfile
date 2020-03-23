@@ -112,9 +112,6 @@ pipeline {
                         export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
                         export TOKEN=${TOKEN};
 
-                        export BOT_LOG_CHANNEL=bot_logs;
-                        export REMINDER_CHANNEL=bot_commands_and_misc;
-
                         export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
                         ./CI/server_scripts/build_wall_e/deploy-to-prod-server.sh;

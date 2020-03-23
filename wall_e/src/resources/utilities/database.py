@@ -83,7 +83,7 @@ def setup_database(config):
                 logger.info("[database.py setup_database] {} database created".format(wall_e_db_dbname))
             # this section exists cause of this backup.sql that I had exported from an instance of a Postgres with
             # which I had created the csss_discord_db
-            # https://github.com/CSSS/wall_e/blob/implement_postgres/helper_files/backup.sql#L31
+            # https://github.com/CSSS/wall_e/blob/19d5d7a32f4e4188d05895c5f7005efa258a5d20/helper_files/backup.sql#L31
             db_connection_string = ("dbname='{}' user='{}' host='{}'".format(wall_e_db_dbname, wall_e_db_user, host))
             logger.info("[database.py setup_database] Wall_e User db_connection_string=[{}]".format(
                 db_connection_string)
