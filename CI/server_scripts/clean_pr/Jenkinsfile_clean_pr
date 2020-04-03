@@ -1,67 +1,24 @@
 node {
-   stage('Cleanup PR') {
-    // Trigger: GitHub webhook whenever a Pull Request Event occurs
-    // Actions:
-    // PR to master (Re)opened: Stop branch containers
-    // PR to master Closed without Merge: Restart branch containers
-    // PR to any branch Closed: Delete PR's channels and containers
+    stage('Cleanup PR') {
+        // Trigger: GitHub webhook whenever a Pull Request Event occurs
+        // Actions:
+        // PR to master (Re)opened: Stop branch containers
+        // PR to master Closed without Merge: Restart branch containers
+        // PR to any branch Closed: Delete PR's channels and containers
 
-    withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN')]) {
-
-      // Parse GitHub webhook's payload
-      def object = readJSON text: "${payload}"
-      def prNumber = object.number
-      def branchName = object.pull_request.head.ref
-      def dstBranchName = object.pull_request.base.ref
-      def merged = object.pull_request.merged
-      def action = object.action
-
-      if (action == 'closed') {
-
-          // Get Discord guild
-          def resp = httpRequest customHeaders:
-            [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-            url: 'https://discordapp.com/api/users/@me/guilds'
-          def guilds = resp.getContent()
-          def guildObject = readJSON text: guilds
-          def guildId = guildObject[0].id
-
-          // Get guild's channels
-          resp = httpRequest customHeaders:
-            [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-            url: "https://discordapp.com/api/guilds/${guildId}/channels"
-          def channels = readJSON text: resp.getContent()
-
-          // Delete PR's channels (testing channel, log channel, reminders channel)
-          def prChanId = channels.find{chan -> chan.name == "pr-${prNumber}"}.id
-          def logChanId = channels.find{chan -> chan.name == "pr-${prNumber}_logs"}.id
-          def reminderChanId = channels.find{chan -> chan.name == "pr-${prNumber}_reminders"}.id
-          httpRequest customHeaders:
-            [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-            httpMode: 'DELETE', responseHandle: 'NONE',
-            url: "https://discordapp.com/api/channels/${prChanId}"
-          httpRequest customHeaders:
-            [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-            httpMode: 'DELETE', responseHandle: 'NONE',
-            url: "https://discordapp.com/api/channels/${logChanId}"
-          httpRequest customHeaders:
-            [[maskValue: true, name: 'Authorization', value: "Bot ${TOKEN}"]],
-            httpMode: 'DELETE', responseHandle: 'NONE',
-            url: "https://discordapp.com/api/channels/${reminderChanId}"
-
-          // Delete PR's containers
-          sh "docker rm -f TEST_PR-${prNumber}_wall_e TEST_PR-${prNumber}_wall_e_db"
-
-          // Restart a branch's containers if its PR to master was not merged
-          if (merged == false && dstBranchName == 'master') {
-              sh "docker start TEST_${branchName}_wall_e TEST_${branchName}_wall_e_db"
-          }
-      }
-
-      // Stop a branch's containers if its PR to master is (re)opened
-      if ((action == 'opened' || action == 'reopened') && dstBranchName == 'master') {
-          sh "docker kill TEST_${branchName}_wall_e TEST_${branchName}_wall_e_db"
-      }
+        withCredentials(
+            [
+                string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN'),
+                string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')
+            ]
+        ) {
+            def object = readJSON text: "${payload}"
+            def pr_number = object.number
+            def branch_name = object.pull_request.head.ref
+            def destination_branch_name = object.pull_request.base.ref
+            def merged = object.pull_request.merged
+            def action = object.action
+            sh "./CI/server_scripts/clean_pr/update_discord_channel.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\""
+        }
     }
-   }
 }

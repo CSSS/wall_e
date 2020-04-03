@@ -36,8 +36,9 @@ services:  #Services that are needed for the wall_e app
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
 
         #needed in order to allow debugging to happen when using CMD ash
-        #stdin_open: true
-        #tty: true
+        # stdin_open: true
+        # tty: true
+        # command: ash
 volumes:
     logs:
         external:
