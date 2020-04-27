@@ -40,99 +40,71 @@ class Administration(commands.Cog):
     @commands.command()
     async def load(self, ctx, name):
         logger.info("[Administration load()] load command detected from {}".format(ctx.message.author))
-        if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-            logger.info("[Administration load()] {} successfully authenticated".format(ctx.message.author))
-            valid, folder = self.valid_cog(name)
-            if not valid:
-                await ctx.send("```{} isn't a real cog```".format(name))
-                logger.info(
-                    "[Administration load()] {} tried loading "
-                    "{} which doesn't exist.".format(ctx.message.author, name)
-                )
-                return
-            try:
-                cog_file = importlib.import_module(folder+name)
-                cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
-                cog_to_load = getattr(cog_file, cog_class_name)
-                self.bot.add_cog(cog_to_load(self.bot, self.config))
-                await ctx.send("{} command loaded.".format(name))
-                logger.info("[Administration load()] {} has been successfully loaded".format(name))
-            except(AttributeError, ImportError) as e:
-                await ctx.send("command load failed: {}, {}".format(type(e), str(e)))
-                logger.info("[Administration load()] loading {} failed :{}, {}".format(name, type(e), e))
-        else:
+        valid, folder = self.valid_cog(name)
+        if not valid:
+            await ctx.send("```{} isn't a real cog```".format(name))
             logger.info(
-                "[Administration load()] unauthorized command attempt detected from {}".format(ctx.message.author)
+                "[Administration load()] {} tried loading "
+                "{} which doesn't exist.".format(ctx.message.author, name)
             )
-            await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
+            return
+        try:
+            cog_file = importlib.import_module(folder+name)
+            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+            cog_to_load = getattr(cog_file, cog_class_name)
+            self.bot.add_cog(cog_to_load(self.bot, self.config))
+            await ctx.send("{} command loaded.".format(name))
+            logger.info("[Administration load()] {} has been successfully loaded".format(name))
+        except(AttributeError, ImportError) as e:
+            await ctx.send("command load failed: {}, {}".format(type(e), str(e)))
+            logger.info("[Administration load()] loading {} failed :{}, {}".format(name, type(e), e))
 
     @commands.command()
     async def unload(self, ctx, name):
         logger.info("[Administration unload()] unload command detected from {}".format(ctx.message.author))
-        if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-            logger.info("[Administration unload()] {} successfully authenticated".format(ctx.message.author))
-            valid, folder = self.valid_cog(name)
-            if not valid:
-                await ctx.send("```{} isn't a real cog```".format(name))
-                logger.info(
-                    "[Administration load()] {} tried loading "
-                    "{} which doesn't exist.".format(ctx.message.author, name)
-                )
-                return
-            cog_file = importlib.import_module(folder+name)
-            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
-            self.bot.remove_cog(cog_class_name)
-            await ctx.send("{} command unloaded".format(name))
-            logger.info("[Administration unload()] {} has been successfully loaded".format(name))
-        else:
-            logger.info("[Administration unload()] unauthorized "
-                        "command attempt detected from {}".format(ctx.message.author))
-            await ctx.send("You do not have adequate permission to execute this command, incident will be reported")
+        valid, folder = self.valid_cog(name)
+        if not valid:
+            await ctx.send("```{} isn't a real cog```".format(name))
+            logger.info(
+                "[Administration load()] {} tried loading "
+                "{} which doesn't exist.".format(ctx.message.author, name)
+            )
+            return
+        cog_file = importlib.import_module(folder+name)
+        cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+        self.bot.remove_cog(cog_class_name)
+        await ctx.send("{} command unloaded".format(name))
+        logger.info("[Administration unload()] {} has been successfully loaded".format(name))
 
     @commands.command()
     async def reload(self, ctx, name):
         logger.info("[Administration reload()] reload command detected from {}".format(ctx.message.author))
-        if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-            logger.info("[Administration reload()] {} successfully authenticated".format(ctx.message.author))
-            valid, folder = self.valid_cog(name)
-            if not valid:
-                await ctx.send("```{} isn't a real cog```".format(name))
-                logger.info("[Administration reload()] {} tried "
-                            "loading {} which doesn't exist.".format(ctx.message.author, name))
-                return
-            cog_file = importlib.import_module(folder+name)
-            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
-            self.bot.remove_cog(cog_class_name)
-            try:
-                cog_to_load = getattr(cog_file, cog_class_name)
-                self.bot.add_cog(cog_to_load(self.bot, self.config))
-                await ctx.send("`{} command reloaded`".format(folder + name))
-                logger.info("[Administration reload()] {} has been successfully reloaded".format(name))
-            except(AttributeError, ImportError) as e:
-                await ctx.send("Command load failed: {}, {}".format(type(e), str(e)))
-                logger.info("[Administration reload()] loading {} failed :{}, {}".format(name, type(e), e))
-        else:
-            logger.info("[Administration reload()] unauthorized "
-                        "command attempt detected from {}".format(ctx.message.author))
-            await ctx.send("You do not have adequate permission "
-                           "to execute this command, incident will be reported")
+        valid, folder = self.valid_cog(name)
+        if not valid:
+            await ctx.send("```{} isn't a real cog```".format(name))
+            logger.info("[Administration reload()] {} tried "
+                        "loading {} which doesn't exist.".format(ctx.message.author, name))
+            return
+        cog_file = importlib.import_module(folder+name)
+        cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+        self.bot.remove_cog(cog_class_name)
+        try:
+            cog_to_load = getattr(cog_file, cog_class_name)
+            self.bot.add_cog(cog_to_load(self.bot, self.config))
+            await ctx.send("`{} command reloaded`".format(folder + name))
+            logger.info("[Administration reload()] {} has been successfully reloaded".format(name))
+        except(AttributeError, ImportError) as e:
+            await ctx.send("Command load failed: {}, {}".format(type(e), str(e)))
+            logger.info("[Administration reload()] loading {} failed :{}, {}".format(name, type(e), e))
 
     @commands.command()
     async def exc(self, ctx, *args):
         logger.info("[Administration exc()] exc command detected "
                     "from {} with arguments {}".format(ctx.message.author, " ".join(args)))
-        if ctx.message.author in discord.utils.get(ctx.guild.roles, name="Bot_manager").members:
-            logger.info("[Administration exc()] {} successfully authenticated".format(ctx.message.author))
-            query = " ".join(args)
-            # this got implemented for cases when the output of the command is too big to send to the channel
-            exit_code, output = subprocess.getstatusoutput(query)
-            await helper_send(ctx, "Exit Code: {}".format(exit_code))
-            await helper_send(ctx, output, prefix="```", suffix="```")
-        else:
-            logger.info("[Administration exc()] unauthorized "
-                        "command attempt detected from {}".format(ctx.message.author))
-            await ctx.send("You do not have adequate permission "
-                           "to execute this command, incident will be reported")
+        query = " ".join(args)
+        # this got implemented for cases when the output of the command is too big to send to the channel
+        exit_code, output = subprocess.getstatusoutput(query)
+        await helper_send(ctx, "Exit Code: {}".format(exit_code))
 
     def get_column_headers_from_database(self):
         db_conn = self.connect_to_database()
