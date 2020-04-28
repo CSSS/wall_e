@@ -4,9 +4,7 @@ import aiohttp
 from resources.utilities.embed import embed
 from resources.utilities.paginate import paginate_embed
 from resources.utilities.list_of_perms import get_list_of_user_permissions
-import json
 import wolframalpha
-# import discord.client
 import urllib
 import asyncio
 import re
