@@ -247,17 +247,17 @@ class Misc(commands.Cog):
     async def general_description(self, ctx):
         number_of_commands_per_page = 5
         logger.info("[Misc general_description()] help command detected from {}".format(ctx.message.author))
-        logger.info("[Misc general_description()] attempting to load command info from help.json")
-        logger.info("[Misc general_description()] loaded "
-                    "commands from help.json=\n{}".format(json.dumps(self.help_dict, indent=3)))
-        user_perms = await get_list_of_user_permissions(ctx)
         user_roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
+        logger.info("user_roles : {}".format(user_roles))
+        user_perms = await get_list_of_user_permissions(ctx)
+        logger.info("user_perms : {}".format(user_perms))
         description_to_embed = [""]
         x, page = 0, 0
         for entry in self.help_dict['commands']:
-            if entry['access'] == "role":
+            if entry['access'] == "roles":
                 for role in entry[entry['access']]:
-                    if (role in user_roles or (role == 'public')):
+                    shared_roles = set(user_roles).intersection(entry[entry['access']])
+                    if len(shared_roles) > 0:
                         if 'Class' in entry['name'] and 'Bot_manager' in user_roles:
                             logger.info("[Misc general_description()] "
                                         "adding {} to page {} of the description_to_embed".format(entry, page))
@@ -275,7 +275,8 @@ class Misc(commands.Cog):
                                 x = 0
             elif entry['access'] == "permissions":
                 for permission in entry[entry['access']]:
-                    if permission in user_perms:
+                    shared_perms = set(user_perms).intersection(entry[entry['access']])
+                    if len(shared_perms) > 0:
                         logger.info("[Misc general_description()] "
                                     "adding {} to page {} of the description_to_embed".format(entry, page))
                         description_to_embed[page] += (
