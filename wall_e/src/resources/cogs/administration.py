@@ -105,6 +105,7 @@ class Administration(commands.Cog):
         # this got implemented for cases when the output of the command is too big to send to the channel
         exit_code, output = subprocess.getstatusoutput(query)
         await helper_send(ctx, "Exit Code: {}".format(exit_code))
+        await helper_send(ctx, output, prefix="```", suffix="```")
 
     def get_column_headers_from_database(self):
         db_conn = self.connect_to_database()
