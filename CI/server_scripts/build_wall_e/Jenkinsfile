@@ -144,6 +144,8 @@ pipeline {
                 }
 
                 withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                    discordSend description: "GIT_URL", footer: env.GIT_COMMIT, link: env.GIT_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
+                    discordSend description: "CHANGE_URL" , footer: env.GIT_COMMIT, link: env.CHANGE_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
                     discordSend description: "Branch or PR Name: " + BRANCH_NAME + '\n' + summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
                 }
             }
