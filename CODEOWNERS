@@ -2,10 +2,10 @@
 # Each line is a file pattern followed by one or more owners.
 
 # These owners will be the default owners for everything in the repo.
-CI/*		@modernNeo @wnfldchen
-docs/*		@CSSS/wall_e
-documentation/*	@CSSS/wall_e
-wall_e/*	@CSSS/wall_e
+CI/		@modernNeo @wnfldchen
+docs/		@CSSS/wall_e
+documentation/	@CSSS/wall_e
+wall_e/	@CSSS/wall_e
 .gitignore	@CSSS/wall_e
 CODEOWNERS	@CSSS/wall_e
 LICENSE		@CSSS/wall_e

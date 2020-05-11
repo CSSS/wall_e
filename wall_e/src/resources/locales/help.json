@@ -58,7 +58,7 @@
 			"roles" : [ "@everyone" ],
 			"name": [ "whois" ],
 			"example" : [ ".whois <arg>" ],
-			"description": [ "returns @everyone who has roles <arg>" ]
+			"description": [ "returns everyone who has roles <arg>" ]
 		},
 		{
 			"access": "roles",
@@ -200,8 +200,23 @@
 								"reloads the commands in the class <arg>.",
 								"The classes and their corresponding commands can be determined using the \".help\" command."
 							]
-		},
-		{
+		},{
+			"access" : "roles",
+			"roles" : ["Bot_manager"],
+			"name": ["frequency"],
+			"example": [
+				".frequency command",
+				".frequency day",
+				".frequency command hour"
+			],
+			"description" : [
+				"creates a graph to show some statistics regarding the command usage.",
+				"the different way to count up the command usage are: \"command\", \"year\", \"month\", \"day\"",
+				"\"hour\", \"channel_name\", \"invoked_with\", \"invoked_subcommand\"",
+				"You may optionally choose to group the entries such that all the times that a certain command was executed on a certain day are counted together",
+				"You can do this with the command \".frequency command day\""
+			]
+		},{
 			"access": "roles",
 			"roles" : [ "Bot_manager" ],
 			"name": [ "exc" ],
