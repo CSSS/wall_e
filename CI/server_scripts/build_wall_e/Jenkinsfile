@@ -136,6 +136,11 @@ pipeline {
                         theTitle = "SUCCESS"
                         summary = "No issues detected"
                         status = true
+                        withCredentials([string(credentialsId: 'DISCORD_PROD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                            if (env.CHANGE_URL){
+                                discordSend link: env.CHANGE_URL, successful: status, title: "New PR to review", webhookURL: "$WEBHOOKURL"
+                            }
+                        }
                     }else{
                         theTitle = "ISSUE DETECTED"
                         summary = "Please look at Jenkins for more info"
@@ -143,12 +148,7 @@ pipeline {
                     }
                 }
 
-
-
                 withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
-                    if (env.CHANGE_URL){
-                        discordSend link: env.CHANGE_URL, successful: status, title: "New PR to review", webhookURL: "$WEBHOOKURL"
-                    }
                     discordSend description: "Branch or PR Name: " + BRANCH_NAME + '\n' + summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
                 }
             }
