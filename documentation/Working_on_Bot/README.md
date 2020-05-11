@@ -66,7 +66,7 @@ export ORIGIN_IMAGE="sfucsssorg/wall_e"
 export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 export POSTGRES_PASSWORD="daPassword"
 
-./CI/user_scripts/deploy-to-test-server.sh;
+./CI/user_scripts/setup-dev-env.sh
 ```
 
 If you need to re-launch the bot after making some chnages, enter the command `.exit` on your discord guild and then run through the above instructions again.
@@ -105,7 +105,7 @@ export ORIGIN_IMAGE="sfucsssorg/wall_e"
 # otherwise, you will need to use the below commmand
 export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 
-./CI/user_scripts/deploy-to-test-server-nodb.sh;
+./CI/user_scripts/setup-dev-env-no-db.sh
 ```
 
 If you need to re-launch the bot after making some chnages, enter the command `.exit` on your discord guild and then run through the above instructions again.
