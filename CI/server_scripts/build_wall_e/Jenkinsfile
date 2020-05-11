@@ -147,7 +147,7 @@ pipeline {
 
                 withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'WEBHOOKURL')]) {
                     if (env.CHANGE_URL){
-                        discordSend description: "@Bot_managers", footer: env.GIT_COMMIT, link: env.CHANGE_URL, successful: status, title: "New PR to review", webhookURL: "$WEBHOOKURL"
+                        discordSend description: "@Bot_manager", footer: env.GIT_COMMIT, link: env.CHANGE_URL, successful: status, title: "New PR to review", webhookURL: "$WEBHOOKURL"
                     }
                     discordSend description: "Branch or PR Name: " + BRANCH_NAME + '\n' + summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
                 }
