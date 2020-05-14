@@ -70,8 +70,8 @@ if [ "${action}" = "closed" ]; then
 
 	# Restart a branch's containers if its PR to master was not merged
 	if [[ "${merged}" = "false" && "${destination_branch_name}" = "master" ]]; then
-		git checkout "${BRANCH_NAME}"
-		git pull origin "${BRANCH_NAME}"
+		git checkout "${branch_name}"
+		git pull origin "${branch_name}"
 		export ENVIRONMENT=TEST;
 		export BRANCH_NAME=${branch_name};
 		export COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME};
@@ -93,6 +93,7 @@ fi
 
 # Stop a branch's containers if its PR to master is (re)opened
 if [[ "${action}" = "opened" || "${action}" = "reopened" ]] && [[ "${destination_branch_name}" = "master" ]]; then
+	export BRANCH_NAME=${branch_name};
 	export COMPOSE_PROJECT_NAME="TEST_${BRANCH_NAME}"
   ./CI/destroy-dev-env.sh
 fi
