@@ -13,6 +13,7 @@ node {
             def destination_branch_name = object.pull_request.base.ref
             def merged = object.pull_request.merged
             def action = object.action
+            sh "rm -fr wall_e || true"
             sh "mkdir wall_e"
             sh "cd wall_e"
             sh "git init"
