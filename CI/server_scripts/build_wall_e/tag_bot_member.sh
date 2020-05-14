@@ -2,6 +2,8 @@
 
 bot_token="${1}"
 bot_manager_id_csss_guild="<@&321832268282855436>"
+bot_manager_id_csss_guild="<@&710627204970840074>"
+pr_url="${2}"
 
 content="**New PR to Reviews**\n PR: # : ${pr_url} \nRequired Reviewers: ${bot_manager_id_csss_guild} "
 
