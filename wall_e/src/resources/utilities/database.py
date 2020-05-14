@@ -36,7 +36,7 @@ def setup_database(config):
             # an if not exist" clause for roles or databases, only tables moreover, this is done to localhost
             # and not any other environment cause with the TEST guild, the databases are always brand new
             # fresh with each time the script get launched
-            if 'localhost' == env or'PRODUCTION' == env:
+            if 'localhost' == env or 'PRODUCTION' == env:
                 # aquired from https://stackoverflow.com/a/8099557/7734535
                 sql_query = """DO
                 $do$
