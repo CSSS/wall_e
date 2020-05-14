@@ -19,7 +19,7 @@ node {
             sh "git remote add origin https://github.com/CSSS/wall_e.git"
             sh "git fetch --depth 1 origin"
             sh "git checkout master"
-            sh "./CI/server_scripts/clean_pr/update_discord_channel.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${TOKEN}\""
+            sh "./CI/server_scripts/clean_pr/clear_pr_env.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${TOKEN}\""
             sh "cd ../"
             sh "rm -fr wall_e"
         }
