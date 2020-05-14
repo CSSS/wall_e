@@ -136,9 +136,9 @@ pipeline {
                         theTitle = "SUCCESS"
                         summary = "No issues detected"
                         status = true
-                        withCredentials([string(credentialsId: 'DISCORD_PROD_WEBHOOK', variable: 'WEBHOOKURL')]) {
+                        withCredentials([string(credentialsId: 'DISCORD_PROD_TOKEN', variable: 'TOKEN')]) {
                             if (env.CHANGE_URL){
-                                discordSend link: env.CHANGE_URL, successful: status, title: "New PR to review", webhookURL: "$WEBHOOKURL"
+                              sh "./CI/server_scripts/build_wall_e/tag_bot_member.sh \"${TOKEN}\""
                             }
                         }
                     }else{
