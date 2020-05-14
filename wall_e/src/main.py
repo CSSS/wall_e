@@ -12,6 +12,7 @@ from resources.utilities.log_channel import write_to_bot_log_channel
 
 bot = commands.Bot(command_prefix='.')
 
+
 ##################################################
 # signals to all functions that use            ##
 # "wait_until_ready" that the bot is now ready ##
@@ -36,6 +37,7 @@ async def on_ready():
             )
         )
     logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
+
 
 ########################################################
 # Function that gets called any input or output from ##

@@ -239,7 +239,7 @@ class Misc(commands.Cog):
         # Mention the user, and send the emote speak
         logger.info("[Misc emojispeak()] deleting {}".format(ctx.message))
         await ctx.message.delete()
-        logger.info("[Misc emojispeak()] sending {} says ".format(ctx.author.mention, output))
+        logger.info("[Misc emojispeak()] sending {} says {}".format(ctx.author.mention, output))
         await ctx.send("{} says {}".format(ctx.author.mention, output))
 
     async def general_description(self, ctx):
