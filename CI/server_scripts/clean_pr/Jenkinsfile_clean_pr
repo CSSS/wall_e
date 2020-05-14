@@ -6,23 +6,30 @@ node {
         // PR to master Closed without Merge: Restart branch containers
         // PR to any branch Closed: Delete PR's channels and containers
 
-        withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN')]) {
+        withCredentials(
+          [
+            string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'token'),
+            string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'worlfram_api_token')
+          ]
+        ) {
             def object = readJSON text: "${payload}"
             def pr_number = object.number
             def branch_name = object.pull_request.head.ref
             def destination_branch_name = object.pull_request.base.ref
             def merged = object.pull_request.merged
             def action = object.action
-            sh "rm -fr wall_e || true"
-            sh "mkdir wall_e"
-            sh "cd wall_e"
-            sh "git init"
-            sh "git remote add origin https://github.com/CSSS/wall_e.git"
-            sh "git fetch --depth 1 origin"
-            sh "git checkout master"
-            sh "./CI/server_scripts/clean_pr/clear_pr_env.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${TOKEN}\""
-            sh "cd ../"
-            sh "rm -fr wall_e"
+            sh label: '', script: """bash -c \'
+              rm -fr wall_e || true;
+              mkdir wall_e;
+              cd wall_e;
+              git init;
+              git remote add origin https://github.com/CSSS/wall_e.git;
+              git fetch --depth 1 origin;
+              git checkout master;
+              ./CI/server_scripts/clean_pr/clear_pr_env.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${token}\" \"{worlfram_api_token}\";
+              cd ../;
+              rm -fr wall_e;
+              \'"""
         }
     }
 }

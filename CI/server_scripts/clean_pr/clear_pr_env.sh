@@ -6,6 +6,7 @@ destination_branch_name="${3}"
 merged="${4}"
 action="${5}"
 token="${6}"
+WOLFRAM_API_TOKEN="${7}"
 
 deleted_discord_pr_channels () {
 
