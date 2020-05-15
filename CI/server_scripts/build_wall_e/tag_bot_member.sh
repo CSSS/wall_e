@@ -1,20 +1,20 @@
 #!/bin/bash
 
+# set -e -o xtrace
 
-get_guild_roles(){
-  /guilds/{guild.id}/roles
-
-}
 bot_token="${1}"
-bot_manager_id_csss_guild="<@&321832268282855436>"
-bot_manager_id_csss_guild="<@&710627204970840074>"
 pr_number="${2}"
 pr_url="${3}"
 
-content="**New PR to Review**\n PR# ${pr_number} \n${pr_url} \n${bot_manager_id_csss_guild} "
+Bot_manage_role_id=$(./CI/server_scripts/build_wall_e/get_bot_manager_ids.py -token "${bot_token}" -get_bot_manager_role_id)
+sleep 1
+bot_management_channel_id=$(./CI/server_scripts/build_wall_e/get_bot_manager_ids.py -token "${bot_token}" -get_bot_manager_channel_id)
 
-#my guild
-bot_management_channel_id=466734608726229005
+echo "${Bot_manage_role_id}"
+echo "${bot_management_channel_id}"
+
+content="**New PR to Review**\n PR# ${pr_number} \n${pr_url} \n<@&${Bot_manage_role_id}>"
+
 
 curl --header "Content-Type: application/json" \
  --request POST -H "Authorization: Bot ${bot_token}" \
