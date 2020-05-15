@@ -6,7 +6,7 @@ bot_token="${1}"
 pr_number="${2}"
 pr_url="${3}"
 channel_name_to_send_message_in="bot-management"
-role_to_tag_in_message="bot_manager"
+role_to_tag_in_message="Bot_manager"
 
 get_guild_id(){
   sleep 1
