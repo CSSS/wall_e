@@ -13,9 +13,8 @@ export test_image_name_lower_case=$(echo "$test_container_name" | awk '{print to
 export compose_project_name_lower_case=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
-docker rm -f ${test_container_name} ${test_container_db_name} || true
-docker network rm ${compose_project_name_lower_case}_default || true
-docker image rm -f ${test_image_name_lower_case} || true
+./CI/destroy-dev-env.sh
+
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
 docker-compose -f "${docker_compose_file}" up --force-recreate  -d

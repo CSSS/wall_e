@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e -o xtrace
+# https://stackoverflow.com/a/5750463/7734535
+
 if [ -z "${COMPOSE_PROJECT_NAME}" ]; then
 	echo "COMPOSE_PROJECT_NAME needs to be set"
 	exit 1

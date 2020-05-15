@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e -o xtrace
+# https://stackoverflow.com/a/5750463/7734535
+
 pr_number="${1}"
 branch_name="${2}"
 destination_branch_name="${3}"
