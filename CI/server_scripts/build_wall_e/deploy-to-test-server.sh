@@ -25,11 +25,13 @@ export container_db_failed=$(docker ps -a -f name=${test_container_db_name} --fo
 if [[ "${container_failed}" != *"Up"* ]]; then
     docker logs ${test_container_name}
     docker logs ${test_container_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+    docker rm ${test_container_name} || true
     exit 1
 fi
 
 if [[ "${container_db_failed}" != *"Up"* ]]; then
     docker logs ${test_container_db_name}
     docker logs ${test_container_db_name} --tail 12 &> ${DISCORD_NOTIFICATION_MESSAGE_FILE}
+    docker rm ${test_container_name} || true
     exit 1
 fi
