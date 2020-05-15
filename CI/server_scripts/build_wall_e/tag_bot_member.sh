@@ -1,20 +1,48 @@
 #!/bin/bash
 
-# set -e -o xtrace
+set -e -o xtrace
 
 bot_token="${1}"
 pr_number="${2}"
 pr_url="${3}"
+channel_name_to_send_message_in="bot-management"
+role_to_tag_in_message="bot_manager"
 
-Bot_manage_role_id=$(./CI/server_scripts/build_wall_e/get_bot_manager_ids.py -token "${bot_token}" -get_bot_manager_role_id)
-sleep 1
-bot_management_channel_id=$(./CI/server_scripts/build_wall_e/get_bot_manager_ids.py -token "${bot_token}" -get_bot_manager_channel_id)
+get_guild_id(){
+  sleep 1
+  val=$(curl --header "Content-Type: application/json" \
+   --request GET -H "Authorization: Bot ${bot_token}" \
+     https://discordapp.com/api/v6/users/@me/guilds)
 
-echo "${Bot_manage_role_id}"
-echo "${bot_management_channel_id}"
+  echo $val | jq -r '.[] | .id'
+}
 
-content="**New PR to Review**\n PR# ${pr_number} \n${pr_url} \n<@&${Bot_manage_role_id}>"
+get_bot_manager_role_id(){
+  sleep 1
 
+  val=$(curl --header "Content-Type: application/json" \
+  --request GET -H "Authorization: Bot ${bot_token}" \
+    "https://discordapp.com/api/guilds/${guild_id}/roles")
+  echo $val | jq -r ".[] | select(.name == \"${role_to_tag_in_message}\") | .id"
+}
+
+get_bot_management_channel_id(){
+  sleep 1
+
+  val=$(curl --header "Content-Type: application/json" \
+  --request GET -H "Authorization: Bot ${bot_token}" \
+    "https://discordapp.com/api/guilds/${guild_id}/channels")
+
+  echo $val | jq -r ".[] | select(.name == \"${channel_name_to_send_message_in}\") | .id"
+}
+
+guild_id=$(get_guild_id)
+
+bot_manager_role_id=$(get_bot_manager_role_id)
+
+bot_management_channel_id=$(get_bot_management_channel_id)
+
+content="**New PR to Review**\n PR# ${pr_number} \n${pr_url} \n<@&${bot_manager_role_id}>"
 
 curl --header "Content-Type: application/json" \
  --request POST -H "Authorization: Bot ${bot_token}" \
