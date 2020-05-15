@@ -7,7 +7,18 @@ node {
         // Parse the GitHub webhook's payload
         def object = readJSON text: "${payload}"
         def branch_name = object.ref
-        sh "./CI/server_scripts/clean_branch/clear_branch_env.sh \"${branch_name}\" \"${token}\""
+        sh label: '', script: """bash -c \'
+          rm -fr wall_e || true;
+          mkdir wall_e;
+          cd wall_e;
+          git init;
+          git remote add origin https://github.com/CSSS/wall_e.git;
+          git fetch --depth 1 origin;
+          git checkout master;
+          ./CI/server_scripts/clean_branch/clear_branch_env.sh \"${branch_name}\" \"${token}\";
+          cd ../;
+          rm -fr wall_e;
+        \'"""
     }
    }
 }
