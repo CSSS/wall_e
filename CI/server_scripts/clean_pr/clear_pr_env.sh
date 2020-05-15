@@ -96,7 +96,5 @@ fi
 
 # Stop a branch's containers if its PR to master is (re)opened
 if [[ "${action}" = "opened" || "${action}" = "reopened" ]] && [[ "${destination_branch_name}" = "master" ]]; then
-	export BRANCH_NAME=${branch_name};
-	export COMPOSE_PROJECT_NAME="TEST_${BRANCH_NAME}"
-  ./CI/destroy-dev-env.sh
+	./CI/server_scripts/clean_branch/clear_branch_env.sh "${branch_name}" "${token}"
 fi
