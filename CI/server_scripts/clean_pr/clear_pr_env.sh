@@ -6,6 +6,7 @@ destination_branch_name="${3}"
 merged="${4}"
 action="${5}"
 token="${6}"
+WOLFRAM_API_TOKEN="${7}"
 
 deleted_discord_pr_channels () {
 
@@ -40,21 +41,21 @@ deleted_discord_pr_channels () {
 
 	# Delete PR's channels (testing channel, log channel, reminders channel)
 	if [ -z "${branch_id}" ]; then
-		echo "branch_id was not detected"
+		echo -e "\nbranch_id was not detected"
 	else
 		url="https://discordapp.com/api/channels/${branch_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
 	fi
 
 	if [ -z "${log_channel_id}" ]; then
-		echo "log_channel_id was not detected"
+		echo -e "\nlog_channel_id was not detected"
 	else
 		url="https://discordapp.com/api/channels/${log_channel_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
 	fi
 
 	if [ -z "${reminder_channel_id}" ]; then
-		echo "reminder_channel_id was not detected"
+		echo -e "\nreminder_channel_id was not detected"
 	else
 		url="https://discordapp.com/api/channels/${reminder_channel_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
@@ -68,7 +69,9 @@ if [ "${action}" = "closed" ]; then
 	./CI/destroy-dev-env.sh
 
 	# Restart a branch's containers if its PR to master was not merged
-	if [ "${merged}" = "false" && "${destination_branch_name}" = "master" ]; then
+	if [[ "${merged}" = "false" && "${destination_branch_name}" = "master" ]]; then
+		git checkout "${branch_name}"
+		git pull origin "${branch_name}"
 		export ENVIRONMENT=TEST;
 		export BRANCH_NAME=${branch_name};
 		export COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME};
@@ -86,9 +89,11 @@ if [ "${action}" = "closed" ]; then
 
 		./CI/server_scripts/build_wall_e/deploy-to-test-server.sh;
 	fi
-}
+fi
 
 # Stop a branch's containers if its PR to master is (re)opened
 if [[ "${action}" = "opened" || "${action}" = "reopened" ]] && [[ "${destination_branch_name}" = "master" ]]; then
-  ./CI/destroy-dev-env.sh TEST_${branch_name}
+	export BRANCH_NAME=${branch_name};
+	export COMPOSE_PROJECT_NAME="TEST_${BRANCH_NAME}"
+  ./CI/destroy-dev-env.sh
 fi

@@ -32,21 +32,21 @@ deleted_discord_branch_channels () {
 		fi
 	done
 	if [ -z "${branch_id}" ]; then
-		echo "branch_id was not detected"
+		echo -e "\nbranch_id was not detected"
 	else
 		url="https://discordapp.com/api/channels/${branch_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
 	fi
 
 	if [ -z "${log_channel_id}" ]; then
-		echo "log_channel_id was not detected"
+		echo -e "\nlog_channel_id was not detected"
 	else
 		url="https://discordapp.com/api/channels/${log_channel_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
 	fi
 
 	if [ -z "${reminder_channel_id}" ]; then
-		echo "reminder_channel_id was not detected"
+		echo -e "\nreminder_channel_id was not detected"
 	else
 		url="https://discordapp.com/api/channels/${reminder_channel_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
