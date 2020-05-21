@@ -16,7 +16,7 @@ import datetime
 import pytz
 logger = logging.getLogger('wall_e')
 
-_timezone = pytz.timezone("Canada/Pacific")
+wall_e_timezone = pytz.timezone("Canada/Pacific")
 
 
 class Reminders(commands.Cog):
@@ -57,7 +57,7 @@ class Reminders(commands.Cog):
         logger.info("[Reminders remindmein()] remindme command detected from user {}".format(ctx.message.author))
         parsed_time = ''
         message = ''
-        tz = _timezone
+        user_timezone = wall_e_timezone
         parse_time = True
         for index, value in enumerate(args):
             if parse_time:
@@ -65,7 +65,7 @@ class Reminders(commands.Cog):
                     parse_time = False
                 else:
                     if value in pytz.all_timezones:
-                        tz = pytz.timezone(str(value))
+                        user_timezone = pytz.timezone(str(value))
                     parsed_time += "{} ".format(value)
             else:
                 message += "{} ".format(value)
@@ -111,9 +111,9 @@ class Reminders(commands.Cog):
         time_until = str(parsed_time)
         logger.info("[Reminders remindmein()] extracted time is {}".format(time_until))
         logger.info("[Reminders remindmein()] extracted message is {}".format(message))
-        current_time = datetime.datetime.now(tz=tz)
+        current_time = datetime.datetime.now(tz=user_timezone)
         time_struct, parse_status = parsedatetime.Calendar().parseDT(
-                datetimeString=time_until, sourceTime=current_time, tzinfo=tz)
+                datetimeString=time_until, sourceTime=current_time, tzinfo=user_timezone)
         if parse_status == 0:
             logger.info("[Reminders remindmein()] couldn't parse the time")
             e_obj = await embed(
