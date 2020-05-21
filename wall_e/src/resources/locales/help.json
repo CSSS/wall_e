@@ -145,7 +145,13 @@
 			"access": "roles",
 			"roles" : [ "@everyone" ],
 			"name": [ "remindmein" ],
-			"example": [ ".remindmein <x minutes|hours|days> to <subject>" ],
+			"example": [ 
+				".remindmein <x minutes|hours|days> to <subject>",
+				".remindmein <date (timezone)?> to <subject>",
+				".remindmein <time (timezone)?> to <subject>",
+				".remindmein <date (at)? time (timezone)?> to <subject>",
+				".remindmein <x days after date|today|tomorrow> to <subject>" 
+			],
 			"description": [ "create a reminder" ]
 		},
 		{
