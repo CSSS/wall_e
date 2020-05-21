@@ -7,10 +7,10 @@ node {
         // PR to any branch Closed: Delete PR's channels and containers
 
         withCredentials(
-            [
-                string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN'),
-                string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')
-            ]
+          [
+            string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'token'),
+            string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'worlfram_api_token')
+          ]
         ) {
             def object = readJSON text: "${payload}"
             def pr_number = object.number
@@ -18,7 +18,18 @@ node {
             def destination_branch_name = object.pull_request.base.ref
             def merged = object.pull_request.merged
             def action = object.action
-            sh "./CI/server_scripts/clean_pr/update_discord_channel.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\""
+            sh label: '', script: """bash -c \'
+              rm -fr wall_e || true;
+              mkdir wall_e;
+              cd wall_e;
+              git init;
+              git remote add origin https://github.com/CSSS/wall_e.git;
+              git fetch --depth 1 origin;
+              git checkout master;
+              ./CI/server_scripts/clean_pr/clear_pr_env.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${token}\" \"{worlfram_api_token}\";
+              cd ../;
+              rm -fr wall_e;
+              \'"""
         }
     }
 }
