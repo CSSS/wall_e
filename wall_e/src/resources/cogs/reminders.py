@@ -18,6 +18,7 @@ logger = logging.getLogger('wall_e')
 
 _timezone = pytz.timezone("Canada/Pacific")
 
+
 class Reminders(commands.Cog):
 
     def __init__(self, bot, config):
@@ -69,20 +70,20 @@ class Reminders(commands.Cog):
             else:
                 message += "{} ".format(value)
         how_to_call_command = ("\n"
-                "Please call command like so:\n"
-                "remindmein <time format> to <what to remind you about>\n\n"
-                "Timezone assumed to be Canada/Pacific unless otherwise specified\n"
-                "A list of valid timezones can be found at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n\n"
-                "Example Time Formats:\n"
-                "[n] [seconds|minutes|hours]\n"
-                "- Example: .remindmein 10 minutes to turn in my assignment\n\n"
-                "[n] [day(s) after [date|tomorrow|today]]\n"
-                "- Example: .remindmein two days after tomorrow to go to the bank\n\n"
-                "[time] [timezone]?\n"
-                "- Example: .remindmein 1:15pm Canada/Eastern to video call\n\n"
-                "[date] [at]? [time] [timezone]?\n"
-                "- Example: .remindmein Oct 5th at 12:30pm to eat lunch\n"
-                )
+                               "Please call command like so:\n"
+                               "remindmein <time format> to <what to remind you about>\n\n"
+                               "Timezone assumed to be Canada/Pacific unless otherwise specified\n"
+                               "A list of valid timezones can be found at\n"
+                               "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n\n"
+                               "Example Time Formats:\n"
+                               "[n] [seconds|minutes|hours]\n"
+                               "- Example: .remindmein 10 minutes to turn in my assignment\n\n"
+                               "[n] [day(s) after [date|tomorrow|today]]\n"
+                               "- Example: .remindmein two days after tomorrow to go to the bank\n\n"
+                               "[time] [timezone]?\n"
+                               "- Example: .remindmein 1:15pm Canada/Eastern to video call\n\n"
+                               "[date] [at]? [time] [timezone]?\n"
+                               "- Example: .remindmein Oct 5th at 12:30pm to eat lunch\n")
         if parsed_time == '':
             logger.info("[Reminders remindmein()] was unable to extract a time")
             e_obj = await embed(
@@ -125,9 +126,9 @@ class Reminders(commands.Cog):
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
             return
-        time_struct = time_struct.utctimetuple() # Server runs in UTC, so time has to be converted
+        time_struct = time_struct.utctimetuple()  # Server runs in UTC, so time has to be converted
         expire_seconds = int(mktime(time_struct) - time.time())
-        dt = datetime.datetime.now(tz=pytz.utc) # Note that datetime.utcnow() returns naive datetime
+        dt = datetime.datetime.now(tz=pytz.utc)  # Note that datetime.utcnow() returns naive datetime
         b = dt + datetime.timedelta(seconds=expire_seconds)  # days, seconds, then other fields.
         sql_command = (
             "INSERT INTO Reminders (  reminder_date, message, author_id, author_name, message_id) VALUES "
