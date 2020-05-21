@@ -16,6 +16,8 @@ import datetime
 import pytz
 logger = logging.getLogger('wall_e')
 
+
+# Bot's default timezone; if running from another timezone (eg: Canada/Eastern), change accordingly
 wall_e_timezone = pytz.timezone("Canada/Pacific")
 
 
@@ -65,7 +67,7 @@ class Reminders(commands.Cog):
                     parse_time = False
                 else:
                     if value in pytz.all_timezones:
-                        user_timezone = pytz.timezone(str(value))
+                        user_timezone = pytz.timezone(str(value))  # Set timezone if user specifies
                     parsed_time += "{} ".format(value)
             else:
                 message += "{} ".format(value)
@@ -110,6 +112,7 @@ class Reminders(commands.Cog):
             return
         time_until = str(parsed_time)
         logger.info("[Reminders remindmein()] extracted time is {}".format(time_until))
+        logger.info("[Reminders remindmein()] extracted timezone is {}".format(user_timezone))
         logger.info("[Reminders remindmein()] extracted message is {}".format(message))
         current_time = datetime.datetime.now(tz=user_timezone)
         time_struct, parse_status = parsedatetime.Calendar().parseDT(
