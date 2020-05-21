@@ -52,7 +52,7 @@ class Reminders(commands.Cog):
             logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL "
                          "connection\n{}".format(e))
 
-    @commands.command()
+    @commands.command(aliases=['remindmeon'])
     async def remindmein(self, ctx, *args):
         logger.info("[Reminders remindmein()] remindme command detected from user {}".format(ctx.message.author))
         parsed_time = ''
