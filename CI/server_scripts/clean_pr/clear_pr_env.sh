@@ -95,6 +95,6 @@ if [ "${action}" = "closed" ]; then
 fi
 
 # Stop a branch's containers if its PR to master is (re)opened
-if [[ "${action}" = "opened" || "${action}" = "reopened" ]] && [[ "${destination_branch_name}" = "master" ]]; then
+if [[ "${action}" = "opened" || "${action}" = "reopened" || "${action}" = "edited" ]] && [[ "${destination_branch_name}" = "master" ]]; then
 	./CI/server_scripts/clean_branch/clear_branch_env.sh "${branch_name}" "${token}"
 fi
