@@ -146,12 +146,13 @@
 			"roles" : [ "@everyone" ],
 			"name": [ 
 				"remindmein",
+				"remindmeat",
 				"remindmeon"
 			],
 			"example": [ 
 				".remindmein <x minutes|hours|days> to <subject>",
 				".remindmeon <date (timezone)?> to <subject>",
-				".remindmein <time (timezone)?> to <subject>",
+				".remindmeat <time (timezone)?> to <subject>",
 				".remindmeon <date (at)? time (timezone)?> to <subject>",
 				".remindmein <x days after date|today|tomorrow> to <subject>" 
 			],

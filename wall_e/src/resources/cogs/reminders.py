@@ -54,7 +54,7 @@ class Reminders(commands.Cog):
             logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL "
                          "connection\n{}".format(e))
 
-    @commands.command(aliases=['remindmeon'])
+    @commands.command(aliases=['remindmeon', 'remindmeat'])
     async def remindmein(self, ctx, *args):
         logger.info("[Reminders remindmein()] remindme command detected from user {}".format(ctx.message.author))
         parsed_time = ''
@@ -72,8 +72,10 @@ class Reminders(commands.Cog):
             else:
                 message += "{} ".format(value)
         how_to_call_command = ("\n"
-                               "Please call command like so:\n"
-                               "remindmein <time format> to <what to remind you about>\n\n"
+                               "Please call command like so:\n\n"
+                               "remindmein <time format> to <what to remind you about>\n"
+                               "remindmeon <time format> to <what to remind you about>\n"
+                               "remindmeat <time format> to <what to remind you about>\n\n"
                                "Timezone assumed to be Canada/Pacific unless otherwise specified\n"
                                "A list of valid timezones can be found at\n"
                                "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n\n"
@@ -83,9 +85,9 @@ class Reminders(commands.Cog):
                                "[n] [day(s) after [date|tomorrow|today]]\n"
                                "- Example: .remindmein two days after tomorrow to go to the bank\n\n"
                                "[time] [timezone]?\n"
-                               "- Example: .remindmein 1:15pm Canada/Eastern to video call\n\n"
+                               "- Example: .remindmeat 1:15pm Canada/Eastern to video call\n\n"
                                "[date] [at]? [time] [timezone]?\n"
-                               "- Example: .remindmein Oct 5th at 12:30pm to eat lunch\n")
+                               "- Example: .remindmeon Oct 5th at 12:30pm to eat lunch\n")
         if parsed_time == '':
             logger.info("[Reminders remindmein()] was unable to extract a time")
             e_obj = await embed(
