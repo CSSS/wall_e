@@ -64,6 +64,7 @@ pipeline {
         stage('Deploy To Test Guild'){
             steps {
                 withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN'),
+                string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD'),
                 string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')]) {
                     sh label: '', script: """bash -c \'
                         export ENVIRONMENT=TEST;
@@ -72,7 +73,7 @@ pipeline {
 
                         export POSTGRES_DB_USER=postgres;
                         export POSTGRES_DB_DBNAME=postgres;
-                        export POSTGRES_PASSWORD=postgresPassword;
+                        export POSTGRES_PASSWORD=${POSTGRES_PASSWORD};
 
                         export WALL_E_DB_USER=wall_e;
                         export WALL_E_DB_DBNAME=csss_discord_db;
