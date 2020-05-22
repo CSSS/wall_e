@@ -17,9 +17,6 @@ import pytz
 logger = logging.getLogger('wall_e')
 
 
-# Bot's default timezone; if running from another timezone (eg: Canada/Eastern), change accordingly
-wall_e_timezone = pytz.timezone("Canada/Pacific")
-
 
 class Reminders(commands.Cog):
 
@@ -59,7 +56,8 @@ class Reminders(commands.Cog):
         logger.info("[Reminders remindmein()] remindme command detected from user {}".format(ctx.message.author))
         parsed_time = ''
         message = ''
-        user_timezone = wall_e_timezone
+        # Bot's default timezone; if running from another timezone (eg: Canada/Eastern), change accordingly
+        user_timezone = pytz.timezone("Canada/Pacific")
         parse_time = True
         for index, value in enumerate(args):
             if parse_time:
