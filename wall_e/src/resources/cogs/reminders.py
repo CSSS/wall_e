@@ -130,12 +130,12 @@ class Reminders(commands.Cog):
             return
         time_struct = time_struct.utctimetuple()  # Server runs in UTC, so time has to be converted
         expire_seconds = int(mktime(time_struct) - time.time())
-        dt = datetime.datetime.now(tz=pytz.utc)  # Note that datetime.utcnow() returns naive datetime
-        b = dt + datetime.timedelta(seconds=expire_seconds)  # days, seconds, then other fields.
+        datetime_now = datetime.datetime.now(tz=pytz.utc)  # Note that datetime.utcnow() returns naive datetime
+        difference_time = datetime_now + datetime.timedelta(seconds=expire_seconds)
         sql_command = (
             "INSERT INTO Reminders (  reminder_date, message, author_id, author_name, message_id) VALUES "
             "(TIMESTAMP '{}', '{}', '{}', '{}',  '{}');".format(
-                b,
+                difference_time,
                 message,
                 ctx.author.id,
                 ctx.message.author,
