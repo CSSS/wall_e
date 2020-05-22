@@ -1,9 +1,8 @@
+## Description
+
+
 ## PR Checklist
 
-### Description:  
-  
-  
-### Things to Cover:  
 These are the things you need to ensure are covered in your PR, otherwise the CODEOWNERS will not approve your PR, not matter how much you ping them to do so on the Discord  
   
  1. The description in the PR is a fair representation of what the PR is about.
