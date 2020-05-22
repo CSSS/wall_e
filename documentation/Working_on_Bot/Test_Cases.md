@@ -46,6 +46,11 @@
   1. `.showreminders`
   1. `.deletereminder <messageId from previous output>`
   1. `.showreminders`
+  1. `.remindmeon <current day> <current time + 1 hour> to turn in my assignment`
+  1. `.remindmeat tomorrow at 5:00pm Canada/Eastern to turn in my assignment`
+  1. `.remindmein a day after tomorrow to turn in my assignment`
+  1. `.showreminders`
+  1. `.deletereminder` for the reminders entered above
 ## RoleCommands
   1. `.newrole`
   1. `.newrole <role that already exists>`

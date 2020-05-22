@@ -13,6 +13,7 @@ from resources.utilities.embed import embed
 import psycopg2
 # import os
 import datetime
+import pytz
 logger = logging.getLogger('wall_e')
 
 
@@ -49,22 +50,41 @@ class Reminders(commands.Cog):
             logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL "
                          "connection\n{}".format(e))
 
-    @commands.command()
+    @commands.command(aliases=['remindmeon', 'remindmeat'])
     async def remindmein(self, ctx, *args):
         logger.info("[Reminders remindmein()] remindme command detected from user {}".format(ctx.message.author))
         parsed_time = ''
         message = ''
+        # Bot's default timezone; if running from another timezone (eg: Canada/Eastern), change accordingly
+        user_timezone = pytz.timezone("Canada/Pacific")
         parse_time = True
         for index, value in enumerate(args):
             if parse_time:
                 if value == 'to':
                     parse_time = False
                 else:
+                    if value in pytz.all_timezones:
+                        user_timezone = pytz.timezone(str(value))  # Set timezone if user specifies
                     parsed_time += "{} ".format(value)
             else:
                 message += "{} ".format(value)
-        how_to_call_command = ("\nPlease call command like so:\nremindmein <time|minutes|hours|days> to <what to "
-                               "remind you about>\nExample: \".remindmein 10 minutes to turn in my assignment\"")
+        how_to_call_command = ("\n"
+                               "Please call command like so:\n\n"
+                               "remindmein <time format> to <what to remind you about>\n"
+                               "remindmeon <time format> to <what to remind you about>\n"
+                               "remindmeat <time format> to <what to remind you about>\n\n"
+                               "Timezone assumed to be Canada/Pacific unless otherwise specified\n"
+                               "A list of valid timezones can be found at\n"
+                               "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n\n"
+                               "Example Time Formats:\n"
+                               "[n] [seconds|minutes|hours]\n"
+                               "- Example: .remindmein 10 minutes to turn in my assignment\n\n"
+                               "[n] [day(s) after [date|tomorrow|today]]\n"
+                               "- Example: .remindmein two days after tomorrow to go to the bank\n\n"
+                               "[time] [timezone]?\n"
+                               "- Example: .remindmeat 1:15pm Canada/Eastern to video call\n\n"
+                               "[date] [at]? [time] [timezone]?\n"
+                               "- Example: .remindmeon Oct 5th at 12:30pm to eat lunch\n")
         if parsed_time == '':
             logger.info("[Reminders remindmein()] was unable to extract a time")
             e_obj = await embed(
@@ -91,8 +111,11 @@ class Reminders(commands.Cog):
             return
         time_until = str(parsed_time)
         logger.info("[Reminders remindmein()] extracted time is {}".format(time_until))
+        logger.info("[Reminders remindmein()] extracted timezone is {}".format(user_timezone))
         logger.info("[Reminders remindmein()] extracted message is {}".format(message))
-        time_struct, parse_status = parsedatetime.Calendar().parse(time_until)
+        current_time = datetime.datetime.now(tz=user_timezone)
+        time_struct, parse_status = parsedatetime.Calendar().parseDT(
+                datetimeString=time_until, sourceTime=current_time, tzinfo=user_timezone)
         if parse_status == 0:
             logger.info("[Reminders remindmein()] couldn't parse the time")
             e_obj = await embed(
@@ -105,13 +128,14 @@ class Reminders(commands.Cog):
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
             return
+        time_struct = time_struct.utctimetuple()  # Server runs in UTC, so time has to be converted
         expire_seconds = int(mktime(time_struct) - time.time())
-        dt = datetime.datetime.now()
-        b = dt + datetime.timedelta(seconds=expire_seconds)  # days, seconds, then other fields.
+        datetime_now = datetime.datetime.now(tz=pytz.utc)  # Note that datetime.utcnow() returns naive datetime
+        difference_time = datetime_now + datetime.timedelta(seconds=expire_seconds)
         sql_command = (
             "INSERT INTO Reminders (  reminder_date, message, author_id, author_name, message_id) VALUES "
             "(TIMESTAMP '{}', '{}', '{}', '{}',  '{}');".format(
-                b,
+                difference_time,
                 message,
                 ctx.author.id,
                 ctx.message.author,
