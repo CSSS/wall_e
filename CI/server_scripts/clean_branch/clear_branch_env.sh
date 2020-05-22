@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e -x
+set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
 branch_name="${1}"
