@@ -73,7 +73,7 @@ pipeline {
 
                         export POSTGRES_DB_USER=postgres;
                         export POSTGRES_DB_DBNAME=postgres;
-                        export POSTGRES_PASSWORD=${POSTGRES_PASSWORD};
+                        export POSTGRES_PASSWORD='${POSTGRES_PASSWORD}';
 
                         export WALL_E_DB_USER=wall_e;
                         export WALL_E_DB_DBNAME=csss_discord_db;
