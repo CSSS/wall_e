@@ -61,7 +61,7 @@ async def on_member_join(member):
         output += "\tIf you need help, please ping any of our Execs, Execs at large, or First Year Reps.\n"
         output += "\n"
         output += "\tOur general channels include some of the following:\n"
-        output += "\t[#off-topic](https://discordapp.com/channels/478433247643303936/228761314644852736"
+        output += "\t[#off-topic](https://discord.com/channels/228761314644852736/228761314644852736)"
         output += ", where we discuss damn near anything.\n"
         output += "\t#first-years, for students who are starting, or about to start their first year.\n"
         output += "\t#discussion, for serious non-academic discussion. (Politics et al.)\n"
