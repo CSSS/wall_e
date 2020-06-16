@@ -3,6 +3,7 @@ import os
 import json
 import configparser
 from pathlib import Path
+from collections import OrderedDict
 
 import logging
 logger = logging.getLogger('wall_e')
@@ -85,5 +86,5 @@ class WallEConfig():
 
     def get_help_json(self):
         with open(help_json_location + help_json_file_name) as f:
-            help_dict = json.load(f)
+            help_dict = json.load(f, object_pairs_hook=OrderedDict)
         return help_dict
