@@ -251,7 +251,7 @@ class Misc(commands.Cog):
         logger.info("user_perms : {}".format(user_perms))
         description_to_embed = [""]
         number_of_command_added_in_current_page, current_page = 0, 0
-        class_in_previous_command=""
+        class_in_previous_command = ""
         for command, command_info in self.help_dict.items():
             if command_info['access'] == "roles":
                 shared_roles = set(user_roles).intersection(command_info[command_info['access']])
@@ -260,9 +260,12 @@ class Misc(commands.Cog):
                                 "adding {} to page {} of the description_to_embed".format(command, current_page))
                     if class_in_previous_command != command_info['class'] and 'Bot_manager' in user_roles:
                         description_to_embed[current_page] += "**Class: {}**:\n".format(command_info['class'])
-                    if class_in_previous_command == command_info['class'] and number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
-                        description_to_embed[current_page] += "**Class: {}** [Cont'd]:\n".format(command_info['class'])
-                    class_in_previous_command=command_info['class']
+                    if class_in_previous_command == command_info['class'] and \
+                            number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
+                        description_to_embed[current_page] += (
+                            "**Class: {}** [Cont'd]:\n".format(command_info['class'])
+                            )
+                    class_in_previous_command = command_info['class']
                     aliases = command_info['aliases'].copy()
                     aliases.append(command)
                     description_to_embed[current_page] += (
@@ -280,8 +283,11 @@ class Misc(commands.Cog):
                                 "adding {} to page {} of the description_to_embed".format(command, current_page))
                     if class_in_previous_command != command_info['class'] and 'Bot_manager' in user_roles:
                         description_to_embed[current_page] += "**Class: {}**:\n".format(command_info['class'])
-                    if class_in_previous_command == command_info['class'] and number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
-                        description_to_embed[current_page] += "**Class: {}** [Cont'd]:\n".format(command_info['class'])
+                    if class_in_previous_command == command_info['class'] and \
+                            number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
+                        description_to_embed[current_page] += (
+                            "**Class: {}** [Cont'd]:\n".format(command_info['class'])
+                        )
                     aliases = command_info['aliases'].copy()
                     aliases.append(command)
                     description_to_embed[current_page] += (
@@ -302,18 +308,23 @@ class Misc(commands.Cog):
     async def specific_description(self, ctx, command):
         logger.info("[Misc specific_description()] invoked by user {} for "
                     "command ".format(command))
-        command_being_searched_for="{}".format(command[0])
-        command_info_for_searched_command=""
+        command_being_searched_for = "{}".format(command[0])
+        command_info_for_searched_command = ""
         if command_being_searched_for in self.help_dict:
             command_info_for_searched_command = self.help_dict[command_being_searched_for]
         for command, command_info in self.help_dict.items():
             if command_being_searched_for in command_info['aliases']:
                 command_being_searched_for = command
-                command_info_for_searched_command =command_info
+                command_info_for_searched_command = command_info
                 break
         if command_info_for_searched_command != "":
-            logger.info("[Misc specific_description()] loading the "
-                        "entry for command {} :\n\n{}".format(command_being_searched_for, command_info_for_searched_command))
+            logger.info(
+                "[Misc specific_description()] loading the "
+                "entry for command {} :\n\n{}".format(
+                    command_being_searched_for,
+                    command_info_for_searched_command
+                )
+            )
             descriptions = ""
             for description in command_info_for_searched_command['description']:
                 descriptions += "{}\n\n".format(description)
