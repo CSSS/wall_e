@@ -43,16 +43,15 @@ async def on_ready():
 async def on_disconnect():
     logger.info('[main.py on_disconnect()] experienced a disconnect')
 
+
 @bot.event
 async def on_resumed():
     logger.info('[main.py on_resumed()] experienced a resume')
 
+
 @bot.event
 async def on_error():
     logger.info('[main.py on_error()] experienced the error {}'.format(event))
-
-
-
 
 
 ########################################################
