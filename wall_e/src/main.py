@@ -50,7 +50,7 @@ async def on_resumed():
 
 
 @bot.event
-async def on_error():
+async def on_error(event, *args, **kwargs):
     logger.info('[main.py on_error()] experienced the error {}'.format(event))
 
 
