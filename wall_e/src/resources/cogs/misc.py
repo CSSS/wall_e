@@ -250,105 +250,129 @@ class Misc(commands.Cog):
         user_perms = await get_list_of_user_permissions(ctx)
         logger.info("user_perms : {}".format(user_perms))
         description_to_embed = [""]
-        x, page = 0, 0
-        for entry in self.help_dict['commands']:
-            if entry['access'] == "roles":
-                for role in entry[entry['access']]:
-                    shared_roles = set(user_roles).intersection(entry[entry['access']])
-                    if len(shared_roles) > 0:
-                        if 'Class' in entry['name'] and 'Bot_manager' in user_roles:
-                            logger.info("[Misc general_description()] "
-                                        "adding {} to page {} of the description_to_embed".format(entry, page))
-                            description_to_embed[page] += "\n**{}**: \n".format(entry['name'])
-                        else:
-                            logger.info("[Misc general_description()] "
-                                        "adding {} to page {} of the description_to_embed".format(entry, page))
-                            description_to_embed[page] += (
-                                "*{}* - {}\n\n".format("/".join(entry['name']), entry['description'][0])
+        number_of_command_added_in_current_page, current_page = 0, 0
+        class_in_previous_command = ""
+        for command, command_info in self.help_dict.items():
+            if command_info['access'] == "roles":
+                shared_roles = set(user_roles).intersection(command_info[command_info['access']])
+                if len(shared_roles) > 0:
+                    logger.info("[Misc general_description()] "
+                                "adding {} to page {} of the description_to_embed".format(command, current_page))
+                    if class_in_previous_command != command_info['class'] and 'Bot_manager' in user_roles:
+                        description_to_embed[current_page] += "**Class: {}**:\n".format(command_info['class'])
+                    if class_in_previous_command == command_info['class'] and \
+                            number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
+                        description_to_embed[current_page] += (
+                            "**Class: {}** [Cont'd]:\n".format(command_info['class'])
                             )
-                            x += 1
-                            if x == number_of_commands_per_page:
-                                description_to_embed.append("")
-                                page += 1
-                                x = 0
-            elif entry['access'] == "permissions":
-                for permission in entry[entry['access']]:
-                    shared_perms = set(user_perms).intersection(entry[entry['access']])
-                    if len(shared_perms) > 0:
-                        logger.info("[Misc general_description()] "
-                                    "adding {} to page {} of the description_to_embed".format(entry, page))
-                        description_to_embed[page] += (
-                            "*{}* - {}\n\n".format("/".join(entry['name']), entry['description'][0])
+                    class_in_previous_command = command_info['class']
+                    aliases = command_info['aliases'].copy()
+                    aliases.append(command)
+                    description_to_embed[current_page] += (
+                        "{} - {}\n\n".format("/".join(aliases), command_info['description'][0])
+                    )
+                    number_of_command_added_in_current_page += 1
+                    if number_of_command_added_in_current_page == number_of_commands_per_page:
+                        description_to_embed.append("")
+                        current_page += 1
+                        number_of_command_added_in_current_page = 0
+            elif command_info['access'] == "permissions":
+                shared_perms = set(user_perms).intersection(command_info[command_info['access']])
+                if len(shared_perms) > 0:
+                    logger.info("[Misc general_description()] "
+                                "adding {} to page {} of the description_to_embed".format(command, current_page))
+                    if class_in_previous_command != command_info['class'] and 'Bot_manager' in user_roles:
+                        description_to_embed[current_page] += "**Class: {}**:\n".format(command_info['class'])
+                    if class_in_previous_command == command_info['class'] and \
+                            number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
+                        description_to_embed[current_page] += (
+                            "**Class: {}** [Cont'd]:\n".format(command_info['class'])
                         )
-                        x += 1
-                        if x == number_of_commands_per_page:
-                            description_to_embed.append("")
-                            page += 1
-                            x = 0
-                        break
+                    aliases = command_info['aliases'].copy()
+                    aliases.append(command)
+                    description_to_embed[current_page] += (
+                        "{} - {}\n\n".format("/".join(aliases), command_info['description'][0])
+                    )
+                    number_of_command_added_in_current_page += 1
+                    if number_of_command_added_in_current_page == number_of_commands_per_page:
+                        description_to_embed.append("")
+                        current_page += 1
+                        number_of_command_added_in_current_page = 0
             else:
                 logger.info("[Misc general_description()] {} has a wierd "
                             "access level of {}....not sure how to handle "
-                            "it so not adding it to the description_to_embed".format(entry, entry['access']))
+                            "it so not adding it to the description_to_embed".format(command, command_info['access']))
         logger.info("[Misc general_description()] transfer successful")
         await paginate_embed(self.bot, ctx, self.config, description_to_embed, title="Help Page")
 
     async def specific_description(self, ctx, command):
         logger.info("[Misc specific_description()] invoked by user {} for "
                     "command ".format(command))
-        for entry in self.help_dict['commands']:
-            for name in entry['name']:
-                if name == command[0]:
-                    logger.info("[Misc specific_description()] loading the "
-                                "entry for command {} :\n\n{}".format(command[0], entry))
-                    descriptions = ""
-                    for description in entry['description']:
-                        descriptions += "{}\n\n".format(description)
-                    descriptions += "\n\nExample:\n"
-                    descriptions += "\n".join(entry['example'])
-                    e_obj = await embed(
-                        ctx,
-                        title="Man Entry for {}".format(command[0]),
-                        author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                        avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                        description=descriptions
-                    )
-                    if e_obj is not False:
-                        msg = await ctx.send(content=None, embed=e_obj)
-                        logger.info("[Misc specific_description()] embed created and sent for "
-                                    "command {}".format(command[0]))
-                        await msg.add_reaction('✅')
-                        logger.info("[Misc specific_description()] reaction added to message")
+        command_being_searched_for = "{}".format(command[0])
+        command_info_for_searched_command = ""
+        if command_being_searched_for in self.help_dict:
+            command_info_for_searched_command = self.help_dict[command_being_searched_for]
+        for command, command_info in self.help_dict.items():
+            if command_being_searched_for in command_info['aliases']:
+                command_being_searched_for = command
+                command_info_for_searched_command = command_info
+                break
+        if command_info_for_searched_command != "":
+            logger.info(
+                "[Misc specific_description()] loading the "
+                "entry for command {} :\n\n{}".format(
+                    command_being_searched_for,
+                    command_info_for_searched_command
+                )
+            )
+            descriptions = ""
+            for description in command_info_for_searched_command['description']:
+                descriptions += "{}\n\n".format(description)
+            descriptions += "\n\nExample:\n"
+            descriptions += "\n".join(command_info_for_searched_command['example'])
+            e_obj = await embed(
+                ctx,
+                title="Man Entry for {}".format(command_being_searched_for),
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description=descriptions
+            )
+            if e_obj is not False:
+                msg = await ctx.send(content=None, embed=e_obj)
+                logger.info("[Misc specific_description()] embed created and sent for "
+                            "command {}".format(command))
+                await msg.add_reaction('✅')
+                logger.info("[Misc specific_description()] reaction added to message")
 
-                        def check_reaction(reaction, user):
-                            if not user.bot:  # just making sure the bot doesnt take its own reactions
-                                # into consideration
-                                e = str(reaction.emoji)
-                                logger.info("[Misc specific_description()] "
-                                            "reaction {} detected from {}".format(e, user))
-                                return e.startswith(('✅'))
+                def check_reaction(reaction, user):
+                    if not user.bot:  # just making sure the bot doesnt take its own reactions
+                        # into consideration
+                        e = str(reaction.emoji)
+                        logger.info("[Misc specific_description()] "
+                                    "reaction {} detected from {}".format(e, user))
+                        return e.startswith(('✅'))
 
-                        user_reacted = False
-                        while user_reacted is False:
-                            try:
-                                user_reacted = await self.bot.wait_for(
-                                    'reaction_add',
-                                    timeout=20,
-                                    check=check_reaction
-                                )
-                            except asyncio.TimeoutError:
-                                logger.info("[Misc specific_description()] "
-                                            "timed out waiting for the user's reaction.")
-                            if user_reacted:
-                                if '✅' == user_reacted[0].emoji:
-                                    logger.info("[Misc specific_description()] user indicates they are done with the "
-                                                "roles command, deleting roles message")
-                                    await msg.delete()
-                                    return
-                            else:
-                                logger.info("[Misc specific_description()] deleting message")
-                                await msg.delete()
-                                return
+                user_reacted = False
+                while user_reacted is False:
+                    try:
+                        user_reacted = await self.bot.wait_for(
+                            'reaction_add',
+                            timeout=20,
+                            check=check_reaction
+                        )
+                    except asyncio.TimeoutError:
+                        logger.info("[Misc specific_description()] "
+                                    "timed out waiting for the user's reaction.")
+                    if user_reacted:
+                        if '✅' == user_reacted[0].emoji:
+                            logger.info("[Misc specific_description()] user indicates they are done with the "
+                                        "roles command, deleting roles message")
+                            await msg.delete()
+                            return
+                    else:
+                        logger.info("[Misc specific_description()] deleting message")
+                        await msg.delete()
+                        return
 
     @commands.command(aliases=['man'])
     async def help(self, ctx, *arg):
