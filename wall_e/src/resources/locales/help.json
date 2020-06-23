@@ -1,312 +1,279 @@
-{ "commands" : [
-		{	"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": "Class: HealthChecks"
-		},
-		{	"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "ping" ],
-			"example": [ ".ping" ],
-			"description": [ "returns pong!" ]
-		},
-		{ 	"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "echo" ],
-			"example": [ ".echo <arg>" ],
-			"description": [ "returns <arg>" ]
-		},
-		{ 	"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "emojispeak" ],
-			"example": [ ".emojispeak <args>" ],
-			"description": [ "returns <args> but in emoji format" ]
-		},
-
-		{ 	"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": "Class: RoleCommands"
-		},
-		{ 	"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "newrole" ],
-			"example" : [ ".newrole <arg>" ],
-			"description": [ "creates roles <arg>" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "deleterole" ],
-			"example" : [ ".deleterole <arg>" ],
-			"description": [ "deletes roles <arg>" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "iam" ],
-			"example" : [ ".iam <arg>" ] ,
-			"description": [ "adds you to roles <arg>" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "iamn" ],
-			"example" : [ ".iamn <arg>" ],
-			"description": [ "removes you from roles <arg>" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "whois" ],
-			"example" : [ ".whois <arg>" ],
-			"description": [ "returns everyone who has roles <arg>" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "roles"],
-			"example" : [ ".roles"],
-			"description": [ "will display all the self-assignable roles that exist" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "Roles" ],
-			"example" : [ ".Roles" ],
-			"description": [ "will display all the Mod/Exec/XP Assigned roles that exist" ]
-		},
-		{
-			"access": "permissions",
-			"permissions" : [
-								"manage_roles",
-								"administrator"
-							] ,
-			"name": ["purgeroles" ],
-			"example": [ ".purgeroles" ],
-			"description": [ "deletes all empty self-assignable roles" ]
-		},
-
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": "Class: Misc"
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [
-						"help",
-						"man"
-					],
-			"example": [
-							".help",
-							".help man"
-						],
-			"description": [
-								"an interface to the reference manuals",
-								"help can be used with no argument in order to list each command and provide a brief overview of each command",
-								"In order to bring up specific examples of how to use each command, use \".man <command>\""
-							]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "poll" ],
-			"example": [
-							"`.poll \"<questions>\"`",
-							"`.poll \"<question>\" \"<answer1>\" \"<answer2>\" \"<answer3>\"`"
-						],
-			"description": [
-								"Commands to create a  poll in a channel.",
-								"Doing `.poll <arg>` starts a yes/no poll where <arg> is the question" ,
-								"A poll can also be created with multiple options. When choosing multiple options, you can specify up to 12 arguments"
-								]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "urban" ],
-			"example": [".urban <arg>"],
-			"description": [ "returns definition from urban dictionary of <arg>" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "wolfram" ],
-			"example": [".wolfram <arg>"],
-			"description": [ "returns the result of passing <arg> to Wolfram Alpha" ]
-		},
-
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": "Class: Reminders"
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ 
-				"remindmein",
-				"remindmeat",
-				"remindmeon"
-			],
-			"example": [ 
-				".remindmein <x minutes|hours|days> to <subject>",
-				".remindmeon <date (timezone)?> to <subject>",
-				".remindmeat <time (timezone)?> to <subject>",
-				".remindmeon <date (at)? time (timezone)?> to <subject>",
-				".remindmein <x days after date|today|tomorrow> to <subject>" 
-			],
-			"description": [ "create a reminder" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "showreminders" ],
-			"example": [ ".showreminders" ],
-			"description": [ "Show all your active reminders and their corresponding messageIDs" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "deletereminder" ],
-			"example": [ ".deletereminder <arg>" ],
-			"description": [
-								"deletes a reminder that has a messageId of <arg>",
-								"the \"messageId\" can be obtained by using the \".showreminders\" command"
-							]
-		},
-
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": "Class: Administration"
-		},
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": [ "load" ],
-			"example": [ ".load <arg>" ],
-			"description": [
-								"loads the commands in the class <arg>.",
-								"The classes and their corresponding commands can be determined using the \".help\" command."
-							]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": [ "unload" ],
-			"example": [ ".unload <arg>" ],
-			"description": [
-								"unloads the commands in the class <arg>.",
-								" The classes and their corresponding commands can be determined using the \".help\" command."
-							]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": [ "reload" ],
-			"example": [".reload <arg>" ],
-			"description": [
-								"reloads the commands in the class <arg>.",
-								"The classes and their corresponding commands can be determined using the \".help\" command."
-							]
-		},{
-			"access" : "roles",
-			"roles" : ["Bot_manager"],
-			"name": ["frequency"],
-			"example": [
-				".frequency command",
-				".frequency day",
-				".frequency command hour"
-			],
-			"description" : [
-				"creates a graph to show some statistics regarding the command usage.",
-				"the different way to count up the command usage are: \"command\", \"year\", \"month\", \"day\"",
-				"\"hour\", \"channel_name\", \"invoked_with\", \"invoked_subcommand\"",
-				"You may optionally choose to group the entries such that all the times that a certain command was executed on a certain day are counted together",
-				"You can do this with the command \".frequency command day\""
-			]
-		},{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": [ "exc" ],
-			"example": [ ".exc <arg>" ],
-			"description": [
-								"executes the command <arg> on the bot server.",
-								"The classes and their corresponding commands can be determined using the \".help\" command."
-							]
-		},
-
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": "Class: Minions"
-		},
-		{
-			"access": "roles",
-			"roles" : [ "Minions" ],
-			"name": [
-						"embed",
-						"em"
-					],
-			"example": [ ".embed <arg0> <arg1> ..." ],
-			"description": [
-								"Allows Minions to post embed messages.",
-								"For odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.",
-								"For even number there will be no description."
-							]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "Minions" ],
-			"name": [
-						"modspeak",
-						"warn"
-					] ,
-			"example": [ ".modspeak <arg>" ],
-			"description": [ "Posts the warning message <arg> in embed format. No quotes required with message." ]
-		},
-
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name": "Class: Here"
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "here" ],
-			"example": [ ".here <filters> ..." ],
-			"description": [
-								"Displays all users with permissions to view the current channel.",
-								"Results can be filter by looking for users whose username or nickname on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."
-							]
-		},
-
-		{
-			"access": "roles",
-			"roles" : [ "Bot_manager" ],
-			"name":"Class: SFU"
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "sfu" ],
-			"example": [ ".sfu <arg>" ],
-			"description": [ "Returns the calendar description from current semester of <arg>" ]
-		},
-		{
-			"access": "roles",
-			"roles" : [ "@everyone" ],
-			"name": [ "outline" ],
-			"example": [ ".outline <arg0> [<arg1> <arg2> next]" ],
-			"description": [
-								"Returns outline details of course `<arg0>`.",
-								"Defaults to current term and section d100.",
-								"Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`.",
-								"Added keyword `next` will look at next semesters oultine for `<arg0>`;Note `next` will return error if it is not registration time."
-							]
-		}
-
-	]
+{
+	"load" : {
+		"class": "Administration",
+		"access": "roles",
+		"roles" : [ "Bot_manager" ],
+		"aliases": [ ],
+		"example": [ ".load <arg>" ],
+		"description": [
+			"loads the commands in the class <arg>.",
+			"The classes and their corresponding commands can be determined using the \".help\" command."
+		]
+	},
+	"unload" : {
+		"class": "Administration",
+		"access": "roles",
+		"roles" : [ "Bot_manager" ],
+		"aliases": [ ],
+		"example": [ ".unload <arg>" ],
+		"description": [
+			"unloads the commands in the class <arg>.",
+			" The classes and their corresponding commands can be determined using the \".help\" command."
+		]
+	},
+	"reload" : {
+		"class": "Administration",
+		"access": "roles",
+		"roles" : [ "Bot_manager" ],
+		"aliases": [ ],
+		"example": [".reload <arg>" ],
+		"description": [
+			"reloads the commands in the class <arg>.",
+			"The classes and their corresponding commands can be determined using the \".help\" command."
+		]
+	},
+	"frequency" : {
+		"class": "Administration",
+		"access" : "roles",
+		"roles" : ["Bot_manager"],
+		"aliases": [ ],
+		"example": [
+			".frequency command",
+			".frequency day",
+			".frequency command hour"
+		],
+		"description" : [
+			"creates a graph to show some statistics regarding the command usage.",
+			"the different way to count up the command usage are: \"command\", \"year\", \"month\", \"day\"",
+			"\"hour\", \"channel_aliases\", \"invoked_with\", \"invoked_subcommand\"",
+			"You may optionally choose to group the entries such that all the times that a certain command was executed on a certain day are counted together",
+			"You can do this with the command \".frequency command day\""
+		]
+	},
+	"exc" : {
+		"class": "Administration",
+		"access": "roles",
+		"roles" : [ "Bot_manager" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": [
+			"executes the command <arg> on the bot server.",
+			"The classes and their corresponding commands can be determined using the \".help\" command."
+		]
+	},
+	"ping" : {
+		"class": "HealthChecks",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".ping" ],
+		"description": [ "returns pong!" ]
+	},
+	"echo" : {
+		"class": "HealthChecks",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".echo <arg>" ],
+		"description": [ "returns <arg>" ]
+	},
+	"here" : {
+		"class": "Here",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".here <filters> ..." ],
+		"description": [
+			"Displays all users with permissions to view the current channel.",
+			"Results can be filter by looking for users whose useraliases or nickaliases on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."
+		]
+	},
+	"emojispeak" : {
+		"class": "Misc",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [  ],
+		"example": [ ".emojispeak <args>" ],
+		"description": [ "returns <args> but in emoji format" ]
+	},"help" : {
+		"class": "Misc",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": ["man"],
+		"example": [ ".help", ".help man" ],
+		"description": [
+			"an interface to the reference manuals",
+			"help can be used with no argument in order to list each command and provide a brief overview of each command",
+			"In order to bring up specific examples of how to use each command, use \".man <command>\""
+		]
+	},
+	"poll" : {
+		"class": "Misc",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [
+			"`.poll \"<questions>\"`",
+			"`.poll \"<question>\" \"<answer1>\" \"<answer2>\" \"<answer3>\"`"
+		],
+		"description": [
+			"Commands to create a  poll in a channel.",
+			"Doing `.poll <arg>` starts a yes/no poll where <arg> is the question" ,
+			"A poll can also be created with multiple options. When choosing multiple options, you can specify up to 12 arguments"
+		]
+	},
+	"urban" : {
+		"class": "Misc",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [".urban <arg>"],
+		"description": [ "returns definition from urban dictionary of <arg>" ]
+	},
+	"wolfram" : {
+		"class": "Misc",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [".wolfram <arg>"],
+		"description": [ "returns the result of passing <arg> to Wolfram Alpha" ]
+	},
+	"embed" : {
+		"class": "Mod",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases": [ "em" ],
+		"example": [ ".embed <arg0> <arg1> ..." ],
+		"description": [
+			"Allows Minions to post embed messages.",
+			"For odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.",
+			"For even number there will be no description."
+		]
+	},
+	"modspeak" : {
+		"class": "Mod",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases": [ "warn" ] ,
+		"example": [ ".modspeak <arg>" ],
+		"description": [ "Posts the warning message <arg> in embed format. No quotes required with message." ]
+	},
+	"remindmein" : {
+		"class": "Reminders",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": ["remindmeat", "remindmeon" ],
+		"example": [
+			".remindmein <x minutes|hours|days> to <subject>",
+			".remindmeon <date (timezone)?> to <subject>",
+			".remindmeat <time (timezone)?> to <subject>",
+			".remindmeon <date (at)? time (timezone)?> to <subject>",
+			".remindmein <x days after date|today|tomorrow> to <subject>"
+		],
+		"description": [ "create a reminder" ]
+	},
+	"showreminders" : {
+		"class": "Reminders",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".showreminders" ],
+		"description": [ "Show all your active reminders and their corresponding messageIDs" ]
+	},
+	"deletereminder" : {
+		"class": "Reminders",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".deletereminder <arg>" ],
+		"description": [
+			"deletes a reminder that has a messageId of <arg>",
+			"the \"messageId\" can be obtained by using the \".showreminders\" command"
+		]
+	},
+	"newrole" : {
+		"class": "RoleCommands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [  ],
+		"example" : [ ".newrole <arg>" ],
+		"description": [ "creates roles <arg>" ]
+	},
+	"deleterole" : {
+		"class": "RoleCommands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [  ],
+		"example" : [ ".deleterole <arg>" ],
+		"description": [ "deletes roles <arg>" ]
+	},
+	"iam" : {
+		"class": "RoleCommands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [  ],
+		"example" : [ ".iam <arg>" ] ,
+		"description": [ "adds you to roles <arg>" ]
+	},
+	"iamn" : {
+		"class": "RoleCommands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [  ],
+		"example" : [ ".iamn <arg>" ],
+		"description": [ "removes you from roles <arg>" ]
+	},
+	"whois" : {
+		"class": "RoleCommands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [  ],
+		"example" : [ ".whois <arg>" ],
+		"description": [ "returns everyone who has roles <arg>" ]
+	},
+	"roles" : {
+		"class": "RoleCommands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example" : [ ".roles"],
+		"description": [ "will display all the self-assignable roles that exist" ]
+	},
+	"Roles" : {
+		"class": "RoleCommands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [  ],
+		"example" : [ ".Roles" ],
+		"description": [ "will display all the Mod/Exec/XP Assigned roles that exist" ]
+	},
+	"purgeroles" : {
+		"class": "RoleCommands",
+		"access": "permissions",
+		"permissions" : [ "manage_roles", "administrator" ] ,
+		"aliases": [ ],
+		"example": [ ".purgeroles" ],
+		"description": [ "deletes all empty self-assignable roles" ]
+	},
+	"sfu" : {
+		"class": "SFU",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".sfu <arg>" ],
+		"description": [ "Returns the calendar description from current semester of <arg>" ]
+	},
+	"outline" : {
+		"class": "SFU",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".outline <arg0> [<arg1> <arg2> next]" ],
+		"description": [
+			"Returns outline details of course `<arg0>`.",
+			"Defaults to current term and section d100.",
+			"Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`.",
+			"Added keyword `next` will look at next semesters oultine for `<arg0>`;Note `next` will return error if it is not registration time."
+		]
+	}
 }

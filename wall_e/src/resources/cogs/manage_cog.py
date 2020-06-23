@@ -45,28 +45,30 @@ class ManageCog(commands.Cog):
 
     # this check is used to ensure that users can only access commands that they have the rights to
     async def check_privilege(self, ctx):
-        if "{}".format(ctx.command) == "exit":
+        command_used = "{}".format(ctx.command)
+        if command_used == "exit":
             return True
-        for command_info in self.help_dict['commands']:
-            if "{}".format(ctx.command) in command_info['name']:
-                if command_info['access'] == 'roles':
-                    user_roles = [
-                        role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
-                    ]
-                    shared_roles = set(user_roles).intersection(command_info['roles'])
-                    if (len(shared_roles) == 0):
-                        await ctx.send(
-                            "You do not have adequate permission to execute this command, incident will be reported"
-                        )
-                    return (len(shared_roles) > 0)
-                if command_info['access'] == 'permissions':
-                    user_perms = await get_list_of_user_permissions(ctx)
-                    shared_perms = set(user_perms).intersection(command_info['permissions'])
-                    if (len(shared_perms) == 0):
-                        await ctx.send(
-                            "You do not have adequate permission to execute this command, incident will be reported"
-                        )
-                    return (len(shared_roles) > 0)
+        if command_used not in self.help_dict:
+            return False
+        command_info = self.help_dict[command_used]
+        if command_info['access'] == 'roles':
+            user_roles = [
+                role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
+            ]
+            shared_roles = set(user_roles).intersection(command_info['roles'])
+            if (len(shared_roles) == 0):
+                await ctx.send(
+                    "You do not have adequate permission to execute this command, incident will be reported"
+                )
+            return (len(shared_roles) > 0)
+        if command_info['access'] == 'permissions':
+            user_perms = await get_list_of_user_permissions(ctx)
+            shared_perms = set(user_perms).intersection(command_info['permissions'])
+            if (len(shared_perms) == 0):
+                await ctx.send(
+                    "You do not have adequate permission to execute this command, incident will be reported"
+                )
+            return (len(shared_roles) > 0)
         return False
 
     ########################################################
