@@ -1,4 +1,4 @@
-debugger.pyimport asyncio
+import asyncio
 import discord
 import logging
 import aiohttp
@@ -58,7 +58,7 @@ async def determine_disconnect_issues(bot, config):
                 # breaks it down into 2000 sizes messages and send them individually
                 try:
                     await.channel.send(incrementor)
-                    incrementor+=1
+                    incrementor += 1
                 except (aiohttp.ClientError):
                     exc_str = '{}: {}'.format(type(exc).__name__, exc)
                     logger.error(
