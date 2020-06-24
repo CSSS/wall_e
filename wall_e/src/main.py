@@ -9,6 +9,7 @@ from resources.utilities.database import setup_database, setup_stats_of_command_
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
+from resources.utilities.debugger import determine_disconnect_issues
 
 bot = commands.Bot(command_prefix='.')
 
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error("[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
                      "following error{}".format(e))
-
+    bot.loop.create_task(determine_disconnect_issues(bot, WallEConfig))
     # load the code dealing with test server interaction
     try:
         bot.add_cog(ManageCog(bot, WallEConfig))
