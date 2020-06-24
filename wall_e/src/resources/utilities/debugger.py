@@ -37,6 +37,8 @@ async def determine_disconnect_issues(bot, config):
         bot_log_channel = log_channel.id
     elif env == "PRODUCTION":
         log_channel = discord.utils.get(bot.guilds[0].channels, name=log_channel_name)
+        if log_channel is None:
+            log_channel = await bot.guilds[0].create_text_channel(log_channel_name)
         bot_log_channel = log_channel.id
 
     channel = bot.get_channel(bot_log_channel)  # channel ID goes here
