@@ -53,23 +53,20 @@ async def determine_disconnect_issues(bot, config):
         while not bot.is_closed():
             incrementor = 1
             while True:
-                # done because discord has a character limit of 2000 for each message
-                # so what basically happens is it first tries to send the full message, then if it cant, it
-                # breaks it down into 2000 sizes messages and send them individually
                 try:
-                    await.channel.send(incrementor)
+                    await channel.send(incrementor)
                     incrementor += 1
-                except (aiohttp.ClientError):
+                except (aiohttp.ClientError) as exc:
                     exc_str = '{}: {}'.format(type(exc).__name__, exc)
                     logger.error(
                         '[debugger.py determine_disconnect_issues] encountered ClientError\n{}'.format(exc_str)
                     )
-                except (discord.errors.HTTPException):
+                except (discord.errors.HTTPException) as exc:
                     exc_str = '{}: {}'.format(type(exc).__name__, exc)
                     logger.error(
                         '[debugger.py determine_disconnect_issues] encountered HTTPException\n{}'.format(exc_str)
                     )
-                except RuntimeError:
+                except RuntimeError as exc:
                     exc_str = '{}: {}'.format(type(exc).__name__, exc)
                     logger.error(
                         '[debugger.py determine_disconnect_issues] encountered RuntimeError\n{}'.format(exc_str)
