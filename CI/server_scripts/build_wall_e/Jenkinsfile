@@ -55,17 +55,17 @@ pipeline {
                         export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
                         export BRANCH_NAME=${BRANCH_NAME};
                         export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
-                        ./CI/server_scripts/build_wall_e/create-prod-docker-image.sh
+                        ./CI/server_scripts/build_wall_e/create_prod_docker_image.sh
                     \'"""
                 }
             }
         }
-
         stage('Deploy To Test Guild'){
             steps {
                 withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'TOKEN'),
                 string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')]) {
                     sh label: '', script: """bash -c \'
+                        export CONTAINER_HOME_DIR=/usr/src/app;
                         export ENVIRONMENT=TEST;
                         export BRANCH_NAME=${BRANCH_NAME};
                         export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
@@ -81,7 +81,7 @@ pipeline {
                         export TOKEN="'"${TOKEN}"'";
                         export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-                        ./CI/server_scripts/build_wall_e/deploy-to-test-server.sh;
+                        ./CI/server_scripts/build_wall_e/deploy_to_staging_discord_guild.sh;
                     \'"""
                 }
             }

@@ -20,6 +20,7 @@ export docker_registry="sfucsssorg"
 
 export wall_e_top_base_image="wall_e"
 export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
+export WALL_E_BASE_ORIGIN_NAME="sfucsssorg/wall_e_python"
 export wall_e_top_base_image_requirements_file_locatiom="wall_e/src/requirements.txt"
 
 export wall_e_bottom_base_image="wall_e_python"
