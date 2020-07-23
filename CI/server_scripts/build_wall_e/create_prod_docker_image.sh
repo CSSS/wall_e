@@ -16,28 +16,33 @@ if [ -z "${BRANCH_NAME}" ]; then
     exit 1
 fi
 
-export docker_registry="sfucsssorg"
-
-export wall_e_top_base_image="wall_e"
-export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
-export WALL_E_BASE_ORIGIN_NAME="sfucsssorg/wall_e_python"
-export wall_e_top_base_image_requirements_file_locatiom="wall_e/src/requirements.txt"
-
-export wall_e_bottom_base_image="wall_e_python"
-export wall_e_bottom_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.python_base"
-export wall_e_bottom_base_image_requirements_file_locatiom="CI/server_scripts/build_wall_e/python-base-requirements.txt"
-
-export commit_folder="wall_e_commits"
-
 export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
 
+
+export docker_registry="sfucsssorg"
+
+# used if the bottom base image needs to be re-created
+export wall_e_bottom_base_image="wall_e_python"
+
+# used if the bottom or top base image needs to be re-created
+export wall_e_top_base_image="wall_e"
+export wall_e_bottom_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.python_base"
+export wall_e_bottom_base_image_requirements_file_locatiom="CI/server_scripts/build_wall_e/python-base-requirements.txt"
+export WALL_E_PYTHON_BASE_IMAGE="${docker_registry}/${wall_e_bottom_base_image}"
+export WALL_E_BASE_IMAGE="${docker_registry}/${wall_e_top_base_image}"
+export commit_folder="wall_e_commits"
 export test_container_db_name="TEST_${BRANCH_NAME}_wall_e_db"
 export test_container_name="TEST_${BRANCH_NAME}_wall_e"
 export test_image_name="test_${branch_name}_wall_e"
 export prod_container_name="PRODUCTION_${BRANCH_NAME}_wall_e"
 export prod_image_name="production_${branch_name}_wall_e"
 
+# used to specify origin name in Dockerfile.wall_e_base
+export WALL_E_BASE_ORIGIN_NAME="${WALL_E_PYTHON_BASE_IMAGE}"
 
+# used if the top base image needs to be re-created
+export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
+export wall_e_top_base_image_requirements_file_location="wall_e/src/requirements.txt"
 
 export current_commit=$(git log -1 --pretty=format:"%H")
 
@@ -45,15 +50,15 @@ re_create_bottom_base_image () {
     docker stop "${test_container_db_name}" "${test_container_name}" "${prod_container_name}" || true
     docker rm "${test_container_db_name}" "${test_container_name}" "${prod_container_name}" || true
     docker image rm -f "${prod_image_name}" "${test_image_name}" "${wall_e_bottom_base_image}" \
-        "${wall_e_top_base_image}" "${docker_registry}/${wall_e_bottom_base_image}" \
-        "${docker_registry}/${wall_e_top_base_image}" || true
+        "${wall_e_top_base_image}" "${WALL_E_PYTHON_BASE_IMAGE}" \
+        "${WALL_E_BASE_IMAGE}" || true
     docker build --no-cache -t ${wall_e_bottom_base_image} -f ${wall_e_bottom_base_image_dockerfile} .
-    docker tag ${wall_e_bottom_base_image} ${docker_registry}/${wall_e_bottom_base_image}
+    docker tag ${wall_e_bottom_base_image} ${WALL_E_PYTHON_BASE_IMAGE}
     echo "${DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
-    docker push ${docker_registry}/${wall_e_bottom_base_image}
+    docker push ${WALL_E_PYTHON_BASE_IMAGE}
     mkdir -p "${JENKINS_HOME}"/"${commit_folder}"
     echo "${current_commit}" > "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base"
-    docker image rm "${docker_registry}/${wall_e_bottom_base_image}" "${wall_e_bottom_base_image}"
+    docker image rm "${WALL_E_PYTHON_BASE_IMAGE}" "${wall_e_bottom_base_image}"
 }
 
 if [ ! -f "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base" ]; then
@@ -78,15 +83,15 @@ re_create_top_base_image () {
     docker stop "${test_container_db_name}" "${test_container_name}" "${prod_container_name}" || true
     docker rm "${test_container_db_name}" "${test_container_name}" "${prod_container_name}" || true
     docker image rm -f "${prod_image_name}" "${test_image_name}" "${wall_e_top_base_image}" \
-        "${docker_registry}/${wall_e_top_base_image}" || true
+        "${WALL_E_BASE_IMAGE}" || true
     docker build --no-cache -t ${wall_e_top_base_image} -f ${wall_e_top_base_image_dockerfile} \
         --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} .
-    docker tag ${wall_e_top_base_image} ${docker_registry}/${wall_e_top_base_image}
+    docker tag ${wall_e_top_base_image} ${WALL_E_BASE_IMAGE}
     echo "${DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
-    docker push ${docker_registry}/${wall_e_top_base_image}
+    docker push ${WALL_E_BASE_IMAGE}
     mkdir -p "${JENKINS_HOME}"/"${commit_folder}"
     echo "${current_commit}" > "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_wall_e_base"
-    docker image rm "${docker_registry}/${wall_e_top_base_image}" "${wall_e_top_base_image}" "${docker_registry}/${wall_e_bottom_base_image}"
+    docker image rm "${WALL_E_BASE_IMAGE}" "${wall_e_top_base_image}" "${WALL_E_PYTHON_BASE_IMAGE}"
     exit 0
 }
 
@@ -99,7 +104,7 @@ else
     files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
     for file_changed in "${files_changed[@]}"
     do
-        if [[ "${file_changed}" == "${wall_e_top_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_top_base_image_dockerfile}" ]]; then
+        if [[ "${file_changed}" == "${wall_e_top_base_image_requirements_file_location}" || "${file_changed}" == "${wall_e_top_base_image_dockerfile}" ]]; then
             echo "will need to re-create docker image ${wall_e_top_base_image}"
             re_create_top_base_image
         fi
