@@ -14,6 +14,7 @@ if [ -z "${BRANCH_NAME}" ]; then
     echo "BRANCH_NAME is not set"
     exit 1
 fi
+git fetch
 
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
