@@ -26,7 +26,7 @@ export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
 # the variables required if either of the wall-e docker images need to be re-created
 export commit_folder="wall_e_commits"
-export GIT_LATEST_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_MASTER"
+export GIT_LATEST_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master"
 export test_image_name="test_${branch_name}_wall_e"
 export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
 export current_commit=$(git log -1 --pretty=format:"%H")
