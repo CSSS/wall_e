@@ -14,7 +14,6 @@ if [ -z "${BRANCH_NAME}" ]; then
     echo "BRANCH_NAME is not set"
     exit 1
 fi
-git fetch
 
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
@@ -26,8 +25,9 @@ export compose_project_name_lower_case=$(echo "$COMPOSE_PROJECT_NAME" | awk '{pr
 export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
 # the variables required if either of the wall-e docker images need to be re-created
-export test_image_name="test_${branch_name}_wall_e"
 export commit_folder="wall_e_commits"
+export GIT_LATEST_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_MASTER"
+export test_image_name="test_${branch_name}_wall_e"
 export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
 export current_commit=$(git log -1 --pretty=format:"%H")
 export wall_e_top_base_image="${branch_name}_wall_e_base_image"
@@ -58,7 +58,7 @@ re_create_bottom_base_image () {
 }
 if [ ! -f "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base" ]; then
     echo "No previous commits detected. Will revert to the git commit from master"
-    export previous_commit=$(git log master -1 --pretty=format:"%H")
+    export previous_commit=$(cat ${GIT_LATEST_MASTER_COMMIT_FILE})
 else
     echo "previous commit detected. Will now test to se if re-creation is needed"
     export previous_commit=$(cat "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base")
@@ -90,7 +90,7 @@ re_create_top_base_image () {
 
 if [ ! -f "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_wall_e_base" ]; then
     echo "No previous commits detected. Will revert to the git commit from master"
-    export previous_commit=$(git log master -1 --pretty=format:"%H")
+    export previous_commit=$(cat ${GIT_LATEST_MASTER_COMMIT_FILE})
 
 else
     echo "previous commit detected. Will now test to se if re-creation is needed"
