@@ -114,7 +114,7 @@ pipeline {
 
                         export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-                        ./CI/server_scripts/build_wall_e/deploy-to-prod-server.sh;
+                        ./CI/server_scripts/build_wall_e/deploy_to_prod_server.sh;
                     \'"""
                 }
             }
