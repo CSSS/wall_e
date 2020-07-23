@@ -4,6 +4,8 @@ services:  #Services that are needed for the wall_e app
         build:
             context: ../../../ #Saying that all of my source files are at the root path
             dockerfile: CI/server_scripts/build_wall_e/Dockerfile.wall_e
+            args:
+              - ORIGIN_IMAGE
         environment:
             - TOKEN
             - BOT_LOG_CHANNEL
