@@ -37,9 +37,6 @@ export test_image_name="test_${branch_name}_wall_e"
 export prod_container_name="PRODUCTION_${BRANCH_NAME}_wall_e"
 export prod_image_name="production_${branch_name}_wall_e"
 
-# used to specify origin name in Dockerfile.wall_e_base
-export WALL_E_BASE_ORIGIN_NAME="${WALL_E_PYTHON_BASE_IMAGE}"
-
 # used if the top base image needs to be re-created
 export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 export wall_e_top_base_image_requirements_file_location="wall_e/src/requirements.txt"
@@ -85,7 +82,7 @@ re_create_top_base_image () {
     docker image rm -f "${prod_image_name}" "${test_image_name}" "${wall_e_top_base_image}" \
         "${WALL_E_BASE_IMAGE}" || true
     docker build --no-cache -t ${wall_e_top_base_image} -f ${wall_e_top_base_image_dockerfile} \
-        --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} .
+        --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} --build-arg WALL_E_BASE_ORIGIN_NAME=${WALL_E_PYTHON_BASE_IMAGE} .
     docker tag ${wall_e_top_base_image} ${WALL_E_BASE_IMAGE}
     echo "${DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
     docker push ${WALL_E_BASE_IMAGE}
