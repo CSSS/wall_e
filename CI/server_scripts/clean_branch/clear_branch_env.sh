@@ -60,6 +60,16 @@ deleted_discord_branch_channels () {
 destroy_docker_resources () {
 	export COMPOSE_PROJECT_NAME="TEST_${1}"
 	./CI/destroy-dev-env.sh
+	export wall_e_top_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_base_image" | awk '{print tolower($0)}')
+	export test_image_name=$(echo "${COMPOSE_PROJECT_NAME}_wall_e" | awk '{print tolower($0)}')
+	export wall_e_bottom_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_python_base_image" | awk '{print tolower($0)}')
+	docker image rm "${wall_e_top_base_image}" || true
+	docker image rm "${test_image_name}" || true
+	docker image rm "${wall_e_bottom_base_image}" || true
+	if [ ! -z "${JENKINS_HOME}" ]; then
+			rm "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base" || true
+			rm "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_wall_e_base" || true
+	fi
 
 }
 
