@@ -27,10 +27,10 @@ export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 # the variables required if either of the wall-e docker images need to be re-created
 export commit_folder="wall_e_commits"
 export GIT_LATEST_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master"
-export test_image_name="test_${branch_name}_wall_e"
+export test_image_name=$(echo "${COMPOSE_PROJECT_NAME}_wall_e" | awk '{print tolower($0)}')
 export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
 export current_commit=$(git log -1 --pretty=format:"%H")
-export wall_e_top_base_image="${branch_name}_wall_e_base_image"
+export wall_e_top_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_base_image" | awk '{print tolower($0)}')
 export wall_e_bottom_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.python_base"
 export wall_e_bottom_base_image_requirements_file_locatiom="CI/server_scripts/build_wall_e/python-base-requirements.txt"
 
@@ -39,8 +39,7 @@ export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfi
 export wall_e_top_base_image_requirements_file_locatiom="wall_e/src/requirements.txt"
 
 # the variables required if only the python base docker images need to be re-created
-export wall_e_bottom_base_image="${branch_name}_wall_e_python_base_image"
-
+export wall_e_bottom_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_python_base_image" | awk '{print tolower($0)}')
 
 ./CI/destroy-dev-env.sh
 
