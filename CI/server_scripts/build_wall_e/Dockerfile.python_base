@@ -10,13 +10,11 @@ RUN apk add postgresql-dev
 # * freetype, png
 RUN apk add freetype-dev
 
-
 # Traceback (most recent call last):
 #   File "/tmp/easy_install-2ga6txzl/numpy-1.18.1/tools/cythonize.py", line 61, in process_pyx
 #     from Cython.Compiler.Version import version as cython_version
 # ImportError: No module named 'Cython'
 RUN pip install --no-cache-dir Cython
-
 
 # RuntimeError: Broken toolchain: cannot link a simple C program
 RUN apk add --update alpine-sdk
