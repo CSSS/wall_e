@@ -15,7 +15,7 @@
 ## Running the Bot without Docker
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) for future reference :)
 
-Pre-requisites: `git`, `python3.5`
+Pre-requisites: `git`, `python3.8.5`
 
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 2. Clone the repo
@@ -32,13 +32,13 @@ Pre-requisites: `git`, `python3.5`
 *Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
 
 ```shell
-python3.5 -m virtualenv ENV
+python3.8 -m virtualenv ENV
 . ENV/bin/activate
 mkdir logs
 export ENVIRONMENT=LOCALHOST;
 //ensure that DB_ENBLED is set to 0 via whatever method you want
-python3.5 -m pip install -r requirements.txt
-python3.5 wall_e/src/main.py
+python3.8 -m pip install -r requirements.txt
+python3.8 wall_e/src/main.py
 ```
 
 ## Testing the bot
@@ -48,9 +48,9 @@ python3.5 wall_e/src/main.py
 Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
 
 ```shell
-python3.5 -m virtualenv testENV
+python3.8 -m virtualenv testENV
 . testENV/bin/activate
-python3.5 -m pip install -r wall_e/test/test-requirements.txt
+python3.8 -m pip install -r wall_e/test/test-requirements.txt
 cp wall_e/test/pytest.ini wall_e/src/.
 cp wall_e/test/validate-line-endings.sh wall_e/src/.
 cp wall_e/test/setup.cfg wall_e/src/.
