@@ -120,7 +120,7 @@ done
 
 if [ $file_change_detected -eq 0 ]; then
   image_id=$(docker images -q "${wall_e_bottom_base_image}")
-  if [ "${image_id}" == "" ]; then
+  if [ "${image_id}" != "" ]; then
     export ORIGIN_IMAGE="${wall_e_top_base_image}"
   fi
 fi
