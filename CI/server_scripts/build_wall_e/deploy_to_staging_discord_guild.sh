@@ -17,11 +17,16 @@ fi
 
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
+# the names of the container and docker-compose file used for wall_e that is running under the current `COMPOSE_PROJECT_NAME`
 export test_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export test_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 export test_image_name=$(echo "${test_container_name}" | awk '{print tolower($0)}')
 export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
+# the names of the files that record which branches' commits are the latest that have triggered a re-build so far
+# the path for master is also here because if the build is running for a non-master branch, the code is checked out in a
+# dettached state which does not allow for using a command like `git log master -1`. Instead have to resort to reading from the lastest
+# commit that the master recorded in the file
 export commit_folder="wall_e_commits"
 export WALL_E_PYTHON_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJECT_NAME}_python_base"
 export WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master_python_base"
@@ -29,13 +34,14 @@ export WALL_E_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJE
 export WALL_E_BASE_COMMIT_MASTER_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master_wall_e_base"
 export current_commit=$(git log -1 --pretty=format:"%H")
 
-
+# the name of the docker image that will get assigned to the foundational images that are created or used if one of the tracked
+# files are changed
 export wall_e_top_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_base_image" | awk '{print tolower($0)}')
 export wall_e_bottom_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_python_base_image" | awk '{print tolower($0)}')
 
+# the tracked files
 export wall_e_bottom_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.python_base"
 export wall_e_bottom_base_image_requirements_file_locatiom="CI/server_scripts/build_wall_e/python-base-requirements.txt"
-
 export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 export wall_e_top_base_image_requirements_file_locatiom="wall_e/src/requirements.txt"
 
@@ -74,6 +80,9 @@ do
     fi
 done
 
+# this piece of logic exists in the case where the current commit did not change a tracked file but the previous commit did
+# this way, even though the above logic would set the WALL_E_BASE_ORIGIN_NAME to the repo on sfucsssorg, the below logic will make sure
+# that if the wall_e_bottom_base_image image does exist, it will be used.
 if [ $file_change_detected -eq 0 ]; then
   image_id=$(docker images -q "${wall_e_bottom_base_image}")
   if [ "${image_id}" != "" ]; then
