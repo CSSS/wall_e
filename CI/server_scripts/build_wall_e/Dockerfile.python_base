@@ -1,4 +1,4 @@
-FROM python:3.5.5-alpine
+FROM python:3.8.5-alpine
 
 # pg_config is required to build psycopg2 from source.  Please add the directory
 #    containing pg_config to the $PATH or specify the full executable path with the
@@ -20,6 +20,10 @@ RUN pip install --no-cache-dir Cython
 
 # RuntimeError: Broken toolchain: cannot link a simple C program
 RUN apk add --update alpine-sdk
+
+# The headers or library files could not be found for jpeg,
+#     a required dependency when compiling Pillow from source.
+RUN apk add jpeg-dev
 
 COPY CI/server_scripts/build_wall_e/python-base-requirements.txt .
 RUN pip install --no-cache-dir -r python-base-requirements.txt
