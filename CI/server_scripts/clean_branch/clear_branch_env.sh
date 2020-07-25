@@ -67,8 +67,11 @@ destroy_docker_resources () {
 	docker image rm "${test_image_name}" || true
 	docker image rm "${wall_e_bottom_base_image}" || true
 	if [ ! -z "${JENKINS_HOME}" ]; then
-			rm "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base" || true
-			rm "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_wall_e_base" || true
+			export commit_folder="wall_e_commits"
+			export WALL_E_PYTHON_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJECT_NAME}_python_base"
+			export WALL_E_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJECT_NAME}_wall_e_base"
+			rm "${WALL_E_PYTHON_BASE_COMMIT_FILE}" || true
+			rm "${WALL_E_BASE_COMMIT_FILE}" || true
 	fi
 
 }
