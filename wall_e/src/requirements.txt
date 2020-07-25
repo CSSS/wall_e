@@ -4,4 +4,4 @@ discord.py[voice]==1.3.4
 pytz==2018.5
 parsedatetime==2.4
 wolframalpha==3.0.1
-configparser
+configparser==5.0.0
