@@ -90,7 +90,7 @@ async def on_member_join(member):
             logger.info("[main.py on_member_join] embed sent to member {}".format(member))
 
 ####################
-# STARTING POINT ##
+# THE STARTING POINT ##
 ####################
 if __name__ == "__main__":
     logger, FILENAME = initialize_logger()
