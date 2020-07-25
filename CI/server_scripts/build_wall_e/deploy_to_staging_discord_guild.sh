@@ -17,29 +17,34 @@ fi
 
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
-# the variables required to check if the wall_e staging version successfully deployed to the staging discord guild
+# the names of the container and docker-compose file used for wall_e that is running under the current `COMPOSE_PROJECT_NAME`
 export test_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export test_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
-export test_image_name_lower_case=$(echo "$test_container_name" | awk '{print tolower($0)}')
-export compose_project_name_lower_case=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
+export test_image_name=$(echo "${test_container_name}" | awk '{print tolower($0)}')
 export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
-# the variables required if either of the wall-e docker images need to be re-created
+# the names of the files that record which branches' commits are the latest that have triggered a re-build so far
+# the path for master is also here because if the build is running for a non-master branch, the code is checked out in a
+# dettached state which does not allow for using a command like `git log master -1`. Instead have to resort to reading from the lastest
+# commit that the master recorded in the file
 export commit_folder="wall_e_commits"
-export GIT_LATEST_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master"
-export test_image_name=$(echo "${COMPOSE_PROJECT_NAME}_wall_e" | awk '{print tolower($0)}')
-export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
+export WALL_E_PYTHON_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJECT_NAME}_python_base"
+export WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master_python_base"
+export WALL_E_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJECT_NAME}_wall_e_base"
+export WALL_E_BASE_COMMIT_MASTER_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master_wall_e_base"
 export current_commit=$(git log -1 --pretty=format:"%H")
+
+# the name of the docker image that will get assigned to the foundational images that are created or used if one of the tracked
+# files are changed
 export wall_e_top_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_base_image" | awk '{print tolower($0)}')
+export wall_e_bottom_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_python_base_image" | awk '{print tolower($0)}')
+
+# the tracked files
 export wall_e_bottom_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.python_base"
 export wall_e_bottom_base_image_requirements_file_locatiom="CI/server_scripts/build_wall_e/python-base-requirements.txt"
-
-# the variables required if only the wall_e base docker images need to be re-created
 export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 export wall_e_top_base_image_requirements_file_locatiom="wall_e/src/requirements.txt"
 
-# the variables required if only the python base docker images need to be re-created
-export wall_e_bottom_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_python_base_image" | awk '{print tolower($0)}')
 
 ./CI/destroy-dev-env.sh
 
@@ -52,48 +57,61 @@ re_create_bottom_base_image () {
     docker image rm -f "${test_image_name}" "${wall_e_bottom_base_image}" "${wall_e_top_base_image}" || true
     docker build --no-cache -t ${wall_e_bottom_base_image} -f ${wall_e_bottom_base_image_dockerfile} .
     mkdir -p "${JENKINS_HOME}"/"${commit_folder}"
-    echo "${current_commit}" > "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base"
+    echo "${current_commit}" > "${WALL_E_PYTHON_BASE_COMMIT_FILE}"
     export WALL_E_BASE_ORIGIN_NAME="${wall_e_bottom_base_image}"
 }
-if [ ! -f "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base" ]; then
-    echo "No previous commits detected. Will revert to the git commit from master"
-    export previous_commit=$(cat ${GIT_LATEST_MASTER_COMMIT_FILE})
-else
+if [ -f "${WALL_E_PYTHON_BASE_COMMIT_FILE}" ]; then
     echo "previous commit detected. Will now test to se if re-creation is needed"
-    export previous_commit=$(cat "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_python_base")
+    export previous_commit=$(cat "${WALL_E_PYTHON_BASE_COMMIT_FILE}")
 
+else
+  echo "No previous commits detected. Will revert to the git commit from master"
+  export previous_commit=$(cat ${WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE})
 fi
+export file_change_detected=0
 files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
 for file_changed in "${files_changed[@]}"
 do
     if [[ "${file_changed}" == "${wall_e_bottom_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_bottom_base_image_dockerfile}" ]]; then
+        export file_change_detected=1
         echo "will need to re-create docker image ${wall_e_bottom_base_image}"
         re_create_bottom_base_image
         break
     fi
 done
 
+# this piece of logic exists in the case where the current commit did not change a tracked file but the previous commit did
+# this way, even though the above logic would set the WALL_E_BASE_ORIGIN_NAME to the repo on sfucsssorg, the below logic will make sure
+# that if the wall_e_bottom_base_image image does exist, it will be used.
+if [ $file_change_detected -eq 0 ]; then
+  image_id=$(docker images -q "${wall_e_bottom_base_image}")
+  if [ "${image_id}" != "" ]; then
+    export WALL_E_BASE_ORIGIN_NAME="${wall_e_bottom_base_image}"
+  fi
+fi
+
+
 # handles creating the waLl_e base image
 # will result in the origin name for the wall_e image to be set to either "sfucsssorg/wall_e" [if no change is needed] or $wall_e_top_base_image [if the image had to be built]
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
 re_create_top_base_image () {
+    export file_change_detected=1
     docker stop "${test_container_db_name}" "${test_container_name}" || true
     docker rm "${test_container_db_name}" "${test_container_name}"|| true
     docker image rm -f "${test_image_name}" "${wall_e_top_base_image}" || true
-    docker build --no-cache -t ${wall_e_top_base_image} -f ${wall_e_top_base_image_dockerfile} \
-        --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} --build-arg WALL_E_BASE_ORIGIN_NAME=${WALL_E_BASE_ORIGIN_NAME} .
+    docker build --no-cache -t ${wall_e_top_base_image} -f ${wall_e_top_base_image_dockerfile} --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} --build-arg WALL_E_BASE_ORIGIN_NAME=${WALL_E_BASE_ORIGIN_NAME} .
     mkdir -p "${JENKINS_HOME}"/"${commit_folder}"
-    echo "${current_commit}" > "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_wall_e_base"
+    echo "${current_commit}" > "${WALL_E_BASE_COMMIT_FILE}"
     export ORIGIN_IMAGE="${wall_e_top_base_image}"
   }
 
-if [ ! -f "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_wall_e_base" ]; then
-    echo "No previous commits detected. Will revert to the git commit from master"
-    export previous_commit=$(cat ${GIT_LATEST_MASTER_COMMIT_FILE})
-
-else
+export file_change_detected=0
+if [ -f "${WALL_E_BASE_COMMIT_FILE}" ]; then
     echo "previous commit detected. Will now test to se if re-creation is needed"
-    previous_commit=$(cat "${JENKINS_HOME}"/"${commit_folder}"/"${COMPOSE_PROJECT_NAME}_wall_e_base")
+    previous_commit=$(cat "${WALL_E_BASE_COMMIT_FILE}")
+else
+  echo "No previous commits detected. Will revert to the git commit from master"
+  export previous_commit=$(cat ${WALL_E_BASE_COMMIT_MASTER_FILE})
 fi
 files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
 for file_changed in "${files_changed[@]}"
@@ -109,6 +127,12 @@ do
     fi
 done
 
+if [ $file_change_detected -eq 0 ]; then
+  image_id=$(docker images -q "${wall_e_bottom_base_image}")
+  if [ "${image_id}" != "" ]; then
+    export ORIGIN_IMAGE="${wall_e_top_base_image}"
+  fi
+fi
 
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
