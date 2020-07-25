@@ -75,9 +75,8 @@ do
 done
 
 if [ $file_change_detected -eq 0 ]; then
-  docker image inspect "${wall_e_bottom_base_image}"
-  RC=$?
-  if [ $RC -eq 0 ]; then
+  image_id=$(docker images -q "${wall_e_bottom_base_image}")
+  if [ "${image_id}" != "0" ]; then
     export WALL_E_BASE_ORIGIN_NAME="${wall_e_bottom_base_image}"
   fi
 fi
@@ -120,9 +119,8 @@ do
 done
 
 if [ $file_change_detected -eq 0 ]; then
-  docker image inspect "${wall_e_top_base_image}"
-  RC=$?
-  if [ $RC -eq 0 ]; then
+  image_id=$(docker images -q "${wall_e_bottom_base_image}")
+  if [ "${image_id}" != "0" ]; then
     export ORIGIN_IMAGE="${wall_e_top_base_image}"
   fi
 fi
