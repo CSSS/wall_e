@@ -24,9 +24,9 @@ export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
 export commit_folder="wall_e_commits"
 export WALL_E_PYTHON_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJECT_NAME}_python_base"
-export WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_MASTER_python_base"
+export WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master_python_base"
 export WALL_E_BASE_COMMIT_FILE="${JENKINS_HOME}/${commit_folder}/${COMPOSE_PROJECT_NAME}_wall_e_base"
-export WALL_E_BASE_COMMIT_MASTER_FILE="${JENKINS_HOME}/${commit_folder}/TEST_MASTER_wall_e_base"
+export WALL_E_BASE_COMMIT_MASTER_FILE="${JENKINS_HOME}/${commit_folder}/TEST_master_wall_e_base"
 export current_commit=$(git log -1 --pretty=format:"%H")
 
 
