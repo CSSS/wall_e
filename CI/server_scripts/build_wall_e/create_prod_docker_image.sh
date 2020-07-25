@@ -70,6 +70,7 @@ else
         if [[ "${file_changed}" == "${wall_e_bottom_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_bottom_base_image_dockerfile}" ]]; then
             echo "will need to re-create docker image ${wall_e_bottom_base_image}"
             re_create_bottom_base_image
+            break
         fi
     done
 fi
@@ -104,10 +105,12 @@ else
         if [[ "${file_changed}" == "${wall_e_top_base_image_requirements_file_location}" || "${file_changed}" == "${wall_e_top_base_image_dockerfile}" ]]; then
             echo "will need to re-create docker image ${wall_e_top_base_image}"
             re_create_top_base_image
+            break
         fi
         if [[ "${file_changed}" == "${wall_e_bottom_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_bottom_base_image_dockerfile}" ]]; then
             echo "will need to re-create docker image ${wall_e_top_base_image}"
             re_create_top_base_image
+            break
         fi
     done
 fi
