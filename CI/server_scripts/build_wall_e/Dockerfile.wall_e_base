@@ -10,8 +10,6 @@ WORKDIR $CONTAINER_HOME_DIR
 
 COPY wall_e/src/requirements.txt .
 
-RUN mkdir -p /jace/test
-
 RUN apk add --update libffi-dev && \
     pip install --no-cache-dir -r requirements.txt &&  \
     apk --update add postgresql-client
