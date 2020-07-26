@@ -16,6 +16,7 @@ node {
           git fetch --depth 1 origin;
           git checkout master;
           ./CI/server_scripts/clean_branch/clear_branch_env.sh \"${branch_name}\" \"${token}\";
+          ./CI/server_scripts/remove_foundational_image.sh \"${branch_name}\";
           cd ../;
           rm -fr wall_e;
         \'"""
