@@ -26,7 +26,7 @@ node {
               git remote add origin https://github.com/CSSS/wall_e.git;
               git fetch --depth 1 origin;
               git checkout master;
-              ./CI/server_scripts/clean_pr/clear_pr_env.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${token}\" \"{worlfram_api_token}\";
+              ./CI/server_scripts/process_pr_action/process_pr_action.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${token}\" \"{worlfram_api_token}\";
               cd ../;
               rm -fr wall_e;
               \'"""
