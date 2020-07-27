@@ -7,7 +7,7 @@ branch_name="${1}"
 token="${2}"
 
 deleted_discord_branch_channels () {
-	branch_name="${1}"
+	branch_name=$(echo "${1}" | awk '{print tolower($0)}')
 	token="${2}"
 
 	url="https://discordapp.com/api/users/@me/guilds"
