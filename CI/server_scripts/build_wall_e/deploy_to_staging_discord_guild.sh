@@ -69,7 +69,12 @@ else
   export previous_commit=$(cat ${WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE})
 fi
 export file_change_detected=0
-git log -1 "${previous_commit}"
+if git cat-file -e ${previous_commit} 2> /dev/null 
+then
+  echo exists
+else
+  echo missing
+fi
 files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
 for file_changed in "${files_changed[@]}"
 do
