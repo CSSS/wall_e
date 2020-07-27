@@ -54,7 +54,7 @@ re_create_bottom_base_image () {
     echo "${DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
     docker push ${WALL_E_PYTHON_BASE_IMAGE}
     mkdir -p "${JENKINS_HOME}"/"${commit_folder}"
-    echo "${current_commit}" > "${WALL_E_PYTHON_BASE_COMMIT_FILE}"
+
     docker image rm "${WALL_E_PYTHON_BASE_IMAGE}" "${wall_e_bottom_base_image}"
 }
 
@@ -86,7 +86,6 @@ re_create_top_base_image () {
     echo "${DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
     docker push ${WALL_E_BASE_IMAGE}
     mkdir -p "${JENKINS_HOME}"/"${commit_folder}"
-    echo "${current_commit}" > "${WALL_E_BASE_COMMIT_FILE}"
     docker image rm "${WALL_E_PYTHON_BASE_IMAGE}" "${wall_e_top_base_image}" "${WALL_E_BASE_IMAGE}"
     exit 0
 }
@@ -110,6 +109,9 @@ else
         fi
     done
 fi
+
+echo "${current_commit}" > "${WALL_E_PYTHON_BASE_COMMIT_FILE}"
+echo "${current_commit}" > "${WALL_E_BASE_COMMIT_FILE}"
 
 echo "No modifications were needed to the base images"
 exit 0
