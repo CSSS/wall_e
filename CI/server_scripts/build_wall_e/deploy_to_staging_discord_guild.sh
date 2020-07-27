@@ -69,7 +69,7 @@ else
   export previous_commit=$(cat ${WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE})
 fi
 export file_change_detected=0
-if git cat-file -e ${previous_commit} 2> /dev/null 
+if ! git cat-file -e ${previous_commit} 2> /dev/null 
 then
   echo exists
 else
