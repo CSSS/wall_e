@@ -91,7 +91,7 @@ if [ "${action}" = "closed" ]; then
 		export TOKEN=${token};
 		export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-		./CI/server_scripts/build_wall_e/deploy-to-test-server.sh;
+		./CI/server_scripts/build_wall_e/deploy_to_staging_discord_guild.sh;
 	fi
 fi
 
