@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PURPOSE: used be jenkins to launch Wall_e to the CSSS Staging Discord Guild
+# PURPOSE: used be jenkins to launch a branch's version of wall_e to the CSSS Staging Discord Guild
 
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
@@ -76,7 +76,6 @@ export file_change_detected=0
 # will see if this is the case and then will just revert to re-creating the bottom-image to make up for this discrepancy
 if git cat-file -e ${previous_commit} 2> /dev/null
 then
-    export previous_commit="${current_commit}"
     files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
     for file_changed in "${files_changed[@]}"
     do
