@@ -49,7 +49,8 @@ export wall_e_top_base_image_requirements_file_locatiom="wall_e/src/requirements
 ./CI/destroy-dev-env.sh
 
 # handles creating the python_base image
-# will result in the origin name for the wall_e base image to be set to either "sfucsssorg/wall_e_python" [if no change is needed] or $wall_e_bottom_base_image [if the image had to be built]
+# will result in the origin name for the wall_e base image to be set to either "sfucsssorg/wall_e_python" [if no change is needed]
+# or $wall_e_bottom_base_image [if the image had to be built]
 export WALL_E_BASE_ORIGIN_NAME="sfucsssorg/wall_e_python"
 re_create_bottom_base_image () {
     docker stop "${test_container_db_name}" "${test_container_name}" || true
@@ -61,7 +62,7 @@ re_create_bottom_base_image () {
     export WALL_E_BASE_ORIGIN_NAME="${wall_e_bottom_base_image}"
 }
 if [ -f "${WALL_E_PYTHON_BASE_COMMIT_FILE}" ]; then
-    echo "previous commit detected. Will now test to se if re-creation is needed"
+    echo "previous commit for current branch detected. Will now test to see if re-creation is needed"
     export previous_commit=$(cat "${WALL_E_PYTHON_BASE_COMMIT_FILE}")
 
 else
@@ -69,16 +70,27 @@ else
   export previous_commit=$(cat ${WALL_E_PYTHON_BASE_MASTER_COMMIT_FILE})
 fi
 export file_change_detected=0
-files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
-for file_changed in "${files_changed[@]}"
-do
-    if [[ "${file_changed}" == "${wall_e_bottom_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_bottom_base_image_dockerfile}" ]]; then
-        export file_change_detected=1
-        echo "will need to re-create docker image ${wall_e_bottom_base_image}"
-        re_create_bottom_base_image
-        break
-    fi
-done
+
+# if this is the first commit in a new branch and it is behind the master, then the previous_commit is
+# set to te most recent master commit which does not exist in the tree for this branch. In this case, the below logic
+# will see if this is the case and then will just revert to re-creating the bottom-image to make up for this discrepancy
+if git cat-file -e ${previous_commit} 2> /dev/null
+then
+    export previous_commit="${current_commit}"
+    files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
+    for file_changed in "${files_changed[@]}"
+    do
+      if [[ "${file_changed}" == "${wall_e_bottom_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_bottom_base_image_dockerfile}" ]]; then
+          export file_change_detected=1
+          echo "will need to re-create docker image ${wall_e_bottom_base_image}"
+          re_create_bottom_base_image
+          break
+      fi
+    done
+else
+    re_create_bottom_base_image
+fi
+
 
 # this piece of logic exists in the case where the current commit did not change a tracked file but the previous commit did
 # this way, even though the above logic would set the WALL_E_BASE_ORIGIN_NAME to the repo on sfucsssorg, the below logic will make sure
@@ -113,19 +125,24 @@ else
   echo "No previous commits detected. Will revert to the git commit from master"
   export previous_commit=$(cat ${WALL_E_BASE_COMMIT_MASTER_FILE})
 fi
-files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
-for file_changed in "${files_changed[@]}"
-do
-    if [[ "${file_changed}" == "${wall_e_top_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_top_base_image_dockerfile}" ]]; then
-        echo "will need to re-create docker image ${wall_e_top_base_image}"
-        re_create_top_base_image
-        break
-    elif [[ "${file_changed}" == "${wall_e_bottom_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_bottom_base_image_dockerfile}" ]]; then
-        echo "will need to re-create docker image ${wall_e_top_base_image}"
-        re_create_top_base_image
-        break
-    fi
-done
+if git cat-file -e ${previous_commit} 2> /dev/null
+then
+    files_changed=($(git diff --name-only "${current_commit}" "${previous_commit}"))
+    for file_changed in "${files_changed[@]}"
+    do
+        if [[ "${file_changed}" == "${wall_e_top_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_top_base_image_dockerfile}" ]]; then
+            echo "will need to re-create docker image ${wall_e_top_base_image}"
+            re_create_top_base_image
+            break
+        elif [[ "${file_changed}" == "${wall_e_bottom_base_image_requirements_file_locatiom}" || "${file_changed}" == "${wall_e_bottom_base_image_dockerfile}" ]]; then
+            echo "will need to re-create docker image ${wall_e_top_base_image}"
+            re_create_top_base_image
+            break
+        fi
+    done
+else
+    re_create_top_base_image
+fi
 
 if [ $file_change_detected -eq 0 ]; then
   image_id=$(docker images -q "${wall_e_bottom_base_image}")
