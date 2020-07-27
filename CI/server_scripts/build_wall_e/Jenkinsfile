@@ -138,7 +138,7 @@ pipeline {
                         status = true
                         withCredentials([string(credentialsId: 'DISCORD_PROD_TOKEN', variable: 'TOKEN')]) {
                             if (env.CHANGE_URL){
-                              sh "./CI/server_scripts/build_wall_e/tag_bot_member.sh \"${TOKEN}\" \"${CHANGE_ID}\" \"${CHANGE_URL}\""
+                              //sh "./CI/server_scripts/build_wall_e/tag_bot_member.sh \"${TOKEN}\" \"${CHANGE_ID}\" \"${CHANGE_URL}\""
                             }
                         }
                     }else{
