@@ -39,8 +39,6 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 *Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
 
 You will need to recreate the base docker image if you made changes to any of the following files
- * CI/server_scripts/build_wall_e/python-base-requirements.txt
- * CI/server_scripts/build_wall_e/Dockerfile.python_base
  * wall_e/src/requirements.txt
  * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
@@ -69,8 +67,6 @@ If you need to re-launch the bot after making some changes, enter the command `.
 *Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
 
 You will need to recreate the base docker image if you made changes to any of the following files
- * CI/server_scripts/build_wall_e/python-base-requirements.txt
- * CI/server_scripts/build_wall_e/Dockerfile.python_base
  * wall_e/src/requirements.txt
  * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
