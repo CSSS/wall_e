@@ -2,9 +2,7 @@
 import os
 import json
 import configparser
-from pathlib import Path
 from collections import OrderedDict
-import importlib
 
 import logging
 logger = logging.getLogger('wall_e')
