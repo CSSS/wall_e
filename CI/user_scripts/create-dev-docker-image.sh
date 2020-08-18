@@ -13,11 +13,6 @@ if [ -z "${COMPOSE_PROJECT_NAME}" ]; then
 	exit 1
 fi
 
-if [ -z "${WALL_E_BASE_ORIGIN_NAME}" ]; then
-	echo "WALL_E_BASE_ORIGIN_NAME needs to be set"
-	exit 1
-fi
-
 export test_base_image_name_lower_case=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_base | awk '{print tolower($0)}')
 export DOCKERFILE="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 export CONTAINER_HOME_DIR="/usr/src/app"
@@ -25,4 +20,4 @@ export CONTAINER_HOME_DIR="/usr/src/app"
 ./CI/destroy-dev-env.sh
 
 docker image rm -f "${test_base_image_name_lower_case}" || true
-docker build --no-cache -t ${test_base_image_name_lower_case} -f "${DOCKERFILE}" --build-arg WALL_E_BASE_ORIGIN_NAME="${WALL_E_BASE_ORIGIN_NAME=}" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .
+docker build --no-cache -t ${test_base_image_name_lower_case} -f "${DOCKERFILE}" --build-arg WALL_E_BASE_ORIGIN_NAME="sfucsssorg/wall_e_python" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .

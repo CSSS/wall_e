@@ -45,13 +45,13 @@ You will need to recreate the base docker image if you made changes to any of th
 ```shell
 export COMPOSE_PROJECT_NAME="project_name"
 export POSTGRES_PASSWORD="daPassword"
+//ensure that DB_ENBLED is set to 1 via whatever method you want
 if (you made changes to any of the files listed above){
-    export WALL_E_BASE_ORIGIN_NAME="sfucsssorg/wall_e_python"
     ./CI/user_scripts/create-dev-docker-image.sh
     export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 }else{
     export ORIGIN_IMAGE="sfucsssorg/wall_e"
-} 
+}
 ./CI/user_scripts/setup-dev-env.sh
 ```
 
@@ -74,14 +74,13 @@ You will need to recreate the base docker image if you made changes to any of th
 Commands To Run
 ```shell
 export COMPOSE_PROJECT_NAME="project_name"
+//ensure that DB_ENBLED is set to 0 via whatever method you want
 if (you made changes to any of the files listed above){
-    export WALL_E_BASE_ORIGIN_NAME="sfucsssorg/wall_e_python"
     ./CI/user_scripts/create-dev-docker-image.sh
     export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 }else{
     export ORIGIN_IMAGE="sfucsssorg/wall_e"
 }
-//ensure that DB_ENBLED is set to 0 via whatever method you want
 ./CI/user_scripts/setup-dev-env-no-db.sh
 ```
 
