@@ -34,11 +34,12 @@ Pre-requisites: `git`, `python3.8.5`
 ```shell
 python3.8 -m virtualenv ENV
 . ENV/bin/activate
+cd wall_e/src
 mkdir logs
 export ENVIRONMENT=LOCALHOST;
 //ensure that DB_ENBLED is set to 0 via whatever method you want
 python3.8 -m pip install -r requirements.txt
-python3.8 wall_e/src/main.py
+python3.8 main.py
 ```
 
 ## Testing the bot
@@ -52,7 +53,7 @@ python3.8 -m virtualenv testENV
 . testENV/bin/activate
 python3.8 -m pip install -r wall_e/test/test-requirements.txt
 cp wall_e/test/pytest.ini wall_e/src/.
-cp wall_e/test/validate-line-endings.sh wall_e/src/.
+cp wall_e/test/validate_line_endings.sh wall_e/src/.
 cp wall_e/test/setup.cfg wall_e/src/.
 py.test --junitxml=test_results.xml wall_e/src
 ./wall_e/src/validate-line-endings.sh

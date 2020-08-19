@@ -3,11 +3,7 @@
 - [Wiki: Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
 - [Running the Bot](#running-the-bot)  
   - [With the Database](#with-the-database)
-    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-docker-base-image-optional)
-    - [Step 2. Launching the Bot](#step-2-launching-the-bot)
   - [Without the Database](#without-the-database)
-    - [Step 1. Re-creating the docker base image](#step-1-re-creating-the-docker-base-image)
-    - [Step 2. Launching the Bot](#step-2-launching-the-bot-1)
 - [Testing the Bot](#testing-the-bot)
   - [Step 1. Run through the linter](#step-1-run-through-the-linter)
   - [Step 2. Testing on the CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
@@ -42,34 +38,24 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 
 *Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
 
-#### Step 1. Re-creating the docker base image (optional)
 You will need to recreate the base docker image if you made changes to any of the following files
- * CI/server_scripts/build_wall_e/python-base-requirements.txt
- * CI/server_scripts/build_wall_e/Dockerfile.python_base
  * wall_e/src/requirements.txt
  * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
-
-Commands to Run
 ```shell
 export COMPOSE_PROJECT_NAME="project_name"
- ./CI/user_scripts/create-dev-docker-image.sh
-```
-
-#### Step 2. Launching the Bot
-```shell
-export COMPOSE_PROJECT_NAME="project_name"
-
-# if you did not need to re-create the base image you can use
-export ORIGIN_IMAGE="sfucsssorg/wall_e"
-# otherwise, you will need to use the below commmand
-export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
 export POSTGRES_PASSWORD="daPassword"
-
+//ensure that DB_ENBLED is set to 1 via whatever method you want
+if (you made changes to any of the files listed above){
+    ./CI/user_scripts/create-dev-docker-image.sh
+    export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
+}else{
+    export ORIGIN_IMAGE="sfucsssorg/wall_e"
+}
 ./CI/user_scripts/setup-dev-env.sh
 ```
 
-If you need to re-launch the bot after making some chnages, enter the command `.exit` on your discord guild and then run through the above instructions again.
+If you need to re-launch the bot after making some changes, enter the command `.exit` on your discord guild and then run through the above instructions again.
 
 #### view logs in active time
 ```shell
@@ -80,10 +66,7 @@ If you need to re-launch the bot after making some chnages, enter the command `.
 
 *Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
 
-#### Step 1. Re-creating the docker base image
 You will need to recreate the base docker image if you made changes to any of the following files
- * CI/server_scripts/build_wall_e/python-base-requirements.txt
- * CI/server_scripts/build_wall_e/Dockerfile.python_base
  * wall_e/src/requirements.txt
  * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
@@ -91,20 +74,13 @@ You will need to recreate the base docker image if you made changes to any of th
 Commands To Run
 ```shell
 export COMPOSE_PROJECT_NAME="project_name"
-./CI/user_scripts/create-dev-docker-image.sh
-```
-
-#### Step 2. Launching the Bot
-
-```shell
 //ensure that DB_ENBLED is set to 0 via whatever method you want
-export COMPOSE_PROJECT_NAME="project_name"
-
-# if you did not need to re-create the base image you can use
-export ORIGIN_IMAGE="sfucsssorg/wall_e"
-# otherwise, you will need to use the below commmand
-export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
-
+if (you made changes to any of the files listed above){
+    ./CI/user_scripts/create-dev-docker-image.sh
+    export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
+}else{
+    export ORIGIN_IMAGE="sfucsssorg/wall_e"
+}
 ./CI/user_scripts/setup-dev-env-no-db.sh
 ```
 
