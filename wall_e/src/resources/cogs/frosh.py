@@ -15,15 +15,6 @@ class Frosh(commands.Cog):
         logger.info('[Frosh team()] team command detected from user {}'.format(ctx.author))
         logger.info('[Frosh team()] arguments given: {}'.format(info))
 
-        usage = [
-            ('Usage', '`.team <team name> <game name> <comma seperated list of team members> ' +
-                '[<hex code/value for embed colour>]`'),
-            ('Need help picking a colour?', '[HTML Colour Codes](https://htmlcolorcodes.com/color-picker/)'),
-            ('Example', '`.team "JL" "Super Tag" "Jon, Bruce, Clark, Diana, Barry"`\n' +
-                '`.team "team 1337" "PacMacro" "Jeffrey, Harry, Noble, Ali" "#E8C100"`\n' +
-                '`.team "Z fighters" "Cell Games" "Goku, Vegeta, Uub, Beerus" "4CD100"`')
-        ]
-
         if len(info) < 3:
             e_obj = await em(
                 ctx,
@@ -31,7 +22,7 @@ class Frosh(commands.Cog):
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 colour=0xA6192E,
-                content=usage,
+                content=[('Error','You are missing arguments. Call `.help team` for how to use the command')],
                 footer='Team Error'
             )
             await ctx.send(embed=e_obj)

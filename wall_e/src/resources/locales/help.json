@@ -282,11 +282,14 @@
 		"roles" : [ "@everyone" ],
 		"aliases": [ ],
 		"example": [
-			".team <team name> <game name> <**comma** seperated list of team members> [<hex code/value for embed colour>]",
-			"Need help finding a colour, [use this site](https://htmlcolorcodes.com/color-picker/)"
+			"`.team <team name> <game name> <comma seperated list of team members> [<hex code/value for embed colour>]`",
+			"`.team \"JL\" \"Super Tag\" \"Jon, Bruce, Clark, Diana, Barry\"`",
+			"`.team \"team 1337\" \"PacMacro\" \"Jeffrey, Harry, Noble, Ali\" \"#E8C100\"`",
+			"`.team \"Z fighters\" \"Cell Games\" \"Goku, Vegeta, Uub, Beerus\" \"4CD100\"`"
 		],
 		"description": [
-			"Creates an embed with information about your Frosh team for games."
+			"Creates an embed that holds details about your Frosh game team.",
+			"Need help picking a colour?\n[HTML Colour Codes](https://htmlcolorcodes.com/color-picker/)"
 		]
 	}
 }
