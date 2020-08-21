@@ -87,3 +87,9 @@
    1. `.outline cmpt666`
    1. `.outline blah`
    1. `.outline`
+## Frosh
+   1. `.team`
+   1. `.team "JL" "Super Tag" "Jon, Bruce, Clark, Diana, Barry"`
+   2. `.team "team 1337" "PacMacro" "Jeffrey, Harry, Noble, Ali" "#E8C100"`
+   3. `.team "Z fighters" "Cell Games" "Goku, Vegeta, Uub, Beerus" "4CD100"`
+   4. `.team "spaces #1" "musical voice channels" "Billy, Bob, Megan, Cary" "notAHexCode"`
