@@ -12,8 +12,8 @@ class Frosh(commands.Cog):
 
     @commands.command()
     async def team(self, ctx, *info):
-        logger.info('[Frosh team()] team command detected from user {}'.format(ctx.author))
-        logger.info('[Frosh team()] arguments given: {}'.format(info))
+        logger.info(f'[Frosh team()] team command detected from user {ctx.author}')
+        logger.info(f'[Frosh team()] arguments given: {info}')
 
         if len(info) < 3:
             e_obj = await em(
@@ -53,6 +53,6 @@ class Frosh(commands.Cog):
         except Exception:
             pass
 
-        logger.info('[Frosh team()] team embed created with the following fields: {}'.format(str(e_obj.fields)))
+        logger.info(f'[Frosh team()] team embed created with the following fields: {str(e_obj.fields)}')
 
         await ctx.send(embed=e_obj)
