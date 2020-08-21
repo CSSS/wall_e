@@ -22,7 +22,7 @@ class Frosh(commands.Cog):
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 colour=0xA6192E,
-                content=[('Error','You are missing arguments. Call `.help team` for how to use the command')],
+                content=[('Error', 'You are missing arguments. Call `.help team` for how to use the command')],
                 footer='Team Error'
             )
             await ctx.send(embed=e_obj)
