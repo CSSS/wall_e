@@ -275,5 +275,18 @@
 			"Optionally, you may specify term in `<arg1>` and/or section with `<arg2>`.",
 			"Added keyword `next` will look at next semesters oultine for `<arg0>`;Note `next` will return error if it is not registration time."
 		]
+	},
+	"team" : {
+		"class": "Frosh",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [
+			".team <team name> <game name> <**comma** seperated list of team members> [<hex code/value for embed colour>]",
+			"Need help finding a colour, [use this site](https://htmlcolorcodes.com/color-picker/)"
+		],
+		"description": [
+			"Creates an embed with information about your Frosh team for games."
+		]
 	}
 }
