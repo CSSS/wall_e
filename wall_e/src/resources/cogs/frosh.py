@@ -53,11 +53,15 @@ class Frosh(commands.Cog):
             footer='Frosh 2020'
             )
 
-        if len(info) >= 4:
-            color = info[3]
-            if color[0] == '#':
-                color = color[1:]
-            e_obj.colour = int('0x'+color, base=16)
+        try:
+            if len(info) >= 4:
+                color = info[3]
+                if color[0] == '#':
+                    color = color[1:]
+                e_obj.colour = int('0x'+color, base=16)
+        except Exception:
+            pass
+
         logger.info('[Frosh team()] team embed created with the following fields: {}'.format(str(e_obj.fields)))
 
         await ctx.send(embed=e_obj)
