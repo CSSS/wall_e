@@ -280,7 +280,7 @@
 		"class": "Frosh",
 		"access": "roles",
 		"roles" : [ "@everyone" ],
-		"aliases": [ ],
+		"aliases": [ "team" ],
 		"example": [
 			"`.team <team name> <game name> <comma seperated list of team members> [<hex code/value for embed colour>]`",
 			"`.team \"JL\" \"Super Tag\" \"Jon, Bruce, Clark, Diana, Barry\"`",
