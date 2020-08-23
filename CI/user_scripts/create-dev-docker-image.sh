@@ -20,4 +20,4 @@ export CONTAINER_HOME_DIR="/usr/src/app"
 ./CI/destroy-dev-env.sh
 
 docker image rm -f "${test_base_image_name_lower_case}" || true
-docker build --no-cache -t ${test_base_image_name_lower_case} -f "${DOCKERFILE}" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .
+docker build --no-cache -t ${test_base_image_name_lower_case} -f "${DOCKERFILE}" --build-arg WALL_E_BASE_ORIGIN_NAME="sfucsssorg/wall_e_python" --build-arg CONTAINER_HOME_DIR="${CONTAINER_HOME_DIR}" .

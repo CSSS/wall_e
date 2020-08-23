@@ -2,14 +2,12 @@
 import os
 import json
 import configparser
-from pathlib import Path
 from collections import OrderedDict
 
 import logging
 logger = logging.getLogger('wall_e')
 
-config_file_dockerized_location_local = "wall_e/src/resources/utilities/config/local.ini"
-config_file_nondockerized_location_local = "resources/utilities/config/local.ini"
+config_file_dockerized_location_local = "resources/utilities/config/local.ini"
 config_file_location_prouction = "resources/utilities/config/production.ini"
 config_file_location_dev = "resources/utilities/config/dev.ini"
 
@@ -19,15 +17,12 @@ help_json_location = "resources/locales/"
 help_json_file_name = "help.json"
 
 
-class WallEConfig():
+class WallEConfig:
     def __init__(self, environment):
         config = configparser.ConfigParser(interpolation=None)
         config.optionxform = str
         if (environment == "LOCALHOST"):
-            if Path(config_file_dockerized_location_local).is_file():
-                config.read(config_file_dockerized_location_local)
-            else:
-                config.read(config_file_nondockerized_location_local)
+            config.read(config_file_dockerized_location_local)
         elif (environment == 'TEST'):
             config.read(config_file_location_dev)
         elif (environment == "PRODUCTION"):
