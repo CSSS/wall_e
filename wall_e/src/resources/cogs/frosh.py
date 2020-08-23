@@ -53,6 +53,6 @@ class Frosh(commands.Cog):
         except Exception:
             pass
 
-        logger.info(f'[Frosh team()] team embed created with the following fields: {str(e_obj.fields)}')
+        logger.info(f'[Frosh team()] team embed created with the following fields: {e_obj.fields}')
 
         await ctx.send(embed=e_obj)
