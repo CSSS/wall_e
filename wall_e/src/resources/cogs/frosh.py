@@ -11,7 +11,7 @@ class Frosh(commands.Cog):
         self.config = config
 
     @commands.command()
-    async def team(self, ctx, *info):
+    async def froshteam(self, ctx, *info):
         logger.info(f'[Frosh team()] team command detected from user {ctx.author}')
         logger.info(f'[Frosh team()] arguments given: {info}')
 

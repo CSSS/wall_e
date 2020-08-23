@@ -276,7 +276,7 @@
 			"Added keyword `next` will look at next semesters oultine for `<arg0>`;Note `next` will return error if it is not registration time."
 		]
 	},
-	"team" : {
+	"froshteam" : {
 		"class": "Frosh",
 		"access": "roles",
 		"roles" : [ "@everyone" ],
