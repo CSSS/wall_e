@@ -56,3 +56,38 @@ class Frosh(commands.Cog):
         logger.info(f'[Frosh team()] team embed created with the following fields: {e_obj.fields}')
 
         await ctx.send(embed=e_obj)
+
+    @commands.command()
+    async def reportwin(self, ctx, *info):
+        logger.info(f'[Frosh reportwin()] team command detected from user {ctx.author}')
+        logger.info(f'[Frosh reportwin()] arguments given: {info}')
+
+        if len(info) < 2:
+            e_obj = await em(
+                ctx,
+                title='Missing Arguments',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=0xA6192E,
+                content=[('Error', 'You are missing arguments. Call `.help reportwin` for how to use the command')],
+                footer='ReportWin Error'
+            )
+            await ctx.send(embed=e_obj)
+            logger.info('[Frosh reportwin()] Missing arguments, command ended')
+            return
+
+        e_obj = await em(
+            ctx,
+            title='CSSS Frosh 2020 Gaming Arena Winner',
+            author=ctx.author.display_name,
+            avatar=ctx.author.avatar_url,
+            colour=0x00FF61,
+            content=[
+                ('Team Name', info[0]),
+                ('Team Members', '\n'.join(list(map(lambda str: str.strip(), info[1].split(',')))))
+            ],
+            footer='Frosh 2020'
+        )
+
+        logger.info(f'[Frosh reportwin()] winner announcement embed made with following fields: {e_obj.fields}')
+        await ctx.send(embed=e_obj)
