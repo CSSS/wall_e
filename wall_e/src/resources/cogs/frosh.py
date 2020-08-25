@@ -56,3 +56,23 @@ class Frosh(commands.Cog):
         logger.info(f'[Frosh team()] team embed created with the following fields: {e_obj.fields}')
 
         await ctx.send(embed=e_obj)
+
+    @commands.command()
+    async def reportwin(self, ctx, team, members):
+        logger.info(f'[Frosh reportwin()] team command detected from user {ctx.author}')
+        logger.info(f'[Frosh reportwin()] arguments given: team={team} members={members}')
+
+        e_obj = await em(
+            ctx,
+            title='CSSS Frosh 2020 Gaming Arena Winner',
+            author=ctx.author.display_name,
+            avatar=ctx.author.avatar_url,
+            content=[
+                ('Team Name', team),
+                ('Team Members', '\n'.join(list(map(lambda str: str.strip(), members.split(',')))))
+            ],
+            footer='Frosh 2020'
+        )
+
+        logger.info(f'[Frosh reportwin()] winner announcement embed made with following fields: {e_obj.fields}')
+        await ctx.send(embed=e_obj)
