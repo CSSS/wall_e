@@ -90,6 +90,8 @@
 ## Frosh
    1. `.team`
    1. `.team "JL" "Super Tag" "Jon, Bruce, Clark, Diana, Barry"`
-   2. `.team "team 1337" "PacMacro" "Jeffrey, Harry, Noble, Ali" "#E8C100"`
-   3. `.team "Z fighters" "Cell Games" "Goku, Vegeta, Uub, Beerus" "4CD100"`
-   4. `.team "spaces #1" "musical voice channels" "Billy, Bob, Megan, Cary" "notAHexCode"`
+   1. `.team "team 1337" "PacMacro" "Jeffrey, Harry, Noble, Ali" "#E8C100"`
+   1. `.team "Z fighters" "Cell Games" "Goku, Vegeta, Uub, Beerus" "4CD100"`
+   1. `.team "spaces #1" "musical voice channels" "Billy, Bob, Megan, Cary" "notAHexCode"`
+   1. `.reportwin`
+   1. `.reportwin "team 1337" "Jeffrey, Harry, Noble, Ali"`
