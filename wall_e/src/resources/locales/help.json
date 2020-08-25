@@ -302,7 +302,7 @@
 			"`.reportwin \"team 1337\" \"Jeffrey, Harry, Noble, Ali\"`"
 		],
 		"description": [
-			"Creates an embed that announces the winning team."
+			"Creates an embed that report a win for your team."
 		]
 	}
 }
