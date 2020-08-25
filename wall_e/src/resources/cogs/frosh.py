@@ -58,9 +58,23 @@ class Frosh(commands.Cog):
         await ctx.send(embed=e_obj)
 
     @commands.command()
-    async def reportwin(self, ctx, team, members):
+    async def reportwin(self, ctx, *info):
         logger.info(f'[Frosh reportwin()] team command detected from user {ctx.author}')
-        logger.info(f'[Frosh reportwin()] arguments given: team={team} members={members}')
+        logger.info(f'[Frosh reportwin()] arguments given: {info}')
+
+        if len(info) < 2:
+            e_obj = await em(
+                ctx,
+                title='Missing Arguments',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                colour=0xA6192E,
+                content=[('Error', 'You are missing arguments. Call `.help reportwin` for how to use the command')],
+                footer='ReportWin Error'
+            )
+            await ctx.send(embed=e_obj)
+            logger.info('[Frosh reportwin()] Missing arguments, command ended')
+            return
 
         e_obj = await em(
             ctx,
