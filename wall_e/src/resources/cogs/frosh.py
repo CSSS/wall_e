@@ -81,9 +81,10 @@ class Frosh(commands.Cog):
             title='CSSS Frosh 2020 Gaming Arena Winner',
             author=ctx.author.display_name,
             avatar=ctx.author.avatar_url,
+            colour=0x00FF61,
             content=[
-                ('Team Name', team),
-                ('Team Members', '\n'.join(list(map(lambda str: str.strip(), members.split(',')))))
+                ('Team Name', info[0]),
+                ('Team Members', '\n'.join(list(map(lambda str: str.strip(), info[1].split(',')))))
             ],
             footer='Frosh 2020'
         )
