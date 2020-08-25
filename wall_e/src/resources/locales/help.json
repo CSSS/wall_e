@@ -291,5 +291,18 @@
 			"Creates an embed that holds details about your Frosh game team.",
 			"Need help picking a colour?\n[HTML Colour Codes](https://htmlcolorcodes.com/color-picker/)"
 		]
+	},
+	"reportwin" : {
+		"class": "Frosh",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [
+			"`.reportwin <team name> <comma seperated list of team mmembers>`",
+			"`.reportwin \"team 1337\" \"Jeffrey, Harry, Noble, Ali\"`"
+		],
+		"description": [
+			"Creates an embed that announces the winning team."
+		]
 	}
 }
