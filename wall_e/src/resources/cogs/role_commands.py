@@ -413,7 +413,8 @@ class RoleCommands(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=e_obj.description,
                     footer=f'Please call the command {ctx.command.name} from the channel '
-                           f'{self.config.get_config_value("basic_config", "BOT_GENERAL_CHANNEL")} to '
+                           f"[#{self.bot_channel.name}](https://discord.com/channels/"
+                           f"{ctx.guild.id}/{self.bot_channel.id}) to "
                            f'avoid getting this warning'
                 )
                 if e_obj is not False:
