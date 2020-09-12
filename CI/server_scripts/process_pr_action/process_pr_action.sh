@@ -36,7 +36,7 @@ deleted_discord_pr_channels () {
 			log_channel_id="${list_of_channel_ids[$i]}"
 		fi
 
-		if [ "${list_of_channel_names[$i]}" = "pr-${pr_number}_reminders" ]; then
+		if [ "${list_of_channel_names[$i]}" = "pr-${pr_number}_bot_channel" ]; then
 			reminder_channel_id="${list_of_channel_ids[$i]}"
 		fi
 	done
