@@ -443,6 +443,14 @@ class RoleCommands(commands.Cog):
             )
 
     async def get_bot_general_channel(self):
+        """
+        gets the channel that is roles commands are limited to. because the reminder class
+        was using the channel first for specific uses and therefore was making sure it existed, this class
+        will just wait for the reminder class to make sure it exists first or try to create it rather than attempt
+        to creat the bot specific channel itself
+
+        :return:
+        """
         await self.bot.wait_until_ready()
         bot_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
         environment = self.config.get_config_value('basic_config', 'ENVIRONMENT')
