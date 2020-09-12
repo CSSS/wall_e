@@ -456,19 +456,19 @@ class RoleCommands(commands.Cog):
         await self.bot.wait_until_ready()
         bot_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
         environment = self.config.get_config_value('basic_config', 'ENVIRONMENT')
-        bot_channel = None
+        self.bot_channel = None
         if environment == 'PRODUCTION' or environment == 'LOCALHOST':
             logger.info(f"[RoleCommands get_bot_general_channel()] bot_channel_name set to {bot_channel_name} for "
                         f"environment {environment}")
-            bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
+            self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
         elif environment == 'TEST':
             bot_channel_name = f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
             logger.info(f"[RoleCommands get_bot_general_channel()] bot_channel_name set to {bot_channel_name} for "
                         f"environment {environment}")
-            bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
+            self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
         number_of_retries_to_attempt = 10
         number_of_retries = 0
-        while bot_channel is None and number_of_retries < number_of_retries_to_attempt:
+        while self.bot_channel is None and number_of_retries < number_of_retries_to_attempt:
             logger.info("[RoleCommands get_bot_general_channel()] attempt "
                         f"({number_of_retries}/{number_of_retries_to_attempt}) for getting bot_channel ")
             await asyncio.sleep(10)
