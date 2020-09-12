@@ -20,8 +20,8 @@ class RoleCommands(commands.Cog):
 
     @commands.command()
     async def newrole(self, ctx, role_to_add):
-        logger.info("[RoleCommands newrole()] {} "
-                    "called newrole with following argument: role_to_add={}".format(ctx.message.author, role_to_add))
+        logger.info(f"[RoleCommands newrole()] {ctx.message.author} "
+                    f"called newrole with following argument: role_to_add={role_to_add}")
         role_to_add = role_to_add.lower()
         guild = ctx.guild
         for role in guild.roles:
@@ -30,16 +30,16 @@ class RoleCommands(commands.Cog):
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="Role '{}' exists. Calling "
-                                ".iam {} will add you to it.".format(role_to_add, role_to_add)
+                    description=f"Role '{role_to_add}' exists. Calling "
+                                f".iam {role_to_add} will add you to it."
                 )
                 await self.send_message(ctx, e_obj)
                 if e_obj is not False:
-                    logger.info("[RoleCommands newrole()] {} already exists".format(role_to_add))
+                    logger.info(f"[RoleCommands newrole()] {role_to_add} already exists")
                 return
         role = await guild.create_role(name=role_to_add)
         await role.edit(mentionable=True)
-        logger.info("[RoleCommands newrole()] {} created and is set to mentionable".format(role_to_add))
+        logger.info(f"[RoleCommands newrole()] {role_to_add} created and is set to mentionable")
 
         e_obj = await embed(
             ctx,
@@ -47,15 +47,15 @@ class RoleCommands(commands.Cog):
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=(
                 "You have successfully created role "
-                "**`{}`**.\nCalling `.iam {}` will add it to you.".format(role_to_add, role_to_add)
+                f"**`{role_to_add}`**.\nCalling `.iam {role_to_add}` will add it to you."
             )
         )
         await self.send_message(ctx, e_obj)
 
     @commands.command()
     async def deleterole(self, ctx, role_to_delete):
-        logger.info("[RoleCommands deleterole()] {} "
-                    "called deleterole with role {}.".format(ctx.message.author, role_to_delete))
+        logger.info(f"[RoleCommands deleterole()] {ctx.message.author} "
+                    f"called deleterole with role {role_to_delete}.")
         role_to_delete = role_to_delete.lower()
         role = discord.utils.get(ctx.guild.roles, name=role_to_delete)
         if role is None:
@@ -64,7 +64,7 @@ class RoleCommands(commands.Cog):
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description="Role **`{}`** does not exist.".format(role_to_delete)
+                description=f"Role **`{role_to_delete}`** does not exist."
             )
             await self.send_message(ctx, e_obj)
             return
@@ -77,7 +77,7 @@ class RoleCommands(commands.Cog):
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description="Role **`{}`** deleted.".format(role_to_delete)
+                description=f"Role **`{role_to_delete}`** deleted."
             )
             await self.send_message(ctx, e_obj)
         else:
@@ -86,13 +86,13 @@ class RoleCommands(commands.Cog):
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description="Role **`{}`** has members. Cannot delete.".format(role_to_delete)
+                description=f"Role **`{role_to_delete}`** has members. Cannot delete."
             )
             await self.send_message(ctx, e_obj)
 
     @commands.command()
     async def iam(self, ctx, role_to_add):
-        logger.info("[RoleCommands iam()] {} called iam with role {}".format(ctx.message.author, role_to_add))
+        logger.info(f"[RoleCommands iam()] {ctx.message.author} called iam with role {role_to_add}")
         role_to_add = role_to_add.lower()
         role = discord.utils.get(ctx.guild.roles, name=role_to_add)
         if role is None:
@@ -101,14 +101,14 @@ class RoleCommands(commands.Cog):
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description="Role **`{}**` doesn't exist.\nCalling .newrole {}".format(role_to_add, role_to_add)
+                description=f"Role **`{role_to_add}**` doesn't exist.\nCalling .newrole {role_to_add}")
             )
             await self.send_message(ctx, e_obj)
             return
         user = ctx.message.author
         members_of_role = role.members
         if user in members_of_role:
-            logger.info("[RoleCommands iam()] {} was already in the role {}.".format(user, role_to_add))
+            logger.info(f"[RoleCommands iam()] {user} was already in the role {role_to_add}.")
             e_obj = await embed(
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
@@ -118,7 +118,7 @@ class RoleCommands(commands.Cog):
             await self.send_message(ctx, e_obj)
         else:
             await user.add_roles(role)
-            logger.info("[RoleCommands iam()] user {} added to role {}.".format(user, role_to_add))
+            logger.info(f"[RoleCommands iam()] user {user} added to role {role_to_add}.")
 
             if (role_to_add == 'froshee'):
                 e_obj = await embed(
@@ -127,7 +127,7 @@ class RoleCommands(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=(
                         "**WELCOME TO SFU!!!!**\nYou have successfully "
-                        "been added to role **`{}`**.".format(role_to_add)
+                        f"been added to role **`{role_to_add}`**."
                     )
                 )
             else:
@@ -135,13 +135,13 @@ class RoleCommands(commands.Cog):
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="You have successfully been added to role **`{}`**.".format(role_to_add)
+                    description=f"You have successfully been added to role **`{role_to_add}`**."
                 )
             await self.send_message(ctx, e_obj)
 
     @commands.command()
     async def iamn(self, ctx, role_to_remove):
-        logger.info("[RoleCommands iamn()] {} called iamn with role {}".format(ctx.message.author, role_to_remove))
+        logger.info(f"[RoleCommands iamn()] {ctx.message.author} called iamn with role {role_to_remove}")
         role_to_remove = role_to_remove.lower()
         role = discord.utils.get(ctx.guild.roles, name=role_to_remove)
         if role is None:
@@ -150,7 +150,7 @@ class RoleCommands(commands.Cog):
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description="Role **`{}`** doesn't exist.".format(role_to_remove)
+                description=f"Role **`{role_to_remove}`** doesn't exist."
             )
             await self.send_message(ctx, e_obj)
             return
@@ -162,10 +162,10 @@ class RoleCommands(commands.Cog):
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description="You have successfully been removed from role **`{}`**.".format(role_to_remove)
+                description=f"You have successfully been removed from role **`{role_to_remove}`**."
             )
             if e_obj is not False:
-                logger.info("[RoleCommands iamn()] {} has been removed from role {}".format(user, role_to_remove))
+                logger.info(f"[RoleCommands iamn()] {user} has been removed from role {role_to_remove}")
             await self.send_message(ctx, e_obj)
             # delete role if last person
             members_of_role = role.members
@@ -177,11 +177,11 @@ class RoleCommands(commands.Cog):
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="Role **`{}`** deleted.".format(role.name)
+                    description=f"Role **`{role.name}`** deleted."
                 )
                 await self.send_message(ctx, e_obj)
         else:
-            logger.info("[RoleCommands iamn()] {} wasnt in the role {}".format(user, role_to_remove))
+            logger.info(f"[RoleCommands iamn()] {user} wasnt in the role {role_to_remove}")
             e_obj = await embed(
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
@@ -196,7 +196,10 @@ class RoleCommands(commands.Cog):
             await self.warning_for_paginated_roles_commands(ctx)
         else:
             number_of_users_per_page = 20
-            logger.info("[RoleCommands whois()] {} called whois with role {}".format(ctx.message.author, role_to_check))
+            logger.info(
+                f"[RoleCommands whois()] {ctx.message.author} called whois with role "
+                f"{role_to_check}"
+            )
             member_string = [""]
             log_string = ""
             role = discord.utils.get(ctx.guild.roles, name=role_to_check)
@@ -205,35 +208,35 @@ class RoleCommands(commands.Cog):
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="**`{}`** does not exist.".format(role_to_check)
+                    description=f"**`{role_to_check}`** does not exist."
                 )
                 await self.send_message(ctx, e_obj)
-                logger.info("[RoleCommands whois()] role {} doesnt exist".format(role_to_check))
+                logger.info(f"[RoleCommands whois()] role {role_to_check} doesnt exist")
                 return
             members_of_role = role.members
             if not members_of_role:
-                logger.info("[RoleCommands whois()] there are no members in the role {}".format(role_to_check))
+                logger.info(f"[RoleCommands whois()] there are no members in the role {role_to_check}")
                 e_obj = await embed(
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="No members in role **`{}`**.".format(role_to_check)
+                    description=f"No members in role **`{role_to_check}`**."
                 )
                 await self.send_message(ctx, e_obj)
                 return
             x, current_index = 0, 0
             for members in members_of_role:
                 name = members.display_name
-                member_string[current_index] += "{}\n".format(name)
+                member_string[current_index] += f"{name}\n"
                 x += 1
                 if x == number_of_users_per_page:
                     member_string.append("")
                     current_index += 1
                     x = 0
-                log_string += '{}\t'.format(name)
-            logger.info("[RoleCommands whois()] following members were found in the role: {}".format(log_string))
+                log_string += f'{name}\t'
+            logger.info(f"[RoleCommands whois()] following members were found in the role: {log_string}")
 
-            title = "Members belonging to role: `{0}`".format(role_to_check)
+            title = f"Members belonging to role: `{role_to_check}`"
             await paginate_embed(self.bot, ctx, self.config, member_string, title=title)
 
     @commands.command()
@@ -242,9 +245,10 @@ class RoleCommands(commands.Cog):
             await self.warning_for_paginated_roles_commands(ctx)
         else:
             number_of_roles_per_page = 5
-            logger.info("[RoleCommands roles()] roles command detected from user {}".format(ctx.message.author))
+            logger.info(f"[RoleCommands roles()] roles command detected from user {ctx.message.author}")
 
-            # declares and populates self_assign_roles with all self-assignable roles and how many people are in each role
+            # declares and populates self_assign_roles with all self-assignable roles and
+            # how many people are in each role
             self_assign_roles = []
             for role in ctx.guild.roles:
                 if role.name != "@everyone" and role.name[0] == role.name[0].lower():
@@ -262,9 +266,9 @@ class RoleCommands(commands.Cog):
             description_to_embed = ["Roles - Number of People in Role\n"]
             for roles in self_assign_roles:
                 logger.info("[RoleCommands roles()] "
-                            "len(description_to_embed)={} "
-                            "current_index={}".format(len(description_to_embed), current_index))
-                description_to_embed[current_index] += "{} - {}\n".format(roles[0], roles[1])
+                            f"len(description_to_embed)={len(description_to_embed)} "
+                            f"current_index={current_index}")
+                description_to_embed[current_index] += f"{roles[0]} - {roles[1]}\n"
                 x += 1
                 if x == number_of_roles_per_page:  # this determines how many entries there will be per page
                     description_to_embed.append("Roles - Number of People in Role\n")
@@ -279,9 +283,10 @@ class RoleCommands(commands.Cog):
             await self.warning_for_paginated_roles_commands(ctx)
         else:
             number_of_roles_per_page = 5
-            logger.info("[RoleCommands Roles()] roles command detected from user {}".format(ctx.message.author))
+            logger.info(f"[RoleCommands Roles()] roles command detected from user {ctx.message.author}")
 
-            # declares and populates assigned_roles with all self-assignable roles and how many people are in each role
+            # declares and populates assigned_roles with all self-assignable roles and
+            # how many people are in each role
             assigned_roles = []
             for role in ctx.guild.roles:
                 if role.name != "@everyone" and role.name[0] != role.name[0].lower():
@@ -299,7 +304,7 @@ class RoleCommands(commands.Cog):
             x, current_index = 0, 0
             description_to_embed = ["Roles - Number of People in Role\n"]
             for roles in assigned_roles:
-                description_to_embed[current_index] += "{} - {}\n".format(roles[0], roles[1])
+                description_to_embed[current_index] += f"{roles[0]} - {roles[1]}\n"
                 x += 1
                 if x == number_of_roles_per_page:
                     description_to_embed.append("Roles - Number of People in Role\n")
@@ -313,7 +318,10 @@ class RoleCommands(commands.Cog):
         if ctx.channel.id != self.bot_channel.id:
             await self.warning_for_paginated_roles_commands(ctx)
         else:
-            logger.info("[RoleCommands purgeroles()] purgeroles command detected from user {}".format(ctx.message.author))
+            logger.info(
+                "[RoleCommands purgeroles()] "
+                f"purgeroles command detected from user {ctx.message.author}"
+            )
 
             embed = discord.Embed(type="rich")
             embed.color = discord.Color.blurple()
@@ -333,11 +341,8 @@ class RoleCommands(commands.Cog):
                 return
             logger.info(
                 "[RoleCommands purgeroles()] bot's "
-                "highest role is {} and its ability to "
-                "delete roles is {}".format(
-                    bot_highest_role,
-                    bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator
-                )
+                f"highest role is {bot_highest_role} and its ability to "
+                f"delete roles is {bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator}"
             )
 
             # determine if user who is calling the command is able to delete the roles
@@ -350,10 +355,8 @@ class RoleCommands(commands.Cog):
                 return
             logger.info(
                 "[RoleCommands purgeroles()] user's "
-                "highest role is {} and its ability to delete roles is {}".format(
-                    author_highest_role,
-                    ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator
-                )
+                f"highest role is {author_highest_role} and its ability to delete roles is "
+                f"{ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator}"
             )
 
             guild = ctx.guild
@@ -367,16 +370,16 @@ class RoleCommands(commands.Cog):
                         undeletable_roles.append(role.name)
             logger.info("[RoleCommands purgeroles()] Located all the empty roles that both the user and the bot can "
                         "delete")
-            logger.info("[RoleCommands purgeroles()] the ones it can't are: {}".format(', '.join(undeletable_roles)))
+            logger.info(f"[RoleCommands purgeroles()] the ones it can't are: {', '.join(undeletable_roles)}")
 
             deleted = []
             for role in soft_roles:
                 members_in_role = role.members
                 if not members_in_role:
-                    logger.info("[RoleCommands purgeroles()] deleting empty role @{}".format(role.name))
+                    logger.info(f"[RoleCommands purgeroles()] deleting empty role @{role.name}")
                     deleted.append(role.name)
                     await role.delete()
-                    logger.info("[RoleCommands purgeroles()] deleted empty role @{}".format(role.name))
+                    logger.info(f"[RoleCommands purgeroles()] deleted empty role @{role.name}")
 
             if not deleted:
                 embed.title = "No empty roles to delete."
@@ -384,7 +387,7 @@ class RoleCommands(commands.Cog):
                 return
             deleted.sort(key=itemgetter(0))
             description = "\n".join(deleted)
-            embed.title = "Purging {} empty roles!".format(len(deleted))
+            embed.title = f"Purging {len(deleted)} empty roles!"
 
             embed.description = description
             await self.send_message(ctx, embed)
@@ -424,8 +427,10 @@ class RoleCommands(commands.Cog):
         )
         if e_obj is not False:
             await ctx.author.send(embed=e_obj)
-            logger.info("[main.py on_member_join] embed sent to member {}".format(ctx.author))
-
+            logger.info(
+                "[RoleCommands warning_for_paginated_roles_commands()] "
+                f"embed sent to member {ctx.author}"
+            )
 
     async def get_bot_general_channel(self):
         await self.bot.wait_until_ready()
@@ -440,7 +445,7 @@ class RoleCommands(commands.Cog):
                         f"environment {environment}")
             bot_channel = discord.utils.get(
                 self.bot.guilds[0].channels,
-                name='{}_bot_channel'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME').lower())
+                name=f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
             )
         number_of_retries_to_attempt = 10
         number_of_retries = 0
