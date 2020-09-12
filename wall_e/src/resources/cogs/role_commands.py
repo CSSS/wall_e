@@ -33,7 +33,7 @@ class RoleCommands(commands.Cog):
                     description=f"Role '{role_to_add}' exists. Calling "
                                 f".iam {role_to_add} will add you to it."
                 )
-                await self.send_message(ctx, e_obj)
+                await self.send_message_to_user_or_bot_channel(ctx, e_obj)
                 if e_obj is not False:
                     logger.info(f"[RoleCommands newrole()] {role_to_add} already exists")
                 return
@@ -50,7 +50,7 @@ class RoleCommands(commands.Cog):
                 f"**`{role_to_add}`**.\nCalling `.iam {role_to_add}` will add it to you."
             )
         )
-        await self.send_message(ctx, e_obj)
+        await self.send_message_to_user_or_bot_channel(ctx, e_obj)
 
     @commands.command()
     async def deleterole(self, ctx, role_to_delete):
@@ -66,7 +66,7 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_delete}`** does not exist."
             )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
             return
         members_of_role = role.members
         if not members_of_role:
@@ -79,7 +79,7 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_delete}`** deleted."
             )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
         else:
             logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
             e_obj = await embed(
@@ -88,7 +88,7 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_delete}`** has members. Cannot delete."
             )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
 
     @commands.command()
     async def iam(self, ctx, role_to_add):
@@ -103,7 +103,7 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_add}**` doesn't exist.\nCalling .newrole {role_to_add}"
             )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
             return
         user = ctx.message.author
         members_of_role = role.members
@@ -115,7 +115,7 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="Beep Boop\n You've already got the role dude STAAAHP!!"
             )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
         else:
             await user.add_roles(role)
             logger.info(f"[RoleCommands iam()] user {user} added to role {role_to_add}.")
@@ -137,7 +137,7 @@ class RoleCommands(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"You have successfully been added to role **`{role_to_add}`**."
                 )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
 
     @commands.command()
     async def iamn(self, ctx, role_to_remove):
@@ -152,7 +152,7 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_remove}`** doesn't exist."
             )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
             return
         members_of_role = role.members
         user = ctx.message.author
@@ -166,7 +166,7 @@ class RoleCommands(commands.Cog):
             )
             if e_obj is not False:
                 logger.info(f"[RoleCommands iamn()] {user} has been removed from role {role_to_remove}")
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
             # delete role if last person
             members_of_role = role.members
             if not members_of_role:
@@ -179,7 +179,7 @@ class RoleCommands(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"Role **`{role.name}`** deleted."
                 )
-                await self.send_message(ctx, e_obj)
+                await self.send_message_to_user_or_bot_channel(ctx, e_obj)
         else:
             logger.info(f"[RoleCommands iamn()] {user} wasnt in the role {role_to_remove}")
             e_obj = await embed(
@@ -188,12 +188,42 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="Boop Beep??\n You don't have the role, so how am I gonna remove it????"
             )
-            await self.send_message(ctx, e_obj)
+            await self.send_message_to_user_or_bot_channel(ctx, e_obj)
+
+    async def send_message_to_user_or_bot_channel(self, ctx, e_obj):
+        if e_obj is not False:
+            if ctx.channel.id == self.bot_channel.id:
+                await ctx.send(embed=e_obj)
+            else:
+                try:
+                    logger.info("[RoleCommands send_message_to_user_or_bot_channel()] attempting to "
+                                "delete the message that invoked the command from outside the bot "
+                                "specific channel ")
+                    await ctx.message.delete()
+                except discord.errors.NotFound:
+                    logger.info("[RoleCommands send_message_to_user_or_bot_channel()] it appears the message "
+                                "was already deleted")
+                description = (
+                        e_obj.description + f'\n\n\nPlease call the command {ctx.command.name} from the channel '
+                                            f"[#{self.bot_channel.name}](https://discord.com/channels/"
+                                            f"{ctx.guild.id}/{self.bot_channel.id}) to "
+                                            f'avoid getting this warning'
+                )
+                e_obj = await embed(
+                    ctx,
+                    title='ATTENTION:',
+                    colour=0xff0000,
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    description=description
+                )
+                if e_obj is not False:
+                    await ctx.author.send(embed=e_obj)
 
     @commands.command()
     async def whois(self, ctx, role_to_check):
         if ctx.channel.id != self.bot_channel.id:
-            await self.warning_for_paginated_roles_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx)
         else:
             number_of_users_per_page = 20
             logger.info(
@@ -210,7 +240,7 @@ class RoleCommands(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"**`{role_to_check}`** does not exist."
                 )
-                await self.send_message(ctx, e_obj)
+                await self.send_message_to_user_or_bot_channel(ctx, e_obj)
                 logger.info(f"[RoleCommands whois()] role {role_to_check} doesnt exist")
                 return
             members_of_role = role.members
@@ -222,7 +252,7 @@ class RoleCommands(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"No members in role **`{role_to_check}`**."
                 )
-                await self.send_message(ctx, e_obj)
+                await self.send_message_to_user_or_bot_channel(ctx, e_obj)
                 return
             x, current_index = 0, 0
             for members in members_of_role:
@@ -242,7 +272,7 @@ class RoleCommands(commands.Cog):
     @commands.command()
     async def roles(self, ctx):
         if ctx.channel.id != self.bot_channel.id:
-            await self.warning_for_paginated_roles_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx)
         else:
             number_of_roles_per_page = 5
             logger.info(f"[RoleCommands roles()] roles command detected from user {ctx.message.author}")
@@ -280,7 +310,7 @@ class RoleCommands(commands.Cog):
     @commands.command()
     async def Roles(self, ctx):  # noqa: N802
         if ctx.channel.id != self.bot_channel.id:
-            await self.warning_for_paginated_roles_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx)
         else:
             number_of_roles_per_page = 5
             logger.info(f"[RoleCommands Roles()] roles command detected from user {ctx.message.author}")
@@ -316,7 +346,7 @@ class RoleCommands(commands.Cog):
     @commands.command()
     async def purgeroles(self, ctx):
         if ctx.channel.id != self.bot_channel.id:
-            await self.warning_for_paginated_roles_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx)
         else:
             logger.info(
                 "[RoleCommands purgeroles()] "
@@ -336,7 +366,7 @@ class RoleCommands(commands.Cog):
 
             if not (bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator):
                 embed.title = "It seems that the bot don't have permissions to delete roles. :("
-                await self.send_message(ctx, embed)
+                await self.send_message_to_user_or_bot_channel(ctx, embed)
 
                 return
             logger.info(
@@ -351,7 +381,7 @@ class RoleCommands(commands.Cog):
 
             if not (ctx.author.guild_permissions.manage_roles or ctx.author.guild_permissions.administrator):
                 embed.title = "You don't have permissions to delete roles. :("
-                await self.send_message(ctx, embed)
+                await self.send_message_to_user_or_bot_channel(ctx, embed)
                 return
             logger.info(
                 "[RoleCommands purgeroles()] user's "
@@ -383,46 +413,16 @@ class RoleCommands(commands.Cog):
 
             if not deleted:
                 embed.title = "No empty roles to delete."
-                await self.send_message(ctx, embed)
+                await self.send_message_to_user_or_bot_channel(ctx, embed)
                 return
             deleted.sort(key=itemgetter(0))
             description = "\n".join(deleted)
             embed.title = f"Purging {len(deleted)} empty roles!"
 
             embed.description = description
-            await self.send_message(ctx, embed)
+            await self.send_message_to_user_or_bot_channel(ctx, embed)
 
-    async def send_message(self, ctx, e_obj):
-        if e_obj is not False:
-            if ctx.channel.id == self.bot_channel.id:
-                await ctx.send(embed=e_obj)
-            else:
-                try:
-                    logger.info("[RoleCommands warning_for_paginated_roles_commands()] attempting to "
-                                "delete the message that invoked the command from outside the bot "
-                                "specific channel ")
-                    await ctx.message.delete()
-                except discord.errors.NotFound:
-                    logger.info("[RoleCommands warning_for_paginated_roles_commands()] it appears the message "
-                                "was already deleted")
-                description = (
-                        e_obj.description + f'\nPlease call the command {ctx.command.name} from the channel '
-                                            f"[#{self.bot_channel.name}](https://discord.com/channels/"
-                                            f"{ctx.guild.id}/{self.bot_channel.id}) to "
-                                            f'avoid getting this warning'
-                )
-                e_obj = await embed(
-                    ctx,
-                    title='ATTENTION:',
-                    colour=0xff0000,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description=description
-                )
-                if e_obj is not False:
-                    await ctx.author.send(embed=e_obj)
-
-    async def warning_for_paginated_roles_commands(self, ctx):
+    async def send_error_message_to_user_for_paginated_commands(self, ctx):
         await ctx.message.delete()
         description = (f'Please call the command `{ctx.command.name}` from the channel '
                        f"[#{self.bot_channel.name}](https://discord.com/channels/"
@@ -438,22 +438,22 @@ class RoleCommands(commands.Cog):
         if e_obj is not False:
             await ctx.author.send(embed=e_obj)
             logger.info(
-                "[RoleCommands warning_for_paginated_roles_commands()] "
+                "[RoleCommands send_error_message_to_user_for_paginated_commands()] "
                 f"embed sent to member {ctx.author}"
             )
 
     async def get_bot_general_channel(self):
         """
-        gets the channel that is roles commands are limited to. because the reminder class
-        was using the channel first for specific uses and therefore was making sure it existed, this class
-        will just wait for the reminder class to make sure it exists first or try to create it rather than attempt
-        to creat the bot specific channel itself
-
-        :return:
+        gets the bot channel that the commands in the RoleCommands class are limited to operating in. Due to the fact
+        that the reminder class was the first class to utilize that bot channel in a specific way and is already
+        handling its detection and possible creation, the RoleCommands class will just wait approximately 100 seconds
+        to give the reminder class a chance to create the bot channel before exiting if the RoleCommands class cannot
+        find the bot channel.
         """
         await self.bot.wait_until_ready()
         bot_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
         environment = self.config.get_config_value('basic_config', 'ENVIRONMENT')
+        bot_channel = None
         if environment == 'PRODUCTION' or environment == 'LOCALHOST':
             logger.info(f"[RoleCommands get_bot_general_channel()] bot_channel_name set to {bot_channel_name} for "
                         f"environment {environment}")
@@ -470,12 +470,11 @@ class RoleCommands(commands.Cog):
                         f"({number_of_retries}/{number_of_retries_to_attempt}) for getting bot_channel ")
             await asyncio.sleep(10)
             number_of_retries += 1
-            bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
-        if bot_channel is None:
+            self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
+        if self.bot_channel is None:
             logger.info("[RoleCommands get_bot_general_channel()] ultimately unable to get the bot_channel. exiting "
                         "now.")
             await asyncio.sleep(20)  # this is just here so that the above log line gets a chance to get printed to
             # discord
             exit(1)
-        self.bot_channel = bot_channel
         logger.info("[RoleCommands get_bot_general_channel()] bot_channel acquired.")
