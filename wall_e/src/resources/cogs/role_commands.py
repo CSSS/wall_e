@@ -444,7 +444,7 @@ class RoleCommands(commands.Cog):
             bot_channel_name = f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
             logger.info(f"[RoleCommands get_bot_general_channel()] bot_channel_name set to {bot_channel_name} for "
                         f"environment {environment}")
-            bot_channel = discord.utils.get(self.bot.guilds[0].channels,name=bot_channel_name)
+            bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
         number_of_retries_to_attempt = 10
         number_of_retries = 0
         while bot_channel is None and number_of_retries < number_of_retries_to_attempt:
@@ -456,7 +456,7 @@ class RoleCommands(commands.Cog):
         if bot_channel is None:
             logger.info("[RoleCommands get_bot_general_channel()] ultimately unable to get the bot_channel. exiting "
                         "now.")
-            await asyncio.sleep(20) # this is just here so that the above log line gets a chance to get printed to
+            await asyncio.sleep(20)  # this is just here so that the above log line gets a chance to get printed to
             # discord
             exit(1)
         self.bot_channel = bot_channel
