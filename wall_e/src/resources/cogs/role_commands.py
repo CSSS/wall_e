@@ -101,7 +101,7 @@ class RoleCommands(commands.Cog):
                 ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"Role **`{role_to_add}**` doesn't exist.\nCalling .newrole {role_to_add}")
+                description=f"Role **`{role_to_add}**` doesn't exist.\nCalling .newrole {role_to_add}"
             )
             await self.send_message(ctx, e_obj)
             return
@@ -341,8 +341,8 @@ class RoleCommands(commands.Cog):
                 return
             logger.info(
                 "[RoleCommands purgeroles()] bot's "
-                f"highest role is {bot_highest_role} and its ability to "
-                f"delete roles is {bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator}"
+                f"highest role is {bot_highest_role} and its ability to delete roles is "
+                f"{bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator}"
             )
 
             # determine if user who is calling the command is able to delete the roles
