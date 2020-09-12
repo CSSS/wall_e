@@ -397,7 +397,14 @@ class RoleCommands(commands.Cog):
             if ctx.channel.id == self.bot_channel.id:
                 await ctx.send(embed=e_obj)
             else:
-                await ctx.message.delete()
+                try:
+                    logger.info("[RoleCommands warning_for_paginated_roles_commands()] attempting to "
+                                "delete the message that invoked the command from outside the bot "
+                                "specific channel ")
+                    await ctx.message.delete()
+                except discord.errors.NotFound:
+                    logger.info("[RoleCommands warning_for_paginated_roles_commands()] it appears the message "
+                                "was already deleted")
                 e_obj = await embed(
                     ctx,
                     title='ATTENTION:',
