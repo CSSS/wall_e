@@ -406,7 +406,7 @@ class RoleCommands(commands.Cog):
                     logger.info("[RoleCommands warning_for_paginated_roles_commands()] it appears the message "
                                 "was already deleted")
                 description = (
-                        e_obj.description + '\nPlease call the command {ctx.command.name} from the channel '
+                        e_obj.description + f'\nPlease call the command {ctx.command.name} from the channel '
                                             f"[#{self.bot_channel.name}](https://discord.com/channels/"
                                             f"{ctx.guild.id}/{self.bot_channel.id}) to "
                                             f'avoid getting this warning'
