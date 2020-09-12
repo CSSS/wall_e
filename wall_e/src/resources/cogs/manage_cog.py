@@ -23,7 +23,7 @@ class ManageCog(commands.Cog):
         self.config = config
         self.help_dict = self.config.get_help_json()
         if self.config.enabled("database", option="DB_ENABLED"):
-            import psycopg2 # noqa
+            import psycopg2  # noqa
             self.psycopg2 = psycopg2
 
     @commands.command(hidden=True)
@@ -38,8 +38,11 @@ class ManageCog(commands.Cog):
     # that originate from channels that match the name of their branch
     def check_test_environment(self, ctx):
         if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+            branch_bot_channel_name = \
+                f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
             if ctx.message.guild is not None and \
-               ctx.channel.name != self.config.get_config_value('basic_config', 'BRANCH_NAME').lower():
+                    (ctx.channel.name != self.config.get_config_value('basic_config', 'BRANCH_NAME').lower() and
+                     ctx.channel.name != branch_bot_channel_name):
                 return False
         return True
 
@@ -77,8 +80,8 @@ class ManageCog(commands.Cog):
     ########################################################
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        if self.check_test_environment(ctx) and  \
-           self.config.enabled("database", option="DB_ENABLED"):
+        if self.check_test_environment(ctx) and \
+                self.config.enabled("database", option="DB_ENABLED"):
             try:
                 host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
                 db_connection_string = (

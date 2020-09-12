@@ -268,7 +268,7 @@ class Reminders(commands.Cog):
         reminder_channel_id = None
         # determines the channel to send the reminder on
         try:
-            reminder_channel_name = self.config.get_config_value('basic_config', 'REMINDER_CHANNEL')
+            reminder_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
             if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'PRODUCTION':
                 logger.info(
                     "[Reminders get_messages()] environment is =[{}]".format(
@@ -298,16 +298,16 @@ class Reminders(commands.Cog):
                 )
                 reminder_chan = discord.utils.get(
                     self.bot.guilds[0].channels,
-                    name='{}_reminders'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME').lower())
+                    name='{}_bot_channel'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME').lower())
                 )
                 if reminder_chan is None:
                     reminder_chan = await self.bot.guilds[0].create_text_channel(
-                         '{}_reminders'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME'))
+                         '{}_bot_channel'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME'))
                     )
                     reminder_channel_id = reminder_chan.id
                     if reminder_channel_id is None:
                         logger.info(
-                            "[Reminders get_messages()] the channel designated for reminders [{}_reminders] in {} "
+                            "[Reminders get_messages()] the channel designated for reminders [{}_bot_channel] in {} "
                             "does not exist and I was unable to create it, exiting now....".format(
                                 self.config.get_config_value('basic_config', 'BRANCH_NAME'),
                                 self.config.get_config_value('basic_config', 'BRANCH_NAME')
@@ -325,7 +325,7 @@ class Reminders(commands.Cog):
                     )
                     reminder_channel_id = reminder_chan.id
             elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
-                reminder_channel_name = self.config.get_config_value('basic_config', 'REMINDER_CHANNEL')
+                reminder_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
                 logger.info(
                     "[Reminders get_messages()] environment is =[{}]".format(
                         self.config.get_config_value('basic_config', 'ENVIRONMENT')
@@ -359,7 +359,7 @@ class Reminders(commands.Cog):
                     author_id = row[3]
                     logger.info('[Reminders get_message()] obtained the message of [{}] for '
                                 'author with id [{}] for '
-                                'REMINDER_CHANNEL [{}]'.format(reminder_message, author_id, reminder_channel_id))
+                                'BOT_GENERAL_CHANNEL [{}]'.format(reminder_message, author_id, reminder_channel_id))
                     logger.info('[Reminders get_message()] sent off '
                                 'reminder to {} about \"{}\"'.format(author_id, reminder_message))
                     e_obj = await embed(

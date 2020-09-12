@@ -30,7 +30,7 @@ deleted_discord_branch_channels () {
 			log_channel_id="${list_of_channel_ids[$i]}"
 		fi
 
-		if [ "${list_of_channel_names[$i]}" = "${branch_name}_reminders" ]; then
+		if [ "${list_of_channel_names[$i]}" = "${branch_name}_bot_channel" ]; then
 			reminder_channel_id="${list_of_channel_ids[$i]}"
 		fi
 	done

@@ -9,7 +9,7 @@ services:  #Services that are needed for the wall_e app
         environment:
             - TOKEN
             - BOT_LOG_CHANNEL
-            - REMINDER_CHANNEL
+            - BOT_GENERAL_CHANNEL
             - BRANCH_NAME
             - ENVIRONMENT
             - COMPOSE_PROJECT_NAME
