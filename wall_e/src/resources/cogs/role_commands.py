@@ -405,17 +405,19 @@ class RoleCommands(commands.Cog):
                 except discord.errors.NotFound:
                     logger.info("[RoleCommands warning_for_paginated_roles_commands()] it appears the message "
                                 "was already deleted")
+                description = (
+                        e_obj.description + '\nPlease call the command {ctx.command.name} from the channel '
+                                            f"[#{self.bot_channel.name}](https://discord.com/channels/"
+                                            f"{ctx.guild.id}/{self.bot_channel.id}) to "
+                                            f'avoid getting this warning'
+                )
                 e_obj = await embed(
                     ctx,
                     title='ATTENTION:',
                     colour=0xff0000,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description=e_obj.description,
-                    footer=f'Please call the command {ctx.command.name} from the channel '
-                           f"[#{self.bot_channel.name}](https://discord.com/channels/"
-                           f"{ctx.guild.id}/{self.bot_channel.id}) to "
-                           f'avoid getting this warning'
+                    description=description
                 )
                 if e_obj is not False:
                     await ctx.author.send(embed=e_obj)
