@@ -193,6 +193,8 @@ class RoleCommands(commands.Cog):
     async def send_message_to_user_or_bot_channel(self, ctx, e_obj):
         if e_obj is not False:
             if ctx.channel.id == self.bot_channel.id:
+                logger.info("[RoleCommands send_message_to_user_or_bot_channel()] sending result to"
+                            " the bot channel ")
                 await ctx.send(embed=e_obj)
             else:
                 try:
@@ -218,6 +220,7 @@ class RoleCommands(commands.Cog):
                     description=description
                 )
                 if e_obj is not False:
+                    logger.info("[RoleCommands send_message_to_user_or_bot_channel()] DMing the result to the user")
                     await ctx.author.send(embed=e_obj)
 
     @commands.command()
