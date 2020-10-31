@@ -6,7 +6,6 @@ node {
                             passwordVariable: 'DOCKER_HUB_PASSWORD',
                             usernameVariable: 'DOCKER_HUB_USER_NAME'
                         )]) {
-        // Parse the GitHub webhook's payload
         sh label: '', script: """bash -c \'
           rm -fr wall_e || true;
           mkdir wall_e;
