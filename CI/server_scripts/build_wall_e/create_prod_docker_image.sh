@@ -11,6 +11,17 @@ if [ -z "${JENKINS_HOME}" ]; then
     exit 1
 fi
 
+if [ -z "${DOCKER_HUB_PASSWORD}" ]; then
+    echo "DOCKER_HUB_PASSWORD is not set"
+    exit 1
+fi
+
+
+if [ -z "${DOCKER_HUB_USER_NAME}" ]; then
+    echo "DOCKER_HUB_USER_NAME is not set"
+    exit 1
+fi
+
 #if [ -z "${BRANCH_NAME}" ]; then
 #    echo "BRANCH_NAME is not set"
 #    exit 1
