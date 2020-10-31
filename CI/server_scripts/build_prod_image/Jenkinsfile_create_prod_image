@@ -1,7 +1,11 @@
 node {
    stage('Create Prod Image') {
 
-    withCredentials([string(credentialsId: 'DISCORD_PROD_TOKEN', variable: 'TOKEN')]) {
+    withCredentials([usernamePassword(
+                            credentialsId: 'docker-hub-perms',
+                            passwordVariable: 'DOCKER_HUB_PASSWORD',
+                            usernameVariable: 'DOCKER_HUB_USER_NAME'
+                        )]) {
         // Parse the GitHub webhook's payload
         sh label: '', script: """bash -c \'
           rm -fr wall_e || true;
