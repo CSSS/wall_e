@@ -3,8 +3,6 @@ node {
 
     withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'token')]) {
         // Parse the GitHub webhook's payload
-        def object = readJSON text: "${payload}"
-        def branch_name = object.ref
         sh label: '', script: """bash -c \'
           rm -fr wall_e || true;
           mkdir wall_e;
