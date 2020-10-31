@@ -1,0 +1,22 @@
+node {
+   stage('Create Prod Image') {
+
+    withCredentials([string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'token')]) {
+        // Parse the GitHub webhook's payload
+        def object = readJSON text: "${payload}"
+        def branch_name = object.ref
+        sh label: '', script: """bash -c \'
+          rm -fr wall_e || true;
+          mkdir wall_e;
+          cd wall_e;
+          git init;
+          git remote add origin https://github.com/CSSS/wall_e.git;
+          git fetch --depth 1 origin;
+          git checkout master;
+          ./CI/server_scripts/build_wall_e/create_prod_docker_image.sh;
+          cd ../;
+          rm -fr wall_e;
+        \'"""
+    }
+   }
+}
