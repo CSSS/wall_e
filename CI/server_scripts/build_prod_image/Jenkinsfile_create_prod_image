@@ -14,7 +14,7 @@ node {
           git init;
           git remote add origin https://github.com/CSSS/wall_e.git;
           git fetch --depth 1 origin;
-          git checkout add_CI_for_regular_docker_pushes;
+          git checkout master;
           ./CI/server_scripts/build_wall_e/create_prod_docker_image.sh;
           cd ../;
           rm -fr wall_e;
