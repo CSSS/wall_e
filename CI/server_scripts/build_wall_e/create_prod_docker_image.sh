@@ -11,12 +11,12 @@ if [ -z "${JENKINS_HOME}" ]; then
     exit 1
 fi
 
-if [ -z "${BRANCH_NAME}" ]; then
-    echo "BRANCH_NAME is not set"
-    exit 1
-fi
-
-export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
+#if [ -z "${BRANCH_NAME}" ]; then
+#    echo "BRANCH_NAME is not set"
+#    exit 1
+#fi
+#
+#export branch_name=$(echo "$BRANCH_NAME" | awk '{print tolower($0)}')
 
 
 export docker_registry="sfucsssorg"
