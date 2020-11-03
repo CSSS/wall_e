@@ -71,7 +71,7 @@ class ManageCog(commands.Cog):
                 await ctx.send(
                     "You do not have adequate permission to execute this command, incident will be reported"
                 )
-            return (len(shared_roles) > 0)
+            return (len(shared_perms) > 0)
         return False
 
     ########################################################
