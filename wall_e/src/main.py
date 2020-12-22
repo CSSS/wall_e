@@ -87,8 +87,22 @@ async def on_member_join(member):
             avatar=WallEConfig.get_config_value('bot_profile', 'BOT_AVATAR')
         )
         if e_obj is not False:
-            await member.send(embed=e_obj)
-            logger.info("[main.py on_member_join] embed sent to member {}".format(member))
+            retries = 0
+            success = False
+            max_number_of_member_join_retries = int(WallEConfig.get_config_value(
+                'basic_config', 'max_number_of_member_join_retries'
+            ))
+            while retries < max_number_of_member_join_retries and not success:
+                try:
+                    await member.send(embed=e_obj)
+                    success = True
+                    logger.info("[main.py on_member_join] embed sent to member {}".format(member))
+                except Exception as error:
+                    logger.warn(f"[main.py on_member_join] unable to send embed to member {member} due to {error}")
+                    logger.info(
+                        f"[main.py on_member_join] will retry {max_number_of_member_join_retries - retries} more "
+                        "times")
+                    retries += 1
 
 ####################
 # STARTING POINT ##
