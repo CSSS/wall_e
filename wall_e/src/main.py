@@ -10,6 +10,8 @@ from resources.utilities.embed import embed as imported_embed
 from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
 from discord import Intents
+import asyncio
+
 intents = Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
 
