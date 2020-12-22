@@ -99,7 +99,7 @@ async def on_member_join(member):
                     logger.info("[main.py on_member_join] embed sent to member {}".format(member))
                 except Exception as error:
                     logger.warn(f"[main.py on_member_join] unable to send embed to member {member} due to {error}")
-                    logger.info(
+                    logger.warn(
                         f"[main.py on_member_join] will retry {max_number_of_member_join_retries - retries} more "
                         "times")
                     await asyncio.sleep(5)
