@@ -102,6 +102,7 @@ async def on_member_join(member):
                     logger.info(
                         f"[main.py on_member_join] will retry {max_number_of_member_join_retries - retries} more "
                         "times")
+                    await asyncio.sleep(5)
                     retries += 1
 
 ####################
