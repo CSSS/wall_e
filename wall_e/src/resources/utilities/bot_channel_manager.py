@@ -17,7 +17,9 @@ class BotChannelManager:
         if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'PRODUCTION':
             self.bot_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
         elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-            self.bot_channel_name = f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
+            self.bot_channel_name = (
+                f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
+            )
         elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
             self.bot_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
 
