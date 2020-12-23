@@ -1,18 +1,25 @@
-from discord.ext import commands
 import importlib
-import os
 import inspect
+import os
 import sys
+
+from discord import Intents
+from discord.ext import commands
+
 from resources.cogs.manage_cog import ManageCog
+from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.database import setup_database, setup_stats_of_command_database_table
 from resources.utilities.embed import embed as imported_embed
-from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
-from discord import Intents
+from resources.utilities.logger_setup import initialize_logger
+
 intents = Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
 
+
+logger, FILENAME = initialize_logger()
+WallEConfig = WallEConfig(os.environ['ENVIRONMENT'])
 
 ##################################################
 # signals to all functions that use            ##
@@ -90,6 +97,7 @@ async def on_member_join(member):
             await member.send(embed=e_obj)
             logger.info("[main.py on_member_join] embed sent to member {}".format(member))
 
+
 ####################
 # STARTING POINT ##
 ####################
@@ -124,6 +132,7 @@ if __name__ == "__main__":
     logger.info("[main.py] default help command being removed")
     bot.remove_command("help")
     # tries to loads any commands specified in the_commands into the bot
+    bot_channel_manager = BotChannelManager(WallEConfig, bot)
 
     for cog in WallEConfig.get_cogs():
         try:
@@ -131,7 +140,12 @@ if __name__ == "__main__":
             cog_file = importlib.import_module(str(cog['path'])+str(cog["name"]))
             cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
             cog_to_load = getattr(cog_file, cog_class_name)
-            bot.add_cog(cog_to_load(bot, WallEConfig))
+            cogs_that_use_bot_channel = \
+                WallEConfig.get_config_value("basic_config", "cogs_that_use_bot_channel").split(",")
+            if cog_class_name in cogs_that_use_bot_channel:
+                bot.add_cog(cog_to_load(bot, WallEConfig, bot_channel_manager))
+            else:
+                bot.add_cog(cog_to_load(bot, WallEConfig))
             logger.info("[main.py] {} successfully loaded".format(cog["name"]))
         except Exception as e:
             exception = '{}: {}'.format(type(e).__name__, e)

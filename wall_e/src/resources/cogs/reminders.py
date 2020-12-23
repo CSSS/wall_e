@@ -19,9 +19,11 @@ logger = logging.getLogger('wall_e')
 
 class Reminders(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_channel_manager):
         self.bot = bot
         self.config = config
+        self.bot_channel = None
+        self.bot_channel_acquired = False
 
         # setting up database connection
         try:
@@ -44,7 +46,7 @@ class Reminders(commands.Cog):
                               "reminder_date timestamp DEFAULT now() + interval '1' year, message varchar(2000) "
                               "DEFAULT 'INVALID', author_id varchar(500) DEFAULT 'INVALID', author_name varchar(500)"
                               " DEFAULT 'INVALID', message_id varchar(200) DEFAULT 'INVALID');")
-            self.bot.loop.create_task(self.get_messages())
+            self.bot.loop.create_task(self.get_messages(bot_channel_manager))
             logger.info("[Reminders __init__] PostgreSQL connection established")
         except Exception as e:
             logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL "
@@ -263,93 +265,8 @@ class Reminders(commands.Cog):
 # if a reminder's time has come       ##
 # to be sent to its channel           ##
 #########################################
-    async def get_messages(self):
-        await self.bot.wait_until_ready()
-        reminder_channel_id = None
-        # determines the channel to send the reminder on
-        try:
-            reminder_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
-            if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'PRODUCTION':
-                logger.info(
-                    "[Reminders get_messages()] environment is =[{}]".format(
-                        self.config.get_config_value('basic_config', 'ENVIRONMENT')
-                    )
-                )
-                reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=reminder_channel_name)
-                if reminder_chan is None:
-                    logger.info("[Reminders get_messages()] reminder channel does not exist in PRODUCTION.")
-                    reminder_chan = await self.bot.guilds[0].create_text_channel(reminder_channel_name)
-                    reminder_channel_id = reminder_chan.id
-                    if reminder_channel_id is None:
-                        logger.info("[Reminders get_messages()] the channel designated for reminders "
-                                    "[{}] in PRODUCTION does not exist and I was unable to create "
-                                    "it, exiting now....".format(reminder_channel_name))
-                        exit(1)
-                    logger.info("[Reminders get_messages()] variable "
-                                "\"reminder_channel_id\" is set to \"{}\"".format(reminder_channel_id))
-                else:
-                    logger.info("[Reminders get_messages()] reminder channel exists in PRODUCTION and was detected.")
-                    reminder_channel_id = reminder_chan.id
-            elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-                logger.info(
-                    "[Reminders get_messages()] branch is =[{}]".format(
-                        self.config.get_config_value('basic_config', 'BRANCH_NAME')
-                    )
-                )
-                reminder_chan = discord.utils.get(
-                    self.bot.guilds[0].channels,
-                    name='{}_bot_channel'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME').lower())
-                )
-                if reminder_chan is None:
-                    reminder_chan = await self.bot.guilds[0].create_text_channel(
-                         '{}_bot_channel'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME'))
-                    )
-                    reminder_channel_id = reminder_chan.id
-                    if reminder_channel_id is None:
-                        logger.info(
-                            "[Reminders get_messages()] the channel designated for reminders [{}_bot_channel] in {} "
-                            "does not exist and I was unable to create it, exiting now....".format(
-                                self.config.get_config_value('basic_config', 'BRANCH_NAME'),
-                                self.config.get_config_value('basic_config', 'BRANCH_NAME')
-                            )
-                        )
-                        exit(1)
-                    logger.info("[Reminders get_messages()] variable "
-                                "\"reminder_channel_id\" is set to \"{}\"".format(reminder_channel_id))
-                else:
-                    logger.info(
-                        "[Reminders get_messages()] reminder channel exists in {} and was "
-                        "detected.".format(
-                            self.config.get_config_value('basic_config', 'BRANCH_NAME')
-                        )
-                    )
-                    reminder_channel_id = reminder_chan.id
-            elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
-                reminder_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
-                logger.info(
-                    "[Reminders get_messages()] environment is =[{}]".format(
-                        self.config.get_config_value('basic_config', 'ENVIRONMENT')
-                    )
-                )
-                reminder_chan = discord.utils.get(self.bot.guilds[0].channels, name=reminder_channel_name)
-                if (reminder_chan is None):
-                    logger.info("[Remindes get_messages()] reminder channel does not exist in local dev.")
-                    reminder_chan = await self.bot.guilds[0].create_text_channel(reminder_channel_name)
-                    reminder_channel_id = reminder_chan.id
-                    if reminder_channel_id is None:
-                        logger.info("[Reminders get_messages()] the channel designated for reminders "
-                                    "[{}] in local dev does not exist and I was unable to create it "
-                                    "it, exiting now.....".format(reminder_channel_name))
-                        exit(1)
-                    logger.info("[Reminders get_messages()] variables "
-                                "\"reminder_channel_id\" is set to \"{}\"".format(reminder_channel_id))
-                else:
-                    logger.info("[Reminders get_messages()] reminder channel exists in local dev and was detected.")
-                    reminder_channel_id = reminder_chan.id
-        except Exception as e:
-            logger.error("[Reminders get_messages()] enountered following exception when connecting to reminder "
-                         "channel\n{}".format(e))
-        reminder_channel = self.bot.get_channel(reminder_channel_id)  # channel ID goes here
+    async def get_messages(self, bot_channel_manager):
+        self.bot_channel = await bot_channel_manager.get_bot_channel()
         while True:
             dt = datetime.datetime.now()
             try:
@@ -359,11 +276,11 @@ class Reminders(commands.Cog):
                     author_id = row[3]
                     logger.info('[Reminders get_message()] obtained the message of [{}] for '
                                 'author with id [{}] for '
-                                'BOT_GENERAL_CHANNEL [{}]'.format(reminder_message, author_id, reminder_channel_id))
+                                'BOT_GENERAL_CHANNEL [{}]'.format(reminder_message, author_id, self.bot_channel))
                     logger.info('[Reminders get_message()] sent off '
                                 'reminder to {} about \"{}\"'.format(author_id, reminder_message))
                     e_obj = await embed(
-                        reminder_channel,
+                        self.bot_channel,
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                         description="This is your reminder to {}".format(reminder_message),
@@ -371,7 +288,7 @@ class Reminders(commands.Cog):
                     )
                     self.curs.execute("DELETE FROM Reminders WHERE reminder_id = {};".format(row[0]))
                     if e_obj is not False:
-                        await reminder_channel.send('<@{}>'.format(author_id), embed=e_obj)
+                        await self.bot_channel.send('<@{}>'.format(author_id), embed=e_obj)
             except Exception as error:
                 logger.error('[Reminders get_message()] Ignoring exception when generating reminder:')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
