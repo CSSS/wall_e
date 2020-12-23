@@ -96,9 +96,10 @@ async def on_member_join(member):
         )
         channel_embed = await imported_embed(
             member,
-            description=('Welcome !\n\nPlease check out our '
-                         '[README](https://discord.com/channels/228761314644852736/50815260190'
-                         '9395457) for instructions on how to conduct yourself on the SFU CSSS Discord Guild'),
+            description=('Please check out our '
+                         '[README](https://discord.com/channels/228761314644852736/508152601909395457/'
+                         '508153138759335968) for instructions on how to conduct yourself on the SFU '
+                         'CSSS Discord Guild'),
             author=WallEConfig.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=WallEConfig.get_config_value('bot_profile', 'BOT_AVATAR')
         )
@@ -119,7 +120,7 @@ async def on_member_join(member):
                     if bot_channel_name is not None:
                         bot_channel = discord.utils.get(bot.guilds[0].channels, name=bot_channel_name)
                     if bot_channel is not None:
-                        await bot_channel.send(f"<@{member.id}>", embed=channel_embed)
+                        await bot_channel.send(f"Welcome <@{member.id}>!", embed=channel_embed)
                         logger.info(f"[main.py on_member_join] embed tagging member {member} send to bot_channel")
 
 
