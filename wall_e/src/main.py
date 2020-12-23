@@ -20,11 +20,13 @@ bot = commands.Bot(command_prefix='.', intents=intents)
 logger, FILENAME = initialize_logger()
 WallEConfig = WallEConfig(os.environ['ENVIRONMENT'])
 
+
 ##################################################
 # signals to all functions that use            ##
 # "wait_until_ready" that the bot is now ready ##
 # to start performing background tasks         ##
 ##################################################
+
 @bot.event
 async def on_ready():
     logger.info('[main.py on_ready()] Logged in as')
@@ -112,8 +114,8 @@ async def on_member_join(member):
                             WallEConfig.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
                         bot_channel_name = WallEConfig.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
                     elif WallEConfig.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-                        bot_channel_name=(f"{WallEConfig.get_config_value('basic_config', 'BRANCH_NAME').lower()}_"
-                                          f"bot_channel")
+                        bot_channel_name = (f"{WallEConfig.get_config_value('basic_config', 'BRANCH_NAME').lower()}_"
+                                            f"bot_channel")
                     if bot_channel_name is not None:
                         bot_channel = discord.utils.get(bot.guilds[0].channels, name=bot_channel_name)
                     if bot_channel is not None:
