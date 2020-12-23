@@ -17,6 +17,8 @@ from resources.utilities.logger_setup import initialize_logger
 intents = Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
 
+logger, FILENAME = initialize_logger()
+WallEConfig = WallEConfig(os.environ['ENVIRONMENT'])
 
 ##################################################
 # signals to all functions that use            ##
@@ -104,21 +106,25 @@ async def on_member_join(member):
                 logger.info(f"[main.py on_member_join] embed sent to member {member}")
             except discord.errors.Forbidden:
                 if channel_embed is not False:
-                    bot_channel = discord.utils.get(
-                        bot.guilds[0].channels,
-                        name=WallEConfig.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
-                    )
-                    await bot_channel.send(f"<@{member.id}>", embed=channel_embed)
-                    logger.info(f"[main.py on_member_join] embed tagging member {member} send to bot_channel")
+                    bot_channel_name = None
+                    bot_channel = None
+                    if WallEConfig.get_config_value('basic_config', 'ENVIRONMENT') == 'PRODUCTION' or \
+                            WallEConfig.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
+                        bot_channel_name = WallEConfig.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
+                    elif WallEConfig.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+                        bot_channel_name=(f"{WallEConfig.get_config_value('basic_config', 'BRANCH_NAME').lower()}_"
+                                          f"bot_channel")
+                    if bot_channel_name is not None:
+                        bot_channel = discord.utils.get(bot.guilds[0].channels, name=bot_channel_name)
+                    if bot_channel is not None:
+                        await bot_channel.send(f"<@{member.id}>", embed=channel_embed)
+                        logger.info(f"[main.py on_member_join] embed tagging member {member} send to bot_channel")
 
 
 ####################
 # STARTING POINT ##
 ####################
 if __name__ == "__main__":
-    logger, FILENAME = initialize_logger()
-    WallEConfig = WallEConfig(os.environ['ENVIRONMENT'])
-
     logger.info("[main.py] Wall-E is starting up")
     if WallEConfig.enabled("database", option="DB_ENABLED"):
         setup_database(WallEConfig)
