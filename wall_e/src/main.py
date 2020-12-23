@@ -103,9 +103,6 @@ async def on_member_join(member):
 # STARTING POINT ##
 ####################
 if __name__ == "__main__":
-    logger, FILENAME = initialize_logger()
-    WallEConfig = WallEConfig(os.environ['ENVIRONMENT'])
-
     logger.info("[main.py] Wall-E is starting up")
     if WallEConfig.enabled("database", option="DB_ENABLED"):
         setup_database(WallEConfig)
