@@ -406,8 +406,9 @@ class RoleCommands(commands.Cog):
                             soft_roles.append(role)
                         else:
                             undeletable_roles.append(role.name)
-                logger.info("[RoleCommands purgeroles()] Located all the empty roles that both the user and the bot can "
-                            "delete")
+                logger.info(
+                    "[RoleCommands purgeroles()] Located all the empty roles that both the user and the bot can "
+                    "delete")
                 logger.info(f"[RoleCommands purgeroles()] the ones it can't are: {', '.join(undeletable_roles)}")
 
                 deleted = []
