@@ -1,17 +1,18 @@
-import discord
-from discord.ext import commands
 import importlib
-import os
 import inspect
+import os
 import sys
+
+import discord
+from discord import Intents
+from discord.ext import commands
+
 from resources.cogs.manage_cog import ManageCog
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.database import setup_database, setup_stats_of_command_database_table
 from resources.utilities.embed import embed as imported_embed
-from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
-from discord import Intents
-import asyncio
+from resources.utilities.logger_setup import initialize_logger
 
 intents = Intents.all()
 bot = commands.Bot(command_prefix='.', intents=intents)
@@ -91,7 +92,7 @@ async def on_member_join(member):
         )
         channel_embed = await imported_embed(
             member,
-            description=(f'Welcome !\n\nPlease check out our '
+            description=('Welcome !\n\nPlease check out our '
                          '[README](https://discord.com/channels/228761314644852736/50815260190'
                          '9395457) for instructions on how to conduct yourself on the SFU CSSS Discord Guild'),
             author=WallEConfig.get_config_value('bot_profile', 'BOT_NAME'),
