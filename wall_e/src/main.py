@@ -6,7 +6,6 @@ import sys
 from resources.cogs.manage_cog import ManageCog
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.database import setup_database, setup_stats_of_command_database_table
-from resources.utilities.embed import embed as imported_embed
 from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
 from discord import Intents
