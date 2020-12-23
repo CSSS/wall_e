@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 import importlib
 import os
@@ -32,13 +33,13 @@ async def on_ready():
     logger.info(
         "[main.py on_ready()] BOT_NAME initialized to {}".format(
             WallEConfig.get_config_value("bot_profile", "BOT_NAME")
-            )
         )
+    )
     logger.info(
         "[main.py on_ready()] BOT_AVATAR initialized to {}".format(
             WallEConfig.get_config_value("bot_profile", "BOT_AVATAR")
-            )
         )
+    )
     logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
 
 
@@ -82,30 +83,33 @@ async def on_member_join(member):
         output += "\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass"
         output += " cmpt316>\n"
         output += "\tPlease keep Academic Honesty in mind when discussing course material here.\n"
-        e_obj = await imported_embed(
+        dm_embed = await imported_embed(
             member,
             description=output,
             author=WallEConfig.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=WallEConfig.get_config_value('bot_profile', 'BOT_AVATAR')
         )
-        if e_obj is not False:
-            retries = 0
-            success = False
-            max_number_of_member_join_retries = int(WallEConfig.get_config_value(
-                'basic_config', 'max_number_of_member_join_retries'
-            ))
-            while retries < max_number_of_member_join_retries and not success:
-                try:
-                    await member.send(embed=e_obj)
-                    success = True
-                    logger.info("[main.py on_member_join] embed sent to member {}".format(member))
-                except Exception as error:
-                    logger.warn(f"[main.py on_member_join] unable to send embed to member {member} due to {error}")
-                    logger.warn(
-                        f"[main.py on_member_join] will retry {max_number_of_member_join_retries - retries} more "
-                        "times")
-                    await asyncio.sleep(5)
-                    retries += 1
+        channel_embed = await imported_embed(
+            member,
+            description=(f'Welcome !\n\nPlease check out our '
+                         '[README](https://discord.com/channels/228761314644852736/50815260190'
+                         '9395457) for instructions on how to conduct yourself on the SFU CSSS Discord Guild'),
+            author=WallEConfig.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=WallEConfig.get_config_value('bot_profile', 'BOT_AVATAR')
+        )
+        if dm_embed is not False:
+            try:
+                await member.send(embed=dm_embed)
+                logger.info(f"[main.py on_member_join] embed sent to member {member}")
+            except discord.errors.Forbidden:
+                if channel_embed is not False:
+                    bot_channel = discord.utils.get(
+                        bot.guilds[0].channels,
+                        name=WallEConfig.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
+                    )
+                    await bot_channel.send(f"<@{member.id}>", embed=channel_embed)
+                    logger.info(f"[main.py on_member_join] embed tagging member {member} send to bot_channel")
+
 
 ####################
 # STARTING POINT ##
@@ -145,7 +149,7 @@ if __name__ == "__main__":
     for cog in WallEConfig.get_cogs():
         try:
             logger.info("[main.py] attempting to load command {}".format(cog["name"]))
-            cog_file = importlib.import_module(str(cog['path'])+str(cog["name"]))
+            cog_file = importlib.import_module(str(cog['path']) + str(cog["name"]))
             cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
             cog_to_load = getattr(cog_file, cog_class_name)
             bot.add_cog(cog_to_load(bot, WallEConfig))
