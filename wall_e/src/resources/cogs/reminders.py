@@ -1,19 +1,19 @@
-from discord.ext import commands
-import discord
+import asyncio
+import datetime
 # import json
 import logging
-import asyncio
-import parsedatetime
-import time
-from time import mktime
-# import helper_files.testenv
-import traceback
 import sys
-from resources.utilities.embed import embed
+import time
+import traceback
+from time import mktime
+
+import parsedatetime
 import psycopg2
-# import os
-import datetime
 import pytz
+from discord.ext import commands
+
+from resources.utilities.embed import embed
+
 logger = logging.getLogger('wall_e')
 
 

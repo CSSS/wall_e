@@ -40,8 +40,8 @@ class BotChannelManager:
                     bot_channel_id = bot_chan.id
                     if bot_channel_id is None:
                         logger.info("[BotChannelManager __init__()] the channel designated for bot messages "
-                                    f"[{self.bot_channel_name}] in PRODUCTION does not exist and I was unable to create "
-                                    "it, exiting now....")
+                                    f"[{self.bot_channel_name}] in PRODUCTION does not exist and "
+                                    "I was unable to create it, exiting now....")
                         exit(1)
                     logger.info("[BotChannelManager __init__()] variable "
                                 f"\"bot_channel_id\" is set to \"{bot_channel_id}\"")
@@ -91,8 +91,8 @@ class BotChannelManager:
                     bot_channel_id = bot_chan.id
                     if bot_channel_id is None:
                         logger.info("[BotChannelManager __init__()] the channel designated for bot messages "
-                                    f"[{self.bot_channel_name}] in local dev does not exist and I was unable to create it "
-                                    "it, exiting now.....")
+                                    f"[{self.bot_channel_name}] in local dev does not exist and I "
+                                    "was unable to create it it, exiting now.....")
                         exit(1)
                     logger.info("[BotChannelManager __init__()] variables "
                                 f"\"bot_channel_id is\" is set to \"{bot_channel_id}\"")

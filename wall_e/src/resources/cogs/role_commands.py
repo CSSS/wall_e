@@ -1,11 +1,11 @@
-import asyncio
-
-from discord.ext import commands
-import discord
 import logging
-from resources.utilities.paginate import paginate_embed
-from resources.utilities.embed import embed
 from operator import itemgetter
+
+import discord
+from discord.ext import commands
+
+from resources.utilities.embed import embed
+from resources.utilities.paginate import paginate_embed
 
 logger = logging.getLogger('wall_e')
 
@@ -17,7 +17,6 @@ class RoleCommands(commands.Cog):
         self.config = config
         self.bot_channel = None
         self.bot_channel_acquired = False
-        print(f"id(bot_channel_manager) from role_commands {id(bot_channel_manager)}")
         self.bot.loop.create_task(self.get_bot_channel(bot_channel_manager))
 
     @commands.command()
