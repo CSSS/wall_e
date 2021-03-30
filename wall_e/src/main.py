@@ -6,7 +6,6 @@ import sys
 from resources.cogs.manage_cog import ManageCog
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.database import setup_database, setup_stats_of_command_database_table
-from resources.utilities.embed import embed as imported_embed
 from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.log_channel import write_to_bot_log_channel
 from discord import Intents
@@ -53,42 +52,6 @@ async def on_message(message):
     else:
         await bot.process_commands(message)
 
-
-@bot.listen()
-async def on_member_join(member):
-    if member is not None:
-        output = "Hi, welcome to the SFU CSSS Discord Server\n"
-        output += "\tWe are a group of students who live to talk about classes and nerdy stuff.\n"
-        output += "\tIf you need help, please ping any of our Execs, Execs at large, or First Year Reps.\n"
-        output += "\n"
-        output += "\tOur general channels include some of the following:\n"
-        output += "\t[#off-topic](https://discord.com/channels/228761314644852736/228761314644852736)"
-        output += ", where we discuss damn near anything.\n"
-        output += "\t[#first-years](https://discord.com/channels/228761314644852736/302709292572737537)"
-        output += ", for students who are starting, or about to start their first year.\n"
-        output += "\t[#discussion](https://discord.com/channels/228761314644852736/301170351667281920)"
-        output += ", for serious non-academic discussion. (Politics et al.)\n"
-        output += "\t[#sfu-discussions](https://discord.com/channels/228761314644852736/245476758546022400)"
-        output += ", for all SFU related discussion.\n"
-        output += "\t[#projects_and_dev](https://discord.com/channels/228761314644852736/293120981067890691)"
-        output += ", for non-academic tech/dev/project discussion.\n"
-        output += "\t[#bot_commands_and_misc](https://discord.com/channels/228761314644852736/354084037465473025)"
-        output += ", for command testing to reduce spam on other channels.\n"
-        output += "\n"
-        output += "\n"
-        output += "\tWe also have a smattering of course specific Academic channels.\n"
-        output += "\tYou can give yourself a class role by running <.iam cmpt320> or create a new class by <.newclass"
-        output += " cmpt316>\n"
-        output += "\tPlease keep Academic Honesty in mind when discussing course material here.\n"
-        e_obj = await imported_embed(
-            member,
-            description=output,
-            author=WallEConfig.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=WallEConfig.get_config_value('bot_profile', 'BOT_AVATAR')
-        )
-        if e_obj is not False:
-            await member.send(embed=e_obj)
-            logger.info("[main.py on_member_join] embed sent to member {}".format(member))
 
 ####################
 # STARTING POINT ##
