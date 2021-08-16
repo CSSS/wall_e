@@ -225,6 +225,9 @@ class RoleCommands(commands.Cog):
 
     @commands.command()
     async def whois(self, ctx, role_to_check):
+        if f"{role_to_check}" == "Muted":
+            await ctx.send("no peaking at the muted folks")
+            return
         if ctx.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(ctx)
         else:
