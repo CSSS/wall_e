@@ -324,5 +324,22 @@
 		"description": [
 			"Creates an embed that report a win for your team."
 		]
+	},
+	"ban" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ],
+		"description": [ ]
+	},
+
+	"ban_history" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ],
+		"description": [ ]
 	}
 }
