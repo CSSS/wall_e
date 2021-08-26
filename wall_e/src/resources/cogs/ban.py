@@ -5,6 +5,7 @@ import asyncio
 from resources.utilities.embed import embed as em
 import psycopg2
 import datetime
+import re
 import logging
 logger = logging.getLogger('wall_e')
 
@@ -15,6 +16,9 @@ class Ban(commands.Cog):
         self.bot = bot
         self.config = config
         self.blacklist = []
+
+        # self.mod_channel = discord.utils.get(bot.guilds[0].channels, name="council")
+        # print(self.mod_channel)
 
         # establish connection to db
         # try:
@@ -42,28 +46,69 @@ class Ban(commands.Cog):
         #     logger.error("[Ban __init__] enountered following exception when setting up PostgreSQL "
         #                  f"connection\n{e}")
 
-    @commands.command()
-    async def ban(self, ctx, mention: discord.Member, reason=None):
-        print('banned lul')
-        print(mention)
-        print(type(mention))
-        await ctx.send("something happened i guess")
+    @commands.Cog.listener(name='on_ready')
+    async def load_mod_channel(self):
+        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council")
 
     @commands.command()
-    async def ban_history(self, ctx, mention: discord.Member):
-        print('getting history')
-        await ctx.send('history!')
+    async def ban(self, ctx, *args):
+        args = list(args)
+        mod_info = [ctx.author.name+'#'+ctx.author.discriminator, ctx.author.id]
 
-    @ban.error
-    @ban_history.error
-    async def ban_error(self, ctx, error):
-        if isinstance(error, commands.MemberNotFound):
-            await ctx.send('I could not find that member...')
+        # confirm at least 1 @ mention of user to ban
+        if len(ctx.message.mentions) < 1:
+            e_obj = await em(ctx=ctx, title="Invalid Arguments",
+                             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                             content=[("Error", "Please @ mention the user(s) to ban")], colour=0xA6192E,
+                             footer="Command Error")
+            if e_obj:
+                await ctx.send(embed=e_obj)
+            return
+
+        # get mentions
+        users_to_ban = ctx.message.mentions
+
+        # construct reason, but first remove @'s from the args
+        reason = ''.join([i for i in args if not re.match(r'<@!?[0-9]*>', i)])
+        reason = reason if reason else "No Reason Given!"
+        print(f'reason {reason}')
+
+        # get user info for db
+        user_info = [[user.name+'#'+user.discriminator, user.id] for user in users_to_ban]
+
+        # ban
+        dm = True
+        for user in users_to_ban:
+            # dm banned user
+            e_obj = await em(ctx, title="Banned", content=[("You've been banned from", ctx.guild.name)])
+            try:
+                if e_obj:
+                    await user.send(embed=e_obj)
+            except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
+                dm = False
+
+            # kick
+            await user.kick(reason=reason)
+
+            # report to council
+            e_obj = await em(ctx, title="User Banned from Guild",
+                             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                             content=[("User Info", f"{user.name}#{user.discriminator}"),
+                                      ("Ban Reason", reason),
+                                      ("Moderator", f'{ctx.author.nick} [{mod_info[0]}]'],
+                             footer="Moderator action")
+            if e_obj:
+                await self.mod_channel.send(embed=e_obj)
+
+        # update db
 
 
-
-
-
+    # @commands.command()
+    # async def ban_history(self, ctx, mention: discord.Member):
+    #     print('getting history')
+    #     await ctx.send('history!')
 
     # @commands.Cog.listener(name='on_member_join')
     # async def blacklist_watch(self, member):
