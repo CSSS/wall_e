@@ -19,30 +19,43 @@ class Ban(commands.Cog):
         self.blacklist = []
 
         # establish connection to db
-        # try:
-        #     if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
-        #         host = 'localhost'
-        #     else:
-        #         host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
+        try:
+            # revert this if statement to just host = '{}...'
+            if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
+                host = 'localhost'
+            else:
+                host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
 
-        #     db_connection_string = (
-        #         f"dbname='{self.config.get_config_value('database', 'WALL_E_DB_DBNAME')}'"
-        #         f"user='{self.config.get_config_value('database', 'WALL_E_DB_USER')}' host='{host}'"
-        #     )
-        #     logger.info("[Ban __init__] db_connection_string=[{}]".format(db_connection_string))
+            db_connection_string = (
+                f"dbname='{self.config.get_config_value('database', 'WALL_E_DB_DBNAME')}'"
+                f"user='{self.config.get_config_value('database', 'WALL_E_DB_USER')}' host='{host}'"
+            )
+            logger.info("[Ban __init__] db_connection_string=[{}]".format(db_connection_string))
 
-        #     conn = psycopg2.connect(
-        #         "{}  password='{}'".format(
-        #             db_connection_string, self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
-        #         )
-        #     )
-        #     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-        #     self.curs = conn.cursor()
-        #     self.curs.execute('CREATE TABLE FOR BANNED USERS')
-        #     logger.info("[Ban __init__] PostgreSQL connection established")
-        # except Exception as e:
-        #     logger.error("[Ban __init__] enountered following exception when setting up PostgreSQL "
-        #                  f"connection\n{e}")
+            conn = psycopg2.connect(
+                "{}  password='{}'".format(
+                    db_connection_string, self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
+                )
+            )
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+            self.curs = conn.cursor()
+
+            self.curs.execute(  "CREATE TABLE IF NOT EXISTS Banned_users ("
+                                "user                    TEXT        NOT NULL,"
+                                "user_id                 CHAR(18)    NOT NULL,"
+                                "mod                     TEXT        NOT NULL,"
+                                "mod_id                  CHAR(18)    NOT NULL,"
+                                "date                    TIMESTAMPZ  NOT NULL UNIQUE,"
+                                "reason                  TEXT        NOT NULL,"
+                                "latest_join_attempt     TIMESTAMPZ,"
+                                "PRIMARY KEY             (user_id, date)"
+                                ")"
+                             )
+
+            logger.info("[Ban __init__] PostgreSQL connection established")
+        except Exception as e:
+            logger.error("[Ban __init__] enountered following exception when setting up PostgreSQL "
+                         f"connection\n{e}")
 
     @commands.Cog.listener(name='on_ready')
     async def load_mod_channel(self):
