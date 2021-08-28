@@ -41,9 +41,9 @@ class Ban(commands.Cog):
             self.curs = conn.cursor()
 
             self.curs.execute(  "CREATE TABLE IF NOT EXISTS Banned_users ("
-                                "user                    TEXT        NOT NULL,"
+                                "user                    CHAR(32)    NOT NULL,"
                                 "user_id                 CHAR(18)    NOT NULL,"
-                                "mod                     TEXT        NOT NULL,"
+                                "mod                     CHAR(32)    NOT NULL,"
                                 "mod_id                  CHAR(18)    NOT NULL,"
                                 "date                    TIMESTAMPZ  NOT NULL UNIQUE,"
                                 "reason                  TEXT        NOT NULL,"
