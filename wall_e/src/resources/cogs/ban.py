@@ -5,6 +5,7 @@ import asyncio
 from resources.utilities.embed import embed as em
 import psycopg2
 import datetime
+import pytz
 import re
 import logging
 logger = logging.getLogger('wall_e')
@@ -16,9 +17,6 @@ class Ban(commands.Cog):
         self.bot = bot
         self.config = config
         self.blacklist = []
-
-        # self.mod_channel = discord.utils.get(bot.guilds[0].channels, name="council")
-        # print(self.mod_channel)
 
         # establish connection to db
         # try:
@@ -72,7 +70,7 @@ class Ban(commands.Cog):
         # construct reason, but first remove @'s from the args
         reason = ''.join([i for i in args if not re.match(r'<@!?[0-9]*>', i)])
         reason = reason if reason else "No Reason Given!"
-        print(f'reason {reason}')
+        print(f"reason {reason}")
 
         # get user info for db
         user_info = [[user.name+'#'+user.discriminator, user.id] for user in users_to_ban]
@@ -92,12 +90,16 @@ class Ban(commands.Cog):
             await user.kick(reason=reason)
 
             # report to council
-            e_obj = await em(ctx, title="User Banned from Guild",
+            e_obj = await em(ctx, title="Ban Hammer Deployed",
                              author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                              avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                             content=[("User Info", f"{user.name}#{user.discriminator}"),
-                                      ("Ban Reason", reason),
-                                      ("Moderator", f'{ctx.author.nick} [{mod_info[0]}]'],
+                             description=f"DM to banned user notifing them of ban status: **{dm}**",
+                             content=[
+                                        ("Banned User", f"{user.name}#{user.discriminator}"),
+                                        ("Ban Reason", reason),
+                                        ("Moderator", f"{ctx.author.nick} [ {mod_info[0]} ]"),
+                                        ("Notification DM Sent", "SENT" if dm else "NOT SENT, DUE TO USER DM PREF's")
+                                     ],
                              footer="Moderator action")
             if e_obj:
                 await self.mod_channel.send(embed=e_obj)
