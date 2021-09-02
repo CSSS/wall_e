@@ -81,9 +81,8 @@ class Ban(commands.Cog):
         users_to_ban = ctx.message.mentions
 
         # construct reason, but first remove @'s from the args
-        reason = ''.join([i for i in args if not re.match(r'<@!?[0-9]*>', i)])
+        reason = ''.join([i+' ' for i in args if not re.match(r'<@!?[0-9]*>', i)])
         reason = reason if reason else "No Reason Given!"
-        print(f"reason {reason}")
 
         # get user info for db
         user_info = [[user.name+'#'+user.discriminator, user.id] for user in users_to_ban]
@@ -100,7 +99,7 @@ class Ban(commands.Cog):
                 dm = False
 
             # kick
-            await user.kick(reason=reason)
+            # await user.kick(reason=reason)
 
             # report to council
             e_obj = await em(ctx, title="Ban Hammer Deployed",
@@ -109,10 +108,11 @@ class Ban(commands.Cog):
                              content=[
                                         ("Banned User", f"{user.name}#{user.discriminator}"),
                                         ("Ban Reason", reason),
-                                        ("Moderator", f"{ctx.author.nick} [ {mod_info[0]} ]"),
+                                        ("Moderator", f"**{mod_info[0]}** [ {mod_info[1]} ]"),
                                         ("Notification DM Sent", "SENT" if dm else "NOT SENT, DUE TO USER DM PREF's")
                                      ],
                              footer="Moderator action")
+
             if e_obj:
                 await self.mod_channel.send(embed=e_obj)
 
