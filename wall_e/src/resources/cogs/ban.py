@@ -41,13 +41,13 @@ class Ban(commands.Cog):
             self.curs = conn.cursor()
 
             self.curs.execute(  "CREATE TABLE IF NOT EXISTS Banned_users ("
-                                "user                    CHAR(32)    NOT NULL,"
-                                "user_id                 CHAR(18)    NOT NULL,"
-                                "mod                     CHAR(32)    NOT NULL,"
-                                "mod_id                  CHAR(18)    NOT NULL,"
-                                "date                    TIMESTAMPZ  NOT NULL UNIQUE,"
-                                "reason                  TEXT        NOT NULL,"
-                                "latest_join_attempt     TIMESTAMPZ,"
+                                "username                VARCHAR(32)    NOT NULL,"
+                                "user_id                 CHAR(18)       NOT NULL,"
+                                "mod                     VARCHAR(32)    NOT NULL,"
+                                "mod_id                  CHAR(18)       NOT NULL,"
+                                "date                    TIMESTAMPTZ    NOT NULL UNIQUE DEFAULT NOW(),"
+                                "reason                  TEXT           NOT NULL DEFAULT 'NO REASON GIVEN.',"
+                                "latest_join_attempt     TIMESTAMPTZ,"
                                 "PRIMARY KEY             (user_id, date)"
                                 ")"
                              )
