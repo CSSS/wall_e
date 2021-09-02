@@ -46,7 +46,7 @@ class Ban(commands.Cog):
                                 "mod                     VARCHAR(32)    NOT NULL,"
                                 "mod_id                  CHAR(18)       NOT NULL,"
                                 "date                    TIMESTAMPTZ    NOT NULL UNIQUE DEFAULT NOW(),"
-                                "reason                  TEXT           NOT NULL DEFAULT 'NO REASON GIVEN.',"
+                                "reason                  TEXT           NOT NULL,"
                                 "latest_join_attempt     TIMESTAMPTZ,"
                                 "PRIMARY KEY             (user_id, date)"
                                 ")"
