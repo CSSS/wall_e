@@ -59,7 +59,7 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_ready')
     async def load_mod_channel(self):
-        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council")
+        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council-summary")
 
     @commands.command()
     async def ban(self, ctx, *args):
@@ -106,7 +106,6 @@ class Ban(commands.Cog):
             e_obj = await em(ctx, title="Ban Hammer Deployed",
                              author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                              avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                             description=f"DM to banned user notifing them of ban status: **{dm}**",
                              content=[
                                         ("Banned User", f"{user.name}#{user.discriminator}"),
                                         ("Ban Reason", reason),
