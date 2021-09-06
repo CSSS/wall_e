@@ -41,7 +41,7 @@ class Ban(commands.Cog):
             self.curs = conn.cursor()
 
             self.curs.execute(  "CREATE TABLE IF NOT EXISTS Banned_users ("
-                                "user_id     CHAR(18)    NOT NULL,"
+                                "user_id     CHAR(18) ,"
                                 "username    VARCHAR(32) NOT NULL,"
                                 "banned      BOOLEAN     NOT NULL DEFAULT true,"
                                 "PRIMARY KEY (user_id)"
@@ -68,6 +68,12 @@ class Ban(commands.Cog):
     @commands.Cog.listener(name='on_ready')
     async def load_mod_channel(self):
         self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council-summary")
+
+    @commands.Cog.listener(name='on_member_join')
+    async def watchdog(self, member: discord.Member):
+        if member.id in self.blacklist:
+            await member.send(f"You were banned from {self.bot.guilds[0]}")
+            await member.kick(reason="Not allowed back on server.")
 
     @commands.command()
     async def ban(self, ctx, *args):
@@ -98,6 +104,9 @@ class Ban(commands.Cog):
         # ban
         dm = True
         for user in users_to_ban:
+            # add to blacklist
+            self.blacklist.append( user.id )
+
             # dm banned user
             e_obj = await em(ctx, title="Banned", content=[("You've been banned from", ctx.guild.name)])
             try:
@@ -107,7 +116,7 @@ class Ban(commands.Cog):
                 dm = False
 
             # kick
-            # await user.kick(reason=reason)
+            await user.kick(reason=reason)
 
             # report to council
             e_obj = await em(ctx, title="Ban Hammer Deployed",
@@ -120,18 +129,7 @@ class Ban(commands.Cog):
                                         ("Notification DM Sent", "SENT" if dm else "NOT SENT, DUE TO USER DM PREF's")
                                      ],
                              footer="Moderator action")
-
             if e_obj:
                 await self.mod_channel.send(embed=e_obj)
 
         # update db
-
-
-    # @commands.command()
-    # async def ban_history(self, ctx, mention: discord.Member):
-    #     print('getting history')
-    #     await ctx.send('history!')
-
-    # @commands.Cog.listener(name='on_member_join')
-    # async def blacklist_watch(self, member):
-    #     print(f"someone joined idk: {member}")
