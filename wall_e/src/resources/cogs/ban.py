@@ -17,6 +17,7 @@ class Ban(commands.Cog):
         self.bot = bot
         self.config = config
         self.blacklist = []
+        self.datetime = datetime.datetime
 
         # establish connection to db
         try:
@@ -41,9 +42,8 @@ class Ban(commands.Cog):
             self.curs = conn.cursor()
 
             self.curs.execute(  "CREATE TABLE IF NOT EXISTS Banned_users ("
-                                "user_id     CHAR(18) ,"
                                 "username    VARCHAR(32) NOT NULL,"
-                                "banned      BOOLEAN     NOT NULL DEFAULT true,"
+                                "user_id     CHAR(18),"
                                 "PRIMARY KEY (user_id)"
                                 ")"
                              )
@@ -55,7 +55,6 @@ class Ban(commands.Cog):
                                 "mod_id                  CHAR(18)       NOT NULL,"
                                 "date                    TIMESTAMPTZ    NOT NULL UNIQUE,"
                                 "reason                  TEXT           NOT NULL,"
-                                "FOREIGN KEY (user_id) REFERENCES Banned_users,"
                                 "PRIMARY KEY             (user_id, date)"
                                 ")"
                              )
@@ -74,6 +73,15 @@ class Ban(commands.Cog):
         if member.id in self.blacklist:
             await member.send(f"You were banned from {self.bot.guilds[0]}")
             await member.kick(reason="Not allowed back on server.")
+
+    async def insert_db(self, username, user_id, mod, mod_id, date, reason):
+        banned_users = "INSERT INTO Banned_users VAlUES (%s, %s, %s)"
+        ban_record = "INSERT INTO Ban_records VALUES (%s, %s, %s, %s, %s, %s)"
+        try:
+            self.curs.execute(banned_users, (username, user_id))
+            self.curs.execute(ban_record, (username, user_id, mod, mod_id, date, reason))
+        except Exception as e:
+            print(f'sql error {e}')
 
     @commands.command()
     async def ban(self, ctx, *args):
@@ -98,9 +106,6 @@ class Ban(commands.Cog):
         reason = ''.join([i+' ' for i in args if not re.match(r'<@!?[0-9]*>', i)])
         reason = reason if reason else "No Reason Given!"
 
-        # get user info for db
-        user_info = [[user.name+'#'+user.discriminator, user.id] for user in users_to_ban]
-
         # ban
         dm = True
         for user in users_to_ban:
@@ -117,6 +122,7 @@ class Ban(commands.Cog):
 
             # kick
             await user.kick(reason=reason)
+            dt = self.datetime.now(pytz.utc)
 
             # report to council
             e_obj = await em(ctx, title="Ban Hammer Deployed",
@@ -132,4 +138,5 @@ class Ban(commands.Cog):
             if e_obj:
                 await self.mod_channel.send(embed=e_obj)
 
-        # update db
+            # update db
+            await self.insert_db(user.name+'#'+user.discriminator, user.id, mod_info[0], mod_info[1], dt, reason)
