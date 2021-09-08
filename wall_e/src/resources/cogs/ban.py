@@ -1,3 +1,4 @@
+from collections import UserDict
 from os import name
 from discord.ext import commands
 import discord
@@ -49,13 +50,15 @@ class Ban(commands.Cog):
                              )
 
             self.curs.execute(  "CREATE TABLE IF NOT EXISTS Ban_records ("
+                                "ban_id                  GENERATED ALWAYS AS IDENTITY"
                                 "username                VARCHAR(32)    NOT NULL,"
                                 "user_id                 CHAR(18)       NOT NULL,"
-                                "mod                     VARCHAR(32)    NOT NULL,"
-                                "mod_id                  CHAR(18)       NOT NULL,"
-                                "date                    TIMESTAMPTZ    NOT NULL UNIQUE,"
+                                "mod                     VARCHAR(32),"
+                                "mod_id                  CHAR(18),"
+                                "date                    TIMESTAMPTZ    UNIQUE,"
                                 "reason                  TEXT           NOT NULL,"
-                                "PRIMARY KEY             (user_id, date)"
+                                "UNIQUE (user_id, date),"
+                                "PRIMARY KEY (ban_id)"
                                 ")"
                              )
 
@@ -74,14 +77,55 @@ class Ban(commands.Cog):
             await member.send(f"You were banned from {self.bot.guilds[0]}")
             await member.kick(reason="Not allowed back on server.")
 
-    async def insert_db(self, username, user_id, mod, mod_id, date, reason):
-        banned_users = "INSERT INTO Banned_users VAlUES (%s, %s, %s)"
-        ban_record = "INSERT INTO Ban_records VALUES (%s, %s, %s, %s, %s, %s)"
+    async def insert_ban(self, username, user_id):
         try:
-            self.curs.execute(banned_users, (username, user_id))
-            self.curs.execute(ban_record, (username, user_id, mod, mod_id, date, reason))
+            self.curs.execute("INSERT INTO Banned_users VAlUES (%s, %s, %s)", (username, user_id))
+        except Exception as e:
+            print(f'sql error: {e}')
+
+    async def insert_record(self, username, user_id, mod, mod_id, date, reason):
+        query = "INSERT INTO Ban_records VALUES (%s, %s, %s, %s, %s, %s)"
+        try:
+            self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
         except Exception as e:
             print(f'sql error {e}')
+
+    @commands.command()
+    async def initban(self, ctx):
+        # go through audit bans first then through ban list and filter out names there were in the audit logs
+        # use a dict to track the audit log names
+        try:
+            audit_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+            bans = await self.bot.guilds[0].bans()
+        except Exception as e:
+            print(f'error while fetching ban data: {e}')
+
+        ban_ids = [ban.user.id for ban in bans]
+        ban_data = []
+        audit_users = []
+        for ban in audit_logs:
+            audit_users.append( ban.target.id )
+            ban_data.append([   ban.target.name+'#'+ban.target.discriminator,
+                                ban.target.id,
+                                ban.user.name+'#'+ban.user.discriminator,
+                                ban.user.id,
+                                ban.created_at,
+                                ban.reason
+                            ])
+
+        for ban in bans:
+            if ban.user.id in audit_users:
+                continue
+            ban_data.append([   ban.user.name+'#'+ban.user.discriminator,
+                                ban.user.id,
+                                None,
+                                None,
+                                None,
+                                'No Reason Given!'
+                            ])
+        for ban in ban_data:
+            self.blacklist.append( ban[1] )
+            await self.insert(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
 
     @commands.command()
     async def ban(self, ctx, *args):
