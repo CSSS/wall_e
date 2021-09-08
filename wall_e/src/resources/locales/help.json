@@ -328,16 +328,23 @@
 	"ban" : {
 		"class" : "Ban",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
+		"roles" : [ "Minions" ],
 		"aliases": [ ],
 		"example": [ ],
 		"description": [ ]
 	},
-
 	"ban_history" : {
 		"class" : "Ban",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
+		"roles" : [ "@Minions" ],
+		"aliases": [ ],
+		"example": [ ],
+		"description": [ ]
+	},
+	"initban" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "Minions" ],
 		"aliases": [ ],
 		"example": [ ],
 		"description": [ ]
