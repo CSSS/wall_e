@@ -50,13 +50,13 @@ class Ban(commands.Cog):
                              )
 
             self.curs.execute(  "CREATE TABLE IF NOT EXISTS Ban_records ("
-                                "ban_id                  GENERATED ALWAYS AS IDENTITY"
+                                "ban_id                  INTEGER GENERATED ALWAYS AS IDENTITY,"
                                 "username                VARCHAR(32)    NOT NULL,"
                                 "user_id                 CHAR(18)       NOT NULL,"
                                 "mod                     VARCHAR(32),"
                                 "mod_id                  CHAR(18),"
                                 "date                    TIMESTAMPTZ    UNIQUE,"
-                                "reason                  TEXT           NOT NULL,"
+                                "reason                  TEXT,"
                                 "UNIQUE (user_id, date),"
                                 "PRIMARY KEY (ban_id)"
                                 ")"
@@ -79,12 +79,13 @@ class Ban(commands.Cog):
 
     async def insert_ban(self, username, user_id):
         try:
-            self.curs.execute("INSERT INTO Banned_users VAlUES (%s, %s, %s)", (username, user_id))
+            self.curs.execute("INSERT INTO Banned_users VAlUES (%s, %s)", (username, user_id))
         except Exception as e:
             print(f'sql error: {e}')
 
     async def insert_record(self, username, user_id, mod, mod_id, date, reason):
-        query = "INSERT INTO Ban_records VALUES (%s, %s, %s, %s, %s, %s)"
+        query = "INSERT INTO Ban_records (username, user_id, mod, mod_id, date, reason) " \
+              "VALUES (%s, %s, %s, %s, %s, %s)"
         try:
             self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
         except Exception as e:
@@ -92,8 +93,6 @@ class Ban(commands.Cog):
 
     @commands.command()
     async def initban(self, ctx):
-        # go through audit bans first then through ban list and filter out names there were in the audit logs
-        # use a dict to track the audit log names
         try:
             audit_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
             bans = await self.bot.guilds[0].bans()
@@ -105,12 +104,13 @@ class Ban(commands.Cog):
         audit_users = []
         for ban in audit_logs:
             audit_users.append( ban.target.id )
+
             ban_data.append([   ban.target.name+'#'+ban.target.discriminator,
                                 ban.target.id,
                                 ban.user.name+'#'+ban.user.discriminator,
                                 ban.user.id,
                                 ban.created_at,
-                                ban.reason
+                                ban.reason if ban.reason else 'No Reason Given!'
                             ])
 
         for ban in bans:
@@ -123,9 +123,14 @@ class Ban(commands.Cog):
                                 None,
                                 'No Reason Given!'
                             ])
+
+        # push to db and blacklist
         for ban in ban_data:
-            self.blacklist.append( ban[1] )
-            await self.insert(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
+            if ban[1] in ban_ids:
+                self.blacklist.append( ban[1] )
+                await self.insert_ban(ban[0], ban[1])
+
+            await self.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
 
     @commands.command()
     async def ban(self, ctx, *args):
