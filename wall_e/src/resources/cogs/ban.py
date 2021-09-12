@@ -8,6 +8,7 @@ import psycopg2
 import datetime
 import pytz
 import re
+from typing import Union
 import logging
 logger = logging.getLogger('wall_e')
 
@@ -56,7 +57,7 @@ class Ban(commands.Cog):
                                 "mod                     VARCHAR(32),"
                                 "mod_id                  CHAR(18),"
                                 "date                    TIMESTAMPTZ    UNIQUE,"
-                                "reason                  TEXT,"
+                                "reason                  TEXT           NOT NULL,"
                                 "UNIQUE (user_id, date),"
                                 "PRIMARY KEY (ban_id)"
                                 ")"
@@ -64,7 +65,7 @@ class Ban(commands.Cog):
 
             logger.info("[Ban __init__] PostgreSQL connection established")
         except Exception as e:
-            logger.error("[Ban __init__] enountered following exception when setting up PostgreSQL "
+            logger.error("[Ban __init__] encountered following exception when setting up PostgreSQL "
                          f"connection\n{e}")
 
     @commands.Cog.listener(name='on_ready')
@@ -76,6 +77,33 @@ class Ban(commands.Cog):
         if member.id in self.blacklist:
             await member.send(f"You were banned from {self.bot.guilds[0]}")
             await member.kick(reason="Not allowed back on server.")
+
+    @commands.Cog.listener(name='on_member_ban')
+    async def intercept(self, guild: discord.Guild, member: Union[discord.User, discord.Member]):
+        # need to read the audit log to grab mod, date, and reason
+        try:
+            audit_ban = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+        except Exception as e:
+            print(f'error while fetching ban data: {e}')
+            return
+        audit_ban = audit_ban[0]
+
+        # name, id, mod, mod id, date, reason
+        username = member.name + '#' + member.discriminator
+        mod = audit_ban.user.name+ '#' + audit_ban.user.discriminator
+        mod_id = audit_ban.user.id
+        date = audit_ban.created_at
+        reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
+
+        # update blacklist and db
+        self.blacklist.append(member.id)
+        await self.insert_ban(username, member.id)
+        await self.insert_record(username, member.id, mod, mod_id, date, reason)
+
+        # unban
+        await self.bot.guilds[0].unban(member)
+
+        # can't dm once they're not in guild
 
     async def insert_ban(self, username, user_id):
         try:
