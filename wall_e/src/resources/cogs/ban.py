@@ -217,3 +217,37 @@ class Ban(commands.Cog):
 
             # update db
             await self.insert_db(user.name+'#'+user.discriminator, user.id, mod_info[0], mod_info[1], dt, reason)
+
+    @commands.command()
+    async def bans(self, ctx):
+        try:
+            self.curs.execute("select * from banned_users;")
+        except Exception as e:
+            print(f"error encountered during sql query: {e}")
+
+        rows = self.curs.fetchall()
+
+        emb = discord.Embed(title="Banned members", color=discord.Color.red())
+
+        names =""
+        ids = ""
+        for row in rows:
+            name = row[0]
+            _id = row[1]
+            if len(names) + len(name) > 1024 or len(ids) + len(_id) > 1024:
+                emb.add_field(name="Names", value=names, inline=True)
+                emb.add_field(name="IDs", value=ids, inline=True)
+                await ctx.send(embed=emb)
+                emb.clear_fields()
+                names = ""
+                ids = ""
+
+            names += f"{name}\n"
+            ids += f"{_id}\n"
+
+        # send out the last bit, if not empy
+        if names:
+            print('THERE WAS SOME STRAGLERS!!')
+            emb.add_field(name="Names", value=names, inline=True)
+            emb.add_field(name="IDs", value=ids, inline=True)
+            await ctx.send(embed=emb)
