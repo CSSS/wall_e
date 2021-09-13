@@ -237,9 +237,11 @@ class Ban(commands.Cog):
     @commands.command()
     async def bans(self, ctx):
         try:
-            self.curs.execute("select * from banned_users;")
+            self.curs.execute("SELECT * FROM banned_users;")
         except Exception as e:
             print(f"error encountered during sql query: {e}")
+            await ctx.send(f"Encountered the following sql error: {e}")
+            return
 
         rows = self.curs.fetchall()
 
