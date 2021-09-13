@@ -1,8 +1,5 @@
-from collections import UserDict
-from os import name
 from discord.ext import commands
 import discord
-import asyncio
 from resources.utilities.embed import embed as em
 import psycopg2
 import datetime
@@ -168,8 +165,6 @@ class Ban(commands.Cog):
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
             e_obj = await em(ctx=ctx, title="Invalid Arguments",
-                             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                              content=[("Error", "Please @ mention the user(s) to ban")], colour=0xA6192E,
                              footer="Command Error")
             if e_obj:
@@ -188,10 +183,20 @@ class Ban(commands.Cog):
         for user in users_to_ban:
             # add to blacklist
             self.blacklist.append( user.id )
-            print(user.id)
+            username = user.name + '#' + user.discriminator
 
             # dm banned user
-            e_obj = await em(ctx, title="Banned", content=[("You've been banned from", ctx.guild.name)])
+            e_obj = discord.Embed(title="Ban Notification",
+                                  description=f"**You've been PERMANENTLY BANNED from"+
+                                               f"{self.bot.guilds[0].name.upper()}.**",
+                                  color=discord.Color.red(),
+                                  timestamp=self.datetime.now(pytz.timezone('Canada/Pacific')))
+
+            e_obj.add_field(name='Reason',
+                            value=f"```{reason}```\n"+
+                                   "Please refrain from this kind of behaviour in the future. Thank you.")
+
+            e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
             try:
                 if e_obj:
                     await user.send(embed=e_obj)
@@ -204,10 +209,9 @@ class Ban(commands.Cog):
 
             # report to council
             e_obj = await em(ctx, title="Ban Hammer Deployed",
-                             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                             colour=discord.Color.red(),
                              content=[
-                                        ("Banned User", f"{user.name}#{user.discriminator}"),
+                                        ("Banned User", username),
                                         ("Ban Reason", reason),
                                         ("Moderator", f"**{mod_info[0]}** [ {mod_info[1]} ]"),
                                         ("Notification DM Sent", "SENT" if dm else "NOT SENT, DUE TO USER DM PREF's")
@@ -217,7 +221,8 @@ class Ban(commands.Cog):
                 await self.mod_channel.send(embed=e_obj)
 
             # update db
-            await self.insert_db(user.name+'#'+user.discriminator, user.id, mod_info[0], mod_info[1], dt, reason)
+            await self.insert_ban(username, user.id)
+            await self.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
 
     @commands.command()
     async def bans(self, ctx):
@@ -248,7 +253,6 @@ class Ban(commands.Cog):
 
         # send out the last bit, if not empy
         if names:
-            print('THERE WAS SOME STRAGLERS!!')
             emb.add_field(name="Names", value=names, inline=True)
             emb.add_field(name="IDs", value=ids, inline=True)
             await ctx.send(embed=emb)
@@ -263,8 +267,6 @@ class Ban(commands.Cog):
         self.blacklist.remove(_id)
 
         try:
-            h = self.curs.execute("DELETE FROM Banned_users WHERE user_id='%s';", [_id])
-            print(h)
+            self.curs.execute("DELETE FROM Banned_users WHERE user_id='%s';", [_id])
         except Exception as e:
             print(f'sql exception: {e}')
-        print("DONE")
