@@ -17,6 +17,7 @@ class Ban(commands.Cog):
         self.config = config
         self.blacklist = []
         self.datetime = datetime.datetime
+        self.errorColour = 0xA6192E
 
         # establish connection to db
         try:
@@ -269,13 +270,37 @@ class Ban(commands.Cog):
     @commands.command()
     async def unban(self, ctx, _id: int):
         if _id not in self.blacklist:
-            await ctx.send(f"`{_id}` is an unrecognized id for a banned user.")
+            e_obj = await em(ctx, title="Error",
+                             content=[("Problem",
+                                       f"`{_id}` is either not a valid Discord ID **OR** is not a banned user.")],
+                             colour=self.errorColour,
+                             footer="Command Error")
+            if e_obj:
+                await ctx.send(embed=e_obj)
             return
 
         # "unban"
         self.blacklist.remove(_id)
 
         try:
+            self.curs.execute("SELECT username FROM Banned_users WHERE user_id='%s'", [_id])
+            name = self.curs.fetchone()[0]
             self.curs.execute("DELETE FROM Banned_users WHERE user_id='%s';", [_id])
         except Exception as e:
             print(f'sql exception: {e}')
+            await ctx.send(f"Encountered the following sql error: {e}")
+            return
+
+        e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())
+        if e_obj:
+            await self.mod_channel.send(embed=e_obj)
+
+    @unban.error
+    async def unban_error(self, ctx, error):
+        if isinstance(error, commands.BadArgument):
+            e_obj = await em(ctx, title="Error",
+                             content=[("Problem","Please enter a numerical Discord ID.")],
+                             colour=self.errorColour,
+                             footer="Command Error")
+            if e_obj:
+                await ctx.send(embed=e_obj)
