@@ -66,8 +66,17 @@ class Ban(commands.Cog):
                          f"connection\n{e}")
 
     @commands.Cog.listener(name='on_ready')
-    async def load_mod_channel(self):
+    async def load(self):
         self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council-summary")
+
+        # read in blacklist of banned users
+        try:
+            self.curs.execute("SELECT user_id FROM Banned_users;")
+        except Exception as e:
+            print(f"sql exception: {e}")
+
+        bans = self.curs.fetchall()
+        self.blacklist = [int(ban[0]) for ban in bans]
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
