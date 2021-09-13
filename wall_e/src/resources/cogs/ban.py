@@ -188,6 +188,7 @@ class Ban(commands.Cog):
         for user in users_to_ban:
             # add to blacklist
             self.blacklist.append( user.id )
+            print(user.id)
 
             # dm banned user
             e_obj = await em(ctx, title="Banned", content=[("You've been banned from", ctx.guild.name)])
@@ -251,3 +252,19 @@ class Ban(commands.Cog):
             emb.add_field(name="Names", value=names, inline=True)
             emb.add_field(name="IDs", value=ids, inline=True)
             await ctx.send(embed=emb)
+
+    @commands.command()
+    async def unban(self, ctx, _id: int):
+        if _id not in self.blacklist:
+            await ctx.send(f"`{_id}` is an unrecognized id for a banned user.")
+            return
+
+        # "unban"
+        self.blacklist.remove(_id)
+
+        try:
+            h = self.curs.execute("DELETE FROM Banned_users WHERE user_id='%s';", [_id])
+            print(h)
+        except Exception as e:
+            print(f'sql exception: {e}')
+        print("DONE")
