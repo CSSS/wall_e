@@ -1,3 +1,4 @@
+from os import name
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
@@ -175,7 +176,8 @@ class Ban(commands.Cog):
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
             e_obj = await em(ctx=ctx, title="Invalid Arguments",
-                             content=[("Error", "Please @ mention the user(s) to ban")], colour=0xA6192E,
+                             content=[("Error", "Please @ mention the user(s) to ban")],
+                             colour=self.errorColour,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
@@ -218,16 +220,17 @@ class Ban(commands.Cog):
             dt = self.datetime.now(pytz.utc)
 
             # report to council
-            e_obj = await em(ctx, title="Ban Hammer Deployed",
-                             colour=discord.Color.red(),
-                             content=[
-                                        ("Banned User", username),
-                                        ("Ban Reason", reason),
-                                        ("Moderator", f"**{mod_info[0]}** [ {mod_info[1]} ]"),
-                                        ("Notification DM Sent", "SENT" if dm else "NOT SENT, DUE TO USER DM PREF's")
-                                     ],
-                             footer="Moderator action")
+            e_obj = discord.Embed(title="Ban Hammer Deployed",
+                                  colour=discord.Color.red())
+
+            e_obj.add_field(name="Banned User", value=f"**{username}**", inline=True)
+            e_obj.add_field(name="Moderator", value=f"**{mod_info[0]}**", inline=True)
+            e_obj.add_field(name="Reason", value=f"```{reason}```", inline=False)
+            e_obj.add_field(name="Notification DM", value="SENT\n" if dm else "NOT SENT, DUE TO USER DM PREF's\n",
+                            inline=False)
+            e_obj.set_footer(text="Moderator Action")
             if e_obj:
+                e_obj.timestamp = dt.astimezone(pytz.timezone('Canada/Pacific'))
                 await self.mod_channel.send(embed=e_obj)
 
             # update db
