@@ -67,6 +67,20 @@ class Ban(commands.Cog):
             logger.error("[Ban __init__] encountered following exception when setting up PostgreSQL "
                          f"connection\n{e}")
 
+    async def insert_ban(self, username, user_id):
+        try:
+            self.curs.execute("INSERT INTO Banned_users VAlUES (%s, %s)", (username, user_id))
+        except Exception as e:
+            print(f'sql error: {e}')
+
+    async def insert_record(self, username, user_id, mod, mod_id, date, reason):
+        query = "INSERT INTO Ban_records (username, user_id, mod, mod_id, date, reason) " \
+              "VALUES (%s, %s, %s, %s, %s, %s)"
+        try:
+            self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
+        except Exception as e:
+            print(f'sql error {e}')
+
     @commands.Cog.listener(name='on_ready')
     async def load(self):
         self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council-summary")
@@ -110,22 +124,6 @@ class Ban(commands.Cog):
 
         # unban
         await self.bot.guilds[0].unban(member)
-
-        # can't dm once they're not in guild
-
-    async def insert_ban(self, username, user_id):
-        try:
-            self.curs.execute("INSERT INTO Banned_users VAlUES (%s, %s)", (username, user_id))
-        except Exception as e:
-            print(f'sql error: {e}')
-
-    async def insert_record(self, username, user_id, mod, mod_id, date, reason):
-        query = "INSERT INTO Ban_records (username, user_id, mod, mod_id, date, reason) " \
-              "VALUES (%s, %s, %s, %s, %s, %s)"
-        try:
-            self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
-        except Exception as e:
-            print(f'sql error {e}')
 
     @commands.command()
     async def initban(self, ctx):
@@ -241,41 +239,6 @@ class Ban(commands.Cog):
             await self.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
 
     @commands.command()
-    async def bans(self, ctx):
-        try:
-            self.curs.execute("SELECT * FROM banned_users;")
-        except Exception as e:
-            print(f"error encountered during sql query: {e}")
-            await ctx.send(f"Encountered the following sql error: {e}")
-            return
-
-        rows = self.curs.fetchall()
-
-        emb = discord.Embed(title="Banned members", color=discord.Color.red())
-
-        names =""
-        ids = ""
-        for row in rows:
-            name = row[0]
-            _id = row[1]
-            if len(names) + len(name) > 1024 or len(ids) + len(_id) > 1024:
-                emb.add_field(name="Names", value=names, inline=True)
-                emb.add_field(name="IDs", value=ids, inline=True)
-                await ctx.send(embed=emb)
-                emb.clear_fields()
-                names = ""
-                ids = ""
-
-            names += f"{name}\n"
-            ids += f"{_id}\n"
-
-        # send out the last bit, if not empy
-        if names:
-            emb.add_field(name="Names", value=names, inline=True)
-            emb.add_field(name="IDs", value=ids, inline=True)
-            await ctx.send(embed=emb)
-
-    @commands.command()
     async def unban(self, ctx, _id: int):
         if _id not in self.blacklist:
             e_obj = await em(ctx, title="Error",
@@ -312,3 +275,38 @@ class Ban(commands.Cog):
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
+
+    @commands.command()
+    async def bans(self, ctx):
+        try:
+            self.curs.execute("SELECT * FROM banned_users;")
+        except Exception as e:
+            print(f"error encountered during sql query: {e}")
+            await ctx.send(f"Encountered the following sql error: {e}")
+            return
+
+        rows = self.curs.fetchall()
+
+        emb = discord.Embed(title="Banned members", color=discord.Color.red())
+
+        names =""
+        ids = ""
+        for row in rows:
+            name = row[0]
+            _id = row[1]
+            if len(names) + len(name) > 1024 or len(ids) + len(_id) > 1024:
+                emb.add_field(name="Names", value=names, inline=True)
+                emb.add_field(name="IDs", value=ids, inline=True)
+                await ctx.send(embed=emb)
+                emb.clear_fields()
+                names = ""
+                ids = ""
+
+            names += f"{name}\n"
+            ids += f"{_id}\n"
+
+        # send out the last bit, if not empy
+        if names:
+            emb.add_field(name="Names", value=names, inline=True)
+            emb.add_field(name="IDs", value=ids, inline=True)
+            await ctx.send(embed=emb)
