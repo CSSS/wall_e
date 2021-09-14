@@ -134,6 +134,8 @@ class Ban(commands.Cog):
             bans = await self.bot.guilds[0].bans()
         except Exception as e:
             print(f'error while fetching ban data: {e}')
+            await ctx.send(f"Encountered the following sql errors: {e}\n**Most likely need view audit log perms.**")
+            return
 
         ban_ids = [ban.user.id for ban in bans]
         ban_data = []
@@ -167,6 +169,7 @@ class Ban(commands.Cog):
                 await self.insert_ban(ban[0], ban[1])
 
             await self.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
+        await ctx.send(f"{len(ban_data)} moved from guild bans to db.")
 
     @commands.command()
     async def ban(self, ctx, *args):
