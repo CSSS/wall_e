@@ -68,18 +68,21 @@ class Ban(commands.Cog):
                          f"connection\n{e}")
 
     async def insert_ban(self, username, user_id):
+        query="INSERT INTO Banned_users VAlUES (%s, %s)"
+        logger.info(f"[Ban insert_ban()] sql_query=[{query.format(username, user_id)}]")
         try:
-            self.curs.execute("INSERT INTO Banned_users VAlUES (%s, %s)", (username, user_id))
+            self.curs.execute(query, (username, user_id))
         except Exception as e:
-            print(f'sql error: {e}')
+            logger.info(f'[Ban insert_ban()] sql error: {e}')
 
     async def insert_record(self, username, user_id, mod, mod_id, date, reason):
         query = "INSERT INTO Ban_records (username, user_id, mod, mod_id, date, reason) " \
               "VALUES (%s, %s, %s, %s, %s, %s)"
+        logger.info(f"[Ban insert_record()] sql_query=[{query.format(username, user_id, mod,mod_id, date, reason)}]")
         try:
             self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
         except Exception as e:
-            print(f'sql error {e}')
+            logger.info(f'[Ban insert_record()] sql error {e}')
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
@@ -87,9 +90,11 @@ class Ban(commands.Cog):
 
         # read in blacklist of banned users
         try:
-            self.curs.execute("SELECT user_id FROM Banned_users;")
+            query="SELECT user_id FROM Banned_users;"
+            logger.info(f"[Ban load()] sql_query=[ {query} ]")
+            self.curs.execute(query)
         except Exception as e:
-            print(f"sql exception: {e}")
+            logger.info(f"[Ban load()] sql exception: {e}")
 
         bans = self.curs.fetchall()
         self.blacklist = [int(ban[0]) for ban in bans]
@@ -97,20 +102,23 @@ class Ban(commands.Cog):
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
         if member.id in self.blacklist:
+            logger.info(f"[Ban watchdog()] banned member, {member}, detected. Promply will notify and kick them.")
             await member.send(f"You were banned from {self.bot.guilds[0]}")
             await member.kick(reason="Not allowed back on server.")
 
     @commands.Cog.listener(name='on_member_ban')
     async def intercept(self, guild: discord.Guild, member: Union[discord.User, discord.Member]):
         # need to read the audit log to grab mod, date, and reason
+        logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
         try:
             audit_ban = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
         except Exception as e:
-            print(f'error while fetching ban data: {e}')
-            await self.mod_channel(f"Encounterd following error while intercepting a ban: {e}\n" +
+            logger.info(f'error while fetching ban data: {e}')
+            await self.mod_channel(f"Encountered following error while intercepting a ban: {e}\n" +
                                    "**Most likely need view audit log perms.**")
             return
         audit_ban = audit_ban[0]
+        logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
 
         # name, id, mod, mod id, date, reason
         username = member.name + '#' + member.discriminator
@@ -126,17 +134,24 @@ class Ban(commands.Cog):
 
         # unban
         await self.bot.guilds[0].unban(member)
+        logger.info(f"[Ban intercept()] ban for {username} moved into db and guild ban was removed")
 
     @commands.command()
     async def initban(self, ctx):
+        logger.info(f"[Ban initban()] Initban command detected from {ctx.author}")
+
         try:
             audit_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
             bans = await self.bot.guilds[0].bans()
         except Exception as e:
-            print(f'error while fetching ban data: {e}')
+            logger.info(f'[Ban initban()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following sql errors: {e}\n**Most likely need view audit log perms.**")
             return
 
+        logger.info(f"[Ban initban()] retrieved audit log data for ban actions: {audit_logs}")
+        logger.info(f"[Ban initban()] retrieved ban list from guild: {bans}")
+
+        logger.info("[Ban initban()] Starting process to move all guild bans into db")
         ban_ids = [ban.user.id for ban in bans]
         ban_data = []
         audit_users = []
@@ -170,14 +185,17 @@ class Ban(commands.Cog):
 
             await self.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
         await ctx.send(f"{len(ban_data)} moved from guild bans to db.")
+        logger.info(f"[Ban initban()] total of {len(ban_data)} bans moved into db")
 
     @commands.command()
     async def ban(self, ctx, *args):
+        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args=[ {args} ]")
         args = list(args)
         mod_info = [ctx.author.name+'#'+ctx.author.discriminator, ctx.author.id]
 
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
+            logger.info("[Ban ban()] No users were @ mentioned in the args")
             e_obj = await em(ctx=ctx, title="Invalid Arguments",
                              content=[("Error", "Please @ mention the user(s) to ban")],
                              colour=self.errorColour,
@@ -188,17 +206,21 @@ class Ban(commands.Cog):
 
         # get mentions
         users_to_ban = ctx.message.mentions
+        logger.info(f"[Ban ban()] list of user to be banned={users_to_ban}")
 
         # construct reason, but first remove @'s from the args
         reason = ''.join([i+' ' for i in args if not re.match(r'<@!?[0-9]*>', i)])
         reason = reason if reason else "No Reason Given!"
+        logger.info(f"[Ban ban()] reason for ban(s)={reason}")
 
         # ban
         dm = True
         for user in users_to_ban:
+            username = user.name + '#' + user.discriminator
+            logger.info(f"[Ban ban()] Banning {username} with id {user.id}")
+
             # add to blacklist
             self.blacklist.append( user.id )
-            username = user.name + '#' + user.discriminator
 
             # dm banned user
             e_obj = discord.Embed(title="Ban Notification",
@@ -215,12 +237,15 @@ class Ban(commands.Cog):
             try:
                 if e_obj:
                     await user.send(embed=e_obj)
+                    logger.info("[Ban ban()] User notified via dm of their ban")
             except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
                 dm = False
+                logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
 
             # kick
             await user.kick(reason=reason)
             dt = self.datetime.now(pytz.utc)
+            logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
 
             # report to council
             e_obj = discord.Embed(title="Ban Hammer Deployed",
@@ -235,6 +260,7 @@ class Ban(commands.Cog):
             if e_obj:
                 e_obj.timestamp = dt.astimezone(pytz.timezone('Canada/Pacific'))
                 await self.mod_channel.send(embed=e_obj)
+            logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
 
             # update db
             await self.insert_ban(username, user.id)
@@ -242,7 +268,9 @@ class Ban(commands.Cog):
 
     @commands.command()
     async def unban(self, ctx, _id: int):
+        logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {_id} ]")
         if _id not in self.blacklist:
+            logger.info(f"Provided id: {_id}, does not belong to a banned member.")
             e_obj = await em(ctx, title="Error",
                              content=[("Problem",
                                        f"`{_id}` is either not a valid Discord ID **OR** is not a banned user.")],
@@ -256,20 +284,28 @@ class Ban(commands.Cog):
         self.blacklist.remove(_id)
 
         try:
-            self.curs.execute("SELECT username FROM Banned_users WHERE user_id='%s'", [_id])
+            query="SELECT username FROM Banned_users WHERE user_id='%s';"
+            logger.info(f"[Ban unban()] sql_query=[{query.format(_id)}]")
+
+            self.curs.execute(query, [_id])
             name = self.curs.fetchone()[0]
-            self.curs.execute("DELETE FROM Banned_users WHERE user_id='%s';", [_id])
+
+            query="DELETE FROM Banned_users WHERE user_id='%s';"
+            logger.info(f"[Ban unban()] sql_query=[{query.format(_id)}]")
+            self.curs.execute(query, [_id])
         except Exception as e:
-            print(f'sql exception: {e}')
+            logger.info(f'[Ban unban()] Encountered hte following sql error: {e}')
             await ctx.send(f"Encountered the following sql error: {e}")
             return
 
+        logger.info(f"[Ban unban()] User: {username} with id: {_id} was unbanned.")
         e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())
         if e_obj:
             await self.mod_channel.send(embed=e_obj)
 
     @unban.error
     async def unban_error(self, ctx, error):
+        logger.info("[Ban Unban_error] caught non integer ID passed in to unban parameter. handled accordingly")
         if isinstance(error, commands.BadArgument):
             e_obj = await em(ctx, title="Error",
                              content=[("Problem","Please enter a numerical Discord ID.")],
@@ -280,14 +316,18 @@ class Ban(commands.Cog):
 
     @commands.command()
     async def bans(self, ctx):
+        logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
+        query="SELECT * FROM banned_users;"
         try:
-            self.curs.execute("SELECT * FROM banned_users;")
+            logger.info(f"sql_query=[{query}]")
+            self.curs.execute(query)
         except Exception as e:
-            print(f"error encountered during sql query: {e}")
+            logger.info(f"[Ban bans()] Encountered following sql error: {e}")
             await ctx.send(f"Encountered the following sql error: {e}")
             return
 
         rows = self.curs.fetchall()
+        logger.info(f"[Ban bans()] retrieved all banned users: {rows}")
 
         emb = discord.Embed(title="Banned members", color=discord.Color.red())
 
@@ -312,3 +352,4 @@ class Ban(commands.Cog):
             emb.add_field(name="Names", value=names, inline=True)
             emb.add_field(name="IDs", value=ids, inline=True)
             await ctx.send(embed=emb)
+        logger.info("[Ban bans()] done sending embeds with banned user lists")
