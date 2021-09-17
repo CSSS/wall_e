@@ -99,13 +99,23 @@ class Ban(commands.Cog):
             logger.info(f"[Ban load()] sql exception: {e}")
 
         bans = self.curs.fetchall()
+        logger.info(f"[Ban load()] loaded the following banned users: {bans}")
         self.blacklist = [int(ban[0]) for ban in bans]
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
         if member.id in self.blacklist:
             logger.info(f"[Ban watchdog()] banned member, {member}, detected. Promply will notify and kick them.")
-            await member.send(f"You were banned from {self.bot.guilds[0]}")
+
+            e_obj = discord.Embed(title="Ban Notification",
+                                  color=discord.Color.red(),
+                                  timestamp=self.datetime.now(pytz.timezone('Canada/Pacific'))
+                                  )
+            e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.bot.guilds[0]}\n\n" +
+                                                  "You may NOT rejoin the guild!**")
+            e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
+
+            await member.send(embed=e_obj)
             await member.kick(reason="Not allowed back on server.")
 
     @commands.Cog.listener(name='on_member_ban')
