@@ -325,28 +325,57 @@
 			"Creates an embed that report a win for your team."
 		]
 	},
-	"ban" : {
-		"class" : "Ban",
-		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ ],
-		"example": [ ],
-		"description": [ ]
-	},
-	"ban_history" : {
-		"class" : "Ban",
-		"access": "roles",
-		"roles" : [ "@Minions" ],
-		"aliases": [ ],
-		"example": [ ],
-		"description": [ ]
-	},
 	"initban" : {
 		"class" : "Ban",
 		"access": "roles",
 		"roles" : [ "Minions" ],
 		"aliases": [ ],
-		"example": [ ],
-		"description": [ ]
+		"example": [
+			".initban"
+		],
+		"description": [
+			"Command will read in all the guild bans into wall_e database to use custom ban system.",
+			"**Command you only be used ONCE.**"
+		]
+	},
+	"ban" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "@Minions" ],
+		"aliases": [ ],
+		"example": [
+			"`.ban @user they broke rules`",
+			"`.ban @user \"they broke rules\"`",
+			"`.ban @user @user1 @user2 they broke rules`",
+			"`.ban @user @user1 @user2 \"they broke rules\"`"
+		],
+		"description": [
+			"Bans the @ mentioned user(s) with the given reason. Default reason is \"No Reason Given!\"",
+			"Reason can be given with or without quotes."
+		]
+	},
+	"unban" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases": [ ],
+		"example": [
+			"`.unban <id of user to unban>`"
+		 ],
+		"description": [
+			"Unbans a user with the provided user_id"
+		 ]
+	},
+	"bans" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases": [ ],
+		"example": [
+			"`.bans`"
+		],
+		"description": [
+			"Lists the `username` and `user_id` of all banned users from the guild."
+		 ]
 	}
 }
