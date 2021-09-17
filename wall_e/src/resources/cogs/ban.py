@@ -138,6 +138,21 @@ class Ban(commands.Cog):
         await self.bot.guilds[0].unban(member)
         logger.info(f"[Ban intercept()] ban for {username} moved into db and guild ban was removed")
 
+        # report to council
+        e_obj = discord.Embed(title="Ban Hammer Deployed",
+                                colour=discord.Color.red())
+
+        e_obj.add_field(name="Banned User", value=f"**{username}**", inline=True)
+        e_obj.add_field(name="Moderator", value=f"**{mod}**", inline=True)
+        e_obj.add_field(name="Reason", value=f"```{reason}```", inline=False)
+        e_obj.add_field(name="Notification DM", value="NOT SENT, DUE TO NO COMMON GUILD\n", inline=False)
+        e_obj.set_footer(text="Intercepted Moderator Action")
+
+        if e_obj:
+            e_obj.timestamp = date.astimezone(pytz.timezone('Canada/Pacific'))
+            await self.mod_channel.send(embed=e_obj)
+        logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
+
     @commands.command()
     async def initban(self, ctx):
         logger.info(f"[Ban initban()] Initban command detected from {ctx.author}")
