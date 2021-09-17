@@ -101,6 +101,7 @@
    1. `.ban @user "reason for my ban"`
    1. `.ban @user @user1 reason`
    1. `.ban @user @user1 "reason blah"`
+   1. `.ban user reason for ban`
    1. `.unban <id of banned user>`
    1. `.unban <id of not banned user>`
    1. `.unban <non integer something>`
