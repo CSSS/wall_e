@@ -1,4 +1,3 @@
-from os import name
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
@@ -22,11 +21,7 @@ class Ban(commands.Cog):
 
         # establish connection to db
         try:
-            # revert this if statement to just host = '{}...'
-            if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
-                host = 'localhost'
-            else:
-                host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
+            host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
 
             db_connection_string = (
                 f"dbname='{self.config.get_config_value('database', 'WALL_E_DB_DBNAME')}'"
