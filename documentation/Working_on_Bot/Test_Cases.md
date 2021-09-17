@@ -95,3 +95,13 @@
    1. `.team "spaces #1" "musical voice channels" "Billy, Bob, Megan, Cary" "notAHexCode"`
    1. `.reportwin`
    1. `.reportwin "team 1337" "Jeffrey, Harry, Noble, Ali"`
+## Ban
+   1. `.initban`
+   1. `.ban @user reason for my ban`
+   1. `.ban @user "reason for my ban"`
+   1. `.ban @user @user1 reason`
+   1. `.ban @user @user1 "reason blah"`
+   1. `.unban <id of banned user>`
+   1. `.unban <id of not banned user>`
+   1. `.unabn <non integer something>
+   1. `.bans`
