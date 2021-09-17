@@ -69,7 +69,7 @@ class Ban(commands.Cog):
 
     async def insert_ban(self, username, user_id):
         query="INSERT INTO Banned_users VAlUES (%s, %s)"
-        logger.info(f"[Ban insert_ban()] sql_query=[{query.format(username, user_id)}]")
+        logger.info(f"[Ban insert_ban()] sql_query=[{query}] with values ({username, user_id})")
         try:
             self.curs.execute(query, (username, user_id))
         except Exception as e:
@@ -78,7 +78,9 @@ class Ban(commands.Cog):
     async def insert_record(self, username, user_id, mod, mod_id, date, reason):
         query = "INSERT INTO Ban_records (username, user_id, mod, mod_id, date, reason) " \
               "VALUES (%s, %s, %s, %s, %s, %s)"
-        logger.info(f"[Ban insert_record()] sql_query=[{query.format(username, user_id, mod,mod_id, date, reason)}]")
+
+        logger.info(f"[Ban insert_record()] sql_query=[{query}] with values " \
+                     f"({username, user_id, mod, mod_id, date, reason})")
         try:
             self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
         except Exception as e:
@@ -285,27 +287,27 @@ class Ban(commands.Cog):
 
         try:
             query="SELECT username FROM Banned_users WHERE user_id='%s';"
-            logger.info(f"[Ban unban()] sql_query=[{query.format(_id)}]")
+            logger.info(f"[Ban unban()] sql_query=[{query}] with values ({_id})")
 
             self.curs.execute(query, [_id])
             name = self.curs.fetchone()[0]
 
             query="DELETE FROM Banned_users WHERE user_id='%s';"
-            logger.info(f"[Ban unban()] sql_query=[{query.format(_id)}]")
+            logger.info(f"[Ban unban()] sql_query=[{query}] with values ({_id})")
             self.curs.execute(query, [_id])
         except Exception as e:
             logger.info(f'[Ban unban()] Encountered hte following sql error: {e}')
             await ctx.send(f"Encountered the following sql error: {e}")
             return
 
-        logger.info(f"[Ban unban()] User: {username} with id: {_id} was unbanned.")
+        logger.info(f"[Ban unban()] User: {name} with id: {_id} was unbanned.")
         e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())
         if e_obj:
             await self.mod_channel.send(embed=e_obj)
 
     @unban.error
     async def unban_error(self, ctx, error):
-        logger.info("[Ban Unban_error] caught non integer ID passed in to unban parameter. handled accordingly")
+        logger.info("[Ban Unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
         if isinstance(error, commands.BadArgument):
             e_obj = await em(ctx, title="Error",
                              content=[("Problem","Please enter a numerical Discord ID.")],
