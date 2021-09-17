@@ -37,25 +37,25 @@ class Ban(commands.Cog):
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
             self.curs = conn.cursor()
 
-            self.curs.execute(  "CREATE TABLE IF NOT EXISTS Banned_users ("
-                                "username    VARCHAR(32) NOT NULL,"
-                                "user_id     CHAR(18),"
-                                "PRIMARY KEY (user_id)"
-                                ")"
-                             )
+            self.curs.execute("CREATE TABLE IF NOT EXISTS Banned_users ("
+                              "username    VARCHAR(32) NOT NULL,"
+                              "user_id     CHAR(18),"
+                              "PRIMARY KEY (user_id)"
+                              ")"
+                              )
 
-            self.curs.execute(  "CREATE TABLE IF NOT EXISTS Ban_records ("
-                                "ban_id                  INTEGER GENERATED ALWAYS AS IDENTITY,"
-                                "username                VARCHAR(32)    NOT NULL,"
-                                "user_id                 CHAR(18)       NOT NULL,"
-                                "mod                     VARCHAR(32),"
-                                "mod_id                  CHAR(18),"
-                                "date                    TIMESTAMPTZ    UNIQUE,"
-                                "reason                  TEXT           NOT NULL,"
-                                "UNIQUE (user_id, date),"
-                                "PRIMARY KEY (ban_id)"
-                                ")"
-                             )
+            self.curs.execute("CREATE TABLE IF NOT EXISTS Ban_records ("
+                              "ban_id                  INTEGER GENERATED ALWAYS AS IDENTITY,"
+                              "username                VARCHAR(32)    NOT NULL,"
+                              "user_id                 CHAR(18)       NOT NULL,"
+                              "mod                     VARCHAR(32),"
+                              "mod_id                  CHAR(18),"
+                              "date                    TIMESTAMPTZ    UNIQUE,"
+                              "reason                  TEXT           NOT NULL,"
+                              "UNIQUE (user_id, date),"
+                              "PRIMARY KEY (ban_id)"
+                              ")"
+                              )
 
             logger.info("[Ban __init__] PostgreSQL connection established")
         except Exception as e:
@@ -63,7 +63,7 @@ class Ban(commands.Cog):
                          f"connection\n{e}")
 
     async def insert_ban(self, username, user_id):
-        query="INSERT INTO Banned_users VAlUES (%s, %s)"
+        query = "INSERT INTO Banned_users VAlUES (%s, %s)"
         logger.info(f"[Ban insert_ban()] sql_query=[{query}] with values ({username, user_id})")
         try:
             self.curs.execute(query, (username, user_id))
@@ -74,8 +74,8 @@ class Ban(commands.Cog):
         query = "INSERT INTO Ban_records (username, user_id, mod, mod_id, date, reason) " \
               "VALUES (%s, %s, %s, %s, %s, %s)"
 
-        logger.info(f"[Ban insert_record()] sql_query=[{query}] with values " \
-                     f"({username, user_id, mod, mod_id, date, reason})")
+        logger.info(f"[Ban insert_record()] sql_query=[{query}] with values "
+                    f"({username, user_id, mod, mod_id, date, reason})")
         try:
             self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
         except Exception as e:
@@ -87,7 +87,7 @@ class Ban(commands.Cog):
 
         # read in blacklist of banned users
         try:
-            query="SELECT user_id FROM Banned_users;"
+            query = "SELECT user_id FROM Banned_users;"
             logger.info(f"[Ban load()] sql_query=[ {query} ]")
             self.curs.execute(query)
         except Exception as e:
@@ -106,8 +106,8 @@ class Ban(commands.Cog):
                                   color=discord.Color.red(),
                                   timestamp=self.datetime.now(pytz.timezone('Canada/Pacific'))
                                   )
-            e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.bot.guilds[0]}\n\n" +
-                                                  "You may NOT rejoin the guild!**")
+            e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.bot.guilds[0]}\n\n"
+                            "You may NOT rejoin the guild!**")
             e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
 
             await member.send(embed=e_obj)
@@ -129,7 +129,7 @@ class Ban(commands.Cog):
 
         # name, id, mod, mod id, date, reason
         username = member.name + '#' + member.discriminator
-        mod = audit_ban.user.name+ '#' + audit_ban.user.discriminator
+        mod = audit_ban.user.name + '#' + audit_ban.user.discriminator
         mod_id = audit_ban.user.id
         date = audit_ban.created_at
         reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
@@ -145,7 +145,7 @@ class Ban(commands.Cog):
 
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed",
-                                colour=discord.Color.red())
+                              colour=discord.Color.red())
 
         e_obj.add_field(name="Banned User", value=f"**{username}**", inline=True)
         e_obj.add_field(name="Moderator", value=f"**{mod}**", inline=True)
@@ -178,31 +178,31 @@ class Ban(commands.Cog):
         ban_data = []
         audit_users = []
         for ban in audit_logs:
-            audit_users.append( ban.target.id )
+            audit_users.append(ban.target.id)
 
-            ban_data.append([   ban.target.name+'#'+ban.target.discriminator,
-                                ban.target.id,
-                                ban.user.name+'#'+ban.user.discriminator,
-                                ban.user.id,
-                                ban.created_at,
-                                ban.reason if ban.reason else 'No Reason Given!'
-                            ])
+            ban_data.append([ban.target.name+'#'+ban.target.discriminator,
+                             ban.target.id,
+                             ban.user.name+'#'+ban.user.discriminator,
+                             ban.user.id,
+                             ban.created_at,
+                             ban.reason if ban.reason else 'No Reason Given!'
+                             ])
 
         for ban in bans:
             if ban.user.id in audit_users:
                 continue
-            ban_data.append([   ban.user.name+'#'+ban.user.discriminator,
-                                ban.user.id,
-                                None,
-                                None,
-                                None,
-                                'No Reason Given!'
-                            ])
+            ban_data.append([ban.user.name+'#'+ban.user.discriminator,
+                             ban.user.id,
+                             None,
+                             None,
+                             None,
+                             'No Reason Given!'
+                             ])
 
         # push to db and blacklist
         for ban in ban_data:
             if ban[1] in ban_ids:
-                self.blacklist.append( ban[1] )
+                self.blacklist.append(ban[1])
                 await self.insert_ban(ban[0], ban[1])
 
             await self.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
@@ -242,18 +242,18 @@ class Ban(commands.Cog):
             logger.info(f"[Ban ban()] Banning {username} with id {user.id}")
 
             # add to blacklist
-            self.blacklist.append( user.id )
+            self.blacklist.append(user.id)
 
             # dm banned user
             e_obj = discord.Embed(title="Ban Notification",
-                                  description=f"**You've been PERMANENTLY BANNED from"+
-                                               f"{self.bot.guilds[0].name.upper()}.**",
+                                  description="**You've been PERMANENTLY BANNED from" +
+                                              f"{self.bot.guilds[0].name.upper()}.**",
                                   color=discord.Color.red(),
                                   timestamp=self.datetime.now(pytz.timezone('Canada/Pacific')))
 
             e_obj.add_field(name='Reason',
-                            value=f"```{reason}```\n"+
-                                   "Please refrain from this kind of behaviour in the future. Thank you.")
+                            value=f"```{reason}```\n" +
+                            "Please refrain from this kind of behaviour in the future. Thank you.")
 
             e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
             try:
@@ -306,13 +306,13 @@ class Ban(commands.Cog):
         self.blacklist.remove(_id)
 
         try:
-            query="SELECT username FROM Banned_users WHERE user_id='%s';"
+            query = "SELECT username FROM Banned_users WHERE user_id='%s';"
             logger.info(f"[Ban unban()] sql_query=[{query}] with values ({_id})")
 
             self.curs.execute(query, [_id])
             name = self.curs.fetchone()[0]
 
-            query="DELETE FROM Banned_users WHERE user_id='%s';"
+            query = "DELETE FROM Banned_users WHERE user_id='%s';"
             logger.info(f"[Ban unban()] sql_query=[{query}] with values ({_id})")
             self.curs.execute(query, [_id])
         except Exception as e:
@@ -330,7 +330,7 @@ class Ban(commands.Cog):
         logger.info("[Ban Unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
         if isinstance(error, commands.BadArgument):
             e_obj = await em(ctx, title="Error",
-                             content=[("Problem","Please enter a numerical Discord ID.")],
+                             content=[("Problem", "Please enter a numerical Discord ID.")],
                              colour=self.errorColour,
                              footer="Command Error")
             if e_obj:
@@ -339,7 +339,7 @@ class Ban(commands.Cog):
     @commands.command()
     async def bans(self, ctx):
         logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
-        query="SELECT * FROM banned_users;"
+        query = "SELECT * FROM banned_users;"
         try:
             logger.info(f"sql_query=[{query}]")
             self.curs.execute(query)
@@ -353,7 +353,7 @@ class Ban(commands.Cog):
 
         emb = discord.Embed(title="Banned members", color=discord.Color.red())
 
-        names =""
+        names = ""
         ids = ""
         for row in rows:
             name = row[0]
