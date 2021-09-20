@@ -1,19 +1,21 @@
+from asgiref.sync import sync_to_async
 from discord.ext import commands
 import discord
-# import json
 import logging
 import asyncio
 import parsedatetime
 import time
-from time import mktime
-# import helper_files.testenv
 import traceback
 import sys
+
+from django.conf import settings
+
 from resources.utilities.embed import embed
-import psycopg2
-# import os
 import datetime
 import pytz
+
+from WalleModels.models import Reminder
+
 logger = logging.getLogger('wall_e')
 
 
@@ -22,41 +24,14 @@ class Reminders(commands.Cog):
     def __init__(self, bot, config):
         self.bot = bot
         self.config = config
-
-        # setting up database connection
-        try:
-            host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
-            db_connection_string = (
-                "dbname='{}' user='{}' host='{}'".format(
-                    self.config.get_config_value('database', 'WALL_E_DB_DBNAME'),
-                    self.config.get_config_value('database', 'WALL_E_DB_USER'),
-                    host)
-            )
-            logger.info("[Reminders __init__] db_connection_string=[{}]".format(db_connection_string))
-            conn = psycopg2.connect(
-                "{}  password='{}'".format(
-                    db_connection_string, self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
-                )
-            )
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            self.curs = conn.cursor()
-            self.curs.execute("CREATE TABLE IF NOT EXISTS Reminders ( reminder_id BIGSERIAL  PRIMARY KEY, "
-                              "reminder_date timestamp DEFAULT now() + interval '1' year, message varchar(2000) "
-                              "DEFAULT 'INVALID', author_id varchar(500) DEFAULT 'INVALID', author_name varchar(500)"
-                              " DEFAULT 'INVALID', message_id varchar(200) DEFAULT 'INVALID');")
-            self.bot.loop.create_task(self.get_messages())
-            logger.info("[Reminders __init__] PostgreSQL connection established")
-        except Exception as e:
-            logger.error("[Reminders __init__] enountered following exception when setting up PostgreSQL "
-                         "connection\n{}".format(e))
+        self.bot.loop.create_task(self.get_messages())
 
     @commands.command(aliases=['remindmeon', 'remindmeat'])
     async def remindmein(self, ctx, *args):
         logger.info("[Reminders remindmein()] remindme command detected from user {}".format(ctx.message.author))
         parsed_time = ''
         message = ''
-        # Bot's default timezone; if running from another timezone (eg: Canada/Eastern), change accordingly
-        user_timezone = pytz.timezone("Canada/Pacific")
+        user_specified_timezone = pytz.timezone("Canada/Pacific")
         parse_time = True
         for index, value in enumerate(args):
             if parse_time:
@@ -64,7 +39,7 @@ class Reminders(commands.Cog):
                     parse_time = False
                 else:
                     if value in pytz.all_timezones:
-                        user_timezone = pytz.timezone(str(value))  # Set timezone if user specifies
+                        user_specified_timezone = pytz.timezone(str(value))  # Set timezone if user specifies
                     parsed_time += "{} ".format(value)
             else:
                 message += "{} ".format(value)
@@ -84,7 +59,7 @@ class Reminders(commands.Cog):
                                "[time] [timezone]?\n"
                                "- Example: .remindmeat 1:15pm Canada/Eastern to video call\n\n"
                                "[date] [at]? [time] [timezone]?\n"
-                               "- Example: .remindmeon Oct 5th at 12:30pm to eat lunch\n")
+                               "- Example: .remindmeon October 5th at 12:30pm to eat lunch\n")
         if parsed_time == '':
             logger.info("[Reminders remindmein()] was unable to extract a time")
             e_obj = await embed(
@@ -111,11 +86,13 @@ class Reminders(commands.Cog):
             return
         time_until = str(parsed_time)
         logger.info("[Reminders remindmein()] extracted time is {}".format(time_until))
-        logger.info("[Reminders remindmein()] extracted timezone is {}".format(user_timezone))
+        logger.info("[Reminders remindmein()] extracted timezone is {}".format(user_specified_timezone))
         logger.info("[Reminders remindmein()] extracted message is {}".format(message))
-        current_time = datetime.datetime.now(tz=user_timezone)
-        time_struct, parse_status = parsedatetime.Calendar().parseDT(
-                datetimeString=time_until, sourceTime=current_time, tzinfo=user_timezone)
+        reminder_date, parse_status = parsedatetime.Calendar().parseDT(
+            datetimeString=time_until,
+            sourceTime=datetime.datetime.now(tz=user_specified_timezone),
+            tzinfo=user_specified_timezone
+        )
         if parse_status == 0:
             logger.info("[Reminders remindmein()] couldn't parse the time")
             e_obj = await embed(
@@ -128,28 +105,21 @@ class Reminders(commands.Cog):
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
             return
-        time_struct = time_struct.utctimetuple()  # Server runs in UTC, so time has to be converted
-        expire_seconds = int(mktime(time_struct) - time.time())
-        datetime_now = datetime.datetime.now(tz=pytz.utc)  # Note that datetime.utcnow() returns naive datetime
-        difference_time = datetime_now + datetime.timedelta(seconds=expire_seconds)
-        sql_command = (
-            "INSERT INTO Reminders (  reminder_date, message, author_id, author_name, message_id) VALUES "
-            "(TIMESTAMP '{}', '{}', '{}', '{}',  '{}');".format(
-                difference_time,
-                message,
-                ctx.author.id,
-                ctx.message.author,
-                ctx.message.id
-            )
+        date_to_be_reminded_in_epoch_format = (
+                reminder_date - datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
+        ).total_seconds()
+        reminder_obj = Reminder(
+            reminder_date_epoch=date_to_be_reminded_in_epoch_format, message=message,
+            author_id=ctx.author.id, author_name=ctx.message.author,
+            message_id=ctx.message.id
         )
-        logger.info("[Reminders remindmein()] sql_command=[{}]".format(sql_command))
-        self.curs.execute(sql_command)
-        fmt = 'Reminder set for {0} seconds from now'
+        await sync_to_async(save_reminder, thread_sensitive=True)(reminder_obj)
+        expire_seconds = int(date_to_be_reminded_in_epoch_format - time.time())
         e_obj = await embed(
             ctx,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-            description=fmt.format(expire_seconds)
+            description=convert_seconds_to_countdown(expire_seconds)
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)
@@ -158,54 +128,113 @@ class Reminders(commands.Cog):
     @commands.command()
     async def showreminders(self, ctx):
         logger.info("[Reminders showreminders()] remindme command detected from user {}".format(ctx.message.author))
-        if self.curs is not None:
-            try:
-                reminders = ''
-                sql_command = "SELECT * FROM Reminders WHERE author_id = '{}';".format(ctx.author.id)
-                self.curs.execute(sql_command)
-                logger.info("[Reminders showreminders()] retrieved all reminders belonging to user "
+        try:
+            reminders = ''
+            logger.info("[Reminders showreminders()] retrieved all reminders belonging to user "
+                        + str(ctx.message.author))
+            reminders_that_belong_to_author = await sync_to_async(
+                get_reminder_synchronously_that_belong_to_author, thread_sensitive=True
+            )(ctx.author.id)
+            for reminder_obj in reminders_that_belong_to_author:
+                logger.info("[Reminders showreminders()] dealing with reminder [{}]".format(reminder_obj))
+                time_str = datetime.datetime.fromtimestamp(reminder_obj.reminder_date_epoch,
+                                                           pytz.timezone('America/Vancouver'))
+                time_str = time_str.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
+                reminders += f"{reminder_obj.message_id}\n - {time_str}\n - {reminder_obj.message}\n"
+            author = ctx.author.nick or ctx.author.name
+            if reminders != '':
+                logger.info("[Reminders showreminders()] sent off the list of reminders to "
                             + str(ctx.message.author))
-                for row in self.curs.fetchall():
-                    logger.info("[Reminders showreminders()] dealing with reminder [{}]".format(row))
-                    reminders += "{}\t\t\t{}\n".format(row[5], row[2])
-                author = ctx.author.nick or ctx.author.name
-                if reminders != '':
-                    logger.info("[Reminders showreminders()] sent off the list of reminders to "
-                                + str(ctx.message.author))
-                    e_obj = await embed(
-                        ctx,
-                        title="Here are your reminders {}".format(author),
-                        author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                        avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                        content=[["MessageID\t\t\t\t\t\t\tReminder", reminders]]
+                e_obj = await embed(
+                    ctx,
+                    title="Here are your reminders {}".format(author),
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    content=[["MessageID\n - Date\n - Reminder", reminders]]
+                )
+                if e_obj is not False:
+                    await ctx.send(embed=e_obj)
+            else:
+                logger.info(
+                    "[Reminders showreminders()] {} didnt seem to have any reminders.".format(
+                        ctx.message.author
                     )
-                    if e_obj is not False:
-                        await ctx.send(embed=e_obj)
-                else:
-                    logger.info(
-                        "[Reminders showreminders()] {} didnt seem to have any reminders.".format(
-                            ctx.message.author
-                        )
-                    )
-                    e_obj = await embed(
-                        ctx,
-                        author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                        avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                        description="You don't seem to have any reminders {}".format(author)
-                    )
-                    if e_obj is not False:
-                        await ctx.send(embed=e_obj)
-            except Exception as error:
+                )
                 e_obj = await embed(
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="Something screwy seems to have happened, look at the logs for more info."
+                    description="You don't seem to have any reminders {}".format(author)
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
-                    logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
-                    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        except Exception as error:
+            e_obj = await embed(
+                ctx,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description="Something screwy seems to have happened, look at the logs for more info."
+            )
+            if e_obj is not False:
+                await ctx.send(embed=e_obj)
+                logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
+                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+
+    @commands.command()
+    async def show_all_reminders(self, ctx):
+        try:
+            reminders = ''
+            logger.info("[Reminders showreminders()] retrieved all reminders belonging to user "
+                        + str(ctx.message.author))
+            all_reminders = await sync_to_async(
+                get_all_reminder_synchronously, thread_sensitive=True
+            )()
+            for reminder_obj in all_reminders:
+                logger.info("[Reminders showreminders()] dealing with reminder [{}]".format(reminder_obj))
+                time_str = datetime.datetime.fromtimestamp(reminder_obj.reminder_date_epoch,
+                                                           pytz.timezone('America/Vancouver'))
+                time_str = time_str.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
+                reminders += (
+                    f"{reminder_obj.message_id}\n - Date: {time_str}\n - Reminder: {reminder_obj.message}"
+                    f"\n - Author: <@{reminder_obj.author_id}>"
+                )
+            author = ctx.author.nick or ctx.author.name
+            if reminders != '':
+                logger.info(f"[Reminders showreminders()] sent off the list of reminders to {ctx.message.author}")
+                e_obj = await embed(
+                    ctx,
+                    title="Reminders",
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    content=[["Current Reminders", reminders]]
+                )
+                if e_obj is not False:
+                    await ctx.send(embed=e_obj)
+            else:
+                logger.info(
+                    "[Reminders showreminders()] {} didnt seem to have any reminders.".format(
+                        ctx.message.author
+                    )
+                )
+                e_obj = await embed(
+                    ctx,
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    description="You don't seem to have any reminders {}".format(author)
+                )
+                if e_obj is not False:
+                    await ctx.send(embed=e_obj)
+        except Exception as error:
+            e_obj = await embed(
+                ctx,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description="Something screwy seems to have happened, look at the logs for more info."
+            )
+            if e_obj is not False:
+                await ctx.send(embed=e_obj)
+                logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
+                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
     @commands.command()
     async def deletereminder(self, ctx, message_id):
@@ -216,7 +245,8 @@ class Reminders(commands.Cog):
                 sql_command = "SELECT * FROM Reminders WHERE message_id = '{}';".format(message_id)
                 self.curs.execute(sql_command)
                 result = self.curs.fetchone()
-                if result is None:
+                reminder = Reminder.objects.all().filter(message_id=message_id)
+                if reminder is None:
                     e_obj = await embed(
                         ctx,
                         title='Delete Reminder',
@@ -228,10 +258,9 @@ class Reminders(commands.Cog):
                         await ctx.send(embed=e_obj)
                         logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
                 else:
-                    if str(result[4]) == str(ctx.message.author):
+                    if str(reminder[4]) == str(ctx.message.author):
                         # check to make sure its the right author
-                        sql_command = "DELETE FROM Reminders WHERE message_id = '{}';".format(message_id)
-                        self.curs.execute(sql_command)
+                        reminder.delete()
                         logger.info("[Reminders deletereminder()] following reminder was deleted = {}".format(result))
                         e_obj = await embed(
                             ctx,
@@ -258,11 +287,11 @@ class Reminders(commands.Cog):
             logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
-#########################################
-# Background function that determines ##
-# if a reminder's time has come       ##
-# to be sent to its channel           ##
-#########################################
+    #########################################
+    # Background function that determines ##
+    # if a reminder's time has come       ##
+    # to be sent to its channel           ##
+    #########################################
     async def get_messages(self):
         await self.bot.wait_until_ready()
         reminder_channel_id = None
@@ -302,7 +331,7 @@ class Reminders(commands.Cog):
                 )
                 if reminder_chan is None:
                     reminder_chan = await self.bot.guilds[0].create_text_channel(
-                         '{}_bot_channel'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME'))
+                        '{}_bot_channel'.format(self.config.get_config_value('basic_config', 'BRANCH_NAME'))
                     )
                     reminder_channel_id = reminder_chan.id
                     if reminder_channel_id is None:
@@ -351,12 +380,11 @@ class Reminders(commands.Cog):
                          "channel\n{}".format(e))
         reminder_channel = self.bot.get_channel(reminder_channel_id)  # channel ID goes here
         while True:
-            dt = datetime.datetime.now()
             try:
-                self.curs.execute("SELECT * FROM Reminders where reminder_date <= TIMESTAMP '{}';".format(dt))
-                for row in self.curs.fetchall():
-                    reminder_message = row[2]
-                    author_id = row[3]
+                reminders = await sync_to_async(get_reminders_syncronously, thread_sensitive=True)()
+                for reminder in reminders:
+                    reminder_message = reminder.message
+                    author_id = reminder.author_id
                     logger.info('[Reminders get_message()] obtained the message of [{}] for '
                                 'author with id [{}] for '
                                 'BOT_GENERAL_CHANNEL [{}]'.format(reminder_message, author_id, reminder_channel_id))
@@ -369,10 +397,54 @@ class Reminders(commands.Cog):
                         description="This is your reminder to {}".format(reminder_message),
                         footer='Reminder'
                     )
-                    self.curs.execute("DELETE FROM Reminders WHERE reminder_id = {};".format(row[0]))
+                    await sync_to_async(delete_reminder_syncronously, thread_sensitive=True)(reminder)
                     if e_obj is not False:
+                        pass
                         await reminder_channel.send('<@{}>'.format(author_id), embed=e_obj)
             except Exception as error:
                 logger.error('[Reminders get_message()] Ignoring exception when generating reminder:')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
             await asyncio.sleep(2)
+
+
+def get_reminders_syncronously():
+    today_date = datetime.datetime.now(tz=pytz.timezone(str(settings.TIME_ZONE)))
+    start_of_epoch = datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
+    epoch_time_zone_user_timezone = (today_date - start_of_epoch).total_seconds()
+    return list(Reminder.objects.all().filter(reminder_date_epoch__lte=epoch_time_zone_user_timezone))
+
+
+def delete_reminder_syncronously(reminder_to_delete):
+    reminder_to_delete.delete()
+
+
+def get_reminder_synchronously_that_belong_to_author(author_id):
+    return list(Reminder.objects.all().filter(author_id=author_id).order_by('reminder_date_epoch'))
+
+
+def get_all_reminder_synchronously():
+    return list(Reminder.objects.all().order_by('reminder_date_epoch'))
+
+
+def save_reminder(reminder_to_save):
+    reminder_to_save.save()
+
+
+def convert_seconds_to_countdown(seconds):
+    day = seconds // (24 * 3600)
+    seconds = seconds % (24 * 3600)
+    hour = seconds // 3600
+    seconds %= 3600
+    minutes = seconds // 60
+    seconds %= 60
+
+    message = "Reminder set for "
+    if day > 0:
+        message += f" {day} days"
+    if hour > 0:
+        message += f" {hour} hours"
+    if minutes > 0:
+        message += f" {minutes} minutes"
+    if seconds > 0:
+        message += f" {seconds} seconds"
+    return f"{message} from now"

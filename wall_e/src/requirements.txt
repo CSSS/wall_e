@@ -5,3 +5,10 @@ pytz==2018.5
 parsedatetime==2.4
 wolframalpha==3.0.1
 configparser
+
+# needed by reminders to be able to convert between user's specified timezone
+# and bot's server timezone
+tzlocal
+
+# needed for DB interactions
+django

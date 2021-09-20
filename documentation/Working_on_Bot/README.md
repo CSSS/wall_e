@@ -3,6 +3,8 @@
 - [Wiki: Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
 - [Running the Bot](#running-the-bot)  
   - [With the Database](#with-the-database)
+    - [With docker-ized Wall-E](#with-docker-ized-wall-e)
+    - [Running wall_e outside of a docker container [to be able to Debug from Pycharm]](#running-wall_e-outside-of-a-docker-container-[to-be-able-to-Debug-from-Pycharm])
   - [Without the Database](#without-the-database)
 - [Testing the Bot](#testing-the-bot)
   - [Step 1. Run through the linter](#step-1-run-through-the-linter)
@@ -33,64 +35,75 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
             1. Can be done following [these instructions](https://docs.docker.com/compose/environment-variables/#set-environment-variables-in-containers). Note that this is the same as via Env variables. The only difference is using this option will not result in the env variable be declared in your shell environment variable.
          4. As you may see from the link in the previous point, docker provides multiple ways to pass variables. You can use any that work for you.
 
-
-### With the database
-
-*Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
+    
+*Keep in mind that unless otherwise indicated, all commands have to be run from `/path/to/repo/wall_e/src`*
 
 You will need to recreate the base docker image if you made changes to any of the following files
  * wall_e/src/requirements.txt
  * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
+#### With dockerized Wall-E
 ```shell
-export COMPOSE_PROJECT_NAME="project_name"
-export POSTGRES_PASSWORD="daPassword"
-//ensure that DB_ENBLED is set to 1 via whatever method you want
-if (you made changes to any of the files listed above){
-    ./CI/user_scripts/create-dev-docker-image.sh
-    export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
-}else{
-    export ORIGIN_IMAGE="sfucsssorg/wall_e"
-}
-./CI/user_scripts/setup-dev-env.sh
-```
+echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >  ../../CI/user_scripts/site_envs
+. ../../CI/user_scripts/set_env.sh
 
-If you need to re-launch the bot after making some changes, enter the command `.exit` on your discord guild and then run through the above instructions again.
+echo 'POSTGRES_PASSWORD='"'"'daPassword'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/site_envs
+echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/site_envs
+. ../../CI/user_scripts/set_env.sh
+
+if (you made changes to any of the files listed above){
+    ../../CI/user_scripts/create-dev-docker-image.sh
+    echo 'ORIGIN_IMAGE='"'"${COMPOSE_PROJECT_NAME}_wall_e_base"'"'' >>  ../../CI/user_scripts/site_envs
+}else{
+    echo 'ORIGIN_IMAGE='"'"'sfucsssorg/wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
+
+}
+. ../../CI/user_scripts/set_env.sh
+ 
+../../CI/user_scripts/setup-dev-env.sh
+````
 
 #### view logs in active time
 ```shell
  docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
 ```
 
-### Without the Database
+#### Re-launching dockerized Wall-E after making changes
 
-*Keep in mind that unless otherwise indicated, all commands have to be run from the parent folder*
+To re-launch the bot after making some changes, enter the command `.exit` on your discord guild and then run `../../CI/user_scripts/setup-dev-env.sh` again.
+You will need to run `../../CI/user_scripts/create-dev-docker-image.sh` again if you made further changes to `wall_e/src/requirements.txt` or `CI/server_scripts/build_wall_e/Dockerfile.wall_e_base`
 
-You will need to recreate the base docker image if you made changes to any of the following files
- * wall_e/src/requirements.txt
- * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
-
-
-Commands To Run
+#### Running wall_e outside a docker container [to be able to Debug from Pycharm]
 ```shell
-export COMPOSE_PROJECT_NAME="project_name"
-//ensure that DB_ENBLED is set to 0 via whatever method you want
-if (you made changes to any of the files listed above){
-    ./CI/user_scripts/create-dev-docker-image.sh
-    export ORIGIN_IMAGE="${COMPOSE_PROJECT_NAME}_wall_e_base"
+echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/site_envs
+echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/site_envs
+. ../../CI/user_scripts/set_env.sh
+
+if (you are using a database){
+    echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'DB_PORT='"'"'5432'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'HOST='"'"'127.0.0.1'"'"'' >>  ../../CI/user_scripts/site_envs
 }else{
-    export ORIGIN_IMAGE="sfucsssorg/wall_e"
+    echo 'DB_ENABLED='"'"'0'"'"'' >>  ../../CI/user_scripts/site_envs
 }
-./CI/user_scripts/setup-dev-env-no-db.sh
+. ../../CI/user_scripts/set_env.sh
+
+python3 -m pip install -r requirements.txt
+
+if (you are using the dockerized database){
+  docker run -d --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p "${DB_PORT}":5432 --name "${COMPOSE_PROJECT_NAME}_wall_e_db" postgres:alpine
+  PGPASSWORD=$POSTGRES_PASSWORD psql -h "${HOST}" -U "postgres" -f WalleModels/create-database.ddl
+  python3 django-db-orm-manage.py makemigrations
+  python3 django-db-orm-manage.py migrate
+}
+
+python3 main.py
 ```
 
-If you need to re-launch the bot after making some chnages, enter the command `.exit` on your discord guild and then run through the above instructions again.
-
-
-#### view logs in active time
-```shell
- docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
-```
+#### Re-launching Wall-E after making changes
+If you need to re-launch the bot after making some changes, enter the command `.exit` on your discord guild and then run `python3 main.py` again.
 
 ## Testing the bot
 

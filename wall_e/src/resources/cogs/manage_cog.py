@@ -1,14 +1,16 @@
 import datetime
-import discord
-from discord.ext import commands
 import logging
 import re
 import sys
 import time
 import traceback
 
+import discord
+from discord.ext import commands
+
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.list_of_perms import get_list_of_user_permissions
+from WalleModels.models import CommandStat
 
 logger = logging.getLogger('wall_e')
 
@@ -22,9 +24,6 @@ class ManageCog(commands.Cog):
         self.bot = bot
         self.config = config
         self.help_dict = self.config.get_help_json()
-        if self.config.enabled("database", option="DB_ENABLED"):
-            import psycopg2  # noqa
-            self.psycopg2 = psycopg2
 
     @commands.command(hidden=True)
     async def debuginfo(self, ctx):
@@ -81,73 +80,24 @@ class ManageCog(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         if self.check_test_environment(ctx) and \
-                self.config.enabled("database", option="DB_ENABLED"):
-            try:
-                host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
-                db_connection_string = (
-                    "dbname='{}' user='{}' host='{}'".format(
-                        self.config.get_config_value('database', 'WALL_E_DB_DBNAME'),
-                        self.config.get_config_value('database', 'WALL_E_DB_USER'),
-                        host)
-                )
-                logger.info(
-                    "[ManageCog on_command()] db_connection_string=[{}]".format(db_connection_string))
-                conn = self.psycopg2.connect(
-                    "{} password='{}'".format(
-                        db_connection_string,
-                        self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
-                    )
-                )
-                logger.info("[ManageCog on_command()] PostgreSQL connection established")
-                conn.set_isolation_level(self.psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-                curs = conn.cursor()
-                epoch_time = int(time.time())
-                now = datetime.datetime.now()
-                current_year = str(now.year)
-                current_month = str(now.month)
-                current_day = str(now.day)
-                current_hour = str(now.hour)
-                channel_name = str(ctx.channel).replace("\'", "[single_quote]").strip()
-                command = str(ctx.command).replace("\'", "[single_quote]").strip()
-                method_of_invoke = str(ctx.invoked_with).replace("\'", "[single_quote]").strip()
-                invoked_subcommand = str(ctx.invoked_subcommand).replace("\'", "[single_quote]").strip()
-
-                # this next part is just setup to keep inserting until it finsd a primary key that is not in use
-                successful = False
-                while not successful:
-                    try:
-                        sql_command = (
-                            "INSERT INTO CommandStats ( epoch_time, YEAR, "
-                            "MONTH, DAY, HOUR, channel_name, Command, invoked_with, "
-                            "invoked_subcommand) VALUES ({},{} ,{},{},{} ,'{}', "
-                            "'{}','{}','{}');".format(
-                                epoch_time,
-                                current_year,
-                                current_month,
-                                current_day,
-                                current_hour,
-                                channel_name,
-                                command,
-                                method_of_invoke,
-                                invoked_subcommand
-                            )
-                        )
-                        logger.info("[ManageCog on_command()] sql_command=[{}]".format(sql_command))
-                        curs.execute(sql_command)
-                    except self.psycopg2.IntegrityError as e:
-                        logger.error("[ManageCog on_command()] "
-                                     "enountered following exception when trying to insert the"
-                                     " record\n{}".format(e))
-                        epoch_time += 1
-                        logger.info("[ManageCog on_command()] incremented the epoch_time to {} and"
-                                    " will try again.".format(epoch_time))
-                    else:
-                        successful = True
-                curs.close()
-                conn.close()
-            except Exception as e:
-                logger.error("[ManageCog on_command()] enountered following exception when setting up PostgreSQL "
-                             "connection\n{}".format(e))
+                self.config.enabled("database_config", option="DB_ENABLED"):
+            epoch_time = int(time.time())
+            now = datetime.datetime.now()
+            current_year = str(now.year)
+            current_month = str(now.month)
+            current_day = str(now.day)
+            current_hour = str(now.hour)
+            channel_name = str(ctx.channel).replace("\'", "[single_quote]").strip()
+            command = str(ctx.command).replace("\'", "[single_quote]").strip()
+            method_of_invoke = str(ctx.invoked_with).replace("\'", "[single_quote]").strip()
+            invoked_subcommand = str(ctx.invoked_subcommand).replace("\'", "[single_quote]").strip()
+            command_stat = CommandStat(
+                epoch_time=epoch_time, year=current_year, month=current_month,
+                day=current_day, hour=current_hour, channel_name=channel_name,
+                command=command, invoked_with=method_of_invoke,
+                invoked_subcommand=invoked_subcommand
+            )
+            await CommandStat.save_command_async(command_stat)
 
     ####################################################
     # Function that gets called when the script cant ##

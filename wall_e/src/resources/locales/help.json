@@ -191,6 +191,17 @@
 			"the \"messageId\" can be obtained by using the \".showreminders\" command"
 		]
 	},
+	"show_all_reminders" : {
+		"class": "Reminders",
+		"access": "roles",
+		"roles" : [ "Bot_manager" ],
+		"aliases": [ ],
+		"example": [ ".deletereminder <arg>" ],
+		"description": [
+			"deletes a reminder that has a messageId of <arg>",
+			"the \"messageId\" can be obtained by using the \".showreminders\" command"
+		]
+	},
 	"newrole" : {
 		"class": "RoleCommands",
 		"access": "roles",

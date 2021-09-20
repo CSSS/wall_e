@@ -18,7 +18,7 @@ class Misc(commands.Cog):
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
-        self.wolframClient = wolframalpha.Client(self.config.get_config_value('wolfram', 'WOLFRAM_API_TOKEN'))
+        self.wolframClient = wolframalpha.Client(self.config.get_config_value('basic_config', 'WOLFRAM_API_TOKEN'))
         self.help_dict = self.config.get_help_json()
 
     @commands.command()

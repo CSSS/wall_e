@@ -1,12 +1,15 @@
-from discord.ext import commands
-import discord
-import subprocess
-import logging
 import asyncio
-from resources.utilities.send import send as helper_send
 import importlib
 import inspect
+import logging
+import subprocess
 import sys
+
+import discord
+from discord.ext import commands
+
+from WalleModels.models import CommandStat
+from resources.utilities.send import send as helper_send
 
 logger = logging.getLogger('wall_e')
 
@@ -16,15 +19,13 @@ class Administration(commands.Cog):
     def __init__(self, bot, config):
         self.config = config
         self.bot = bot
-        if self.config.enabled("database", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="DB_ENABLED"):
             import matplotlib
             matplotlib.use("agg")
-            import matplotlib.pyplot as plt # noqa
+            import matplotlib.pyplot as plt  # noqa
             self.plt = plt
-            import numpy as np # noqa
+            import numpy as np  # noqa
             self.np = np
-            import psycopg2 # noqa
-            self.psycopg2 = psycopg2
 
     def valid_cog(self, name):
         for cog in self.config.get_cogs():
@@ -49,7 +50,7 @@ class Administration(commands.Cog):
             )
             return
         try:
-            cog_file = importlib.import_module(folder+name)
+            cog_file = importlib.import_module(folder + name)
             cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
             cog_to_load = getattr(cog_file, cog_class_name)
             self.bot.add_cog(cog_to_load(self.bot, self.config))
@@ -70,7 +71,7 @@ class Administration(commands.Cog):
                 "{} which doesn't exist.".format(ctx.message.author, name)
             )
             return
-        cog_file = importlib.import_module(folder+name)
+        cog_file = importlib.import_module(folder + name)
         cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
         self.bot.remove_cog(cog_class_name)
         await ctx.send("{} command unloaded".format(name))
@@ -85,7 +86,7 @@ class Administration(commands.Cog):
             logger.info("[Administration reload()] {} tried "
                         "loading {} which doesn't exist.".format(ctx.message.author, name))
             return
-        cog_file = importlib.import_module(folder+name)
+        cog_file = importlib.import_module(folder + name)
         cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
         self.bot.remove_cog(cog_class_name)
         try:
@@ -107,148 +108,28 @@ class Administration(commands.Cog):
         await helper_send(ctx, "Exit Code: {}".format(exit_code))
         await helper_send(ctx, output, prefix="```", suffix="```")
 
-    def get_column_headers_from_database(self):
-        db_conn = self.connect_to_database()
-        if db_conn is not None:
-            db_curr = db_conn.cursor()
-            db_curr.execute("Select * FROM commandstats LIMIT 0")
-            colnames = [desc[0] for desc in db_curr.description]
-            db_curr.close()
-            db_conn.close()
-            return [name.strip() for name in colnames]
-        else:
-            return None
-
-    def determine_x_y_frequency(self, db_conn, filters=None):
-        conn = db_conn
-        if conn is None:
-            return None
-        db_curr = conn.cursor()
-        logger.info("[Administration determine_x_y_frequency()] trying to "
-                    "create a dictionary from {} with the filters:\n\t{}".format(db_curr, filters))
-        combined_filter = '", "'.join(str(e) for e in filters)
-        combined_filter = "\"{}\"".format(combined_filter)
-        sql_query = "select {} from commandstats;".format(combined_filter)
-        logger.info("[Administration determine_x_y_frequency()] initial "
-                    "sql query to determine what entries needs to be"
-                    " created with the filter specified above:\n\t{}".format(sql_query))
-        db_curr.execute(sql_query)
-        # getting all the rows that need to be graphed
-        results = db_curr.fetchall()
-        # where clause that will be used to determine what remaining rows still need to be added to the dictionary of
-        # results
-        overarching_where_clause = ''
-        # dictionary that will contain the stats that need to be graphed
-        frequency = {}
-        index = 0
-        # this loop will go through eachu unqiue entry that were turned from the results variable above to determine
-        # how much each unique entry
-        # was appeared and needs that info added to frequency dictionary
-        while len(results) > 0:
-            logger.info("[Administration determine_x_y_frequency()] "
-                        "{}th index results of sql query=[{}]".format(index, results[0]))
-            where_clause = ''  # where clause that keeps track of things that need to be added to the
-            # overarchingWhereClause
-            entry = ''
-            for idx, val in enumerate(filters):
-                if len(filters) == 1 + idx:
-                    entry += str(results[0][idx])
-                    where_clause += "\"{}\"='{}'".format(val, results[0][idx])
-                else:
-                    entry += '{}_'.format(results[0][idx])
-                    where_clause += "\"{}\"='{}' AND ".format(val, results[0][idx])
-            logger.info(
-                "[Administration determine_x_y_frequency()] where clause for determining which "
-                "entries match the entry [{}]:\n\t{}".format(entry, where_clause)
-            )
-            sql_query = "select {} from commandstats WHERE {};".format(combined_filter, where_clause)
-            logger.info(
-                "[Administration determine_x_y_frequency()] query that includes the above specified where "
-                "clause for determining how many elements match the filter of [{}]:\n\t{}".format(entry, sql_query)
-            )
-            db_curr.execute(sql_query)
-            results_of_query_for_specific_entry = db_curr.fetchall()
-            frequency[entry] = len(results_of_query_for_specific_entry)
-            logger.info(
-                "[Administration determine_x_y_frequency()] determined that {} "
-                "entries exist for filter {}".format(frequency[entry], entry)
-            )
-            if index > 0:
-                overarching_where_clause += ' AND NOT ( {} )'.format(where_clause)
-            else:
-                overarching_where_clause += ' NOT ( {} )'.format(where_clause)
-            logger.info("[Administration determine_x_y_frequency()] "
-                        "updated where clause for discriminating against all "
-                        "entries that have already been recorded:\n\t{}".format(overarching_where_clause))
-            sql_query = "select {} from commandstats WHERE ({});".format(combined_filter, overarching_where_clause)
-            logger.info("[Administration determine_x_y_frequency()] updated sql query to determine what remaining "
-                        "entries potentially need to be created after ruling out entries that match the where clause"
-                        ":\n\t{}".format(sql_query))
-            db_curr.execute(sql_query)
-            results = db_curr.fetchall()
-            index += 1
-        db_curr.close()
-        db_conn.close()
-        return frequency
-
-    def connect_to_database(self):
-        try:
-            host = '{}_wall_e_db'.format(self.config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME"))
-            wall_e_db_dbname = self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
-            wall_e_db_user = self.config.get_config_value('database', 'WALL_E_DB_USER')
-            wall_e_db_password = self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
-
-            db_connection_string = (
-                "dbname='{}' user='{}' host='{}'".format(
-                    wall_e_db_dbname,
-                    wall_e_db_user,
-                    host
-                )
-            )
-            logger.info(
-                "[Administration connect_to_database()] db_connection_string=[{}]".format(
-                    db_connection_string
-                )
-            )
-            conn = self.psycopg2.connect("{} password='{}'".format(db_connection_string, wall_e_db_password))
-            conn.set_isolation_level(self.psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            logger.info("[Administration connect_to_database()] PostgreSQL connection established")
-            return conn
-        except Exception as e:
-            logger.error("[Administration connect_to_database()] enountered following exception when setting up "
-                         "PostgreSQL connection\n{}".format(e))
-            return None
-
     @commands.command()
     async def frequency(self, ctx, *args):
-        if self.config.enabled("database", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="DB_ENABLED"):
             logger.info("[Administration frequency()] frequency command "
                         "detected from {} with arguments [{}]".format(ctx.message.author, args))
-            column_headers = self.get_column_headers_from_database()
-            if column_headers is None:
-                logger.info("[Administration frequency()] unable to connect to the database")
-                await ctx.send("unable to connect to the database")
-                return
-
+            column_headers = CommandStat.get_column_headers_from_database()
             if len(args) == 0:
-                await ctx.send("please specify which columns you want to count="
-                               + str(list(column_headers)))
+                await ctx.send(f"please specify which columns you want to count={column_headers}")
                 return
             else:
                 for arg in args:
                     if arg not in column_headers:
                         await ctx.send(
-                            "argument '{}' is not a valid option\nThe list of options are"
-                            ": {}".format(arg, column_headers)
+                            f"argument '{arg}' is not a valid option\nThe list of options are"
+                            f": {column_headers}"
                         )
                         return
 
-                dic_result = self.determine_x_y_frequency(self.connect_to_database(), args)
-                if dic_result is None:
-                    logger.info("[Administration frequency()] unable to connect to the database")
-                    await ctx.send("unable to connect to the database")
-                    return
-            dic_result = sorted(dic_result.items(), key=lambda kv: kv[1])
+            dic_result = sorted(
+                (await CommandStat.get_command_stats_dict(args)).items(),
+                key=lambda kv: kv[1]
+            )
             logger.info("[Administration frequency()] sorted dic_results by value")
             if len(dic_result) <= 50:
                 logger.info("[Administration frequency()] dic_results's length is <= 50")
@@ -264,13 +145,15 @@ class Administration(commands.Cog):
                 ax.set_yticklabels(labels)
                 ax.invert_yaxis()  # labels read top-to-bottom
                 if len(args) > 1:
-                    title = '_'.join(str(arg) for arg in args[:len(args) - 1])
-                    title += "_{}".format(args[len(args) - 1])
+                    title = '-'.join(str(arg) for arg in args[:len(args) - 1])
+                    title += "-{}".format(args[len(args) - 1])
                 else:
                     title = args[0]
                 ax.set_title("How may times each {} appears in the database since Sept 21, 2018".format(title))
                 fig.set_size_inches(18.5, 10.5)
-                fig.savefig('image.png')
+                fig.savefig(
+                    f'{self.config.enabled("basic_config", option="FOLDER_FOR_FREQUENCY_IMAGES")}image.png'
+                )
                 logger.info("[Administration frequency()] graph created and saved")
                 self.plt.close(fig)
                 await ctx.send(file=discord.File('image.png'))

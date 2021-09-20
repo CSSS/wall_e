@@ -21,22 +21,26 @@ class WallEConfig:
     def __init__(self, environment):
         config = configparser.ConfigParser(interpolation=None)
         config.optionxform = str
-        if (environment == "LOCALHOST"):
+        if environment == "LOCALHOST":
             config.read(config_file_dockerized_location_local)
-        elif (environment == 'TEST'):
+        elif environment == 'TEST':
             config.read(config_file_location_dev)
-        elif (environment == "PRODUCTION"):
+        elif environment == "PRODUCTION":
             config.read(config_file_location_prouction)
         else:
             logger.info("[WallEConfig __init__()] incorrect environment specified {}".format(environment))
-        self.config = {}
-        self.config['wall_e'] = config
+        self.config = {'wall_e': config}
+        if 'DJANGO_SETTINGS_SET' not in os.environ:
+            os.environ['DJANGO_SETTINGS_SET'] = "False"
+        else:
+            os.environ['DJANGO_SETTINGS_SET'] = "True"
 
         for each_section in self.config['wall_e'].sections():
             for (key, value) in self.config['wall_e'].items(each_section):
                 if key in os.environ:
                     self.set_config_value(each_section, key, os.environ[key])
-                    os.environ[key] = ' '
+                    if os.environ['DJANGO_SETTINGS_SET'] == "True":
+                        os.environ[key] = ' '
 
     def get_config_value(self, section, option):
 
@@ -65,18 +69,15 @@ class WallEConfig:
             raise KeyError("Section '{}' or Option '{}' does not exist".format(section, option))
 
     def cog_enabled(self, name_of_cog):
-        return (self.config['cogs_enabled'][name_of_cog] == 1)
+        return self.config['cogs_enabled'][name_of_cog] == 1
 
     def get_cogs(self):
         cogs_to_load = []
         cogs = self.config['wall_e']
         for cog in cogs['cogs_enabled']:
             if int(cogs['cogs_enabled'][cog]) == 1 and ((cog != 'reminders') or
-               (cog == 'reminders' and self.enabled("database", option="DB_ENABLED"))):
-                cog_dict = {}
-                cog_dict['name'] = cog
-                cog_dict['path'] = cog_location_python_path
-                cogs_to_load.append(cog_dict)
+               (cog == 'reminders' and self.enabled("database_config", option="DB_ENABLED"))):
+                cogs_to_load.append({'name': cog, 'path': cog_location_python_path})
         return cogs_to_load
 
     def get_help_json(self):

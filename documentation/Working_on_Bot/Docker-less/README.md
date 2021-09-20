@@ -39,7 +39,7 @@ mkdir logs
 export ENVIRONMENT=LOCALHOST;
 //ensure that DB_ENBLED is set to 0 via whatever method you want
 python3.8 -m pip install -r requirements.txt
-python3.8 main.py
+python3.8 django-orm-main.py
 ```
 
 ## Testing the bot
