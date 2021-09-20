@@ -2,7 +2,8 @@ import os
 
 from resources.utilities.config.config import WallEConfig
 
-wall_e_config = WallEConfig(os.environ['ENVIRONMENT'])
+environment = os.environ['ENVIRONMENT']
+wall_e_config = WallEConfig(environment)
 
 DATABASES = {
     'default': {
@@ -10,10 +11,12 @@ DATABASES = {
         'NAME': wall_e_config.get_config_value("database_config", "WALL_E_DB_DBNAME"),
         'USER': wall_e_config.get_config_value("database_config", "WALL_E_DB_USER"),
         'PASSWORD': wall_e_config.get_config_value("database_config", "WALL_E_DB_PASSWORD"),
-        'HOST': wall_e_config.get_config_value("database_config", "HOST"),
-        'PORT': wall_e_config.get_config_value("database_config", "DB_PORT"),
+        'HOST': wall_e_config.get_config_value("database_config", "HOST")
     }
 }
+
+if wall_e_config.get_config_value("database_config", "DB_PORT") != "NONE":
+    DATABASES['default']['PORT'] = wall_e_config.get_config_value("database_config", "DB_PORT")
 
 INSTALLED_APPS = (
     'WalleModels',
