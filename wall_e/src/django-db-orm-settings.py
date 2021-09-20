@@ -10,13 +10,17 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': wall_e_config.get_config_value("database_config", "WALL_E_DB_DBNAME"),
         'USER': wall_e_config.get_config_value("database_config", "WALL_E_DB_USER"),
-        'PASSWORD': wall_e_config.get_config_value("database_config", "WALL_E_DB_PASSWORD"),
-        'HOST': wall_e_config.get_config_value("database_config", "HOST")
+        'PASSWORD': wall_e_config.get_config_value("database_config", "WALL_E_DB_PASSWORD")
     }
 }
 
 if wall_e_config.get_config_value("database_config", "DB_PORT") != "NONE":
     DATABASES['default']['PORT'] = wall_e_config.get_config_value("database_config", "DB_PORT")
+
+if environment == "LOCALHOST":
+    DATABASES['default']['HOST'] = wall_e_config.get_config_value("database_config", "HOST")
+else:
+    DATABASES['default']['HOST'] = f'{wall_e_config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME")}_wall_e_db'
 
 INSTALLED_APPS = (
     'WalleModels',
