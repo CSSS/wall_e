@@ -69,8 +69,6 @@ async def on_message(message):
 # STARTING POINT ##
 ####################
 if __name__ == "__main__":
-
-
     logger.info("[main.py] Wall-E is starting up")
     # tries to open log file in prep for write_to_bot_log_channel function
     try:
