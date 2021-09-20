@@ -20,7 +20,9 @@ if wall_e_config.get_config_value("database_config", "DB_PORT") != "NONE":
 if environment == "LOCALHOST":
     DATABASES['default']['HOST'] = wall_e_config.get_config_value("database_config", "HOST")
 else:
-    DATABASES['default']['HOST'] = f'{wall_e_config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME")}_wall_e_db'
+    DATABASES['default']['HOST'] = (
+        f'{wall_e_config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME")}_wall_e_db'
+    )
 
 INSTALLED_APPS = (
     'WalleModels',
