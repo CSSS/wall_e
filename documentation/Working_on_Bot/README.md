@@ -31,19 +31,19 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
    1. Wall_e needs parameter specifications. We use the `wall_e/src/resources/utilities/config/local.ini` file to declare any variables and the `CI/user_scripts/wall_e.env` can be optionally used to initialize.
       [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
       1. the following values *need* to be saved to the `CI/user_scripts/wall_e.env` file and exported using `../../CI/user_scripts/set_env.sh`:
-         1. When running dockerized wall_e
+         1. When running dockerized wall_e:
             1. `COMPOSE_PROJECT_NAME`
-            2. `ORIGIN_IMAGE`
-            3. `POSTGRES_PASSWORD`
-         2. When running wall_e on localhost
+            2. `POSTGRES_PASSWORD`
+            3. `ORIGIN_IMAGE`
+         2. When running wall_e on localhost:
+            1. `COMPOSE_PROJECT_NAME`
             2. `POSTGRES_PASSWORD`
             3. `DB_PORT`
-            4. `COMPOSE_PROJECT_NAME`
-            5. `WALL_E_DB_USER`
-            6. `WALL_E_DB_PASSWORD`
-            7. `WALL_E_DB_DBNAME`
-            8. `ENVIRONMENT`
-            9. `DOCKERIZED`
+            4. `WALL_E_DB_USER`
+            5. `WALL_E_DB_PASSWORD`
+            6. `WALL_E_DB_DBNAME`
+            7. `ENVIRONMENT`
+            8. `DOCKERIZED`
 
 *Keep in mind that unless otherwise indicated, all commands have to be run from `/path/to/repo/wall_e/src`*
 
