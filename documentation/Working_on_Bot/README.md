@@ -21,23 +21,20 @@
 ## Running the Bot
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) for future reference :)
 
-> Due to some compatibility issue that occurs with some of the modules on some OSs, walL_e has been dockerized for both server-side running and local development. In order to work with wall_e, you need only `docker` and `docker-compose` working. If you are using Windows Home or do not want to deal with docker, feel free to use the [Docker-less README](Docker-less/README.md). However, docker-less wall_e does not support any commands that use the database and we will not provide assistance for OS issues that arise from incompabilities with any part of wall_e
+> Due to some compatibility issue that occurs with some of the modules on some OSs, walL_e has been dockerized for both server-side running and local development. In order to work with wall_e, you need only `docker` and `docker-compose` working. If you are using Windows Home or do not want to deal with docker, feel free look to [run wall_e on the localhost](#running-wall_e-outside-a-docker-container-to-be-able-to-debug-from-pycharm)
 
 Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-ce/debian/#set-up-the-repository) and [`docker-compose`](https://docs.docker.com/compose/install/#install-compose)
 
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 2. Clone the repo
 3. Wall_E Setting Specification.
-   1. Wall_e needs parameter specifications. These are done via an [ini](https://en.wikipedia.org/wiki/INI_file) file. The biggest component this impacts is whether or not you use wall_e with a dockerized database. [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
+   1. Wall_e needs parameter specifications. These are done via an [ini](https://en.wikipedia.org/wiki/INI_file) file. [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
       1. Ways to specify settings: (please note that all the following options require the ini file with the same structure located [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) to be placed at location `wall_e/src/resources/utilities/config/local.ini`. This is so that wall_e know what settings it will be taking in, even if the values in the ini file do not indicate the actual values it will take in.)
-         1. Specify via [Env variables](https://en.wikipedia.org/wiki/Environment_variable).
-            1. Just export the settings [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) with the specified values.
+         1. Specify via [.env file](https://levelup.gitconnected.com/what-are-env-files-and-how-to-use-them-in-nuxt-7f194f083e3d).
+            1. following the steps on this README where environment variables are written to `CI/user_scripts/site_envs` will satisfy this condition. 
          2. Specify via [`wall_e/src/resources/utilities/config/local.ini`](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini).
-            1. Be sure to **not** remove the headers on the ini. Also, please keep in mind that if you specify the same setting both via environment variable and via `.ini` file,  the environment variable will take precedence.
-         3. Via `CI/user_scripts/docker-compose-mount-nodb.yml` or `CI/user_scripts/docker-compose-mount.yml`.
-            1. Can be done following [these instructions](https://docs.docker.com/compose/environment-variables/#set-environment-variables-in-containers). Note that this is the same as via Env variables. The only difference is using this option will not result in the env variable be declared in your shell environment variable.
-         4. As you may see from the link in the previous point, docker provides multiple ways to pass variables. You can use any that work for you.
-
+            1. Be sure to **not** remove the headers on the ini.
+            2. keep in mind that if you specify the same setting both via `.env` file and via `.ini` file,  the `.env` file will take precedence.
     
 *Keep in mind that unless otherwise indicated, all commands have to be run from `/path/to/repo/wall_e/src`*
 
@@ -47,15 +44,17 @@ You will need to recreate the base docker image if you made changes to any of th
 
 ### With dockerized Wall-E
 ```shell
-echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >  ../../CI/user_scripts/site_envs
+echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/site_envs
+echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/site_envs
+
 echo 'POSTGRES_PASSWORD='"'"'daPassword'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >>  ../../CI/user_scripts/site_envs
 echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/site_envs
 echo 'DOCKERIZED='"'"'True'"'"'' >>  ../../CI/user_scripts/site_envs
 
 echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
 echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/site_envs
 echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/site_envs
 
 . ../../CI/user_scripts/set_env.sh
 
@@ -98,6 +97,7 @@ if (you are using a database){
     echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
     echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/site_envs
     echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/site_envs
 }else{
     echo 'DB_ENABLED='"'"'0'"'"'' >>  ../../CI/user_scripts/site_envs
 }
