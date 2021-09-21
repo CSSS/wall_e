@@ -111,9 +111,23 @@ If you need to re-launch the bot after making some changes, enter the command `.
 
 Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
 
+#### With Docker
 ```shell
 ./CI/user_scripts/test_walle.sh
 ```
+
+#### Without Docker
+```shell
+python3.8 -m virtualenv testENV
+. testENV/bin/activate
+python3.8 -m pip install -r wall_e/test/test-requirements.txt
+cp wall_e/test/pytest.ini wall_e/src/.
+cp wall_e/test/validate_line_endings.sh wall_e/src/.
+cp wall_e/test/setup.cfg wall_e/src/.
+py.test --junitxml=test_results.xml wall_e/src
+./wall_e/src/validate-line-endings.sh
+```
+
 
 ### Step 2. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
 After you have tested on your own Discord Test Server, create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [rules](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master) for PRs before pushing your changes to Wall-E. Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
