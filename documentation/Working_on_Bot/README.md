@@ -28,14 +28,23 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
 2. Clone the repo
 3. Wall_E Setting Specification.
-   1. Wall_e needs parameter specifications. These are done via an [ini](https://en.wikipedia.org/wiki/INI_file) file. [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
-      1. Ways to specify settings: (please note that all the following options require the ini file with the same structure located [here](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) to be placed at location `wall_e/src/resources/utilities/config/local.ini`. This is so that wall_e know what settings it will be taking in, even if the values in the ini file do not indicate the actual values it will take in.)
-         1. Specify via [.env file](https://levelup.gitconnected.com/what-are-env-files-and-how-to-use-them-in-nuxt-7f194f083e3d).
-            1. following the steps on this README where environment variables are written to `CI/user_scripts/site_envs` will satisfy this condition. 
-         2. Specify via [`wall_e/src/resources/utilities/config/local.ini`](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini).
-            1. Be sure to **not** remove the headers on the ini.
-            2. keep in mind that if you specify the same setting both via `.env` file and via `.ini` file,  the `.env` file will take precedence.
-    
+   1. Wall_e needs parameter specifications. We use the `wall_e/src/resources/utilities/config/local.ini` file to declare any variables and the `CI/user_scripts/wall_e.env` can be optionally used to initialize.
+      [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
+      1. the following values *need* to be saved to the `CI/user_scripts/wall_e.env` file and exported using `../../CI/user_scripts/set_env.sh`:
+         1. When running dockerized wall_e
+            1. `COMPOSE_PROJECT_NAME`
+            2. `ORIGIN_IMAGE`
+            3. `POSTGRES_PASSWORD`
+         2. When running wall_e on localhost
+            2. `POSTGRES_PASSWORD`
+            3. `DB_PORT`
+            4. `COMPOSE_PROJECT_NAME`
+            5. `WALL_E_DB_USER`
+            6. `WALL_E_DB_PASSWORD`
+            7. `WALL_E_DB_DBNAME`
+            8. `ENVIRONMENT`
+            9. `DOCKERIZED`
+
 *Keep in mind that unless otherwise indicated, all commands have to be run from `/path/to/repo/wall_e/src`*
 
 You will need to recreate the base docker image if you made changes to any of the following files
@@ -44,28 +53,27 @@ You will need to recreate the base docker image if you made changes to any of th
 
 ### With dockerized Wall-E
 ```shell
-echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/site_envs
-echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
+echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
-echo 'POSTGRES_PASSWORD='"'"'daPassword'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'DOCKERIZED='"'"'True'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'DOCKERIZED='"'"'0'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
-echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
 . ../../CI/user_scripts/set_env.sh
 
-echo 'HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/site_envs
+echo 'HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/wall_e.env
 . ../../CI/user_scripts/set_env.sh
 
 if (you made changes to any of the files listed above){
     ../../CI/user_scripts/create-dev-docker-image.sh
-    echo 'ORIGIN_IMAGE='"'"${COMPOSE_PROJECT_NAME}_wall_e_base"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'ORIGIN_IMAGE='"'"${COMPOSE_PROJECT_NAME}_wall_e_base"'"'' >>  ../../CI/user_scripts/wall_e.env
 }else{
-    echo 'ORIGIN_IMAGE='"'"'sfucsssorg/wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'ORIGIN_IMAGE='"'"'sfucsssorg/wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
 }
 . ../../CI/user_scripts/set_env.sh
@@ -84,22 +92,23 @@ To re-launch the bot after making some changes, enter the command `.exit` on you
 You will need to run `../../CI/user_scripts/create-dev-docker-image.sh` again if you made further changes to `wall_e/src/requirements.txt` or `CI/server_scripts/build_wall_e/Dockerfile.wall_e_base`
 
 ### Running wall_e outside a docker container [to be able to Debug from Pycharm]
+> If launching from inside of PyCharm, I recommend using [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin so that the variables in `wall_e.env` get automatically exported by PyCharm
 ```shell
-echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/site_envs
-echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'DOCKERIZED='"'"'False'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
+echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'DOCKERIZED='"'"'0'"'"'' >>  ../../CI/user_scripts/wall_e.env
 . ../../CI/user_scripts/set_env.sh
 
 if (you are using a database){
-    echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/site_envs
-    echo 'DB_PORT='"'"'5432'"'"'' >>  ../../CI/user_scripts/site_envs
-    echo 'HOST='"'"'127.0.0.1'"'"'' >>  ../../CI/user_scripts/site_envs
-    echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
-    echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/site_envs
-    echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/site_envs
-    echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/wall_e.env
+    echo 'DB_PORT='"'"'5432'"'"'' >>  ../../CI/user_scripts/wall_e.env
+    echo 'HOST='"'"'127.0.0.1'"'"'' >>  ../../CI/user_scripts/wall_e.env
+    echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
+    echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/wall_e.env
+    echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/wall_e.env
+    echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
 }else{
-    echo 'DB_ENABLED='"'"'0'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'DB_ENABLED='"'"'0'"'"'' >>  ../../CI/user_scripts/wall_e.env
 }
 . ../../CI/user_scripts/set_env.sh
 

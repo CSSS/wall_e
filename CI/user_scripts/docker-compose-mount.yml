@@ -2,7 +2,7 @@ version: '3' #docker-compose version
 services:  #Services that are needed for the wall_e app
     wall_e: #the wall_e app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_wall_e
         env_file:
-            - site_envs
+            - wall_e.env
         build:
             context: ../../ #root path to start at just for the Dockerfile
             dockerfile: CI/user_scripts/Dockerfile.walle.mount
@@ -19,7 +19,7 @@ services:  #Services that are needed for the wall_e app
         #tty: true
     db: #declaration of the postgres container
         env_file:
-            - site_envs
+            - wall_e.env
         image: postgres:alpine #using postgres image
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
 volumes:
