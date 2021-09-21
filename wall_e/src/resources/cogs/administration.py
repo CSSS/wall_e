@@ -6,9 +6,11 @@ import logging
 import os
 import subprocess
 import sys
+import urllib
 
 import discord
 import pytz
+import requests
 from discord.ext import commands
 
 from WalleModels.models import CommandStat, Reminder
@@ -54,33 +56,47 @@ class Administration(commands.Cog):
         :param ctx:
         :return:
         """
-        with open('csss_discord_db.sql', 'r') as f:
-            lines = f.readlines()
         commands = False
         reminders = False
         tz = pytz.timezone("America/Vancouver")
-        for line in lines:
+        await ctx.send("trying to get sql file")
+        try:
+            sql_lines = requests.get(f"{ctx.message.attachments[0].url}").text.split("\r\n")
+        except Exception as e:
+            await ctx.send(f"Unable to get sql files for attachment due to issue:```{e}```")
+            return
+        await ctx.send("sql file received, will now iterate over its lines")
+        for line in sql_lines:
             if 'COPY public.commandstats' in line:
                 commands = True
             elif 'COPY public.reminders ' in line:
                 reminders = True
             else:
-                if line == "\\.\n":
+                if line == "\\.":
                     commands = reminders = False
                 line = line.split("\t")
                 if commands:
-                    command = CommandStat(
-                        epoch_time=line[0], year=line[1], month=line[2], day=line[3], hour=line[4],
-                        channel_name=line[5], command=line[6], invoked_with=line[7], invoked_subcommand=line[8]
-                    )
-                    await CommandStat.save_command_async(command)
+                    try:
+                        await CommandStat.save_command_async(
+                            CommandStat(
+                                epoch_time=line[0], year=line[1], month=line[2], day=line[3], hour=line[4],
+                                channel_name=line[5], command=line[6], invoked_with=line[7], invoked_subcommand=line[8]
+                            )
+                        )
+                    except Exception:
+                        print(f"unable to save commandStat {line}")
                 elif reminders:
                     aware = tz.localize(datetime.datetime.strptime(f"{line[1]}", "%Y-%m-%d %H:%M:%S.%f"), is_dst=None)
-                    reminder = Reminder(
-                        reminder_date_epoch=aware.timestamp(), message=line[2], author_id=line[3],
-                        author_name=line[4], message_id=line[5]
-                    )
-                    await Reminder.save_reminder(reminder)
+                    try:
+                        await Reminder.save_reminder(
+                            Reminder(
+                                reminder_date_epoch=aware.timestamp(), message=line[2], author_id=line[3],
+                                author_name=line[4], message_id=line[5]
+                            )
+                        )
+                    except Exception:
+                        print(f"unable to save Reminder {line}")
+        await ctx.send("File parsed and saved to DB")
 
     @commands.command()
     async def exit(self, ctx):

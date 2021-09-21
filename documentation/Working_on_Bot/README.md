@@ -95,6 +95,9 @@ if (you are using a database){
     echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/site_envs
     echo 'DB_PORT='"'"'5432'"'"'' >>  ../../CI/user_scripts/site_envs
     echo 'HOST='"'"'127.0.0.1'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/site_envs
+    echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/site_envs
 }else{
     echo 'DB_ENABLED='"'"'0'"'"'' >>  ../../CI/user_scripts/site_envs
 }

@@ -12,3 +12,5 @@ tzlocal
 
 # needed for DB interactions
 django
+
+requests
