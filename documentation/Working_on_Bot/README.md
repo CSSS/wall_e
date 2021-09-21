@@ -2,11 +2,12 @@
 
 - [Wiki: Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
 - [Running the Bot](#running-the-bot)  
-  - [With the Database](#with-the-database)
-    - [With docker-ized Wall-E](#with-docker-ized-wall-e)
-    - [Running wall_e outside of a docker container [to be able to Debug from Pycharm]](#running-wall_e-outside-of-a-docker-container-[to-be-able-to-Debug-from-Pycharm])
-  - [Without the Database](#without-the-database)
-- [Testing the Bot](#testing-the-bot)
+  - [With dockerized Wall-E](#with-the-database)
+    - [view logs in active time](#with-docker-ized-wall-e)
+    - [Re-launching dockerized Wall-E after making changes](#running-wall_e-outside-of-a-docker-container-[to-be-able-to-Debug-from-Pycharm])
+  - [Running wall_e outside a docker container [to be able to Debug from Pycharm]](#without-the-database)
+    - [Re-launching Wall-E after making changes]()
+- [Testing the bot](#testing-the-bot)
   - [Step 1. Run through the linter](#step-1-run-through-the-linter)
   - [Step 2. Testing on the CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
 - [Wiki: Making a PR to master](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master)  
@@ -42,7 +43,7 @@ You will need to recreate the base docker image if you made changes to any of th
  * wall_e/src/requirements.txt
  * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
 
-#### With dockerized Wall-E
+### With dockerized Wall-E
 ```shell
 echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >  ../../CI/user_scripts/site_envs
 . ../../CI/user_scripts/set_env.sh
@@ -75,7 +76,7 @@ if (you made changes to any of the files listed above){
 To re-launch the bot after making some changes, enter the command `.exit` on your discord guild and then run `../../CI/user_scripts/setup-dev-env.sh` again.
 You will need to run `../../CI/user_scripts/create-dev-docker-image.sh` again if you made further changes to `wall_e/src/requirements.txt` or `CI/server_scripts/build_wall_e/Dockerfile.wall_e_base`
 
-#### Running wall_e outside a docker container [to be able to Debug from Pycharm]
+### Running wall_e outside a docker container [to be able to Debug from Pycharm]
 ```shell
 echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/site_envs
 echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/site_envs
