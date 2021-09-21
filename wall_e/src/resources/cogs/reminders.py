@@ -113,7 +113,7 @@ class Reminders(commands.Cog):
             author_id=ctx.author.id, author_name=ctx.message.author,
             message_id=ctx.message.id
         )
-        await sync_to_async(save_reminder, thread_sensitive=True)(reminder_obj)
+        await Reminder.save_reminder(reminder_obj)
         expire_seconds = int(date_to_be_reminded_in_epoch_format - time.time())
         e_obj = await embed(
             ctx,
@@ -132,10 +132,7 @@ class Reminders(commands.Cog):
             reminders = ''
             logger.info("[Reminders showreminders()] retrieved all reminders belonging to user "
                         + str(ctx.message.author))
-            reminders_that_belong_to_author = await sync_to_async(
-                get_reminder_synchronously_that_belong_to_author, thread_sensitive=True
-            )(ctx.author.id)
-            for reminder_obj in reminders_that_belong_to_author:
+            for reminder_obj in await Reminder.get_reminder_by_author(ctx.author.id):
                 logger.info("[Reminders showreminders()] dealing with reminder [{}]".format(reminder_obj))
                 time_str = datetime.datetime.fromtimestamp(reminder_obj.reminder_date_epoch,
                                                            pytz.timezone('America/Vancouver'))
@@ -181,108 +178,48 @@ class Reminders(commands.Cog):
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
     @commands.command()
-    async def show_all_reminders(self, ctx):
-        try:
-            reminders = ''
-            logger.info("[Reminders showreminders()] retrieved all reminders belonging to user "
-                        + str(ctx.message.author))
-            all_reminders = await sync_to_async(
-                get_all_reminder_synchronously, thread_sensitive=True
-            )()
-            for reminder_obj in all_reminders:
-                logger.info("[Reminders showreminders()] dealing with reminder [{}]".format(reminder_obj))
-                time_str = datetime.datetime.fromtimestamp(reminder_obj.reminder_date_epoch,
-                                                           pytz.timezone('America/Vancouver'))
-                time_str = time_str.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
-                reminders += (
-                    f"{reminder_obj.message_id}\n - Date: {time_str}\n - Reminder: {reminder_obj.message}"
-                    f"\n - Author: <@{reminder_obj.author_id}>"
-                )
-            author = ctx.author.nick or ctx.author.name
-            if reminders != '':
-                logger.info(f"[Reminders showreminders()] sent off the list of reminders to {ctx.message.author}")
-                e_obj = await embed(
-                    ctx,
-                    title="Reminders",
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    content=[["Current Reminders", reminders]]
-                )
-                if e_obj is not False:
-                    await ctx.send(embed=e_obj)
-            else:
-                logger.info(
-                    "[Reminders showreminders()] {} didnt seem to have any reminders.".format(
-                        ctx.message.author
-                    )
-                )
-                e_obj = await embed(
-                    ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="You don't seem to have any reminders {}".format(author)
-                )
-                if e_obj is not False:
-                    await ctx.send(embed=e_obj)
-        except Exception as error:
-            e_obj = await embed(
-                ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description="Something screwy seems to have happened, look at the logs for more info."
-            )
-            if e_obj is not False:
-                await ctx.send(embed=e_obj)
-                logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
-                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-
-    @commands.command()
     async def deletereminder(self, ctx, message_id):
         logger.info("[Reminders deletereminder()] deletereminder command detected from user "
                     + str(ctx.message.author))
         try:
-            if self.curs is not None:
-                sql_command = "SELECT * FROM Reminders WHERE message_id = '{}';".format(message_id)
-                self.curs.execute(sql_command)
-                result = self.curs.fetchone()
-                reminder = Reminder.objects.all().filter(message_id=message_id)
-                if reminder is None:
+            reminder = Reminder.get_reminder_by_id(message_id)
+            if reminder is None:
+                e_obj = await embed(
+                    ctx,
+                    title='Delete Reminder',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    description="ERROR\nSpecified reminder could not be found"
+                )
+                if e_obj is not False:
+                    await ctx.send(embed=e_obj)
+                    logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
+            else:
+                if str(reminder.author_id) == str(ctx.message.author):
+                    # check to make sure its the right author
+                    await Reminder.delete_reminder_by_id(reminder.reminder_id)
+                    logger.info("[Reminders deletereminder()] following reminder was deleted = {}".format(reminder))
                     e_obj = await embed(
                         ctx,
                         title='Delete Reminder',
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                        description="ERROR\nSpecified reminder could not be found"
+                        description="Following reminder has been deleted:\n{}".format(reminder[2])
                     )
                     if e_obj is not False:
                         await ctx.send(embed=e_obj)
-                        logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
                 else:
-                    if str(reminder[4]) == str(ctx.message.author):
-                        # check to make sure its the right author
-                        reminder.delete()
-                        logger.info("[Reminders deletereminder()] following reminder was deleted = {}".format(result))
-                        e_obj = await embed(
-                            ctx,
-                            title='Delete Reminder',
-                            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                            description="Following reminder has been deleted:\n{}".format(result[2])
-                        )
-                        if e_obj is not False:
-                            await ctx.send(embed=e_obj)
-                    else:
-                        e_obj = await embed(
-                            ctx,
-                            title='Delete Reminder',
-                            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                            description="ERROR\nYou are trying to delete a reminder that is not yours"
-                        )
-                        if e_obj is not False:
-                            await ctx.send(embed=e_obj)
-                            logger.info("[Reminders deletereminder()] It seems that {} "
-                                        "was trying to delete {}'s reminder.".format(ctx.message.author, result[4]))
+                    e_obj = await embed(
+                        ctx,
+                        title='Delete Reminder',
+                        author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                        avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                        description="ERROR\nYou are trying to delete a reminder that is not yours"
+                    )
+                    if e_obj is not False:
+                        await ctx.send(embed=e_obj)
+                        logger.info("[Reminders deletereminder()] It seems that {} "
+                                    "was trying to delete {}'s reminder.".format(ctx.message.author, reminder[4]))
         except Exception as error:
             logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
@@ -381,7 +318,7 @@ class Reminders(commands.Cog):
         reminder_channel = self.bot.get_channel(reminder_channel_id)  # channel ID goes here
         while True:
             try:
-                reminders = await sync_to_async(get_reminders_syncronously, thread_sensitive=True)()
+                reminders = await Reminder.get_expired_reminders()
                 for reminder in reminders:
                     reminder_message = reminder.message
                     author_id = reminder.author_id
@@ -397,7 +334,7 @@ class Reminders(commands.Cog):
                         description="This is your reminder to {}".format(reminder_message),
                         footer='Reminder'
                     )
-                    await sync_to_async(delete_reminder_syncronously, thread_sensitive=True)(reminder)
+                    await Reminder.delete_reminder(reminder)
                     if e_obj is not False:
                         pass
                         await reminder_channel.send('<@{}>'.format(author_id), embed=e_obj)
@@ -407,27 +344,6 @@ class Reminders(commands.Cog):
             await asyncio.sleep(2)
 
 
-def get_reminders_syncronously():
-    today_date = datetime.datetime.now(tz=pytz.timezone(str(settings.TIME_ZONE)))
-    start_of_epoch = datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
-    epoch_time_zone_user_timezone = (today_date - start_of_epoch).total_seconds()
-    return list(Reminder.objects.all().filter(reminder_date_epoch__lte=epoch_time_zone_user_timezone))
-
-
-def delete_reminder_syncronously(reminder_to_delete):
-    reminder_to_delete.delete()
-
-
-def get_reminder_synchronously_that_belong_to_author(author_id):
-    return list(Reminder.objects.all().filter(author_id=author_id).order_by('reminder_date_epoch'))
-
-
-def get_all_reminder_synchronously():
-    return list(Reminder.objects.all().order_by('reminder_date_epoch'))
-
-
-def save_reminder(reminder_to_save):
-    reminder_to_save.save()
 
 
 def convert_seconds_to_countdown(seconds):

@@ -52,25 +52,26 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
         return False
 
     if len(content) > 25:
-        await ctx.send("Embed Error:\nlength of content ```{}``` being added to the content field "
-                       "is {} characters too big, pleae cut down to a size of 25".format(content, len(content) - 25))
-        logger.info("[embed.py embed()] length of content [{}] being added to the field is too big".format(content))
+        await ctx.send("Embed Error:\nlength of content being added to the content field "
+                       f"is {(len(content) - 25)} indices too big, please cut down to a size of 25")
+        logger.info("[embed.py embed()] length of content array will be added to the fields is too big")
         return False
 
-    for record in content:
+    for idx, record in enumerate(content):
         if len(record[0]) > 256:
-            await ctx.send("Embed Error:\nlength of record ```{}``` being added to the name "
-                           "field is {} characters too big, pleae cut down to a "
-                           "size of 256".format(record[0], len(record[0]) - 256))
-            logger.info("[embed.py embed()] length of record [{}] being added to the field "
-                        "is too big".format(record[0]))
+            await ctx.send(
+                f"Embed Error:\nlength of record[0] for content index {idx} being added to the name "
+                f"field is {(len(record[0]) - 256)} characters too big, please cut down to a size of 256"
+            )
+            logger.info(f"[embed.py embed()] length of record[0] for content index {idx} being added to the field "
+                        "is too big")
             return False
         if len(record[1]) > 1024:
-            await ctx.send("Embed Error:\nlength of record ```{}``` being added to the value "
-                           "field is {} characters too big, pleae cut down to a "
-                           "size of 1024".format(record[1], len(record[1]) - 1024))
-            logger.info("[embed.py embed()] length of record [{}] being added to the field "
-                        "is too big".format(record[1]))
+            await ctx.send(f"Embed Error:\nlength of record[1] for content index {idx} being added to the value "
+                           f"field is {(len(record[1]) - 1024)} characters too big, please cut down to a "
+                           "size of 1024")
+            logger.info(f"[embed.py embed()] length of record [1] for content index {idx} being added to the field "
+                        "is too big")
             return False
 
     if len(footer) > 2048:

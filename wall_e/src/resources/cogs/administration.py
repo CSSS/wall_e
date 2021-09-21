@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import importlib
 import inspect
 import logging
@@ -7,9 +8,10 @@ import subprocess
 import sys
 
 import discord
+import pytz
 from discord.ext import commands
 
-from WalleModels.models import CommandStat
+from WalleModels.models import CommandStat, Reminder
 from resources.utilities.send import send as helper_send
 
 logger = logging.getLogger('wall_e')
@@ -40,6 +42,45 @@ class Administration(commands.Cog):
             if cog["name"] == name:
                 return True, cog["path"]
         return False, ''
+
+    @commands.command()
+    async def pg_dump(self, ctx):
+        """
+        create the sql by doing
+        ssh jenkins.sfucsss.org
+        docker exec -it PRODUCTION_MASTER_wall_e_db pg_dump -U postgres --data-only  csss_discord_db > csss_discord_db.sql
+        scp jenkins.sfucsss.org:/home/jace/csss_discord_db.sql wall_e/src/.
+
+        :param ctx:
+        :return:
+        """
+        with open('csss_discord_db.sql', 'r') as f:
+            lines = f.readlines()
+        commands = False
+        reminders = False
+        tz = pytz.timezone("America/Vancouver")
+        for line in lines:
+            if 'COPY public.commandstats' in line:
+                commands = True
+            elif 'COPY public.reminders ' in line:
+                reminders = True
+            else:
+                if line == "\\.\n":
+                    commands = reminders = False
+                line = line.split("\t")
+                if commands:
+                    command = CommandStat(
+                        epoch_time=line[0], year=line[1], month=line[2], day=line[3], hour=line[4],
+                        channel_name=line[5], command=line[6], invoked_with=line[7], invoked_subcommand=line[8]
+                    )
+                    await CommandStat.save_command_async(command)
+                elif reminders:
+                    aware = tz.localize(datetime.datetime.strptime(f"{line[1]}", "%Y-%m-%d %H:%M:%S.%f"), is_dst=None)
+                    reminder = Reminder(
+                        reminder_date_epoch=aware.timestamp(), message=line[2], author_id=line[3],
+                        author_name=line[4], message_id=line[5]
+                    )
+                    await Reminder.save_reminder(reminder)
 
     @commands.command()
     async def exit(self, ctx):
