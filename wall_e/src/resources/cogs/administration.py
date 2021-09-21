@@ -2,6 +2,7 @@ import asyncio
 import importlib
 import inspect
 import logging
+import os
 import subprocess
 import sys
 
@@ -26,6 +27,13 @@ class Administration(commands.Cog):
             self.plt = plt
             import numpy as np  # noqa
             self.np = np
+            self.image_parent_directory = ''
+            if self.config.get_config_value('basic_config', 'ENVIRONMENT') == "LOCALHOST":
+                image_parent_directory = self.config.get_config_value(
+                    "basic_config", option="FOLDER_FOR_FREQUENCY_IMAGES"
+                )
+                if os.path.isdir(image_parent_directory):
+                    self.image_parent_directory = image_parent_directory
 
     def valid_cog(self, name):
         for cog in self.config.get_cogs():
@@ -131,6 +139,7 @@ class Administration(commands.Cog):
                 key=lambda kv: kv[1]
             )
             logger.info("[Administration frequency()] sorted dic_results by value")
+            image_path = f"{self.image_parent_directory}image.png"
             if len(dic_result) <= 50:
                 logger.info("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
@@ -151,12 +160,10 @@ class Administration(commands.Cog):
                     title = args[0]
                 ax.set_title("How may times each {} appears in the database since Sept 21, 2018".format(title))
                 fig.set_size_inches(18.5, 10.5)
-                fig.savefig(
-                    f'{self.config.enabled("basic_config", option="FOLDER_FOR_FREQUENCY_IMAGES")}image.png'
-                )
+                fig.savefig(image_path)
                 logger.info("[Administration frequency()] graph created and saved")
                 self.plt.close(fig)
-                await ctx.send(file=discord.File('image.png'))
+                await ctx.send(file=discord.File(image_path))
                 logger.info("[Administration frequency()] graph image file has been sent")
             else:
                 logger.info("[Administration frequency()] dic_results's length is > 50")
@@ -190,14 +197,14 @@ class Administration(commands.Cog):
                         title = args[0]
                     ax.set_title("How may times each {} appears in the database since Sept 21, 2018".format(title))
                     fig.set_size_inches(18.5, 10.5)
-                    fig.savefig('image.png')
+                    fig.savefig(image_path)
                     logger.info("[Administration frequency()] graph created and saved")
                     self.plt.close(fig)
                     if msg is None:
-                        msg = await ctx.send(file=discord.File('image.png'))
+                        msg = await ctx.send(file=discord.File(image_path))
                     else:
                         await msg.delete()
-                        msg = await ctx.send(file=discord.File('image.png'))
+                        msg = await ctx.send(file=discord.File(image_path))
                     for reaction in to_react:
                         await msg.add_reaction(reaction)
 

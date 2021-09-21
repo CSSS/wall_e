@@ -46,12 +46,18 @@ You will need to recreate the base docker image if you made changes to any of th
 ### With dockerized Wall-E
 ```shell
 echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >  ../../CI/user_scripts/site_envs
-. ../../CI/user_scripts/set_env.sh
-
 echo 'POSTGRES_PASSWORD='"'"'daPassword'"'"'' >>  ../../CI/user_scripts/site_envs
 echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >>  ../../CI/user_scripts/site_envs
-echo 'HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/site_envs
 echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'DOCKERIZED='"'"'True'"'"'' >>  ../../CI/user_scripts/site_envs
+
+echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/site_envs
+
+. ../../CI/user_scripts/set_env.sh
+
+echo 'HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/site_envs
 . ../../CI/user_scripts/set_env.sh
 
 if (you made changes to any of the files listed above){
@@ -80,6 +86,7 @@ You will need to run `../../CI/user_scripts/create-dev-docker-image.sh` again if
 ```shell
 echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/site_envs
 echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/site_envs
+echo 'DOCKERIZED='"'"'False'"'"'' >>  ../../CI/user_scripts/site_envs
 . ../../CI/user_scripts/set_env.sh
 
 if (you are using a database){
@@ -95,7 +102,9 @@ python3 -m pip install -r requirements.txt
 
 if (you are using the dockerized database){
   docker run -d --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p "${DB_PORT}":5432 --name "${COMPOSE_PROJECT_NAME}_wall_e_db" postgres:alpine
-  PGPASSWORD=$POSTGRES_PASSWORD psql -h "${HOST}" -U "postgres" -f WalleModels/create-database.ddl
+  PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${WALL_E_DB_USER}" \
+  --set=WALL_E_DB_PASSWORD="${WALL_E_DB_PASSWORD}"  --set=WALL_E_DB_DBNAME="${WALL_E_DB_DBNAME}" \
+  -h "${HOST}" -U "postgres" -f WalleModels/create-database.ddl
   python3 django-db-orm-manage.py makemigrations
   python3 django-db-orm-manage.py migrate
 }
