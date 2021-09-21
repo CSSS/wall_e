@@ -179,7 +179,7 @@ class Reminders(commands.Cog):
         logger.info("[Reminders deletereminder()] deletereminder command detected from user "
                     + str(ctx.message.author))
         try:
-            reminder = Reminder.get_reminder_by_id(message_id)
+            reminder = await Reminder.get_reminder_by_id(message_id)
             if reminder is None:
                 e_obj = await embed(
                     ctx,
@@ -339,8 +339,6 @@ class Reminders(commands.Cog):
                 logger.error('[Reminders get_message()] Ignoring exception when generating reminder:')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
             await asyncio.sleep(2)
-
-
 
 
 def convert_seconds_to_countdown(seconds):

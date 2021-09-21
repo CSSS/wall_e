@@ -80,7 +80,7 @@ class Administration(commands.Cog):
                         await CommandStat.save_command_async(
                             CommandStat(
                                 epoch_time=line[0], year=line[1], month=line[2], day=line[3],
-                                hour=line[4],channel_name=line[5], command=line[6],
+                                hour=line[4], channel_name=line[5], command=line[6],
                                 invoked_with=line[7], invoked_subcommand=line[8]
                             )
                         )
