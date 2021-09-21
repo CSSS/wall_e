@@ -1,20 +1,17 @@
-from asgiref.sync import sync_to_async
-from discord.ext import commands
-import discord
-import logging
 import asyncio
-import parsedatetime
+import datetime
+import logging
+import sys
 import time
 import traceback
-import sys
 
-from django.conf import settings
-
-from resources.utilities.embed import embed
-import datetime
+import discord
+import parsedatetime
 import pytz
+from discord.ext import commands
 
 from WalleModels.models import Reminder
+from resources.utilities.embed import embed
 
 logger = logging.getLogger('wall_e')
 

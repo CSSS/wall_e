@@ -6,7 +6,6 @@ import logging
 import os
 import subprocess
 import sys
-import urllib
 
 import discord
 import pytz
@@ -50,7 +49,8 @@ class Administration(commands.Cog):
         """
         create the sql by doing
         ssh jenkins.sfucsss.org
-        docker exec -it PRODUCTION_MASTER_wall_e_db pg_dump -U postgres --data-only  csss_discord_db > csss_discord_db.sql
+        docker exec -it PRODUCTION_MASTER_wall_e_db pg_dump -U postgres --data-only \
+         csss_discord_db > csss_discord_db.sql
         scp jenkins.sfucsss.org:/home/jace/csss_discord_db.sql wall_e/src/.
 
         :param ctx:
@@ -79,8 +79,9 @@ class Administration(commands.Cog):
                     try:
                         await CommandStat.save_command_async(
                             CommandStat(
-                                epoch_time=line[0], year=line[1], month=line[2], day=line[3], hour=line[4],
-                                channel_name=line[5], command=line[6], invoked_with=line[7], invoked_subcommand=line[8]
+                                epoch_time=line[0], year=line[1], month=line[2], day=line[3],
+                                hour=line[4],channel_name=line[5], command=line[6],
+                                invoked_with=line[7], invoked_subcommand=line[8]
                             )
                         )
                     except Exception:
