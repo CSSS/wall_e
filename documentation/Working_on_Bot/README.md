@@ -147,7 +147,7 @@ Before you can push your changes to the wall_e repo, you will first need to make
 
 #### With Docker
 ```shell
-./CI/user_scripts/test_walle.sh
+../../CI/user_scripts/test_walle.sh
 ```
 
 #### Without Docker
