@@ -28,7 +28,7 @@ class WallEConfig:
         elif environment == "PRODUCTION":
             config.read(config_file_location_prouction)
         else:
-            logger.info("[WallEConfig __init__()] incorrect environment specified {}".format(environment))
+            logger.info(f"[WallEConfig __init__()] incorrect environment specified {environment}")
         self.config = {'wall_e': config}
 
         # needed to ensure that the environment variables aren't wiped clean until after they have been used
@@ -51,7 +51,7 @@ class WallEConfig:
             return self.config['wall_e'].get(section, option)
 
         logger.info(
-            "[WallEConfig get_config_value()] no key found for option {} under section {}".format(option, section)
+            f"[WallEConfig get_config_value()] no key found for option {option} under section {section}"
         )
         return "NONE"
 
@@ -62,14 +62,12 @@ class WallEConfig:
     def set_config_value(self, section, option, value):
         if self.config['wall_e'].has_option(section, option):
             logger.info(
-                "[WallEConfig set_config_value()] setting value for section [{}] option [{}]".format(
-                    section,
-                    option,
-                )
+                f"[WallEConfig set_config_value()] setting value for section "
+                f"[{section}] option [{option}]"
             )
-            self.config['wall_e'].set(section, option, r'{}'.format(str(value)))
+            self.config['wall_e'].set(section, option, fr'{value}')
         else:
-            raise KeyError("Section '{}' or Option '{}' does not exist".format(section, option))
+            raise KeyError(f"Section '{section}' or Option '{option}' does not exist")
 
     def cog_enabled(self, name_of_cog):
         return self.config['cogs_enabled'][name_of_cog] == 1

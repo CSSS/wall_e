@@ -108,10 +108,13 @@ class Reminder(models.Model):
 
     @classmethod
     def _sync_get_expired_reminders(cls):
-        today_date = datetime.datetime.now(tz=pytz.timezone(str(settings.TIME_ZONE)))
-        start_of_epoch = datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
-        epoch_time_zone_user_timezone = (today_date - start_of_epoch).total_seconds()
-        return list(Reminder.objects.all().filter(reminder_date_epoch__lte=epoch_time_zone_user_timezone))
+        return list(
+            Reminder.objects.all().filter(
+                reminder_date_epoch__lte=datetime.datetime.now(
+                    tz=pytz.timezone(f"{settings.TIME_ZONE}")
+                ).timestamp()
+            )
+        )
 
     @classmethod
     async def get_reminder_by_id(cls, reminder_id):

@@ -33,22 +33,21 @@ bot = commands.Bot(command_prefix='.', intents=intents)
 @bot.event
 async def on_ready():
     logger.info('[main.py on_ready()] Logged in as')
-    logger.info('[main.py on_ready()] {}'.format(bot.user.name))
-    logger.info('[main.py on_ready()] {}'.format(str(bot.user.id)))
+    logger.info(f'[main.py on_ready()] {bot.user.name}')
+    logger.info(f'[main.py on_ready()] {bot.user.id}')
     logger.info('[main.py on_ready()] ------')
     wall_e_config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
     wall_e_config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar_url)
     logger.info(
-        "[main.py on_ready()] BOT_NAME initialized to {}".format(
-            wall_e_config.get_config_value("bot_profile", "BOT_NAME")
-        )
+        "[main.py on_ready()] BOT_NAME initialized to"
+        f" {wall_e_config.get_config_value('bot_profile', 'BOT_NAME')}"
     )
     logger.info(
-        "[main.py on_ready()] BOT_AVATAR initialized to {}".format(
-            wall_e_config.get_config_value("bot_profile", "BOT_AVATAR")
-        )
+        "[main.py on_ready()] BOT_AVATAR initialized to "
+        f"{wall_e_config.get_config_value('bot_profile', 'BOT_AVATAR')}"
+
     )
-    logger.info("[main.py on_ready()] {} is now ready for commands".format(bot.user.name))
+    logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 
 ########################################################
@@ -72,9 +71,9 @@ if __name__ == "__main__":
     logger.info("[main.py] Wall-E is starting up")
     # tries to open log file in prep for write_to_bot_log_channel function
     try:
-        logger.info("[main.py] trying to open {}.log to be able to send "
-                    "its output to #bot_log channel".format(FILENAME))
-        f = open('{}.log'.format(FILENAME), 'r')
+        logger.info(f"[main.py] trying to open {FILENAME}.log to be able to send "
+                    "its output to #bot_log channel")
+        f = open(f'{FILENAME}.log', 'r')
         f.seek(0)
         bot.loop.create_task(write_to_bot_log_channel(bot, wall_e_config, f))
         logger.info(
@@ -84,14 +83,14 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(
             "[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
-            "following error{}".format(e))
+            f"following error {e}")
 
     # load the code dealing with test server interaction
     try:
         bot.add_cog(ManageCog(bot, wall_e_config))
     except Exception as e:
-        exception = '{}: {}'.format(type(e).__name__, e)
-        logger.error('[main.py] Failed to load test server code testenv\n{}'.format(exception))
+        exception = f'{type(e).__name_}: {e}'
+        logger.error(f'[main.py] Failed to load test server code testenv\n{exception}')
 
     # removing default help command to allow for custom help command
     logger.info("[main.py] default help command being removed")
@@ -100,16 +99,16 @@ if __name__ == "__main__":
 
     for cog in wall_e_config.get_cogs():
         try:
-            logger.info("[main.py] attempting to load command {}".format(cog["name"]))
-            cog_file = importlib.import_module(str(cog['path']) + str(cog["name"]))
+            logger.info(f"[main.py] attempting to load command {cog['name']}")
+            cog_file = importlib.import_module(f"{cog['path']}{cog['name']}")
             classes_that_match = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)
             for class_that_match in classes_that_match:
                 cog_to_load = getattr(cog_file, class_that_match[0])
                 if type(cog_to_load) is commands.cog.CogMeta:
                     bot.add_cog(cog_to_load(bot, wall_e_config))
-                    logger.info("[main.py] {} successfully loaded".format(cog["name"]))
+                    logger.info(f"[main.py] {cog['name']} successfully loaded")
         except Exception as e:
-            exception = '{}: {}'.format(type(e).__name__, e)
-            logger.error('[main.py] Failed to load command {}\n{}'.format(cog, exception))
+            exception = f'{type(e).__name__}: {e}'
+            logger.error(f'[main.py] Failed to load command {cog}\n{exception}')
     # final step, running the bot with the passed in environment TOKEN variable
     bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"))

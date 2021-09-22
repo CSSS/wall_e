@@ -26,10 +26,12 @@ class ManageCog(commands.Cog):
 
     @commands.command(hidden=True)
     async def debuginfo(self, ctx):
-        logger.info("[ManageCog debuginfo()] debuginfo command detected from {}".format(ctx.message.author))
+        logger.info(f"[ManageCog debuginfo()] debuginfo command detected from {ctx.message.author}")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
-            fmt = '```You are testing the latest commit of branch or pull request: {0}```'
-            await ctx.send(fmt.format(self.config.get_config_value('basic_config', 'BRANCH_NAME')))
+            await ctx.send(
+                '```You are testing the latest commit of branch or pull request: '
+                f'{self.config.get_config_value("basic_config", "BRANCH_NAME")}```'
+            )
         return
 
     # this check is used by the TEST guild to ensur that each TEST container will only process incoming commands
@@ -46,7 +48,7 @@ class ManageCog(commands.Cog):
 
     # this check is used to ensure that users can only access commands that they have the rights to
     async def check_privilege(self, ctx):
-        command_used = "{}".format(ctx.command)
+        command_used = f"{ctx.command}"
         if command_used == "exit":
             return True
         if command_used not in self.help_dict:
@@ -57,7 +59,7 @@ class ManageCog(commands.Cog):
                 role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
             ]
             shared_roles = set(user_roles).intersection(command_info['roles'])
-            if (len(shared_roles) == 0):
+            if len(shared_roles) == 0:
                 await ctx.send(
                     "You do not have adequate permission to execute this command, incident will be reported"
                 )
@@ -93,26 +95,26 @@ class ManageCog(commands.Cog):
     async def on_command_error(self, ctx, error):
         if self.check_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
-                logger.error('[ManageCog on_command_error()] Missing argument: {0}'.format(error.param))
+                logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
                 e_obj = await imported_embed(
                     ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description="Missing argument: {}".format(error.param)
+                    description=f"Missing argument: {error.param}"
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
             else:
                 # only prints out an error to the log if the string that was entered doesnt contain just "."
                 pattern = r'[^\.]'
-                if re.search(pattern, str(error)[9:-14]):
+                if re.search(pattern, f"{error}"[9:-14]):
                     # author = ctx.author.nick or ctx.author.name
                     # await ctx.send('Error:\n```Sorry '+author+', seems like the command
                     # \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
                     if type(error) is discord.ext.commands.errors.CheckFailure:
                         logger.warning(
-                            "[ManageCog on_command_error()] user {} "
-                            "probably tried to access a command they arent supposed to".format(ctx.author)
+                            f"[ManageCog on_command_error()] user {ctx.author} "
+                            "probably tried to access a command they arent supposed to"
                         )
                     else:
                         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
@@ -122,15 +124,14 @@ class ManageCog(commands.Cog):
     # commands
     @commands.Cog.listener()
     async def on_ready(self):
-        logger.info("[ManageCog on_ready()] acquired {} channels".format(len(self.bot.guilds[0].channels)))
+        logger.info(f"[ManageCog on_ready()] acquired {len(self.bot.guilds[0].channels)} channels")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             channels = self.bot.guilds[0].channels
             branch_name = self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
             if discord.utils.get(channels, name=branch_name) is None:
                 logger.info(
-                    "[ManageCog on_ready()] creating the text channel {}".format(
-                        self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
-                    )
+                    "[ManageCog on_ready()] creating the text channel "
+                    f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}"
                 )
                 await self.bot.guilds[0].create_text_channel(branch_name)
