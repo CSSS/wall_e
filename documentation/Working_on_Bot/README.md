@@ -30,20 +30,28 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 3. Wall_E Setting Specification.
    1. Wall_e needs parameter specifications. We use the `wall_e/src/resources/utilities/config/local.ini` file to declare any variables and the `CI/user_scripts/wall_e.env` can be optionally used to initialize.
       [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
-      1. the following values *need* to be saved to the `CI/user_scripts/wall_e.env` file and exported using `../../CI/user_scripts/set_env.sh`:
-         1. When running dockerized wall_e:
-            1. `COMPOSE_PROJECT_NAME`
-            2. `POSTGRES_PASSWORD`
-            3. `ORIGIN_IMAGE`
-         2. When running wall_e on localhost:
-            1. `COMPOSE_PROJECT_NAME`
-            2. `POSTGRES_PASSWORD`
-            3. `DB_PORT`
-            4. `WALL_E_DB_USER`
-            5. `WALL_E_DB_PASSWORD`
-            6. `WALL_E_DB_DBNAME`
-            7. `ENVIRONMENT`
-            8. `DOCKERIZED`
+How the Variable needs to be declared [only relevant to you if you like granularized variable declarations]
+| Variable             |   Dockerized |            |           | Non-Dockerized |             |           |
+|----------------------|--------------|------------|-----------|----------------|-------------|-----------|
+|                      | env variable | wall_e.env | local.ini | env variable   | wall_e.env  | local.ini |
+| ENVIRONMENT          |              |      X     |           | x              |             |           |
+| COMPOSE_PROJECT_NAME |         X    |            |           | X              |             |           |
+| POSTGRES_PASSWORD    |         X    |      X     |           | x              |             |           |
+| DOCKERIZED           |              |      -     |    -      | -              |     -       |     -     |
+| WALL_E_DB_USER       |              |      X     |           | x              |             |           |
+| WALL_E_DB_PASSWORD   |              |      X     |           | x              |             |           |
+| WALL_E_DB_DBNAME     |              |      X     |           | x              |             |           |
+| DB_ENABLED           |              |      -     |    -      | -              |     -       |     -     |
+| HOST                 |              |      -     |    -      | x              |             |           |
+| ORIGIN_IMAGE         |        X     |            |           |                |             |           |
+| BOT_LOG_CHANNEL      |              |      -     |    -      | -              |     -       |     -     |
+| BOT_GENERAL_CHANNEL  |              |      -     |    -      | -              |     -       |     -     |
+| DB_PORT              |              |      X     |           | X              |             |           |
+
+
+> X indicates that its necessary to be declared in that way
+> '-' indicates that the user can choose to declare it only that way
+
 
 *Keep in mind that unless otherwise indicated, all commands have to be run from `/path/to/repo/wall_e/src`*
 
@@ -57,7 +65,7 @@ echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
 echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
 echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'DOCKERIZED='"'"'0'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'DOCKERIZED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
 echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
 echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/wall_e.env
@@ -92,6 +100,7 @@ To re-launch the bot after making some changes, enter the command `.exit` on you
 You will need to run `../../CI/user_scripts/create-dev-docker-image.sh` again if you made further changes to `wall_e/src/requirements.txt` or `CI/server_scripts/build_wall_e/Dockerfile.wall_e_base`
 
 ### Running wall_e outside a docker container [to be able to Debug from Pycharm]
+
 > If launching from inside of PyCharm, I recommend using [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin so that the variables in `wall_e.env` get automatically exported by PyCharm
 ```shell
 echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
