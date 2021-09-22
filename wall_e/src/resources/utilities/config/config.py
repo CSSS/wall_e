@@ -30,6 +30,9 @@ class WallEConfig:
         else:
             logger.info("[WallEConfig __init__()] incorrect environment specified {}".format(environment))
         self.config = {'wall_e': config}
+
+        # needed to ensure that the environment variables aren't wiped clean until after they have been used
+        # by the django-orm for the database migrations and connection
         if 'DJANGO_SETTINGS_SET' not in os.environ:
             os.environ['DJANGO_SETTINGS_SET'] = "False"
         else:
