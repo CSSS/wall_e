@@ -14,7 +14,7 @@ from resources.utilities.log_channel import write_to_bot_log_channel
 logger, FILENAME = initialize_logger()
 wall_e_config = WallEConfig(os.environ['ENVIRONMENT'])
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django-db-orm-settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_db_orm_settings")
 django.setup()
 
 from resources.cogs.manage_cog import ManageCog  # noqa: E402

@@ -1,4 +1,5 @@
 import datetime
+import time
 
 import pytz
 from asgiref.sync import sync_to_async
@@ -83,7 +84,7 @@ class CommandStat(models.Model):
 
 
 class Reminder(models.Model):
-    reminder_id = models.BigAutoField(
+    id = models.BigAutoField(
         primary_key=True
     )
     reminder_date_epoch = models.BigIntegerField(
@@ -93,36 +94,29 @@ class Reminder(models.Model):
         max_length=2000,
         default="INVALID"
     )
-    author_id = models.CharField(
-        max_length=500,
-        default="INVALID"
+    author_id = models.BigIntegerField(
+        default=0
     )
-    author_name = models.CharField(
-        max_length=500,
-        default="INVALID"
-    )
-    message_id = models.CharField(
-        max_length=200,
-        default="INVALID"
-    )
+
+    def __str__(self):
+        return f"Reminder for user {self.author_id} on date {self.reminder_date_epoch} with message {self.message}"
 
     @classmethod
     async def get_expired_reminders(cls):
-        reminders = await sync_to_async(cls._sync_get_expired_reminders, thread_sensitive=True)()
-        return reminders
+        return await sync_to_async(cls._sync_get_expired_reminders, thread_sensitive=True)()
 
     @classmethod
     def _sync_get_expired_reminders(cls):
         today_date = datetime.datetime.now(tz=pytz.timezone(str(settings.TIME_ZONE)))
         start_of_epoch = datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
         epoch_time_zone_user_timezone = (today_date - start_of_epoch).total_seconds()
-        reminders = list(Reminder.objects.all().filter(reminder_date_epoch__lte=epoch_time_zone_user_timezone))
-        return reminders
+        return list(Reminder.objects.all().filter(reminder_date_epoch__lte=epoch_time_zone_user_timezone))
 
     @classmethod
     async def get_reminder_by_id(cls, reminder_id):
-        reminder = await sync_to_async(cls._sync_get_reminder_by_id, thread_sensitive=True)(reminder_id)
-        return reminder
+        if not f"{reminder_id}".isdigit():
+            return None
+        return await sync_to_async(cls._sync_get_reminder_by_id, thread_sensitive=True)(reminder_id)
 
     @classmethod
     def _sync_get_reminder_by_id(cls, reminder_id):
@@ -150,10 +144,9 @@ class Reminder(models.Model):
 
     @classmethod
     async def get_reminder_by_author(cls, author_id):
-        reminder = await sync_to_async(
+        return await sync_to_async(
             cls._sync_get_reminder_by_author, thread_sensitive=True
         )(author_id)
-        return reminder
 
     @classmethod
     def _sync_get_reminder_by_author(cls, author_id):
@@ -161,8 +154,7 @@ class Reminder(models.Model):
 
     @classmethod
     async def get_all_reminders(cls):
-        reminders = await sync_to_async(cls._sync_get_all_reminders, thread_sensitive=True)()
-        return reminders
+        return await sync_to_async(cls._sync_get_all_reminders, thread_sensitive=True)()
 
     @classmethod
     def _sync_get_all_reminders(cls):
@@ -175,3 +167,23 @@ class Reminder(models.Model):
     @classmethod
     def _sync_save_reminder(cls, reminder_to_save):
         reminder_to_save.save()
+
+    def get_countdown(self):
+        seconds = int(self.reminder_date_epoch - time.time())
+        day = seconds // (24 * 3600)
+        seconds = seconds % (24 * 3600)
+        hour = seconds // 3600
+        seconds %= 3600
+        minutes = seconds // 60
+        seconds %= 60
+
+        message = "Reminder set for "
+        if day > 0:
+            message += f" {day} days"
+        if hour > 0:
+            message += f" {hour} hours"
+        if minutes > 0:
+            message += f" {minutes} minutes"
+        if seconds > 0:
+            message += f" {seconds} seconds"
+        return f"{message} from now"
