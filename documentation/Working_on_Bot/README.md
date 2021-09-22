@@ -32,25 +32,25 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
       [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.  
   
 How the Variable needs to be initialized [only relevant to you if you like granularized variable initializations]
-| Variable             |   Dockerized |            |           | Non-Dockerized |             |           |
-|----------------------|--------------|------------|-----------|----------------|-------------|-----------|
-|                      | env variable | wall_e.env | local.ini | env variable   | wall_e.env  | local.ini |
-| ENVIRONMENT          |              |      X     |           | x              |             |           |
-| COMPOSE_PROJECT_NAME |         X    |            |           | X              |             |           |
-| POSTGRES_PASSWORD    |         X    |      X     |           | x              |             |           |
-| DOCKERIZED           |              |      -     |    -      | -              |     -       |     -     |
-| WALL_E_DB_USER       |              |      X     |           | x              |             |           |
-| WALL_E_DB_PASSWORD   |              |      X     |           | x              |             |           |
-| WALL_E_DB_DBNAME     |              |      X     |           | x              |             |           |
-| DB_ENABLED           |              |      -     |    -      | -              |     -       |     -     |
-| HOST                 |              |      -     |    -      | x              |             |           |
-| ORIGIN_IMAGE         |        X     |            |           |                |             |           |
-| BOT_LOG_CHANNEL      |              |      -     |    -      | -              |     -       |     -     |
-| BOT_GENERAL_CHANNEL  |              |      -     |    -      | -              |     -       |     -     |
-| DB_PORT              |              |      X     |           | X              |             |           |
+| Variable             |   Dockerized |            |           | Non-Dockerized |           |
+|----------------------|--------------|------------|-----------|----------------|-----------|
+|                      | env variable | wall_e.env | local.ini | env variable   | local.ini |
+| ENVIRONMENT          |              |      X     |           | x              |           |
+| COMPOSE_PROJECT_NAME |         X    |            |           | X              |           |
+| POSTGRES_PASSWORD    |         X    |      X     |           | x              |           |
+| DOCKERIZED           |              |      -     |    -      | -              |     -     |
+| WALL_E_DB_USER       |              |      X     |           | x              |           |
+| WALL_E_DB_PASSWORD   |              |      X     |           | x              |           |
+| WALL_E_DB_DBNAME     |              |      X     |           | x              |           |
+| DB_ENABLED           |              |      -     |    -      | -              |     -     |
+| HOST                 |              |      -     |    -      | x              |           |
+| ORIGIN_IMAGE         |        X     |            |           |                |           |
+| BOT_LOG_CHANNEL      |              |      -     |    -      | -              |     -     |
+| BOT_GENERAL_CHANNEL  |              |      -     |    -      | -              |     -     |
+| DB_PORT              |              |      X     |           | X              |           |
 
 
-> X indicates that its necessary to be declared in that way
+> X indicates that its necessary to be declared in that way  
 > '-' indicates that the user can choose to declare it only that way
 
 
