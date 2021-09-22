@@ -79,10 +79,8 @@ class ManageCog(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         if self.check_test_environment(ctx) and self.config.enabled("database_config", option="DB_ENABLED"):
-            now = datetime.datetime.now()
             await CommandStat.save_command_async(CommandStat(
-                epoch_time=now.timestamp(), year=now.year, month=now.month,
-                day=now.day, hour=now.hour, channel_name=ctx.channel,
+                epoch_time=datetime.datetime.now().timestamp(), channel_name=ctx.channel,
                 command=ctx.command, invoked_with=ctx.invoked_with,
                 invoked_subcommand=ctx.invoked_subcommand
             ))
