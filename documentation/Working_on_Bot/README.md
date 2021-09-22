@@ -29,8 +29,9 @@ Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-c
 2. Clone the repo
 3. Wall_E Setting Specification.
    1. Wall_e needs parameter specifications. We use the `wall_e/src/resources/utilities/config/local.ini` file to declare any variables and the `CI/user_scripts/wall_e.env` can be optionally used to initialize.
-      [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.
-How the Variable needs to be declared [only relevant to you if you like granularized variable declarations]
+      [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.  
+  
+How the Variable needs to be initialized [only relevant to you if you like granularized variable initializations]
 | Variable             |   Dockerized |            |           | Non-Dockerized |             |           |
 |----------------------|--------------|------------|-----------|----------------|-------------|-----------|
 |                      | env variable | wall_e.env | local.ini | env variable   | wall_e.env  | local.ini |
