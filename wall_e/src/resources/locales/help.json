@@ -99,6 +99,14 @@
 			"Results can be filter by looking for users whose useraliases or nickaliases on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."
 		]
 	},
+	"debuginfo" : {
+		"class": "ManageCog",
+		"access": "roles",
+		"roles" : [ "Bot_manager" ],
+		"aliases": [  ],
+		"example": [ ".debuginfo" ],
+		"description": [ "returns which branch the user is testing" ]
+	},
 	"emojispeak" : {
 		"class": "Misc",
 		"access": "roles",
@@ -106,7 +114,8 @@
 		"aliases": [  ],
 		"example": [ ".emojispeak <args>" ],
 		"description": [ "returns <args> but in emoji format" ]
-	},"help" : {
+	},
+	"help" : {
 		"class": "Misc",
 		"access": "roles",
 		"roles" : [ "@everyone" ],
