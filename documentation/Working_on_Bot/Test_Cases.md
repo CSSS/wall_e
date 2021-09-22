@@ -37,7 +37,9 @@
   1. `.help here`
   1. `.help nothing`
 ## Mod
-
+  1. `.em "description" "title" "field"`
+  1. `.em "title" "field"`
+  1. `.warn behold my mod powers and be scarred`
 ## Reminders
   1. `.remindmein`
   1. `.remindmein 10 seconds to turn in my assignment`
