@@ -167,7 +167,7 @@ class Reminders(commands.Cog):
                     await ctx.send(embed=e_obj)
                     logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
             else:
-                if reminder.author_id != ctx.message.author.id:
+                if reminder.author_id == ctx.message.author.id:
                     # check to make sure its the right author
                     await Reminder.delete_reminder_by_id(reminder.id)
                     logger.info(f"[Reminders deletereminder()] following reminder was deleted = {reminder}")
