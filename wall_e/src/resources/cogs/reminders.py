@@ -311,6 +311,3 @@ class Reminders(commands.Cog):
                 logger.error('[Reminders get_message()] Ignoring exception when generating reminder:')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
             await asyncio.sleep(2)
-
-
-

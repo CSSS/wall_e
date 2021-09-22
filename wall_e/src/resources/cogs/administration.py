@@ -323,7 +323,10 @@ class Administration(commands.Cog):
                                 current_page += 1
                                 if current_page >= number_of_pages:
                                     current_page = 0
-                                logger.info(f"[Administration frequency()] user indicates they want to go to page {current_page}")
+                                logger.info(
+                                    "[Administration frequency()] user indicates they "
+                                    f"want to go to page {current_page}"
+                                )
                             elif '✅' == user_reacted[0].emoji:
                                 logger.info("[Administration frequency()] user "
                                             "indicates they are done with the roles "
@@ -335,4 +338,4 @@ class Administration(commands.Cog):
                             await msg.delete()
                             return
                     logger.info("[Administration frequency()] updating first_index "
-                               f"and last_index to {first_index} and {last_index} respectively")
+                                f"and last_index to {first_index} and {last_index} respectively")
