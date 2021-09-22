@@ -45,8 +45,9 @@ export wall_e_bottom_base_image_requirements_file_locatiom="CI/server_scripts/bu
 export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 export wall_e_top_base_image_requirements_file_locatiom="wall_e/src/requirements.txt"
 
-
+touch CI/user_scripts/wall_e.env
 ./CI/destroy-dev-env.sh
+rm CI/user_scripts/wall_e.env
 
 # handles creating the python_base image
 # will result in the origin name for the wall_e base image to be set to either "sfucsssorg/wall_e_python" [if no change is needed]
