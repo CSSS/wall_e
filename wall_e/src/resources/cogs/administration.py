@@ -86,7 +86,9 @@ class Administration(commands.Cog):
                         channel_name = line[5]
                         command = line[6]
                         invoked_with = line[7]
-                        invoked_subcommand = line[8]
+                        invoked_subcommand = None
+                        if line[8] != "None":
+                            invoked_subcommand = line[8]
                         await CommandStat.save_command_async(
                             CommandStat(
                                 epoch_time=epoch_time, year=year, month=month, day=day, hour=hour,

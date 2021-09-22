@@ -35,7 +35,8 @@ class CommandStat(models.Model):
         max_length=2000
     )
     invoked_subcommand = models.CharField(
-        max_length=2000
+        max_length=2000,
+        blank=True, null=True
     )
 
     @classmethod

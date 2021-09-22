@@ -2,15 +2,14 @@ import datetime
 import logging
 import re
 import sys
-import time
 import traceback
 
 import discord
 from discord.ext import commands
 
+from WalleModels.models import CommandStat
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.list_of_perms import get_list_of_user_permissions
-from WalleModels.models import CommandStat
 
 logger = logging.getLogger('wall_e')
 
@@ -79,25 +78,14 @@ class ManageCog(commands.Cog):
     ########################################################
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        if self.check_test_environment(ctx) and \
-                self.config.enabled("database_config", option="DB_ENABLED"):
-            epoch_time = int(time.time())
+        if self.check_test_environment(ctx) and self.config.enabled("database_config", option="DB_ENABLED"):
             now = datetime.datetime.now()
-            current_year = str(now.year)
-            current_month = str(now.month)
-            current_day = str(now.day)
-            current_hour = str(now.hour)
-            channel_name = str(ctx.channel).replace("\'", "[single_quote]").strip()
-            command = str(ctx.command).replace("\'", "[single_quote]").strip()
-            method_of_invoke = str(ctx.invoked_with).replace("\'", "[single_quote]").strip()
-            invoked_subcommand = str(ctx.invoked_subcommand).replace("\'", "[single_quote]").strip()
-            command_stat = CommandStat(
-                epoch_time=epoch_time, year=current_year, month=current_month,
-                day=current_day, hour=current_hour, channel_name=channel_name,
-                command=command, invoked_with=method_of_invoke,
-                invoked_subcommand=invoked_subcommand
-            )
-            await CommandStat.save_command_async(command_stat)
+            await CommandStat.save_command_async(CommandStat(
+                epoch_time=now.timestamp(), year=now.year, month=now.month,
+                day=now.day, hour=now.hour, channel_name=ctx.channel,
+                command=ctx.command, invoked_with=ctx.invoked_with,
+                invoked_subcommand=ctx.invoked_subcommand
+            ))
 
     ####################################################
     # Function that gets called when the script cant ##
