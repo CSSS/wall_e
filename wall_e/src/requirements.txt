@@ -8,6 +8,3 @@ configparser
 
 # needed for DB interactions
 django
-
-# needed temporarily for pg_dump command
-requests
