@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import importlib
 import inspect
 import logging
@@ -8,12 +7,9 @@ import subprocess
 import sys
 
 import discord
-import pytz
-import requests
 from discord.ext import commands
 
-import django_db_orm_settings
-from WalleModels.models import CommandStat, Reminder
+from WalleModels.models import CommandStat
 from resources.utilities.send import send as helper_send
 
 logger = logging.getLogger('wall_e')
