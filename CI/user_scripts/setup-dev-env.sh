@@ -23,25 +23,27 @@ if [ -z "${ORIGIN_IMAGE}" ]; then
 	exit 1
 fi
 
+pushd ../../
+
 ./CI/destroy-dev-env.sh
 
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
-export ENVIRONMENT="LOCALHOST"
-export DB_ENABLED="1"
 docker-compose -f CI/user_scripts/docker-compose-mount.yml up --force-recreate -d
+popd
 
-sleep 20
 wall_e_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 wall_e_db_container_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
-containerFailed=$(docker ps -a -f name="${wall_e_container_name}" --format "{{.Status}}" | head -1)
-containerDBFailed=$(docker ps -a -f name="${wall_e_db_container_name}" --format "{{.Status}}" | head -1)
-if [[ "${containerFailed}" != *"Up"* ]]; then
-    docker logs "${wall_e_container_name}"
-    exit 1
-fi
 
-if [[ "${containerDBFailed}" != *"Up"* ]]; then
-    docker logs "${wall_e_db_container_name}"
-    exit 1
-fi
- echo "wall_e with database succesfully launched!"
+while [ "$(docker inspect -f '{{.State.Running}}' ${wall_e_db_container_name})" != "true" ]
+do
+	echo "waiting for wall_e's database to launch"
+	sleep 1
+done
+
+while [ "$(docker inspect -f '{{.State.Running}}' ${wall_e_container_name})"  != "true" ]
+do
+	echo "waiting for wall_e to launch"
+	sleep 1
+done
+
+echo "wall_e with database succesfully launched!"

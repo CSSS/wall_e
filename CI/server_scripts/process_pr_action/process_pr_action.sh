@@ -76,6 +76,7 @@ if [ "${action}" = "closed" ]; then
 	if [[ "${merged}" = "false" && "${destination_branch_name}" = "master" ]]; then
 		git checkout "${branch_name}"
 		git pull origin "${branch_name}"
+		export CONTAINER_HOME_DIR=/usr/src/app;
 		export ENVIRONMENT=TEST;
 		export BRANCH_NAME=${branch_name};
 		export COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME};

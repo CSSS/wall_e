@@ -5,3 +5,9 @@ pytz==2018.5
 parsedatetime==2.4
 wolframalpha==3.0.1
 configparser
+
+# needed for DB interactions
+django
+
+# needed temporarily for pg_dump command
+requests

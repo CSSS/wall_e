@@ -21,22 +21,29 @@ class WallEConfig:
     def __init__(self, environment):
         config = configparser.ConfigParser(interpolation=None)
         config.optionxform = str
-        if (environment == "LOCALHOST"):
+        if environment == "LOCALHOST":
             config.read(config_file_dockerized_location_local)
-        elif (environment == 'TEST'):
+        elif environment == 'TEST':
             config.read(config_file_location_dev)
-        elif (environment == "PRODUCTION"):
+        elif environment == "PRODUCTION":
             config.read(config_file_location_prouction)
         else:
-            logger.info("[WallEConfig __init__()] incorrect environment specified {}".format(environment))
-        self.config = {}
-        self.config['wall_e'] = config
+            logger.info(f"[WallEConfig __init__()] incorrect environment specified {environment}")
+        self.config = {'wall_e': config}
+
+        # needed to ensure that the environment variables aren't wiped clean until after they have been used
+        # by the django-orm for the database migrations and connection
+        if 'DJANGO_SETTINGS_SET' not in os.environ:
+            os.environ['DJANGO_SETTINGS_SET'] = "False"
+        else:
+            os.environ['DJANGO_SETTINGS_SET'] = "True"
 
         for each_section in self.config['wall_e'].sections():
             for (key, value) in self.config['wall_e'].items(each_section):
                 if key in os.environ:
                     self.set_config_value(each_section, key, os.environ[key])
-                    os.environ[key] = ' '
+                    if os.environ['DJANGO_SETTINGS_SET'] == "True":
+                        os.environ[key] = ' '
 
     def get_config_value(self, section, option):
 
@@ -44,7 +51,7 @@ class WallEConfig:
             return self.config['wall_e'].get(section, option)
 
         logger.info(
-            "[WallEConfig get_config_value()] no key found for option {} under section {}".format(option, section)
+            f"[WallEConfig get_config_value()] no key found for option {option} under section {section}"
         )
         return "NONE"
 
@@ -55,28 +62,23 @@ class WallEConfig:
     def set_config_value(self, section, option, value):
         if self.config['wall_e'].has_option(section, option):
             logger.info(
-                "[WallEConfig set_config_value()] setting value for section [{}] option [{}]".format(
-                    section,
-                    option,
-                )
+                f"[WallEConfig set_config_value()] setting value for section "
+                f"[{section}] option [{option}]"
             )
-            self.config['wall_e'].set(section, option, r'{}'.format(str(value)))
+            self.config['wall_e'].set(section, option, fr'{value}')
         else:
-            raise KeyError("Section '{}' or Option '{}' does not exist".format(section, option))
+            raise KeyError(f"Section '{section}' or Option '{option}' does not exist")
 
     def cog_enabled(self, name_of_cog):
-        return (self.config['cogs_enabled'][name_of_cog] == 1)
+        return self.config['cogs_enabled'][name_of_cog] == 1
 
     def get_cogs(self):
         cogs_to_load = []
         cogs = self.config['wall_e']
         for cog in cogs['cogs_enabled']:
             if int(cogs['cogs_enabled'][cog]) == 1 and ((cog != 'reminders') or
-               (cog == 'reminders' and self.enabled("database", option="DB_ENABLED"))):
-                cog_dict = {}
-                cog_dict['name'] = cog
-                cog_dict['path'] = cog_location_python_path
-                cogs_to_load.append(cog_dict)
+               (cog == 'reminders' and self.enabled("database_config", option="DB_ENABLED"))):
+                cogs_to_load.append({'name': cog, 'path': cog_location_python_path})
         return cogs_to_load
 
     def get_help_json(self):

@@ -1,12 +1,20 @@
-from discord.ext import commands
-import discord
-import subprocess
-import logging
 import asyncio
-from resources.utilities.send import send as helper_send
+import datetime
 import importlib
 import inspect
+import logging
+import os
+import subprocess
 import sys
+
+import discord
+import pytz
+import requests
+from discord.ext import commands
+
+import django_db_orm_settings
+from WalleModels.models import CommandStat, Reminder
+from resources.utilities.send import send as helper_send
 
 logger = logging.getLogger('wall_e')
 
@@ -16,15 +24,20 @@ class Administration(commands.Cog):
     def __init__(self, bot, config):
         self.config = config
         self.bot = bot
-        if self.config.enabled("database", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="DB_ENABLED"):
             import matplotlib
             matplotlib.use("agg")
-            import matplotlib.pyplot as plt # noqa
+            import matplotlib.pyplot as plt  # noqa
             self.plt = plt
-            import numpy as np # noqa
+            import numpy as np  # noqa
             self.np = np
-            import psycopg2 # noqa
-            self.psycopg2 = psycopg2
+            self.image_parent_directory = ''
+            if self.config.get_config_value('basic_config', 'ENVIRONMENT') == "LOCALHOST":
+                image_parent_directory = self.config.get_config_value(
+                    "basic_config", option="FOLDER_FOR_FREQUENCY_IMAGES"
+                )
+                if os.path.isdir(image_parent_directory):
+                    self.image_parent_directory = image_parent_directory
 
     def valid_cog(self, name):
         for cog in self.config.get_cogs():
@@ -33,223 +46,177 @@ class Administration(commands.Cog):
         return False, ''
 
     @commands.command()
+    async def pg_dump(self, ctx):
+        """
+        create the sql by doing
+        ssh jenkins.sfucsss.org
+        docker exec -it PRODUCTION_MASTER_wall_e_db pg_dump -U postgres --data-only \
+         csss_discord_db > csss_discord_db.sql
+        scp jenkins.sfucsss.org:/home/jace/csss_discord_db.sql wall_e/src/.
+
+        :param ctx:
+        :return:
+        """
+        commands = False
+        reminders = False
+        tz = pytz.timezone(django_db_orm_settings.TIME_ZONE)
+        await ctx.send("trying to get sql file")
+        try:
+            sql_lines = requests.get(f"{ctx.message.attachments[0].url}").text.split("\r\n")
+        except Exception as e:
+            await ctx.send(f"Unable to get sql files for attachment due to issue:```{e}```")
+            return
+        await ctx.send("sql file received, will now iterate over its lines")
+        for line in sql_lines:
+            if 'COPY public.commandstats ' in line:
+                commands = True
+            elif 'COPY public.reminders ' in line:
+                reminders = True
+            else:
+                if line == "\\.":
+                    commands = reminders = False
+                line = line.split("\t")
+                if commands:
+                    try:
+                        epoch_time = int(line[0])
+                        year = int(line[1])
+                        month = int(line[2])
+                        day = int(line[3])
+                        hour = int(line[4])
+                        channel_name = line[5]
+                        command = line[6]
+                        invoked_with = line[7]
+                        invoked_subcommand = None
+                        if line[8] != "None":
+                            invoked_subcommand = line[8]
+                        await CommandStat.save_command_async(
+                            CommandStat(
+                                epoch_time=epoch_time, year=year, month=month, day=day, hour=hour,
+                                channel_name=channel_name, command=command, invoked_with=invoked_with,
+                                invoked_subcommand=invoked_subcommand
+                            )
+                        )
+                    except Exception:
+                        print(f"unable to save commandStat {line}")
+                elif reminders:
+
+                    try:
+                        date_to_be_reminded_epoch = line[1]
+                        message = line[2]
+                        author_id = int(line[3])
+                        date_to_be_reminded_epoch = tz.localize(
+                            datetime.datetime.strptime(f"{date_to_be_reminded_epoch}", "%Y-%m-%d %H:%M:%S.%f"),
+                            is_dst=None
+                        )
+                        await Reminder.save_reminder(
+                            Reminder(
+                                reminder_date_epoch=date_to_be_reminded_epoch.timestamp(), message=message,
+                                author_id=author_id
+                            )
+                        )
+                    except Exception:
+                        print(f"unable to save Reminder {line}")
+        await ctx.send("File parsed and saved to DB")
+
+    @commands.command()
     async def exit(self, ctx):
         if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
             await self.bot.close()
 
     @commands.command()
     async def load(self, ctx, name):
-        logger.info("[Administration load()] load command detected from {}".format(ctx.message.author))
+        logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(name)
         if not valid:
-            await ctx.send("```{} isn't a real cog```".format(name))
+            await ctx.send(f"```{name} isn't a real cog```")
             logger.info(
-                "[Administration load()] {} tried loading "
-                "{} which doesn't exist.".format(ctx.message.author, name)
+                f"[Administration load()] {ctx.message.author} tried loading "
+                f"{name} which doesn't exist."
             )
             return
         try:
-            cog_file = importlib.import_module(folder+name)
+            cog_file = importlib.import_module(folder + name)
             cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
             cog_to_load = getattr(cog_file, cog_class_name)
             self.bot.add_cog(cog_to_load(self.bot, self.config))
-            await ctx.send("{} command loaded.".format(name))
-            logger.info("[Administration load()] {} has been successfully loaded".format(name))
+            await ctx.send(f"{name} command loaded.")
+            logger.info(f"[Administration load()] {name} has been successfully loaded")
         except(AttributeError, ImportError) as e:
-            await ctx.send("command load failed: {}, {}".format(type(e), str(e)))
-            logger.info("[Administration load()] loading {} failed :{}, {}".format(name, type(e), e))
+            await ctx.send(f"command load failed: {type(e)}, {e}")
+            logger.info(f"[Administration load()] loading {name} failed :{type(e)}, {e}")
 
     @commands.command()
     async def unload(self, ctx, name):
-        logger.info("[Administration unload()] unload command detected from {}".format(ctx.message.author))
+        logger.info(f"[Administration unload()] unload command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(name)
         if not valid:
-            await ctx.send("```{} isn't a real cog```".format(name))
+            await ctx.send(f"```{name} isn't a real cog```")
             logger.info(
-                "[Administration load()] {} tried loading "
-                "{} which doesn't exist.".format(ctx.message.author, name)
+                f"[Administration load()] {ctx.message.author} tried loading "
+                f"{name} which doesn't exist."
             )
             return
-        cog_file = importlib.import_module(folder+name)
+        cog_file = importlib.import_module(folder + name)
         cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
         self.bot.remove_cog(cog_class_name)
-        await ctx.send("{} command unloaded".format(name))
-        logger.info("[Administration unload()] {} has been successfully loaded".format(name))
+        await ctx.send(f"{name} command unloaded")
+        logger.info(f"[Administration unload()] {name} has been successfully loaded")
 
     @commands.command()
     async def reload(self, ctx, name):
-        logger.info("[Administration reload()] reload command detected from {}".format(ctx.message.author))
+        logger.info(f"[Administration reload()] reload command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(name)
         if not valid:
-            await ctx.send("```{} isn't a real cog```".format(name))
-            logger.info("[Administration reload()] {} tried "
-                        "loading {} which doesn't exist.".format(ctx.message.author, name))
+            await ctx.send(f"```{name} isn't a real cog```")
+            logger.info(f"[Administration reload()] {ctx.message.author} tried "
+                        f"loading {name} which doesn't exist.")
             return
-        cog_file = importlib.import_module(folder+name)
+        cog_file = importlib.import_module(folder + name)
         cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
         self.bot.remove_cog(cog_class_name)
         try:
             cog_to_load = getattr(cog_file, cog_class_name)
             self.bot.add_cog(cog_to_load(self.bot, self.config))
-            await ctx.send("`{} command reloaded`".format(folder + name))
-            logger.info("[Administration reload()] {} has been successfully reloaded".format(name))
+            await ctx.send(f"`{folder + name} command reloaded`")
+            logger.info(f"[Administration reload()] {name} has been successfully reloaded")
         except(AttributeError, ImportError) as e:
-            await ctx.send("Command load failed: {}, {}".format(type(e), str(e)))
-            logger.info("[Administration reload()] loading {} failed :{}, {}".format(name, type(e), e))
+            await ctx.send(f"Command load failed: {type(e)}, {e}")
+            logger.info(f"[Administration reload()] loading {name} failed :{type(e)}, {e}")
 
     @commands.command()
     async def exc(self, ctx, *args):
         logger.info("[Administration exc()] exc command detected "
-                    "from {} with arguments {}".format(ctx.message.author, " ".join(args)))
+                    f"from {ctx.message.author} with arguments {' '.join(args)}")
         query = " ".join(args)
         # this got implemented for cases when the output of the command is too big to send to the channel
         exit_code, output = subprocess.getstatusoutput(query)
-        await helper_send(ctx, "Exit Code: {}".format(exit_code))
+        await helper_send(ctx, f"Exit Code: {exit_code}")
         await helper_send(ctx, output, prefix="```", suffix="```")
-
-    def get_column_headers_from_database(self):
-        db_conn = self.connect_to_database()
-        if db_conn is not None:
-            db_curr = db_conn.cursor()
-            db_curr.execute("Select * FROM commandstats LIMIT 0")
-            colnames = [desc[0] for desc in db_curr.description]
-            db_curr.close()
-            db_conn.close()
-            return [name.strip() for name in colnames]
-        else:
-            return None
-
-    def determine_x_y_frequency(self, db_conn, filters=None):
-        conn = db_conn
-        if conn is None:
-            return None
-        db_curr = conn.cursor()
-        logger.info("[Administration determine_x_y_frequency()] trying to "
-                    "create a dictionary from {} with the filters:\n\t{}".format(db_curr, filters))
-        combined_filter = '", "'.join(str(e) for e in filters)
-        combined_filter = "\"{}\"".format(combined_filter)
-        sql_query = "select {} from commandstats;".format(combined_filter)
-        logger.info("[Administration determine_x_y_frequency()] initial "
-                    "sql query to determine what entries needs to be"
-                    " created with the filter specified above:\n\t{}".format(sql_query))
-        db_curr.execute(sql_query)
-        # getting all the rows that need to be graphed
-        results = db_curr.fetchall()
-        # where clause that will be used to determine what remaining rows still need to be added to the dictionary of
-        # results
-        overarching_where_clause = ''
-        # dictionary that will contain the stats that need to be graphed
-        frequency = {}
-        index = 0
-        # this loop will go through eachu unqiue entry that were turned from the results variable above to determine
-        # how much each unique entry
-        # was appeared and needs that info added to frequency dictionary
-        while len(results) > 0:
-            logger.info("[Administration determine_x_y_frequency()] "
-                        "{}th index results of sql query=[{}]".format(index, results[0]))
-            where_clause = ''  # where clause that keeps track of things that need to be added to the
-            # overarchingWhereClause
-            entry = ''
-            for idx, val in enumerate(filters):
-                if len(filters) == 1 + idx:
-                    entry += str(results[0][idx])
-                    where_clause += "\"{}\"='{}'".format(val, results[0][idx])
-                else:
-                    entry += '{}_'.format(results[0][idx])
-                    where_clause += "\"{}\"='{}' AND ".format(val, results[0][idx])
-            logger.info(
-                "[Administration determine_x_y_frequency()] where clause for determining which "
-                "entries match the entry [{}]:\n\t{}".format(entry, where_clause)
-            )
-            sql_query = "select {} from commandstats WHERE {};".format(combined_filter, where_clause)
-            logger.info(
-                "[Administration determine_x_y_frequency()] query that includes the above specified where "
-                "clause for determining how many elements match the filter of [{}]:\n\t{}".format(entry, sql_query)
-            )
-            db_curr.execute(sql_query)
-            results_of_query_for_specific_entry = db_curr.fetchall()
-            frequency[entry] = len(results_of_query_for_specific_entry)
-            logger.info(
-                "[Administration determine_x_y_frequency()] determined that {} "
-                "entries exist for filter {}".format(frequency[entry], entry)
-            )
-            if index > 0:
-                overarching_where_clause += ' AND NOT ( {} )'.format(where_clause)
-            else:
-                overarching_where_clause += ' NOT ( {} )'.format(where_clause)
-            logger.info("[Administration determine_x_y_frequency()] "
-                        "updated where clause for discriminating against all "
-                        "entries that have already been recorded:\n\t{}".format(overarching_where_clause))
-            sql_query = "select {} from commandstats WHERE ({});".format(combined_filter, overarching_where_clause)
-            logger.info("[Administration determine_x_y_frequency()] updated sql query to determine what remaining "
-                        "entries potentially need to be created after ruling out entries that match the where clause"
-                        ":\n\t{}".format(sql_query))
-            db_curr.execute(sql_query)
-            results = db_curr.fetchall()
-            index += 1
-        db_curr.close()
-        db_conn.close()
-        return frequency
-
-    def connect_to_database(self):
-        try:
-            host = '{}_wall_e_db'.format(self.config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME"))
-            wall_e_db_dbname = self.config.get_config_value('database', 'WALL_E_DB_DBNAME')
-            wall_e_db_user = self.config.get_config_value('database', 'WALL_E_DB_USER')
-            wall_e_db_password = self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
-
-            db_connection_string = (
-                "dbname='{}' user='{}' host='{}'".format(
-                    wall_e_db_dbname,
-                    wall_e_db_user,
-                    host
-                )
-            )
-            logger.info(
-                "[Administration connect_to_database()] db_connection_string=[{}]".format(
-                    db_connection_string
-                )
-            )
-            conn = self.psycopg2.connect("{} password='{}'".format(db_connection_string, wall_e_db_password))
-            conn.set_isolation_level(self.psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            logger.info("[Administration connect_to_database()] PostgreSQL connection established")
-            return conn
-        except Exception as e:
-            logger.error("[Administration connect_to_database()] enountered following exception when setting up "
-                         "PostgreSQL connection\n{}".format(e))
-            return None
 
     @commands.command()
     async def frequency(self, ctx, *args):
-        if self.config.enabled("database", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="DB_ENABLED"):
             logger.info("[Administration frequency()] frequency command "
-                        "detected from {} with arguments [{}]".format(ctx.message.author, args))
-            column_headers = self.get_column_headers_from_database()
-            if column_headers is None:
-                logger.info("[Administration frequency()] unable to connect to the database")
-                await ctx.send("unable to connect to the database")
-                return
-
+                        f"detected from {ctx.message.author} with arguments [{args}]")
+            column_headers = CommandStat.get_column_headers_from_database()
             if len(args) == 0:
-                await ctx.send("please specify which columns you want to count="
-                               + str(list(column_headers)))
+                await ctx.send(f"please specify which columns you want to count={column_headers}")
                 return
             else:
                 for arg in args:
                     if arg not in column_headers:
                         await ctx.send(
-                            "argument '{}' is not a valid option\nThe list of options are"
-                            ": {}".format(arg, column_headers)
+                            f"argument '{arg}' is not a valid option\nThe list of options are"
+                            f": {column_headers}"
                         )
                         return
 
-                dic_result = self.determine_x_y_frequency(self.connect_to_database(), args)
-                if dic_result is None:
-                    logger.info("[Administration frequency()] unable to connect to the database")
-                    await ctx.send("unable to connect to the database")
-                    return
-            dic_result = sorted(dic_result.items(), key=lambda kv: kv[1])
+            dic_result = sorted(
+                (await CommandStat.get_command_stats_dict(args)).items(),
+                key=lambda kv: kv[1]
+            )
             logger.info("[Administration frequency()] sorted dic_results by value")
+            image_path = f"{self.image_parent_directory}image.png"
             if len(dic_result) <= 50:
                 logger.info("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
@@ -258,22 +225,22 @@ class Administration(commands.Cog):
                 fig, ax = self.plt.subplots()
                 y_pos = self.np.arange(len(labels))
                 for i, v in enumerate(numbers):
-                    ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
+                    ax.text(v, i + .25, f"{v}", color='blue', fontweight='bold')
                 ax.barh(y_pos, numbers, align='center', color='green')
                 ax.set_yticks(y_pos)
                 ax.set_yticklabels(labels)
                 ax.invert_yaxis()  # labels read top-to-bottom
                 if len(args) > 1:
-                    title = '_'.join(str(arg) for arg in args[:len(args) - 1])
-                    title += "_{}".format(args[len(args) - 1])
+                    title = '-'.join(f"{arg}" for arg in args[:len(args) - 1])
+                    title += f"-{args[len(args) - 1]}"
                 else:
                     title = args[0]
-                ax.set_title("How may times each {} appears in the database since Sept 21, 2018".format(title))
+                ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
                 fig.set_size_inches(18.5, 10.5)
-                fig.savefig('image.png')
+                fig.savefig(image_path)
                 logger.info("[Administration frequency()] graph created and saved")
                 self.plt.close(fig)
-                await ctx.send(file=discord.File('image.png'))
+                await ctx.send(file=discord.File(image_path))
                 logger.info("[Administration frequency()] graph image file has been sent")
             else:
                 logger.info("[Administration frequency()] dic_results's length is > 50")
@@ -281,77 +248,85 @@ class Administration(commands.Cog):
                 if len(dic_result) % 50 != 0:
                     number_of_pages += 1
                 number_of_bars_per_page = int(len(dic_result) / number_of_pages) + 1
-                first_index, last_index = 0, number_of_bars_per_page - 1
                 msg = None
                 current_page = 0
-                while first_index < len(dic_result):
+
+                first_index = 0
+                last_index = number_of_bars_per_page - 1
+                boundaries_for_each_page = {}
+                for page in range(0, number_of_pages):
+                    boundaries_for_each_page[page] = {
+                        'first_index': first_index,
+                        'last_index': last_index
+                    }
+                    first_index += number_of_bars_per_page
+                    last_index += number_of_bars_per_page
+
+                while True:
                     logger.info("[Administration frequency()] creating "
-                                "a graph with entries {} to {}".format(first_index, last_index))
+                                f"a graph with entries {first_index} to {last_index}")
                     to_react = ['⏪', '⏩', '✅']
+                    first_index = boundaries_for_each_page[current_page]['first_index']
+                    last_index = boundaries_for_each_page[current_page]['last_index']
                     labels = [i[0] for i in dic_result][first_index:last_index]
                     numbers = [i[1] for i in dic_result][first_index:last_index]
                     self.plt.rcdefaults()
                     fig, ax = self.plt.subplots()
                     y_pos = self.np.arange(len(labels))
                     for i, v in enumerate(numbers):
-                        ax.text(v, i + .25, str(v), color='blue', fontweight='bold')
+                        ax.text(v, i + .25, f"{v}", color='blue', fontweight='bold')
                     ax.barh(y_pos, numbers, align='center', color='green')
                     ax.set_yticks(y_pos)
                     ax.set_yticklabels(labels)
                     ax.invert_yaxis()  # labels read top-to-bottom
-                    ax.set_xlabel("Page {}/{}".format(current_page, number_of_pages - 1))
+                    ax.set_xlabel(f"Page {current_page}/{number_of_pages - 1}")
                     if len(args) > 1:
-                        title = '_'.join(str(arg) for arg in args[:len(args) - 1])
-                        title += "_{}".format(args[len(args) - 1])
+                        title = '_'.join(f"{arg}" for arg in args[:len(args) - 1])
+                        title += f"_{args[len(args) - 1]}"
                     else:
                         title = args[0]
-                    ax.set_title("How may times each {} appears in the database since Sept 21, 2018".format(title))
-                    fig.set_size_inches(18.5, 10.5)
-                    fig.savefig('image.png')
+                    ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
+                    fig.set_size_inches(30, 10.5)
+                    fig.savefig(image_path)
                     logger.info("[Administration frequency()] graph created and saved")
                     self.plt.close(fig)
                     if msg is None:
-                        msg = await ctx.send(file=discord.File('image.png'))
+                        msg = await ctx.send(file=discord.File(image_path))
                     else:
                         await msg.delete()
-                        msg = await ctx.send(file=discord.File('image.png'))
+                        msg = await ctx.send(file=discord.File(image_path))
                     for reaction in to_react:
                         await msg.add_reaction(reaction)
 
                     def check_reaction(reaction, user):
                         if not user.bot:  # just making sure the bot doesnt take its own reactions
                             # into consideration
-                            e = str(reaction.emoji)
-                            logger.info("[Administration frequency()] reaction {} detected from {}".format(e, user))
+                            e = f"{reaction.emoji}"
+                            logger.info(f"[Administration frequency()] reaction {e} detected from {user}")
                             return e.startswith(('⏪', '⏩', '✅'))
 
                     logger.info("[Administration frequency()] graph image file has been sent")
-                    user_reacted = False
-                    while user_reacted is False:
+                    user_reacted = None
+                    while user_reacted is None:
                         try:
                             user_reacted = await self.bot.wait_for('reaction_add', timeout=20, check=check_reaction)
                         except asyncio.TimeoutError:
                             logger.info("[Administration frequency()] timed out waiting for the user's reaction.")
                         if user_reacted:
                             if '⏪' == user_reacted[0].emoji:
-                                first_index -= number_of_bars_per_page
-                                last_index -= number_of_bars_per_page
                                 current_page -= 1
-                                if first_index < 0:
-                                    first_index, last_index = number_of_bars_per_page * 3, number_of_bars_per_page * 4
+                                if current_page < 0:
                                     current_page = number_of_pages - 1
                                 logger.info("[Administration frequency()] user indicates they "
-                                            " want to go back to page "
-                                            + str(current_page))
+                                            f" want to go back to page {current_page}")
                             elif '⏩' == user_reacted[0].emoji:
-                                first_index += number_of_bars_per_page
-                                last_index += number_of_bars_per_page
                                 current_page += 1
-                                if first_index > len(dic_result):
-                                    first_index, last_index = 0, number_of_bars_per_page
+                                if current_page >= number_of_pages:
                                     current_page = 0
-                                logger.info("[Administration frequency()] user indicates they want to go to page "
-                                            + str(current_page))
+                                logger.info(
+                                    "[Administration frequency()] user indicates they "
+                                    f"want to go to page {current_page}"
+                                )
                             elif '✅' == user_reacted[0].emoji:
                                 logger.info("[Administration frequency()] user "
                                             "indicates they are done with the roles "
@@ -363,4 +338,4 @@ class Administration(commands.Cog):
                             await msg.delete()
                             return
                     logger.info("[Administration frequency()] updating first_index "
-                                "and last_index to {} and {} respectively".format(first_index, last_index))
+                                f"and last_index to {first_index} and {last_index} respectively")
