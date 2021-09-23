@@ -21,17 +21,6 @@
 			" The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
-	"pg_dump" : {
-		"class": "Administration",
-		"access": "roles",
-		"roles" : [ "Bot_manager" ],
-		"aliases": [ ],
-		"example": [ ".unload <arg>" ],
-		"description": [
-			"unloads the commands in the class <arg>.",
-			" The classes and their corresponding commands can be determined using the \".help\" command."
-		]
-	},
 	"reload" : {
 		"class": "Administration",
 		"access": "roles",
