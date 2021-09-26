@@ -9,7 +9,7 @@ from django.forms import model_to_dict
 from .customFields import FixedCharField, GeneratedIdentityField
 
 class Ban_records(models.Model):
-    ban_id = models.GeneratedIdentityField(primary_key=True, always=True)
+    ban_id = GeneratedIdentityField(primary_key=True, always=True)
     username = models.CharField(max_length=32, null=False)
     user_id = FixedCharField(max_length=18, null=False)
     mod = models.CharField(max_length=32, null=True)
