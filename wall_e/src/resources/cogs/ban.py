@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
-import psycopg2
+from WalleModels.models import Banned_users, Ban_records
 import datetime
 import pytz
 import re
@@ -16,51 +16,7 @@ class Ban(commands.Cog):
         self.bot = bot
         self.config = config
         self.blacklist = []
-        self.datetime = datetime.datetime
         self.errorColour = 0xA6192E
-
-        # establish connection to db
-        try:
-            host = '{}_wall_e_db'.format(self.config.get_config_value('basic_config', 'COMPOSE_PROJECT_NAME'))
-
-            db_connection_string = (
-                f"dbname='{self.config.get_config_value('database', 'WALL_E_DB_DBNAME')}'"
-                f"user='{self.config.get_config_value('database', 'WALL_E_DB_USER')}' host='{host}'"
-            )
-            logger.info("[Ban __init__] db_connection_string=[{}]".format(db_connection_string))
-
-            conn = psycopg2.connect(
-                "{}  password='{}'".format(
-                    db_connection_string, self.config.get_config_value('database', 'WALL_E_DB_PASSWORD')
-                )
-            )
-            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
-            self.curs = conn.cursor()
-
-            self.curs.execute("CREATE TABLE IF NOT EXISTS Banned_users ("
-                              "username    VARCHAR(32) NOT NULL,"
-                              "user_id     CHAR(18),"
-                              "PRIMARY KEY (user_id)"
-                              ")"
-                              )
-
-            self.curs.execute("CREATE TABLE IF NOT EXISTS Ban_records ("
-                              "ban_id                  INTEGER GENERATED ALWAYS AS IDENTITY,"
-                              "username                VARCHAR(32)    NOT NULL,"
-                              "user_id                 CHAR(18)       NOT NULL,"
-                              "mod                     VARCHAR(32),"
-                              "mod_id                  CHAR(18),"
-                              "date                    TIMESTAMPTZ    UNIQUE,"
-                              "reason                  TEXT           NOT NULL,"
-                              "UNIQUE (user_id, date),"
-                              "PRIMARY KEY (ban_id)"
-                              ")"
-                              )
-
-            logger.info("[Ban __init__] PostgreSQL connection established")
-        except Exception as e:
-            logger.error("[Ban __init__] encountered following exception when setting up PostgreSQL "
-                         f"connection\n{e}")
 
     async def insert_ban(self, username, user_id):
         query = "INSERT INTO Banned_users VAlUES (%s, %s)"
@@ -104,7 +60,7 @@ class Ban(commands.Cog):
 
             e_obj = discord.Embed(title="Ban Notification",
                                   color=discord.Color.red(),
-                                  timestamp=self.datetime.now(pytz.timezone('Canada/Pacific'))
+                                  timestamp=datetime.datetime.now(pytz.timezone('Canada/Pacific'))
                                   )
             e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.bot.guilds[0]}\n\n"
                             "You may NOT rejoin the guild!**")
@@ -249,7 +205,7 @@ class Ban(commands.Cog):
                                   description="**You've been PERMANENTLY BANNED from" +
                                               f"{self.bot.guilds[0].name.upper()}.**",
                                   color=discord.Color.red(),
-                                  timestamp=self.datetime.now(pytz.timezone('Canada/Pacific')))
+                                  timestamp=datetime.datetime.now(pytz.timezone('Canada/Pacific')))
 
             e_obj.add_field(name='Reason',
                             value=f"```{reason}```\n" +
@@ -266,7 +222,7 @@ class Ban(commands.Cog):
 
             # kick
             await user.kick(reason=reason)
-            dt = self.datetime.now(pytz.utc)
+            dt = datetime.datetime.now(pytz.utc)
             logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
 
             # report to council
