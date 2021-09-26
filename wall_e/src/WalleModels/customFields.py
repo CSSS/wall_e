@@ -1,0 +1,34 @@
+from django.db import models
+
+class FixedCharField(models.Field):
+
+    description = "Fixed length char field. Equivalent to SQL `char(x)`. Fixed length is represented by \
+                  `max_length` value."
+
+    def __init__(self, *args, **kwargs):
+        self.max_length = kwargs['max_length']
+        super(FixedCharField, self).__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        return name, path, args, kwargs
+
+    def db_type(self, connection):
+        return 'char(%s)' % self.max_length
+
+class GeneratedIdentityField(models.Field):
+
+    description = "An Integer column which uses `GENERATED {ALWAYS | BY DEFAULT} AS IDENITY`. \
+                  A modern alternative to `BIGSERIAL` from the SQL standard."
+
+    def __init__(self, always=False, *args, **kwargs):
+        self.always = always
+        super(GeneratedIdentityField, self).__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        kwargs['always'] = self.always
+        return name, path, args, kwargs
+
+    def db_type(self, connection):
+        return f"INTEGER GENERATED {'ALWAYS' if self.always else 'BY DEFAULT'} AS IDENTITY"

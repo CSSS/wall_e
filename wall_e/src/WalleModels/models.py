@@ -6,7 +6,23 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
+from .customFields import FixedCharField, GeneratedIdentityField
 
+class Ban_records(models.Model):
+    ban_id = models.GeneratedIdentityField(primary_key=True, always=True)
+    username = models.CharField(max_length=32, null=False)
+    user_id = FixedCharField(max_length=18, null=False)
+    mod = models.CharField(max_length=32, null=True)
+    mod_id = FixedCharField(max_length=18, null=True)
+    date = models.DateTimeField(unique=True, null=True)
+    reason = models.TextField(null=False)
+
+    class Meta:
+        unique_together = ['user_id', 'date']
+
+class Banned_users(models.Model):
+    username = models.CharField(max_length=32, null=False)
+    user_id = FixedCharField(primary_key=True, max_length=18)
 
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(
