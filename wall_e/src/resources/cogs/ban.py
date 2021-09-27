@@ -19,23 +19,13 @@ class Ban(commands.Cog):
         self.errorColour = 0xA6192E
 
     async def insert_ban(self, username, user_id):
-        query = "INSERT INTO Banned_users VAlUES (%s, %s)"
-        logger.info(f"[Ban insert_ban()] sql_query=[{query}] with values ({username, user_id})")
-        try:
-            self.curs.execute(query, (username, user_id))
-        except Exception as e:
-            logger.info(f'[Ban insert_ban()] sql error: {e}')
+        logger.info(f"[Ban insert_ban()] Adding banned user to Banned_user with values ({username, user_id})")
+        Banned_users(username, user_id).save()
 
     async def insert_record(self, username, user_id, mod, mod_id, date, reason):
-        query = "INSERT INTO Ban_records (username, user_id, mod, mod_id, date, reason) " \
-              "VALUES (%s, %s, %s, %s, %s, %s)"
-
-        logger.info(f"[Ban insert_record()] sql_query=[{query}] with values "
-                    f"({username, user_id, mod, mod_id, date, reason})")
-        try:
-            self.curs.execute(query, (username, user_id, mod, mod_id, date, reason))
-        except Exception as e:
-            logger.info(f'[Ban insert_record()] sql error {e}')
+        logger.info(f"[Ban insert_record()] Adding ban record to Ban_records with values \
+                    ({username, user_id, mod, mod_id, date, reason})")
+        Ban_records(username, user_id, mod, mod_id, date, reason).save()
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
