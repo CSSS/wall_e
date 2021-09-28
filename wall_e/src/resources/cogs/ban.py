@@ -31,10 +31,10 @@ class Ban(commands.Cog):
         """Adds entry to BanRecords table"""
 
         logger.info("[Ban insert_record()] Adding ban record to BanRecords with values" +
-                   f"({username, user_id, mod, mod_id, date, reason})")
+                    f"({username, user_id, mod, mod_id, date, reason})")
 
         BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
-                    reason=reason).save()
+                   reason=reason).save()
 
     @sync_to_async
     def get_banned_ids(self):
