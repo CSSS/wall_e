@@ -8,7 +8,7 @@ from django.db import models
 from django.forms import model_to_dict
 from .customFields import FixedCharField, GeneratedIdentityField
 
-class Ban_records(models.Model):
+class BanRecords(models.Model):
     ban_id = GeneratedIdentityField(primary_key=True, always=True)
     username = models.CharField(max_length=32, null=False)
     user_id = FixedCharField(max_length=18, null=False)
@@ -19,10 +19,14 @@ class Ban_records(models.Model):
 
     class Meta:
         unique_together = ['user_id', 'date']
+        db_table = 'WalleModels_ban_records'
 
-class Banned_users(models.Model):
+class BannedUsers(models.Model):
     username = models.CharField(max_length=32, null=False)
     user_id = FixedCharField(primary_key=True, max_length=18)
+
+    class Meta:
+        db_table = 'WalleModels_banned_users'
 
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(

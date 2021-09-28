@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
-from WalleModels.models import Banned_users, Ban_records
+from WalleModels.models import BannedUsers, BanRecords
 import datetime
 import pytz
 import re
@@ -21,26 +21,26 @@ class Ban(commands.Cog):
 
     @sync_to_async
     def insert_ban(self, username, user_id):
-        """Adds entry to banned_users table"""
+        """Adds entry to BannedUsers table"""
 
         logger.info(f"[Ban insert_ban()] Adding banned user to Banned_user with values ({username, user_id})")
-        Banned_users(username, str(user_id)).save()
+        BannedUsers(username, str(user_id)).save()
 
     @sync_to_async
     def insert_record(self, username, user_id, mod, mod_id, date, reason):
-        """Adds entry to ban_records table"""
+        """Adds entry to BanRecords table"""
 
-        logger.info(f"[Ban insert_record()] Adding ban record to Ban_records with values"+
+        logger.info(f"[Ban insert_record()] Adding ban record to BanRecords with values"+
                     f"({username, user_id, mod, mod_id, date, reason})")
 
-        Ban_records(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
+        BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
                     reason=reason).save()
 
     @sync_to_async
     def get_banned_ids(self):
-        """Gets list of all user_ids from banned_users table"""
+        """Gets list of all user_ids from BannedUsers table"""
 
-        return list(map(int, (Banned_users.objects.values_list('user_id', flat=True))))
+        return list(map(int, (BannedUsers.objects.values_list('user_id', flat=True))))
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
@@ -256,9 +256,9 @@ class Ban(commands.Cog):
 
     @sync_to_async
     def del_banned_user_by_id(self, _id):
-        """Deletes single entry from banned_users by user_id """
+        """Deletes single entry from BannedUsers by user_id """
 
-        user = Banned_users.objects.filter(user_id=str(_id))[0]
+        user = BannedUsers.objects.filter(user_id=str(_id))[0]
         name = user.username
         user.delete()
         return name
@@ -304,8 +304,8 @@ class Ban(commands.Cog):
 
     @sync_to_async
     def get_all_bans(self):
-        """Gets list of all entries in banned_users"""
-        return list(Banned_users.objects.values_list('username', 'user_id'))
+        """Gets list of all entries in BannedUsers"""
+        return list(BannedUsers.objects.values_list('username', 'user_id'))
 
     @commands.command()
     async def bans(self, ctx):
