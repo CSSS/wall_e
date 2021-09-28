@@ -238,6 +238,13 @@ class Ban(commands.Cog):
             await self.insert_ban(username, user.id)
             await self.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
 
+    @sync_to_async
+    def del_banned_user_by_id(self, _id):
+        user = Banned_users.objects.filter(user_id=str(_id))[0]
+        name = user.username
+        user.delete()
+        return name
+
     @commands.command()
     async def unban(self, ctx, _id: int):
         logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {_id} ]")
@@ -255,20 +262,7 @@ class Ban(commands.Cog):
         # "unban"
         self.blacklist.remove(_id)
 
-        try:
-            query = "SELECT username FROM Banned_users WHERE user_id='%s';"
-            logger.info(f"[Ban unban()] sql_query=[{query}] with values ({_id})")
-
-            self.curs.execute(query, [_id])
-            name = self.curs.fetchone()[0]
-
-            query = "DELETE FROM Banned_users WHERE user_id='%s';"
-            logger.info(f"[Ban unban()] sql_query=[{query}] with values ({_id})")
-            self.curs.execute(query, [_id])
-        except Exception as e:
-            logger.info(f'[Ban unban()] Encountered hte following sql error: {e}')
-            await ctx.send(f"Encountered the following sql error: {e}")
-            return
+        name = await self.del_banned_user_by_id(_id)
 
         logger.info(f"[Ban unban()] User: {name} with id: {_id} was unbanned.")
         e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())
