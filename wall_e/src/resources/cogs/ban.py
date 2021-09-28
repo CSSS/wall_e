@@ -21,11 +21,15 @@ class Ban(commands.Cog):
 
     @sync_to_async
     def insert_ban(self, username, user_id):
+        """Adds entry to banned_users table"""
+
         logger.info(f"[Ban insert_ban()] Adding banned user to Banned_user with values ({username, user_id})")
         Banned_users(username, str(user_id)).save()
 
     @sync_to_async
     def insert_record(self, username, user_id, mod, mod_id, date, reason):
+        """Adds entry to ban_records table"""
+
         logger.info(f"[Ban insert_record()] Adding ban record to Ban_records with values"+
                     f"({username, user_id, mod, mod_id, date, reason})")
 
@@ -34,10 +38,14 @@ class Ban(commands.Cog):
 
     @sync_to_async
     def get_banned_ids(self):
+        """Gets list of all user_ids from banned_users table"""
+
         return list(map(int, (Banned_users.objects.values_list('user_id', flat=True))))
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
+        """Grabs channel to send mod reports to and reads in the blacklist from db"""
+
         logger.info('[Ban load()] Attempting to get the #council-summary channel')
         self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council-summary")
         logger.info(f"[Ban info()] #Council-summary channel {'successfully' if self.mod_channel else 'not'} found")
@@ -49,6 +57,8 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
+        """Watches for users joining the guild and kicks and bans a user if they are banned"""
+
         if member.id in self.blacklist:
             logger.info(f"[Ban watchdog()] banned member, {member}, detected. Promply will notify and kick them.")
 
@@ -65,6 +75,8 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_member_ban')
     async def intercept(self, guild: discord.Guild, member: Union[discord.User, discord.Member]):
+        """Watches for a guild ban. The guild ban is undone and the user is banned via this ban system"""
+
         # need to read the audit log to grab mod, date, and reason
         logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
         try:
@@ -110,6 +122,8 @@ class Ban(commands.Cog):
 
     @commands.command()
     async def initban(self, ctx):
+        """Reads in all guild bans into this ban system"""
+
         logger.info(f"[Ban initban()] Initban command detected from {ctx.author}")
 
         try:
@@ -161,6 +175,8 @@ class Ban(commands.Cog):
 
     @commands.command()
     async def ban(self, ctx, *args):
+        """Bans a user from the guild"""
+
         logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args=[ {args} ]")
         args = list(args)
         mod_info = [ctx.author.name+'#'+ctx.author.discriminator, ctx.author.id]
@@ -240,6 +256,8 @@ class Ban(commands.Cog):
 
     @sync_to_async
     def del_banned_user_by_id(self, _id):
+        """Deletes single entry from banned_users by user_id """
+
         user = Banned_users.objects.filter(user_id=str(_id))[0]
         name = user.username
         user.delete()
@@ -247,6 +265,8 @@ class Ban(commands.Cog):
 
     @commands.command()
     async def unban(self, ctx, _id: int):
+        """Unbans a user"""
+
         logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {_id} ]")
         if _id not in self.blacklist:
             logger.info(f"Provided id: {_id}, does not belong to a banned member.")
@@ -271,6 +291,8 @@ class Ban(commands.Cog):
 
     @unban.error
     async def unban_error(self, ctx, error):
+        """Catches an error in unban when a non integer is passed in as an argument"""
+
         logger.info("[Ban Unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
         if isinstance(error, commands.BadArgument):
             e_obj = await em(ctx, title="Error",
@@ -282,10 +304,13 @@ class Ban(commands.Cog):
 
     @sync_to_async
     def get_all_bans(self):
+        """Gets list of all entries in banned_users"""
         return list(Banned_users.objects.values_list('username', 'user_id'))
 
     @commands.command()
     async def bans(self, ctx):
+        """Gets all banned users"""
+
         logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
 
         bans = await self.get_all_bans()
