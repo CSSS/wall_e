@@ -134,7 +134,7 @@ class Ban(commands.Cog):
                              ban.target.id,
                              ban.user.name+'#'+ban.user.discriminator,
                              ban.user.id,
-                             ban.created_at,
+                             pytz.utc.localize(ban.created_at),
                              ban.reason if ban.reason else 'No Reason Given!'
                              ])
 
