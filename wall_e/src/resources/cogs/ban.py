@@ -314,4 +314,5 @@ class Ban(commands.Cog):
             emb.add_field(name="Names", value=names, inline=True)
             emb.add_field(name="IDs", value=ids, inline=True)
             await ctx.send(embed=emb)
-        logger.info("[Ban bans()] done sending embeds with banned user lists")
+        await ctx.send(f"Total number of banned users: {len(bans)}")
+        logger.info("[Ban bans()] done sending embeds with banned user lists and total ban count")
