@@ -7,6 +7,7 @@ import pytz
 import re
 from typing import Union
 import logging
+from asgiref.sync import sync_to_async
 logger = logging.getLogger('wall_e')
 
 
@@ -18,14 +19,18 @@ class Ban(commands.Cog):
         self.blacklist = []
         self.errorColour = 0xA6192E
 
-    async def insert_ban(self, username, user_id):
+    @sync_to_async
+    def insert_ban(self, username, user_id):
         logger.info(f"[Ban insert_ban()] Adding banned user to Banned_user with values ({username, user_id})")
-        Banned_users(username, user_id).save()
+        Banned_users(username, str(user_id)).save()
 
-    async def insert_record(self, username, user_id, mod, mod_id, date, reason):
-        logger.info(f"[Ban insert_record()] Adding ban record to Ban_records with values \
-                    ({username, user_id, mod, mod_id, date, reason})")
-        Ban_records(username, user_id, mod, mod_id, date, reason).save()
+    @sync_to_async
+    def insert_record(self, username, user_id, mod, mod_id, date, reason):
+        logger.info(f"[Ban insert_record()] Adding ban record to Ban_records with values"+
+                    f"({username, user_id, mod, mod_id, date, reason})")
+
+        Ban_records(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
+                    reason=reason).save()
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
