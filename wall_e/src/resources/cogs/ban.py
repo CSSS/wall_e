@@ -286,26 +286,22 @@ class Ban(commands.Cog):
             if e_obj:
                 await ctx.send(embed=e_obj)
 
+    @sync_to_async
+    def get_all_bans(self):
+        return list(Banned_users.objects.values_list('username', 'user_id'))
+
     @commands.command()
     async def bans(self, ctx):
         logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
-        query = "SELECT * FROM banned_users;"
-        try:
-            logger.info(f"sql_query=[{query}]")
-            self.curs.execute(query)
-        except Exception as e:
-            logger.info(f"[Ban bans()] Encountered following sql error: {e}")
-            await ctx.send(f"Encountered the following sql error: {e}")
-            return
 
-        rows = self.curs.fetchall()
-        logger.info(f"[Ban bans()] retrieved all banned users: {rows}")
+        bans = await self.get_all_bans()
+        logger.info(f"[Ban bans()] retrieved all banned users: {bans}")
 
         emb = discord.Embed(title="Banned members", color=discord.Color.red())
 
         names = ""
         ids = ""
-        for row in rows:
+        for row in bans:
             name = row[0]
             _id = row[1]
             if len(names) + len(name) > 1024 or len(ids) + len(_id) > 1024:
