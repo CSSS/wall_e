@@ -341,7 +341,7 @@
 	"ban" : {
 		"class" : "Ban",
 		"access": "roles",
-		"roles" : [ "@Minions" ],
+		"roles" : [ "Minions" ],
 		"aliases": [ ],
 		"example": [
 			"`.ban @user they broke rules`",
