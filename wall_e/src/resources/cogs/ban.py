@@ -30,8 +30,8 @@ class Ban(commands.Cog):
     def insert_record(self, username, user_id, mod, mod_id, date, reason):
         """Adds entry to BanRecords table"""
 
-        logger.info(f"[Ban insert_record()] Adding ban record to BanRecords with values" +
-                    f"({username, user_id, mod, mod_id, date, reason})")
+        logger.info("[Ban insert_record()] Adding ban record to BanRecords with values" +
+                   f"({username, user_id, mod, mod_id, date, reason})")
 
         BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
                     reason=reason).save()

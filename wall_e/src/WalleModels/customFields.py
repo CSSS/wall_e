@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class FixedCharField(models.Field):
 
     description = "Fixed length char field. Equivalent to SQL `char(x)`. Fixed length is represented by \
