@@ -21,12 +21,14 @@ class BanRecords(models.Model):
         unique_together = ['user_id', 'date']
         db_table = 'WalleModels_ban_records'
 
+
 class BannedUsers(models.Model):
     username = models.CharField(max_length=32, null=False)
     user_id = FixedCharField(primary_key=True, max_length=18)
 
     class Meta:
         db_table = 'WalleModels_banned_users'
+
 
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(

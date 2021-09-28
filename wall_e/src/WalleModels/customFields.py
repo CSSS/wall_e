@@ -16,6 +16,7 @@ class FixedCharField(models.Field):
     def db_type(self, connection):
         return 'char(%s)' % self.max_length
 
+
 class GeneratedIdentityField(models.AutoField):
 
     description = "An Integer column which uses `GENERATED {ALWAYS | BY DEFAULT} AS IDENITY`. \
