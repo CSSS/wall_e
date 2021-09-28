@@ -32,21 +32,20 @@ class Ban(commands.Cog):
         Ban_records(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
                     reason=reason).save()
 
+    @sync_to_async
+    def get_banned_ids(self):
+        return list(map(int, (Banned_users.objects.values_list('user_id', flat=True))))
+
     @commands.Cog.listener(name='on_ready')
     async def load(self):
+        logger.info('[Ban load()] Attempting to get the #council-summary channel')
         self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council-summary")
+        logger.info(f"[Ban info()] #Council-summary channel {'successfully' if self.mod_channel else 'not'} found")
 
         # read in blacklist of banned users
-        try:
-            query = "SELECT user_id FROM Banned_users;"
-            logger.info(f"[Ban load()] sql_query=[ {query} ]")
-            self.curs.execute(query)
-        except Exception as e:
-            logger.info(f"[Ban load()] sql exception: {e}")
-
-        bans = self.curs.fetchall()
-        logger.info(f"[Ban load()] loaded the following banned users: {bans}")
-        self.blacklist = [int(ban[0]) for ban in bans]
+        logger.info('[Ban load] loading ban list from the database')
+        self.blacklist = await self.get_banned_ids()
+        logger.info(f"[Ban load()] loaded the following banned users: {self.blacklist}")
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
