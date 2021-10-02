@@ -83,7 +83,7 @@ class Ban(commands.Cog):
             audit_ban = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
-            await self.mod_channel(f"Encountered following error while intercepting a ban: {e}\n" +
+            await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                    "**Most likely need view audit log perms.**")
             return
         audit_ban = audit_ban[0]
