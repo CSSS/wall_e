@@ -84,7 +84,7 @@ class Ban(commands.Cog):
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
-                                   "**Most likely need view audit log perms.**")
+                                        "**Most likely need view audit log perms.**")
             return
         audit_ban = audit_ban[0]
         logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
