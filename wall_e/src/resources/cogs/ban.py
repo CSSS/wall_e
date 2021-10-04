@@ -27,16 +27,6 @@ class Ban(commands.Cog):
         BannedUsers(username, str(user_id)).save()
 
     @sync_to_async
-    def insert_record(self, username, user_id, mod, mod_id, date, reason):
-        """Adds entry to BanRecords table"""
-
-        logger.info("[Ban insert_record()] Adding ban record to BanRecords with values" +
-                    f"({username, user_id, mod, mod_id, date, reason})")
-
-        BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
-                   reason=reason).save()
-
-    @sync_to_async
     def get_banned_ids(self):
         """Gets list of all user_ids from BannedUsers table"""
 
@@ -100,7 +90,7 @@ class Ban(commands.Cog):
         # update blacklist and db
         self.banlist.append(member.id)
         await self.insert_ban(username, member.id)
-        await self.insert_record(username, member.id, mod, mod_id, date, reason)
+        await BanRecords.insert_record(username, member.id, mod, mod_id, date, reason)
 
         # unban
         await self.bot.guilds[0].unban(member)
@@ -170,7 +160,7 @@ class Ban(commands.Cog):
                 self.banlist.append(ban[1])
                 await self.insert_ban(ban[0], ban[1])
 
-            await self.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
+            await BanRecords.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
         await ctx.send(f"{len(ban_data)} moved from guild bans to db.")
         logger.info(f"[Ban initban()] total of {len(ban_data)} bans moved into db")
 
@@ -253,7 +243,7 @@ class Ban(commands.Cog):
 
             # update db
             await self.insert_ban(username, user.id)
-            await self.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
+            await BanRecords.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
 
     @sync_to_async
     def del_banned_user_by_id(self, _id):

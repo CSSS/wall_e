@@ -7,7 +7,8 @@ from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
 from .customFields import FixedCharField, GeneratedIdentityField
-
+import logging
+logger = logging.getLogger('wall_e')
 
 class BanRecords(models.Model):
     ban_id = GeneratedIdentityField(primary_key=True, always=True)
@@ -21,6 +22,17 @@ class BanRecords(models.Model):
     class Meta:
         unique_together = ['user_id', 'date']
         db_table = 'WalleModels_ban_records'
+
+    @classmethod
+    @sync_to_async
+    def insert_record(self, username, user_id, mod, mod_id, date, reason):
+        """Adds entry to BanRecords table"""
+
+        logger.info("[BanRecords insert_record()] Adding ban record to BanRecords with values" +
+                    f"({username, user_id, mod, mod_id, date, reason})")
+
+        BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
+                   reason=reason).save()
 
 
 class BannedUsers(models.Model):
