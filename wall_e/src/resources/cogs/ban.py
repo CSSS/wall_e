@@ -45,10 +45,11 @@ class Ban(commands.Cog):
     @commands.Cog.listener(name='on_ready')
     async def load(self):
         """Grabs channel to send mod reports to and reads in the blacklist from db"""
+        report_channel = self.config.get_config_value('basic_config', 'COUNCIL_REPORT_CHANNEL')
+        logger.info(f'[Ban load()] Attempting to get the report channel: {report_channel}')
 
-        logger.info('[Ban load()] Attempting to get the #council-summary channel')
-        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name="council-summary")
-        logger.info(f"[Ban info()] #Council-summary channel {'successfully' if self.mod_channel else 'not'} found")
+        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=report_channel)
+        logger.info(f"[Ban info()] #{report_channel} channel {'successfully' if self.mod_channel else 'not'} found")
 
         # read in blacklist of banned users
         logger.info('[Ban load] loading ban list from the database')
