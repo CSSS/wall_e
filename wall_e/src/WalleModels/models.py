@@ -25,7 +25,7 @@ class BanRecords(models.Model):
 
     @classmethod
     @sync_to_async
-    def insert_record(self, username, user_id, mod, mod_id, date, reason):
+    def insert_record(cls, username, user_id, mod, mod_id, date, reason):
         """Adds entry to BanRecords table"""
 
         logger.info("[BanRecords insert_record()] Adding ban record to with values" +
@@ -44,7 +44,7 @@ class BannedUsers(models.Model):
 
     @classmethod
     @sync_to_async
-    def insert_ban(self, username, user_id):
+    def insert_ban(cls, username, user_id):
         """Adds entry to BannedUsers table"""
 
         logger.info(f"[BannedUsers insert_ban()] Adding banned user to with values ({username, user_id})")
@@ -52,14 +52,14 @@ class BannedUsers(models.Model):
 
     @classmethod
     @sync_to_async
-    def get_banned_ids(self):
+    def get_banned_ids(cls):
         """Gets list of all user_ids from BannedUsers table"""
 
         return list(map(int, (BannedUsers.objects.values_list('user_id', flat=True))))
 
     @classmethod
     @sync_to_async
-    def del_banned_user_by_id(self, _id):
+    def del_banned_user_by_id(cls, _id):
         """Deletes single entry from BannedUsers by user_id """
 
         user = BannedUsers.objects.filter(user_id=str(_id))[0]
@@ -69,7 +69,7 @@ class BannedUsers(models.Model):
 
     @classmethod
     @sync_to_async
-    def get_all_bans(self):
+    def get_all_bans(cls):
         """Gets list of all entries in BannedUsers"""
         return list(BannedUsers.objects.values_list('username', 'user_id'))
 

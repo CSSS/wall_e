@@ -7,7 +7,6 @@ import pytz
 import re
 from typing import Union
 import logging
-from asgiref.sync import sync_to_async
 logger = logging.getLogger('wall_e')
 
 
