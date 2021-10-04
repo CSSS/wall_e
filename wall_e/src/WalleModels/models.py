@@ -10,6 +10,7 @@ from .customFields import FixedCharField, GeneratedIdentityField
 import logging
 logger = logging.getLogger('wall_e')
 
+
 class BanRecords(models.Model):
     ban_id = GeneratedIdentityField(primary_key=True, always=True)
     username = models.CharField(max_length=32, null=False)
