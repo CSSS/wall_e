@@ -28,7 +28,7 @@ class BanRecords(models.Model):
     def insert_record(self, username, user_id, mod, mod_id, date, reason):
         """Adds entry to BanRecords table"""
 
-        logger.info("[BanRecords insert_record()] Adding ban record to BanRecords with values" +
+        logger.info("[BanRecords insert_record()] Adding ban record to with values" +
                     f"({username, user_id, mod, mod_id, date, reason})")
 
         BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
@@ -42,6 +42,13 @@ class BannedUsers(models.Model):
     class Meta:
         db_table = 'WalleModels_banned_users'
 
+    @classmethod
+    @sync_to_async
+    def insert_ban(self, username, user_id):
+        """Adds entry to BannedUsers table"""
+
+        logger.info(f"[BannedUsers insert_ban()] Adding banned user to with values ({username, user_id})")
+        BannedUsers(username, str(user_id)).save()
 
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(

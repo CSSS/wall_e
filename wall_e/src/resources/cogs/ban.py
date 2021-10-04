@@ -20,13 +20,6 @@ class Ban(commands.Cog):
         self.errorColour = 0xA6192E
 
     @sync_to_async
-    def insert_ban(self, username, user_id):
-        """Adds entry to BannedUsers table"""
-
-        logger.info(f"[Ban insert_ban()] Adding banned user to Banned_user with values ({username, user_id})")
-        BannedUsers(username, str(user_id)).save()
-
-    @sync_to_async
     def get_banned_ids(self):
         """Gets list of all user_ids from BannedUsers table"""
 
@@ -89,7 +82,7 @@ class Ban(commands.Cog):
 
         # update blacklist and db
         self.banlist.append(member.id)
-        await self.insert_ban(username, member.id)
+        await BannedUsers.insert_ban(username, member.id)
         await BanRecords.insert_record(username, member.id, mod, mod_id, date, reason)
 
         # unban
@@ -158,7 +151,7 @@ class Ban(commands.Cog):
         for ban in ban_data:
             if ban[1] in ban_ids:
                 self.banlist.append(ban[1])
-                await self.insert_ban(ban[0], ban[1])
+                await BannedUsers.insert_ban(ban[0], ban[1])
 
             await BanRecords.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
         await ctx.send(f"{len(ban_data)} moved from guild bans to db.")
@@ -242,7 +235,7 @@ class Ban(commands.Cog):
             logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
 
             # update db
-            await self.insert_ban(username, user.id)
+            await BannedUsers.insert_ban(username, user.id)
             await BanRecords.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
 
     @sync_to_async
