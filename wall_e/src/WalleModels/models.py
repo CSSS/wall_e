@@ -57,6 +57,16 @@ class BannedUsers(models.Model):
 
         return list(map(int, (BannedUsers.objects.values_list('user_id', flat=True))))
 
+    @classmethod
+    @sync_to_async
+    def del_banned_user_by_id(self, _id):
+        """Deletes single entry from BannedUsers by user_id """
+
+        user = BannedUsers.objects.filter(user_id=str(_id))[0]
+        name = user.username
+        user.delete()
+        return name
+
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(
         primary_key=True

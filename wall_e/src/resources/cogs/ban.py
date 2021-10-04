@@ -232,15 +232,6 @@ class Ban(commands.Cog):
             await BannedUsers.insert_ban(username, user.id)
             await BanRecords.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
 
-    @sync_to_async
-    def del_banned_user_by_id(self, _id):
-        """Deletes single entry from BannedUsers by user_id """
-
-        user = BannedUsers.objects.filter(user_id=str(_id))[0]
-        name = user.username
-        user.delete()
-        return name
-
     @commands.command()
     async def unban(self, ctx, _id: int):
         """Unbans a user"""
@@ -260,7 +251,7 @@ class Ban(commands.Cog):
         # "unban"
         self.banlist.remove(_id)
 
-        name = await self.del_banned_user_by_id(_id)
+        name = await BannedUsers.del_banned_user_by_id(_id)
 
         logger.info(f"[Ban unban()] User: {name} with id: {_id} was unbanned.")
         e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())
