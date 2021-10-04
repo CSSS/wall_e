@@ -19,12 +19,6 @@ class Ban(commands.Cog):
         self.banlist = []
         self.errorColour = 0xA6192E
 
-    @sync_to_async
-    def get_banned_ids(self):
-        """Gets list of all user_ids from BannedUsers table"""
-
-        return list(map(int, (BannedUsers.objects.values_list('user_id', flat=True))))
-
     @commands.Cog.listener(name='on_ready')
     async def load(self):
         """Grabs channel to send mod reports to and reads in the blacklist from db"""
@@ -36,7 +30,7 @@ class Ban(commands.Cog):
 
         # read in blacklist of banned users
         logger.info('[Ban load] loading ban list from the database')
-        self.banlist = await self.get_banned_ids()
+        self.banlist = await BannedUsers.get_banned_ids()
         logger.info(f"[Ban load()] loaded the following banned users: {self.banlist}")
 
     @commands.Cog.listener(name='on_member_join')

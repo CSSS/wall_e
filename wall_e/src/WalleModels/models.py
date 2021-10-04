@@ -50,6 +50,13 @@ class BannedUsers(models.Model):
         logger.info(f"[BannedUsers insert_ban()] Adding banned user to with values ({username, user_id})")
         BannedUsers(username, str(user_id)).save()
 
+    @classmethod
+    @sync_to_async
+    def get_banned_ids(self):
+        """Gets list of all user_ids from BannedUsers table"""
+
+        return list(map(int, (BannedUsers.objects.values_list('user_id', flat=True))))
+
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(
         primary_key=True
