@@ -16,7 +16,7 @@ class Ban(commands.Cog):
     def __init__(self, bot, config):
         self.bot = bot
         self.config = config
-        self.blacklist = []
+        self.banlist = []
         self.errorColour = 0xA6192E
 
     @sync_to_async
@@ -52,14 +52,14 @@ class Ban(commands.Cog):
 
         # read in blacklist of banned users
         logger.info('[Ban load] loading ban list from the database')
-        self.blacklist = await self.get_banned_ids()
-        logger.info(f"[Ban load()] loaded the following banned users: {self.blacklist}")
+        self.banlist = await self.get_banned_ids()
+        logger.info(f"[Ban load()] loaded the following banned users: {self.banlist}")
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
         """Watches for users joining the guild and kicks and bans a user if they are banned"""
 
-        if member.id in self.blacklist:
+        if member.id in self.banlist:
             logger.info(f"[Ban watchdog()] banned member, {member}, detected. Promply will notify and kick them.")
 
             e_obj = discord.Embed(title="Ban Notification",
@@ -97,7 +97,7 @@ class Ban(commands.Cog):
         reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
 
         # update blacklist and db
-        self.blacklist.append(member.id)
+        self.banlist.append(member.id)
         await self.insert_ban(username, member.id)
         await self.insert_record(username, member.id, mod, mod_id, date, reason)
 
@@ -166,7 +166,7 @@ class Ban(commands.Cog):
         # push to db and blacklist
         for ban in ban_data:
             if ban[1] in ban_ids:
-                self.blacklist.append(ban[1])
+                self.banlist.append(ban[1])
                 await self.insert_ban(ban[0], ban[1])
 
             await self.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
@@ -208,7 +208,7 @@ class Ban(commands.Cog):
             logger.info(f"[Ban ban()] Banning {username} with id {user.id}")
 
             # add to blacklist
-            self.blacklist.append(user.id)
+            self.banlist.append(user.id)
 
             # dm banned user
             e_obj = discord.Embed(title="Ban Notification",
@@ -268,7 +268,7 @@ class Ban(commands.Cog):
         """Unbans a user"""
 
         logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {_id} ]")
-        if _id not in self.blacklist:
+        if _id not in self.banlist:
             logger.info(f"Provided id: {_id}, does not belong to a banned member.")
             e_obj = await em(ctx, title="Error",
                              content=[("Problem",
@@ -280,7 +280,7 @@ class Ban(commands.Cog):
             return
 
         # "unban"
-        self.blacklist.remove(_id)
+        self.banlist.remove(_id)
 
         name = await self.del_banned_user_by_id(_id)
 
