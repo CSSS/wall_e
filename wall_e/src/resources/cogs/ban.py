@@ -108,7 +108,7 @@ class Ban(commands.Cog):
             bans = await self.bot.guilds[0].bans()
         except Exception as e:
             logger.info(f'[Ban initban()] error while fetching ban data: {e}')
-            await ctx.send(f"Encountered the following sql errors: {e}\n**Most likely need view audit log perms.**")
+            await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
             return
 
         logger.info(f"[Ban initban()] retrieved audit log data for ban actions: {audit_logs}")
