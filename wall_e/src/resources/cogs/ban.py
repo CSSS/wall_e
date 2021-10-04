@@ -271,18 +271,13 @@ class Ban(commands.Cog):
             if e_obj:
                 await ctx.send(embed=e_obj)
 
-    @sync_to_async
-    def get_all_bans(self):
-        """Gets list of all entries in BannedUsers"""
-        return list(BannedUsers.objects.values_list('username', 'user_id'))
-
     @commands.command()
     async def bans(self, ctx):
         """Gets all banned users"""
 
         logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
 
-        bans = await self.get_all_bans()
+        bans = await BannedUsers.get_all_bans()
         logger.info(f"[Ban bans()] retrieved all banned users: {bans}")
 
         emb = discord.Embed(title="Banned members", color=discord.Color.red())

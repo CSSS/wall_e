@@ -67,6 +67,13 @@ class BannedUsers(models.Model):
         user.delete()
         return name
 
+    @classmethod
+    @sync_to_async
+    def get_all_bans(self):
+        """Gets list of all entries in BannedUsers"""
+        return list(BannedUsers.objects.values_list('username', 'user_id'))
+
+
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(
         primary_key=True
