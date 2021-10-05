@@ -32,7 +32,7 @@ class Ban(commands.Cog):
             if self.mod_channel:
                 logger.info(f"[Ban load()] #{mod_channel} channel successfully found: {self.mod_channel}")
             else:
-                logging.info(f"[Ban load()] Couldn't retrieve {mod_channel} from guild. Channel doesn't exist. Exiting.")
+                logging.info(f"[Ban load()] Couldn't get {mod_channel} from guild. Channel doesn't exist. Exiting.")
                 exit(-1)
 
         # read in ban_list of banned users
