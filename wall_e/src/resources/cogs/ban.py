@@ -106,7 +106,7 @@ class Ban(commands.Cog):
         username = member.name + '#' + member.discriminator
         mod = audit_ban.user.name + '#' + audit_ban.user.discriminator
         mod_id = audit_ban.user.id
-        date = audit_ban.created_at
+        date = pytz.utc.localize(audit_ban.created_at)
         reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
 
         # update ban_list and db
