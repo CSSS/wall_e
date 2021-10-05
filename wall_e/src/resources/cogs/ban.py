@@ -20,14 +20,14 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
-        """Grabs channel to send mod reports to and reads in the blacklist from db"""
+        """Grabs channel to send mod reports to and reads in the ban_list from db"""
         report_channel = self.config.get_config_value('basic_config', 'COUNCIL_REPORT_CHANNEL')
         logger.info(f'[Ban load()] Attempting to get the report channel: {report_channel}')
 
         self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=report_channel)
         logger.info(f"[Ban info()] #{report_channel} channel {'successfully' if self.mod_channel else 'not'} found")
 
-        # read in blacklist of banned users
+        # read in ban_list of banned users
         logger.info('[Ban load] loading ban list from the database')
         self.ban_list = await BannedUsers.get_banned_ids()
         logger.info(f"[Ban load()] loaded the following banned users: {self.ban_list}")
@@ -73,7 +73,7 @@ class Ban(commands.Cog):
         date = audit_ban.created_at
         reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
 
-        # update blacklist and db
+        # update ban_list and db
         self.ban_list.append(member.id)
         await BannedUsers.insert_ban(username, member.id)
         await BanRecords.insert_record(username, member.id, mod, mod_id, date, reason)
@@ -140,7 +140,7 @@ class Ban(commands.Cog):
                              'No Reason Given!'
                              ])
 
-        # push to db and blacklist
+        # push to db and ban_list
         for ban in ban_data:
             if ban[1] in ban_ids:
                 self.ban_list.append(ban[1])
@@ -184,7 +184,7 @@ class Ban(commands.Cog):
             username = user.name + '#' + user.discriminator
             logger.info(f"[Ban ban()] Banning {username} with id {user.id}")
 
-            # add to blacklist
+            # add to ban_list
             self.ban_list.append(user.id)
 
             # dm banned user
