@@ -25,7 +25,7 @@ class Ban(commands.Cog):
         logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel}')
 
         self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=mod_channel)
-        if self.mod_channel
+        if self.mod_channel:
             logger.info(f"[Ban load()] #{mod_channel} channel successfully found: {self.mod_channel}")
         else:
             logging.info(f"[Ban load()] Couldn't retrieve {mod_channel} from guild. Channel doesn't exist. Exiting.")
