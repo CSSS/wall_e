@@ -77,7 +77,7 @@ class Ban(commands.Cog):
 
             e_obj = discord.Embed(title="Ban Notification",
                                   color=discord.Color.red(),
-                                  timestamp=datetime.datetime.now(pytz.timezone('Canada/Pacific'))
+                                  timestamp=datetime.datetime.now(pytz.utc)
                                   )
             e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.bot.guilds[0]}\n\n"
                             "You may NOT rejoin the guild!**")
@@ -129,7 +129,7 @@ class Ban(commands.Cog):
         e_obj.set_footer(text="Intercepted Moderator Action")
 
         if e_obj:
-            e_obj.timestamp = date.astimezone(pytz.timezone('Canada/Pacific'))
+            e_obj.timestamp = date
             await self.mod_channel.send(embed=e_obj)
         logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
 
@@ -230,7 +230,7 @@ class Ban(commands.Cog):
                                   description="**You've been PERMANENTLY BANNED from" +
                                               f"{self.bot.guilds[0].name.upper()}.**",
                                   color=discord.Color.red(),
-                                  timestamp=datetime.datetime.now(pytz.timezone('Canada/Pacific')))
+                                  timestamp=datetime.datetime.now(pytz.utc))
 
             e_obj.add_field(name='Reason',
                             value=f"```{reason}```\n" +
@@ -261,7 +261,7 @@ class Ban(commands.Cog):
                             inline=False)
             e_obj.set_footer(text="Moderator Action")
             if e_obj:
-                e_obj.timestamp = dt.astimezone(pytz.timezone('Canada/Pacific'))
+                e_obj.timestamp = dt
                 await self.mod_channel.send(embed=e_obj)
             logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
 
