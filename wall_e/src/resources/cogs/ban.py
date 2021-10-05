@@ -21,20 +21,52 @@ class Ban(commands.Cog):
     @commands.Cog.listener(name='on_ready')
     async def load(self):
         """Grabs channel to send mod reports to and reads in the ban_list from db"""
-        mod_channel = self.config.get_config_value('basic_config', 'COUNCIL_REPORT_CHANNEL')
-        logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel}')
 
-        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=mod_channel)
-        if self.mod_channel:
-            logger.info(f"[Ban load()] #{mod_channel} channel successfully found: {self.mod_channel}")
+        mod_channel = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+            await self.make_mod_channel()
         else:
-            logging.info(f"[Ban load()] Couldn't retrieve {mod_channel} from guild. Channel doesn't exist. Exiting.")
-            exit(-1)
+            logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel}')
+
+            self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=mod_channel)
+            if self.mod_channel:
+                logger.info(f"[Ban load()] #{mod_channel} channel successfully found: {self.mod_channel}")
+            else:
+                logging.info(f"[Ban load()] Couldn't retrieve {mod_channel} from guild. Channel doesn't exist. Exiting.")
+                exit(-1)
 
         # read in ban_list of banned users
         logger.info('[Ban load] loading ban list from the database')
         self.ban_list = await BannedUsers.get_banned_ids()
         logger.info(f"[Ban load()] loaded the following banned users: {self.ban_list}")
+
+    async def make_mod_channel(self):
+        """Create the mod channel for the staging server"""
+
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+            logger.info(
+                    "[Ban load()] branch is "
+                    f"=[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}]"
+                )
+            self.mod_channel = discord.utils.get(
+                self.bot.guilds[0].channels,
+                name=f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_mod_channel"
+            )
+            if self.mod_channel is None:
+                self.mod_channel = await self.bot.guilds[0].create_text_channel(
+                    f"{self.config.get_config_value('basic_config', 'BRANCH_NAME')}_mod_channel"
+                )
+                mod_channel_id = self.mod_channel.id
+                if mod_channel_id is None:
+                    logger.info(
+                        "[Ban load()] the channel designated for mod reports "
+                        f"[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}_mod_channel] "
+                        f"in {self.config.get_config_value('basic_config', 'BRANCH_NAME')} "
+                        "does not exist and I was unable to create it, exiting now...."
+                    )
+                    exit(1)
+                logger.info("[Ban load()] variable "
+                            f"\"mod_channel_id\" is set to \"{mod_channel_id}\"")
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
