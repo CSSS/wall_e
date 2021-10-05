@@ -108,6 +108,8 @@ class Ban(commands.Cog):
         logger.info(f"[Ban initban()] Initban command detected from {ctx.author}")
 
         try:
+            # audit logs contains info about user who did the banning, the timestamp of the ban, and the reason
+            # however audit logs only go back 3 months, so have to read older bans from the bans list
             audit_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
             bans = await self.bot.guilds[0].bans()
         except Exception as e:
