@@ -17,13 +17,14 @@ class Ban(commands.Cog):
         self.config = config
         self.ban_list = []
         self.errorColour = 0xA6192E
+        self.mod_channel = None
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
         """Grabs channel to send mod reports to and reads in the ban_list from db"""
 
         mod_channel = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'PRODUCTION':
             await self.make_mod_channel()
         else:
             logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel}')
@@ -32,41 +33,42 @@ class Ban(commands.Cog):
             if self.mod_channel:
                 logger.info(f"[Ban load()] #{mod_channel} channel successfully found: {self.mod_channel}")
             else:
-                logging.info(f"[Ban load()] Couldn't get {mod_channel} from guild. Channel doesn't exist. Exiting.")
-                exit(-1)
+                logger.info(f"[Ban load()] Couldn't get {mod_channel} from guild. Channel doesn't exist. Exiting.")
+                exit('no mod channel')
 
         # read in ban_list of banned users
-        logger.info('[Ban load] loading ban list from the database')
+        logger.info('[Ban load()] loading ban list from the database')
         self.ban_list = await BannedUsers.get_banned_ids()
         logger.info(f"[Ban load()] loaded the following banned users: {self.ban_list}")
 
     async def make_mod_channel(self):
-        """Create the mod channel for the staging server"""
+        """When ENVIRONMENT is TEST or LOCALHOST: Attempts to get channel for mod report.
+        If it doesn't exist attempts to create it, and if that fails then it exits"""
 
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-            logger.info(
-                    "[Ban load()] branch is "
-                    f"=[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}]"
+        env = self.config.get_config_value('basic_config', 'ENVIRONMENT')
+
+        if  env == 'TEST':
+            branch = self.config.get_config_value('basic_config', 'BRANCH_NAME')
+            channel_name = f"{branch}_mod_channel"
+        elif env == 'LOCALHOST':
+            channel_name = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
+
+        logger.info(f"[Ban make_mod_channel()] mod channel is =[{channel_name}]")
+        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels,name=channel_name.lower())
+
+        if self.mod_channel is None:
+            self.mod_channel = await self.bot.guilds[0].create_text_channel(channel_name)
+
+            mod_channel_id = self.mod_channel.id
+            if mod_channel_id is None:
+                logger.info(
+                    f"[Ban make_mod_channel()] the channel designated for mod reports [{channel_name}] "
+                    f"in {branch if env == 'TEST' else env +' server'} does not exist and I was unable to create it, "
+                    "exiting now...."
                 )
-            self.mod_channel = discord.utils.get(
-                self.bot.guilds[0].channels,
-                name=f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_mod_channel"
-            )
-            if self.mod_channel is None:
-                self.mod_channel = await self.bot.guilds[0].create_text_channel(
-                    f"{self.config.get_config_value('basic_config', 'BRANCH_NAME')}_mod_channel"
-                )
-                mod_channel_id = self.mod_channel.id
-                if mod_channel_id is None:
-                    logger.info(
-                        "[Ban load()] the channel designated for mod reports "
-                        f"[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}_mod_channel] "
-                        f"in {self.config.get_config_value('basic_config', 'BRANCH_NAME')} "
-                        "does not exist and I was unable to create it, exiting now...."
-                    )
-                    exit(1)
-                logger.info("[Ban load()] variable "
-                            f"\"mod_channel_id\" is set to \"{mod_channel_id}\"")
+                exit(1)
+            logger.info(f"[Ban make_mod_channel()] mod channel successfully created [{self.mod_channel}]")
+            await self.mod_channel.send('this is a public channel, set to private as you see fit to match prod.')
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
