@@ -144,22 +144,22 @@ class Ban(commands.Cog):
         try:
             # audit logs contains info about user who did the banning, the timestamp of the ban, and the reason
             # however audit logs only go back 3 months, so have to read older bans from the bans list
-            audit_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+            ban_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
             bans = await self.bot.guilds[0].bans()
         except Exception as e:
             logger.info(f'[Ban initban()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
             return
 
-        logger.info(f"[Ban initban()] retrieved audit log data for ban actions: {audit_logs}")
+        logger.info(f"[Ban initban()] retrieved audit log data for ban actions: {ban_logs}")
         logger.info(f"[Ban initban()] retrieved ban list from guild: {bans}")
 
         logger.info("[Ban initban()] Starting process to move all guild bans into db")
         ban_ids = [ban.user.id for ban in bans]
         ban_data = []
-        audit_users = []
-        for ban in audit_logs:
-            audit_users.append(ban.target.id)
+        banned_users = []
+        for ban in ban_logs:
+            banned_users.append(ban.target.id)
 
             ban_data.append([ban.target.name+'#'+ban.target.discriminator,
                              ban.target.id,
@@ -170,15 +170,14 @@ class Ban(commands.Cog):
                              ])
 
         for ban in bans:
-            if ban.user.id in audit_users:
-                continue
-            ban_data.append([ban.user.name+'#'+ban.user.discriminator,
-                             ban.user.id,
-                             None,
-                             None,
-                             None,
-                             'No Reason Given!'
-                             ])
+            if ban.user.id not in banned_users:
+                ban_data.append([ban.user.name+'#'+ban.user.discriminator,
+                                ban.user.id,
+                                None,
+                                None,
+                                None,
+                                'No Reason Given!'
+                                ])
 
         # push to db and ban_list
         for ban in ban_data:
@@ -272,15 +271,15 @@ class Ban(commands.Cog):
             await BanRecords.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
 
     @commands.command()
-    async def unban(self, ctx, _id: int):
+    async def unban(self, ctx, user_id: int):
         """Unbans a user"""
 
-        logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {_id} ]")
-        if _id not in self.ban_list:
-            logger.info(f"Provided id: {_id}, does not belong to a banned member.")
+        logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
+        if user_id not in self.ban_list:
+            logger.info(f"Provided id: {user_id}, does not belong to a banned member.")
             e_obj = await em(ctx, title="Error",
                              content=[("Problem",
-                                       f"`{_id}` is either not a valid Discord ID **OR** is not a banned user.")],
+                                       f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")],
                              colour=self.errorColour,
                              footer="Command Error")
             if e_obj:
@@ -288,11 +287,11 @@ class Ban(commands.Cog):
             return
 
         # "unban"
-        self.ban_list.remove(_id)
+        self.ban_list.remove(user_id)
 
-        name = await BannedUsers.del_banned_user_by_id(_id)
+        name = await BannedUsers.del_banned_user_by_id(user_id)
 
-        logger.info(f"[Ban unban()] User: {name} with id: {_id} was unbanned.")
+        logger.info(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
         e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())
         if e_obj:
             await self.mod_channel.send(embed=e_obj)
@@ -323,10 +322,10 @@ class Ban(commands.Cog):
 
         names = ""
         ids = ""
-        for row in bans:
-            name = row[0]
-            _id = row[1]
-            if len(names) + len(name) > 1024 or len(ids) + len(_id) > 1024:
+        for ban in bans:
+            name = ban[0]
+            user_id = ban[1]
+            if len(names) + len(name) > 1024 or len(ids) + len(user_id) > 1024:
                 emb.add_field(name="Names", value=names, inline=True)
                 emb.add_field(name="IDs", value=ids, inline=True)
                 await ctx.send(embed=emb)
@@ -335,7 +334,7 @@ class Ban(commands.Cog):
                 ids = ""
 
             names += f"{name}\n"
-            ids += f"{_id}\n"
+            ids += f"{user_id}\n"
 
         # send out the last bit, if not empy
         if names:
