@@ -16,7 +16,7 @@ class Ban(commands.Cog):
         self.bot = bot
         self.config = config
         self.ban_list = []
-        self.errorColour = 0xA6192E
+        self.error_colour = 0xA6192E
         self.mod_channel = None
 
     @commands.Cog.listener(name='on_ready')
@@ -202,7 +202,7 @@ class Ban(commands.Cog):
             logger.info("[Ban ban()] No users were @ mentioned in the args")
             e_obj = await em(ctx=ctx, title="Invalid Arguments",
                              content=[("Error", "Please @ mention the user(s) to ban")],
-                             colour=self.errorColour,
+                             colour=self.error_colour,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
@@ -280,7 +280,7 @@ class Ban(commands.Cog):
             e_obj = await em(ctx, title="Error",
                              content=[("Problem",
                                        f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")],
-                             colour=self.errorColour,
+                             colour=self.error_colour,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
@@ -304,7 +304,7 @@ class Ban(commands.Cog):
         if isinstance(error, commands.BadArgument):
             e_obj = await em(ctx, title="Error",
                              content=[("Problem", "Please enter a numerical Discord ID.")],
-                             colour=self.errorColour,
+                             colour=self.error_colour,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
