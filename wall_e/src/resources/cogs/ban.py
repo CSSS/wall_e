@@ -213,7 +213,7 @@ class Ban(commands.Cog):
         logger.info(f"[Ban ban()] list of user to be banned={users_to_ban}")
 
         # construct reason, but first remove @'s from the args
-        reason = ''.join([i+' ' for i in args if not re.match(r'<@!?[0-9]*>', i)])
+        reason = ' '.join([i for i in args if not re.match(r'<@!?[0-9]*>', i)])
         reason = reason if reason else "No Reason Given!"
         logger.info(f"[Ban ban()] reason for ban(s)={reason}")
 
