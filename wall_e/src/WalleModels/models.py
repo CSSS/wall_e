@@ -78,7 +78,7 @@ class BannedUsers(models.Model):
         return list(BannedUsers.objects.all())
 
     def __str__(self) -> str:
-        return f"<BannedUsers Object username=[{self.username}] user_id=[{self.user_id}]>"
+        return f"username=[{self.username}] user_id=[{self.user_id}]"
 
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(
