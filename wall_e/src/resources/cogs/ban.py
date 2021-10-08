@@ -151,6 +151,13 @@ class Ban(commands.Cog):
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
             return
 
+        if not bans:
+            logger.info("[Ban initban()] No bans to migrate into the ban system from guild. "
+                        "Sening message and ending command."
+            )
+            await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
+            return
+
         logger.info(f"[Ban initban()] retrieved audit log data for ban actions: {ban_logs}")
         logger.info(f"[Ban initban()] retrieved ban list from guild: {bans}")
 
