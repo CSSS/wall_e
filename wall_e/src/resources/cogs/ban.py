@@ -47,14 +47,14 @@ class Ban(commands.Cog):
 
         env = self.config.get_config_value('basic_config', 'ENVIRONMENT')
 
-        if  env == 'TEST':
+        if env == 'TEST':
             branch = self.config.get_config_value('basic_config', 'BRANCH_NAME')
             channel_name = f"{branch}_mod_channel"
         elif env == 'LOCALHOST':
             channel_name = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
 
         logger.info(f"[Ban make_mod_channel()] mod channel is =[{channel_name}]")
-        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels,name=channel_name.lower())
+        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=channel_name.lower())
 
         if self.mod_channel is None:
             self.mod_channel = await self.bot.guilds[0].create_text_channel(channel_name)
@@ -154,7 +154,7 @@ class Ban(commands.Cog):
         if not bans:
             logger.info("[Ban initban()] No bans to migrate into the ban system from guild. "
                         "Sening message and ending command."
-            )
+                        )
             await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
             return
 
@@ -184,7 +184,7 @@ class Ban(commands.Cog):
                                 None,
                                 None,
                                 'No Reason Given!'
-                                ])
+                                 ])
 
         # push to db and ban_list
         for ban in ban_data:
