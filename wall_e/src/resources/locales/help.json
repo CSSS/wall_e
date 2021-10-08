@@ -377,5 +377,17 @@
 		"description": [
 			"Lists the `username` and `user_id` of all banned users from the guild."
 		 ]
+	},
+	"purgebans" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases": [ ],
+		"example": [
+			"`.purgebans`"
+		],
+		"description": [
+			"Clears the ban list on the guild."
+		 ]
 	}
 }

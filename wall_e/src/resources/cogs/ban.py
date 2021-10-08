@@ -350,3 +350,18 @@ class Ban(commands.Cog):
             await ctx.send(embed=emb)
         await ctx.send(f"Total number of banned users: {len(bans)}")
         logger.info("[Ban bans()] done sending embeds with banned user lists and total ban count")
+
+    @commands.command()
+    async def purgebans(self, ctx):
+        """Clears the ban list on the guild."""
+
+        logger.info(f"[Ban purgebans()] purgebans command detected from {ctx.author}")
+
+        banned_users = await self.bot.guilds[0].bans()
+        logger.info(f"[Ban purgebans()] Retrieved list of banned users from guild: {banned_users}")
+
+        for user in banned_users:
+            logger.info(f"[Ban purgebans()] Unbanning user: {user}")
+            await self.bot.guilds[0].unban(user)
+
+        await ctx.send(f"**BAN LIST PURGED**\n Total # of users unbanned: {len(banned_users)}")
