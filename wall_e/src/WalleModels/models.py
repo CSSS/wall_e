@@ -72,7 +72,7 @@ class BannedUsers(models.Model):
     @sync_to_async
     def get_all_bans(cls):
         """Gets list of all entries in BannedUsers"""
-        return list(BannedUsers.objects.values_list('username', 'user_id'))
+        return list(BannedUsers.objects.all())
 
     def __str__(self) -> str:
         return f"<BannedUsers Object username=[{self.username}] user_id=[{self.user_id}]>"

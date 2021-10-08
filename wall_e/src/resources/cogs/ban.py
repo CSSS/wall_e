@@ -331,8 +331,8 @@ class Ban(commands.Cog):
         names = ""
         ids = ""
         for ban in bans:
-            name = ban[0]
-            user_id = ban[1]
+            name = ban.username
+            user_id = ban.user_id
             if len(names) + len(name) > 1024 or len(ids) + len(user_id) > 1024:
                 emb.add_field(name="Names", value=names, inline=True)
                 emb.add_field(name="IDs", value=ids, inline=True)
