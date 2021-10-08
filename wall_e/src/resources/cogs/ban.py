@@ -360,6 +360,11 @@ class Ban(commands.Cog):
         banned_users = await self.bot.guilds[0].bans()
         logger.info(f"[Ban purgebans()] Retrieved list of banned users from guild: {banned_users}")
 
+        if not banned_users:
+            logger.info("[Ban purgebans()] Ban list is empty. Sending message and ending command.")
+            await ctx.send("Ban list is empty. Nothing to purge.")
+            return
+
         for user in banned_users:
             logger.info(f"[Ban purgebans()] Unbanning user: {user}")
             await self.bot.guilds[0].unban(user)
