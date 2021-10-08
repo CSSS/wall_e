@@ -23,18 +23,19 @@ class Ban(commands.Cog):
     async def load(self):
         """Grabs channel to send mod reports to and reads in the ban_list from db"""
 
-        mod_channel = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
+        mod_channel_name = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
         if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'PRODUCTION':
             await self.make_mod_channel()
         else:
-            logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel}')
+            logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel_name}')
 
-            self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=mod_channel)
+            self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=mod_channel_name)
             if self.mod_channel:
-                logger.info(f"[Ban load()] #{mod_channel} channel successfully found: {self.mod_channel}")
+                logger.info(f"[Ban load()] #{mod_channel_name} channel successfully found: {self.mod_channel}")
             else:
-                logger.info(f"[Ban load()] Couldn't get {mod_channel} from guild. Channel doesn't exist. Exiting.")
-                exit('no mod channel')
+                logger.info(f"[Ban load()] Couldn't get {mod_channel_name} from guild."
+                            " Channel doesn't exist. Exiting.")
+                exit('No mod channel')
 
         # read in ban_list of banned users
         logger.info('[Ban load()] loading ban list from the database')
@@ -220,7 +221,7 @@ class Ban(commands.Cog):
         logger.info(f"[Ban ban()] list of user to be banned={users_to_ban}")
 
         # construct reason, but first remove @'s from the args
-        reason = ' '.join([i for i in args if not re.match(r'<@!?[0-9]*>', i)])
+        reason = ' '.join([arg for arg in args if not re.match(r'<@!?[0-9]*>', arg)])
         reason = reason if reason else "No Reason Given!"
         logger.info(f"[Ban ban()] reason for ban(s)={reason}")
 
@@ -369,4 +370,4 @@ class Ban(commands.Cog):
             logger.info(f"[Ban purgebans()] Unbanning user: {user}")
             await self.bot.guilds[0].unban(user)
 
-        await ctx.send(f"**BAN LIST PURGED**\n Total # of users unbanned: {len(banned_users)}")
+        await ctx.send(f"**BAN LIST PURGED**\nTotal # of users unbanned: {len(banned_users)}")
