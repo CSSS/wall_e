@@ -35,6 +35,9 @@ class BanRecords(models.Model):
         BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
                    reason=reason).save()
 
+    def __str__(self) -> str:
+        return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}]" \
+               f"mod=[{self.mod}] mod_id=[{self.mod_id}] date=[{self.date}] reason=[{self.reason}]"
 
 class BannedUsers(models.Model):
     username = models.CharField(max_length=32, null=False)
