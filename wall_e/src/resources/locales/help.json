@@ -325,7 +325,7 @@
 			"Creates an embed that report a win for your team."
 		]
 	},
-	"initban" : {
+	"convertbans" : {
 		"class" : "Ban",
 		"access": "roles",
 		"roles" : [ "Minions" ],

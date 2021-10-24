@@ -137,10 +137,10 @@ class Ban(commands.Cog):
         logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
 
     @commands.command()
-    async def initban(self, ctx):
+    async def convertbans(self, ctx):
         """Reads in all guild bans into this ban system"""
 
-        logger.info(f"[Ban initban()] Initban command detected from {ctx.author}")
+        logger.info(f"[Ban convertbans()] convertbans command detected from {ctx.author}")
 
         try:
             # audit logs contains info about user who did the banning, the timestamp of the ban, and the reason
@@ -148,21 +148,21 @@ class Ban(commands.Cog):
             ban_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
             bans = await self.bot.guilds[0].bans()
         except Exception as e:
-            logger.info(f'[Ban initban()] error while fetching ban data: {e}')
+            logger.info(f'[Ban convertbans()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
             return
 
         if not bans:
-            logger.info("[Ban initban()] No bans to migrate into the ban system from guild. "
+            logger.info("[Ban convertbans()] No bans to migrate into the ban system from guild. "
                         "Sening message and ending command."
                         )
             await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
             return
 
-        logger.info(f"[Ban initban()] retrieved audit log data for ban actions: {ban_logs}")
-        logger.info(f"[Ban initban()] retrieved ban list from guild: {bans}")
+        logger.info(f"[Ban convertbans()] retrieved audit log data for ban actions: {ban_logs}")
+        logger.info(f"[Ban convertbans()] retrieved ban list from guild: {bans}")
 
-        logger.info("[Ban initban()] Starting process to move all guild bans into db")
+        logger.info("[Ban convertbans()] Starting process to move all guild bans into db")
         ban_ids = [ban.user.id for ban in bans]
         ban_data = []
         banned_users = []
@@ -195,7 +195,7 @@ class Ban(commands.Cog):
 
             await BanRecords.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
         await ctx.send(f"{len(ban_data)} moved from guild bans to db.")
-        logger.info(f"[Ban initban()] total of {len(ban_data)} bans moved into db")
+        logger.info(f"[Ban convertbans()] total of {len(ban_data)} bans moved into db")
 
     @commands.command()
     async def ban(self, ctx, *args):
