@@ -37,6 +37,7 @@ class Misc(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
+            await ctx.message.delete()
             return
         elif len(questions) == 1:
             logger.info("[Misc poll()] yes/no poll being constructed.")
@@ -46,6 +47,7 @@ class Misc(commands.Cog):
                 await post.add_reaction(u"\U0001F44D")
                 await post.add_reaction(u"\U0001F44E")
                 logger.info("[Misc poll()] yes/no poll constructed and sent to server.")
+            await ctx.message.delete()
             return
         if len(questions) == 2:
             logger.info("[Misc poll()] poll with only 2 arguments detected.")
@@ -58,6 +60,7 @@ class Misc(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
+            await ctx.message.delete()
             return
         elif len(questions) == 0:
             logger.info("[Misc poll()] poll with no arguments detected.")
@@ -70,6 +73,7 @@ class Misc(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
+            await ctx.message.delete()
             return
         else:
             logger.info("[Misc poll()] multi-option poll being constructed.")
@@ -94,6 +98,7 @@ class Misc(commands.Cog):
                 for i in range(0, options):
                     await poll_post.add_reaction(numbers_unicode[i])
                 logger.info("[Misc poll()] reactions added to multi-option poll message.")
+            await ctx.message.delete()
 
     @commands.command()
     async def urban(self, ctx, *arg):
