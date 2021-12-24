@@ -211,7 +211,10 @@ class Ban(commands.Cog):
 
         logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args=[ {args} ]")
         args = list(args)
-        mod_info = [ctx.author.name+'#'+ctx.author.discriminator, ctx.author.id]
+        ban_record = BanRecords(
+                                mod=ctx.author.name+'#'+ctx.author.discriminator,
+                                mod_id=str(ctx.author.id)
+                                )
 
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
@@ -235,23 +238,36 @@ class Ban(commands.Cog):
 
         # ban
         dm = True
+        bans = []
+        records = []
         for user in users_to_ban:
-            username = user.name + '#' + user.discriminator
-            logger.info(f"[Ban ban()] Banning {username} with id {user.id}")
+            ban = BannedUsers(
+                              username = user.name + '#' + user.discriminator,
+                              user_id = str(user.id)
+                              )
+
+            record = BanRecords(
+                                username = ban.username,
+                                user_id = ban.user_id,
+                                mod = ban_record.mod,
+                                mod_id = ban_record.mod_id,
+                                reason = reason
+                                )
+
+            logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
 
             # add to ban_list
-            self.ban_list.append(user.id)
+            self.ban_list.append( ban.user_id )
 
             # dm banned user
             e_obj = discord.Embed(title="Ban Notification",
-                                  description="**You've been PERMANENTLY BANNED from" +
-                                              f"{self.bot.guilds[0].name.upper()}.**",
+                                  description="You have been **PERMANENTLY BANNED** from " +
+                                             f"**{self.bot.guilds[0].name.upper()}**",
                                   color=discord.Color.red(),
                                   timestamp=datetime.datetime.now(pytz.utc))
-
             e_obj.add_field(name='Reason',
                             value=f"```{reason}```\n" +
-                            "Please refrain from this kind of behaviour in the future. Thank you.")
+                            "**Please refrain from this kind of behaviour in the future. Thank you.**")
 
             e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
             try:
@@ -265,26 +281,32 @@ class Ban(commands.Cog):
             # kick
             await user.kick(reason=reason)
             dt = datetime.datetime.now(pytz.utc)
+            record.date = dt
+
             logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
 
             # report to council
             e_obj = discord.Embed(title="Ban Hammer Deployed",
                                   colour=discord.Color.red())
 
-            e_obj.add_field(name="Banned User", value=f"**{username}**", inline=True)
-            e_obj.add_field(name="Moderator", value=f"**{mod_info[0]}**", inline=True)
-            e_obj.add_field(name="Reason", value=f"```{reason}```", inline=False)
-            e_obj.add_field(name="Notification DM", value="SENT\n" if dm else "NOT SENT, DUE TO USER DM PREF's\n",
+            e_obj.add_field(name="Banned User", value=f"**{ban.username}**", inline=True)
+            e_obj.add_field(name="Moderator", value=f"**{record.mod}**", inline=True)
+            e_obj.add_field(name="Reason", value=f"```{record.reason}```", inline=False)
+            e_obj.add_field(name="User Notified via DM", value="*YES*\n" if dm else "*NO*\n*USER HAS DM's DISABLED*",
                             inline=False)
             e_obj.set_footer(text="Moderator Action")
             if e_obj:
                 e_obj.timestamp = dt
                 await self.mod_channel.send(embed=e_obj)
-            logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
+            logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
 
-            # update db
-            await BannedUsers.insert_ban(username, user.id)
-            await BanRecords.insert_record(username, user.id, mod_info[0], mod_info[1], dt, reason)
+            # add ban and record objects to lists
+            bans.append( ban )
+            records.append( record )
+
+        # update database
+        await BannedUsers.insert_bans( bans )
+        await BanRecords.insert_records( records )
 
     @commands.command()
     async def unban(self, ctx, user_id: int):
