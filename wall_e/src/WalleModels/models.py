@@ -1,12 +1,17 @@
+# for type references to own class
+# https://stackoverflow.com/a/33533514
+from __future__ import annotations
+from typing import List
 import datetime
 import time
-
 import pytz
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
 from .customFields import FixedCharField, GeneratedIdentityField
+
+
 import logging
 logger = logging.getLogger('wall_e')
 
@@ -23,6 +28,15 @@ class BanRecords(models.Model):
     class Meta:
         unique_together = ['user_id', 'date']
         db_table = 'WalleModels_ban_records'
+
+    @classmethod
+    @sync_to_async
+    def insert_records(cls, records: List[BanRecords]):
+        """Adds entry to BanRecords table"""
+
+        for record in records:
+            logger.info(f"[BanRecords insert_records()] Saving the following ban_record: {record}")
+            record.save()
 
     @classmethod
     @sync_to_async
@@ -45,6 +59,15 @@ class BannedUsers(models.Model):
 
     class Meta:
         db_table = 'WalleModels_banned_users'
+
+    @classmethod
+    @sync_to_async
+    def insert_bans(cls, bans: List[BannedUsers]):
+        """Adds entry to BanRecords table"""
+
+        for ban in bans:
+            logger.info("[BanRecords insert_bans()] Saving the following banned_user: {ban}")
+            ban.save()
 
     @classmethod
     @sync_to_async

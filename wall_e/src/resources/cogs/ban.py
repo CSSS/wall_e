@@ -146,13 +146,13 @@ class Ban(commands.Cog):
             # audit logs contains info about user who did the banning, the timestamp of the ban, and the reason
             # however audit logs only go back 3 months, so have to read older bans from the bans list
             ban_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
-            bans = await self.bot.guilds[0].bans()
+            guild_ban_list = await self.bot.guilds[0].bans()
         except Exception as e:
             logger.info(f'[Ban convertbans()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
             return
 
-        if not bans:
+        if not guild_ban_list:
             logger.info("[Ban convertbans()] No bans to migrate into the ban system from guild. "
                         "Sening message and ending command."
                         )
@@ -160,42 +160,50 @@ class Ban(commands.Cog):
             return
 
         logger.info(f"[Ban convertbans()] retrieved audit log data for ban actions: {ban_logs}")
-        logger.info(f"[Ban convertbans()] retrieved ban list from guild: {bans}")
+        logger.info(f"[Ban convertbans()] retrieved ban list from guild: {guild_ban_list}")
 
         logger.info("[Ban convertbans()] Starting process to move all guild bans into db")
-        ban_ids = [ban.user.id for ban in bans]
-        ban_data = []
+
+        # update self.ban_list
+        self.ban_list.extend ( [ban.user.id for ban in guild_ban_list] )
+        print(self.ban_list);
+        ban_records = []
         banned_users = []
+        ban_log_ids = []
         for ban in ban_logs:
-            banned_users.append(ban.target.id)
+            ban_log_ids.append(ban.target.id)
 
-            ban_data.append([ban.target.name+'#'+ban.target.discriminator,
-                             ban.target.id,
-                             ban.user.name+'#'+ban.user.discriminator,
-                             ban.user.id,
-                             pytz.utc.localize(ban.created_at),
-                             ban.reason if ban.reason else 'No Reason Given!'
-                             ])
+            ban_records.append(BanRecords(
+                                username = ban.target.name+'#'+ban.target.discriminator,
+                                user_id = str(ban.target.id),
+                                mod = ban.user.name+'#'+ban.user.discriminator,
+                                mod_id = str(ban.user.id),
+                                date = pytz.utc.localize(ban.created_at),
+                                reason = ban.reason if ban.reason else 'No Reason Given!'
+                                ))
 
-        for ban in bans:
-            if ban.user.id not in banned_users:
-                ban_data.append([ban.user.name+'#'+ban.user.discriminator,
-                                ban.user.id,
-                                None,
-                                None,
-                                None,
-                                'No Reason Given!'
-                                 ])
+        for ban in guild_ban_list:
+            # make BannedUser objects
+            banned_users.append(BannedUsers(
+                                username = ban.user.name,
+                                user_id = str(ban.user.id)
+                                ))
 
-        # push to db and ban_list
-        for ban in ban_data:
-            if ban[1] in ban_ids:
-                self.ban_list.append(ban[1])
-                await BannedUsers.insert_ban(ban[0], ban[1])
+            if ban.user.id not in ban_log_ids:
+                ban_records.append(BanRecords(
+                                   username = ban.user.name+'#'+ban.user.discriminator,
+                                   user_id = str(ban.user.id),
+                                   mod = None,
+                                   mod_id = None,
+                                   date = None,
+                                   reason = 'No Reason Given!'
+                                   ))
 
-            await BanRecords.insert_record(ban[0], ban[1], ban[2], ban[3], ban[4], ban[5])
-        await ctx.send(f"{len(ban_data)} moved from guild bans to db.")
-        logger.info(f"[Ban convertbans()] total of {len(ban_data)} bans moved into db")
+        await BanRecords.insert_records( ban_records )
+        await BannedUsers.insert_bans( banned_users )
+
+        await ctx.send(f"{len(ban_records)} moved from guild bans to db.")
+        logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into db")
 
     @commands.command()
     async def ban(self, ctx, *args):
