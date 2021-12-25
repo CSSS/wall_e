@@ -116,7 +116,7 @@ class Ban(commands.Cog):
                             user_id = ban.user_id,
                             mod = audit_ban.user.name + '#' + audit_ban.user.discriminator,
                             mod_id = str(audit_ban.user.id),
-                            date = pytz.utc.localize(audit_ban.created_at),
+                            date = audit_ban.created_at.timestamp(),
                             reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
                             )
 
@@ -186,7 +186,7 @@ class Ban(commands.Cog):
                                 user_id = str(ban.target.id),
                                 mod = ban.user.name+'#'+ban.user.discriminator,
                                 mod_id = str(ban.user.id),
-                                date = pytz.utc.localize(ban.created_at),
+                                date = ban.created_at.timestamp(),
                                 reason = ban.reason if ban.reason else 'No Reason Given!'
                                 ))
 
