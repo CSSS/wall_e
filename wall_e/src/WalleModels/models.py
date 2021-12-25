@@ -26,7 +26,6 @@ class BanRecords(models.Model):
     reason = models.TextField(null=False)
 
     class Meta:
-        unique_together = ['user_id', 'date']
         db_table = 'WalleModels_ban_records'
 
     @classmethod
