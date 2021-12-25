@@ -22,7 +22,7 @@ class BanRecords(models.Model):
     user_id = FixedCharField(max_length=18, null=False)
     mod = models.CharField(max_length=32, null=True)
     mod_id = FixedCharField(max_length=18, null=True)
-    date = models.DateTimeField(unique=True, null=True)
+    date = models.BigIntegerField(null=True)
     reason = models.TextField(null=False)
 
     class Meta:

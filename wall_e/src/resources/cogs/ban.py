@@ -265,14 +265,14 @@ class Ban(commands.Cog):
             logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
 
             # add to ban_list
-            self.ban_list.append( ban.user_id )
+            # self.ban_list.append( ban.user_id )
 
             # dm banned user
             e_obj = discord.Embed(title="Ban Notification",
                                   description="You have been **PERMANENTLY BANNED** from " +
                                              f"**{self.bot.guilds[0].name.upper()}**",
                                   color=discord.Color.red(),
-                                  timestamp=datetime.datetime.now(pytz.utc))
+                                  timestamp=datetime.datetime.now())
             e_obj.add_field(name='Reason',
                             value=f"```{reason}```\n" +
                             "**Please refrain from this kind of behaviour in the future. Thank you.**")
@@ -287,9 +287,9 @@ class Ban(commands.Cog):
                 logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
 
             # kick
-            await user.kick(reason=reason)
+            # await user.kick(reason=reason)
             dt = datetime.datetime.now(pytz.utc)
-            record.date = dt
+            record.date = dt.timestamp()
 
             logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
 

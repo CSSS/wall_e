@@ -31,12 +31,11 @@ class Migration(migrations.Migration):
                 ('user_id', WalleModels.customFields.FixedCharField(max_length=18)),
                 ('mod', models.CharField(max_length=32, null=True)),
                 ('mod_id', WalleModels.customFields.FixedCharField(max_length=18, null=True)),
-                ('date', models.DateTimeField(null=True, unique=True)),
+                ('date', models.BigIntegerField(null=True)),
                 ('reason', models.TextField()),
             ],
             options={
-                'db_table': 'WalleModels_ban_records',
-                'unique_together': {('user_id', 'date')},
+                'db_table': 'WalleModels_ban_records'
             },
         ),
     ]
