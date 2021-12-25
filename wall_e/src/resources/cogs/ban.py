@@ -174,7 +174,6 @@ class Ban(commands.Cog):
 
         # update self.ban_list
         self.ban_list.extend ( [ban.user.id for ban in guild_ban_list] )
-        print(self.ban_list);
         ban_records = []
         banned_users = []
         ban_log_ids = []
@@ -398,16 +397,16 @@ class Ban(commands.Cog):
 
         logger.info(f"[Ban purgebans()] purgebans command detected from {ctx.author}")
 
-        banned_users = await self.bot.guilds[0].bans()
-        logger.info(f"[Ban purgebans()] Retrieved list of banned users from guild: {banned_users}")
+        bans = await self.bot.guilds[0].bans()
+        logger.info(f"[Ban purgebans()] Retrieved list of banned users from guild: {bans}")
 
-        if not banned_users:
+        if not bans:
             logger.info("[Ban purgebans()] Ban list is empty. Sending message and ending command.")
             await ctx.send("Ban list is empty. Nothing to purge.")
             return
 
-        for user in banned_users:
-            logger.info(f"[Ban purgebans()] Unbanning user: {user}")
-            await self.bot.guilds[0].unban(user)
+        for ban in bans:
+            logger.info(f"[Ban purgebans()] Unbanning user: {ban}")
+            await self.bot.guilds[0].unban(ban.user)
 
-        await ctx.send(f"**BAN LIST PURGED**\nTotal # of users unbanned: {len(banned_users)}")
+        await ctx.send(f"**BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
