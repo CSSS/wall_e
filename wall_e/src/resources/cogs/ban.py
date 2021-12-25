@@ -107,23 +107,23 @@ class Ban(commands.Cog):
 
         # name, id, mod, mod id, date, reason
         ban = BannedUsers(
-                          username = member.name + '#' + member.discriminator,
-                          user_id = str(member.id)
+                          username=member.name + '#' + member.discriminator,
+                          user_id=str(member.id)
                           )
 
         record = BanRecords(
-                            username = ban.username,
-                            user_id = ban.user_id,
-                            mod = audit_ban.user.name + '#' + audit_ban.user.discriminator,
-                            mod_id = str(audit_ban.user.id),
-                            date = audit_ban.created_at.timestamp(),
-                            reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
+                            username=ban.username,
+                            user_id=ban.user_id,
+                            mod=audit_ban.user.name + '#' + audit_ban.user.discriminator,
+                            mod_id=str(audit_ban.user.id),
+                            date=audit_ban.created_at.timestamp(),
+                            reason=audit_ban.reason if audit_ban.reason else 'No Reason Given!'
                             )
 
         # update ban_list and db
-        self.ban_list.append( ban.user_id )
-        await BannedUsers.insert_ban( ban )
-        await BanRecords.insert_record( record )
+        self.ban_list.append(ban.user_id)
+        await BannedUsers.insert_ban(ban)
+        await BanRecords.insert_record(record)
 
         # unban
         await self.bot.guilds[0].unban(member)
@@ -173,7 +173,7 @@ class Ban(commands.Cog):
         logger.info("[Ban convertbans()] Starting process to move all guild bans into db")
 
         # update self.ban_list
-        self.ban_list.extend ( [ban.user.id for ban in guild_ban_list] )
+        self.ban_list.extend([ban.user.id for ban in guild_ban_list])
         ban_records = []
         banned_users = []
         ban_log_ids = []
@@ -181,33 +181,33 @@ class Ban(commands.Cog):
             ban_log_ids.append(ban.target.id)
 
             ban_records.append(BanRecords(
-                                username = ban.target.name+'#'+ban.target.discriminator,
-                                user_id = str(ban.target.id),
-                                mod = ban.user.name+'#'+ban.user.discriminator,
-                                mod_id = str(ban.user.id),
-                                date = ban.created_at.timestamp(),
-                                reason = ban.reason if ban.reason else 'No Reason Given!'
+                                username=ban.target.name+'#'+ban.target.discriminator,
+                                user_id=str(ban.target.id),
+                                mod=ban.user.name+'#'+ban.user.discriminator,
+                                mod_id=str(ban.user.id),
+                                date=ban.created_at.timestamp(),
+                                reason=ban.reason if ban.reason else 'No Reason Given!'
                                 ))
 
         for ban in guild_ban_list:
             # make BannedUser objects
             banned_users.append(BannedUsers(
-                                username = ban.user.name,
-                                user_id = str(ban.user.id)
+                                username=ban.user.name,
+                                user_id=str(ban.user.id)
                                 ))
 
             if ban.user.id not in ban_log_ids:
                 ban_records.append(BanRecords(
-                                   username = ban.user.name+'#'+ban.user.discriminator,
-                                   user_id = str(ban.user.id),
-                                   mod = None,
-                                   mod_id = None,
-                                   date = None,
-                                   reason = 'No Reason Given!'
+                                   username=ban.user.name+'#'+ban.user.discriminator,
+                                   user_id=str(ban.user.id),
+                                   mod=None,
+                                   mod_id=None,
+                                   date=None,
+                                   reason='No Reason Given!'
                                    ))
 
-        await BanRecords.insert_records( ban_records )
-        await BannedUsers.insert_bans( banned_users )
+        await BanRecords.insert_records(ban_records)
+        await BannedUsers.insert_bans(banned_users)
 
         await ctx.send(f"Moved `{len(banned_users)}` active bans from guild bans to walle bans.\n" +
                        f"Created `{len(ban_records)}` ban records.")
@@ -251,27 +251,27 @@ class Ban(commands.Cog):
         records = []
         for user in users_to_ban:
             ban = BannedUsers(
-                              username = user.name + '#' + user.discriminator,
-                              user_id = str(user.id)
+                              username=user.name + '#' + user.discriminator,
+                              user_id=str(user.id)
                               )
 
             record = BanRecords(
-                                username = ban.username,
-                                user_id = ban.user_id,
-                                mod = ban_record.mod,
-                                mod_id = ban_record.mod_id,
-                                reason = reason
+                                username=ban.username,
+                                user_id=ban.user_id,
+                                mod=ban_record.mod,
+                                mod_id=ban_record.mod_id,
+                                reason=reason
                                 )
 
             logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
 
             # add to ban_list
-            self.ban_list.append( ban.user_id )
+            self.ban_list.append(ban.user_id)
 
             # dm banned user
             e_obj = discord.Embed(title="Ban Notification",
                                   description="You have been **PERMANENTLY BANNED** from " +
-                                             f"**{self.bot.guilds[0].name.upper()}**",
+                                  f"**{self.bot.guilds[0].name.upper()}**",
                                   color=discord.Color.red(),
                                   timestamp=datetime.datetime.now())
             e_obj.add_field(name='Reason',
@@ -310,12 +310,12 @@ class Ban(commands.Cog):
             logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
 
             # add ban and record objects to lists
-            bans.append( ban )
-            records.append( record )
+            bans.append(ban)
+            records.append(record)
 
         # update database
-        await BannedUsers.insert_bans( bans )
-        await BanRecords.insert_records( records )
+        await BannedUsers.insert_bans(bans)
+        await BanRecords.insert_records(records)
 
     @commands.command()
     async def unban(self, ctx, user_id: int):

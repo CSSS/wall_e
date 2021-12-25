@@ -49,6 +49,7 @@ class BanRecords(models.Model):
         return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}]" \
                f"mod=[{self.mod}] mod_id=[{self.mod_id}] date=[{self.date}] reason=[{self.reason}]"
 
+
 class BannedUsers(models.Model):
     username = models.CharField(max_length=32, null=False)
     user_id = FixedCharField(primary_key=True, max_length=18)
@@ -98,6 +99,7 @@ class BannedUsers(models.Model):
 
     def __str__(self) -> str:
         return f"username=[{self.username}] user_id=[{self.user_id}]"
+
 
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(
