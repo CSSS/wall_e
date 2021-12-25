@@ -40,14 +40,11 @@ class BanRecords(models.Model):
 
     @classmethod
     @sync_to_async
-    def insert_record(cls, username, user_id, mod, mod_id, date, reason):
+    def insert_record(cls, record: BanRecords):
         """Adds entry to BanRecords table"""
 
-        logger.info("[BanRecords insert_record()] Adding ban record to with values" +
-                    f"({username, user_id, mod, mod_id, date, reason})")
-
-        BanRecords(username=username, user_id=str(user_id), mod=mod, mod_id=str(mod_id), date=date,
-                   reason=reason).save()
+        logger.info(f"[BanRecords insert_record()] Adding the following  ban record: {record}")
+        record.save()
 
     def __str__(self) -> str:
         return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}]" \
@@ -71,11 +68,11 @@ class BannedUsers(models.Model):
 
     @classmethod
     @sync_to_async
-    def insert_ban(cls, username, user_id):
+    def insert_ban(cls, banned_user: BannedUsers):
         """Adds entry to BannedUsers table"""
 
-        logger.info(f"[BannedUsers insert_ban()] Adding banned user to with values ({username, user_id})")
-        BannedUsers(username, str(user_id)).save()
+        logger.info(f"[BannedUsers insert_ban()] Saving the following banned_user: {banned_user}")
+        banned_user.save()
 
     @classmethod
     @sync_to_async

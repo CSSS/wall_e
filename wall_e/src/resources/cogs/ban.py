@@ -106,35 +106,43 @@ class Ban(commands.Cog):
         logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
 
         # name, id, mod, mod id, date, reason
-        username = member.name + '#' + member.discriminator
-        mod = audit_ban.user.name + '#' + audit_ban.user.discriminator
-        mod_id = audit_ban.user.id
-        date = pytz.utc.localize(audit_ban.created_at)
-        reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
+        ban = BannedUsers(
+                          username = member.name + '#' + member.discriminator,
+                          user_id = str(member.id)
+                          )
+
+        record = BanRecords(
+                            username = ban.username,
+                            user_id = ban.user_id,
+                            mod = audit_ban.user.name + '#' + audit_ban.user.discriminator,
+                            mod_id = str(audit_ban.user.id),
+                            date = pytz.utc.localize(audit_ban.created_at),
+                            reason = audit_ban.reason if audit_ban.reason else 'No Reason Given!'
+                            )
 
         # update ban_list and db
-        self.ban_list.append(member.id)
-        await BannedUsers.insert_ban(username, member.id)
-        await BanRecords.insert_record(username, member.id, mod, mod_id, date, reason)
+        self.ban_list.append( ban.user_id )
+        await BannedUsers.insert_ban( ban )
+        await BanRecords.insert_record( record )
 
         # unban
         await self.bot.guilds[0].unban(member)
-        logger.info(f"[Ban intercept()] ban for {username} moved into db and guild ban was removed")
+        logger.info(f"[Ban intercept()] ban for {ban.username} moved into db and guild ban was removed")
 
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed",
                               colour=discord.Color.red())
 
-        e_obj.add_field(name="Banned User", value=f"**{username}**", inline=True)
-        e_obj.add_field(name="Moderator", value=f"**{mod}**", inline=True)
-        e_obj.add_field(name="Reason", value=f"```{reason}```", inline=False)
-        e_obj.add_field(name="Notification DM", value="NOT SENT, DUE TO NO COMMON GUILD\n", inline=False)
+        e_obj.add_field(name="Banned User", value=f"**{ban.username}**", inline=True)
+        e_obj.add_field(name="Moderator", value=f"**{record.mod}**", inline=True)
+        e_obj.add_field(name="Reason", value=f"```{record.reason}```", inline=False)
+        e_obj.add_field(name="Notification DM", value="*NOT SENT*\nDUE TO NO COMMON GUILD\n", inline=False)
         e_obj.set_footer(text="Intercepted Moderator Action")
 
         if e_obj:
-            e_obj.timestamp = date
+            e_obj.timestamp = record.date
             await self.mod_channel.send(embed=e_obj)
-        logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {username}.")
+        logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
 
     @commands.command()
     async def convertbans(self, ctx):
