@@ -210,8 +210,10 @@ class Ban(commands.Cog):
         await BanRecords.insert_records( ban_records )
         await BannedUsers.insert_bans( banned_users )
 
-        await ctx.send(f"{len(ban_records)} moved from guild bans to db.")
-        logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into db")
+        await ctx.send(f"Moved `{len(banned_users)}` active bans from guild bans to walle bans.\n" +
+                       f"Created `{len(ban_records)}` ban records.")
+        logger.info(f"[Ban convertbans()] total of {len(banned_users)} bans and {len(ban_records)} records " +
+                    "moved into walle ban system")
 
     @commands.command()
     async def ban(self, ctx, *args):
