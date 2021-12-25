@@ -409,4 +409,4 @@ class Ban(commands.Cog):
             logger.info(f"[Ban purgebans()] Unbanning user: {ban}")
             await self.bot.guilds[0].unban(ban.user)
 
-        await ctx.send(f"**BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
+        await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
