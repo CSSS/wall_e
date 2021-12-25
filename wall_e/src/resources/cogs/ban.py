@@ -266,7 +266,7 @@ class Ban(commands.Cog):
             logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
 
             # add to ban_list
-            # self.ban_list.append( ban.user_id )
+            self.ban_list.append( ban.user_id )
 
             # dm banned user
             e_obj = discord.Embed(title="Ban Notification",
@@ -288,7 +288,7 @@ class Ban(commands.Cog):
                 logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
 
             # kick
-            # await user.kick(reason=reason)
+            await user.kick(reason=reason)
             dt = datetime.datetime.now(pytz.utc)
             record.date = dt.timestamp()
 
