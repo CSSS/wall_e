@@ -60,7 +60,6 @@ class BanRecords(models.Model):
 
         return list(BanRecords.objects.values_list('username', 'user_id').filter(unban_date=None))
 
-
     @classmethod
     @sync_to_async
     def unban_by_id(cls, user_id: int) -> str:
@@ -69,7 +68,6 @@ class BanRecords(models.Model):
         user.unban_date = datetime.datetime.now().timestamp()
         user.save()
         return user.username
-
 
     def __str__(self) -> str:
         return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}] " \
