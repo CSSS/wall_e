@@ -54,7 +54,7 @@ class BanRecords(models.Model):
     def get_all_active_bans(cls) -> List[BanRecords]:
         """Returns list of usernames and user_ids for all currently banned users"""
 
-        return BanRecords.objects.all().filter(unban_date=None)
+        return list(BanRecords.objects.values_list('username', 'user_id').filter(unban_date=None))
 
     @classmethod
     @sync_to_async

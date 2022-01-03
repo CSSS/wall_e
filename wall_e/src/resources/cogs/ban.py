@@ -257,7 +257,7 @@ class Ban(commands.Cog):
                                   description="You have been **PERMANENTLY BANNED** from " +
                                   f"**{self.bot.guilds[0].name.upper()}**",
                                   color=discord.Color.red(),
-                                  timestamp=datetime.datetime.now())
+                                  timestamp=datetime.datetime.now(pytz.utc))
             e_obj.add_field(name='Reason',
                             value=f"```{reason}```\n" +
                             "**Please refrain from this kind of behaviour in the future. Thank you.**")
@@ -352,8 +352,8 @@ class Ban(commands.Cog):
         names = ""
         ids = ""
         for ban in bans:
-            name = ban.username
-            user_id = ban.user_id
+            name = ban[0]
+            user_id = ban[1]
             if len(names) + len(name) > 1024 or len(ids) + len(str(user_id)) > 1024:
                 emb.add_field(name="Names", value=names, inline=True)
                 emb.add_field(name="IDs", value=ids, inline=True)
