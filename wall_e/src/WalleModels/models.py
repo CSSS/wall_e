@@ -9,7 +9,7 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
-from .customFields import FixedCharField, GeneratedIdentityField
+from .customFields import GeneratedIdentityField
 
 
 import logging
@@ -54,7 +54,7 @@ class BanRecords(models.Model):
     def get_all_active_bans(cls) -> List[BanRecords]:
         """Returns list of usernames and user_ids for all currently banned users"""
 
-        return list(BanRecords.objects.values_list('username', 'user_id').filter(unban_date=None))
+        return BanRecords.objects.all().filter(unban_date=None)
 
     @classmethod
     @sync_to_async
