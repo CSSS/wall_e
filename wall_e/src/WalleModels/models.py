@@ -19,18 +19,19 @@ logger = logging.getLogger('wall_e')
 class BanRecords(models.Model):
     ban_id = GeneratedIdentityField(primary_key=True, always=True)
     username = models.CharField(max_length=32, null=False)
-    user_id = FixedCharField(max_length=18, null=False)
+    user_id = models.BigIntegerField(null=False)
     mod = models.CharField(max_length=32, null=True)
-    mod_id = FixedCharField(max_length=18, null=True)
-    date = models.BigIntegerField(null=True)
+    mod_id = models.BigIntegerField(null=True)
+    ban_date = models.BigIntegerField(null=True)
     reason = models.TextField(null=False)
+    unban_date = models.BigIntegerField(null=True, default=None)
 
     class Meta:
         db_table = 'WalleModels_ban_records'
 
     @classmethod
     @sync_to_async
-    def insert_records(cls, records: List[BanRecords]):
+    def insert_records(cls, records: List[BanRecords]) -> None:
         """Adds entry to BanRecords table"""
 
         for record in records:
@@ -39,66 +40,41 @@ class BanRecords(models.Model):
 
     @classmethod
     @sync_to_async
-    def insert_record(cls, record: BanRecords):
+    def insert_record(cls, record: BanRecords) -> None:
         """Adds entry to BanRecords table"""
 
         logger.info(f"[BanRecords insert_record()] Adding the following  ban record: {record}")
         record.save()
 
-    def __str__(self) -> str:
-        return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}]" \
-               f"mod=[{self.mod}] mod_id=[{self.mod_id}] date=[{self.date}] reason=[{self.reason}]"
+    @classmethod
+    @sync_to_async
+    def get_all_active_ban_user_ids(cls) -> List[int]:
+        """Returns list of user_ids for all currently banned users"""
 
-
-class BannedUsers(models.Model):
-    username = models.CharField(max_length=32, null=False)
-    user_id = FixedCharField(primary_key=True, max_length=18)
-
-    class Meta:
-        db_table = 'WalleModels_banned_users'
+        return list(BanRecords.objects.values_list('user_id', flat=True).filter(unban_date=None))
 
     @classmethod
     @sync_to_async
-    def insert_bans(cls, bans: List[BannedUsers]):
-        """Adds entry to BanRecords table"""
+    def get_all_active_bans(cls) -> List[BanRecords]:
+        """Returns list of usernames and user_ids for all currently banned users"""
 
-        for ban in bans:
-            logger.info("[BanRecords insert_bans()] Saving the following banned_user: {ban}")
-            ban.save()
+        return list(BanRecords.objects.values_list('username', 'user_id').filter(unban_date=None))
 
-    @classmethod
-    @sync_to_async
-    def insert_ban(cls, banned_user: BannedUsers):
-        """Adds entry to BannedUsers table"""
-
-        logger.info(f"[BannedUsers insert_ban()] Saving the following banned_user: {banned_user}")
-        banned_user.save()
 
     @classmethod
     @sync_to_async
-    def get_banned_ids(cls):
-        """Gets list of all user_ids from BannedUsers table"""
+    def unban_by_id(cls, user_id: int) -> str:
+        """Set active=False for user with the given user_id. This representes unbanning a user."""
+        user = BanRecords.objects.get(user_id=user_id, unban_date=None)
+        user.unban_date = datetime.datetime.now().timestamp()
+        user.save()
+        return user.username
 
-        return list(map(int, (BannedUsers.objects.values_list('user_id', flat=True))))
-
-    @classmethod
-    @sync_to_async
-    def del_banned_user_by_id(cls, _id):
-        """Deletes single entry from BannedUsers by user_id """
-
-        user = BannedUsers.objects.filter(user_id=str(_id))[0]
-        name = user.username
-        user.delete()
-        return name
-
-    @classmethod
-    @sync_to_async
-    def get_all_bans(cls):
-        """Gets list of all entries in BannedUsers"""
-        return list(BannedUsers.objects.all())
 
     def __str__(self) -> str:
-        return f"username=[{self.username}] user_id=[{self.user_id}]"
+        return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}] " \
+               f"mod=[{self.mod}] mod_id=[{self.mod_id}] date=[{self.ban_date}] reason=[{self.reason}]" \
+               f"unban_date=[{self.unban_date}]"
 
 
 class CommandStat(models.Model):

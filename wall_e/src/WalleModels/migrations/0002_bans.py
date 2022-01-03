@@ -10,29 +10,18 @@ class Migration(migrations.Migration):
         ('WalleModels', '0001_initial'),
     ]
 
-    operations = [
-        migrations.CreateModel(
-            name='BannedUsers',
-            fields=[
-                ('username', models.CharField(max_length=32)),
-                ('user_id', WalleModels.customFields.FixedCharField(max_length=18, primary_key=True,
-                 serialize=False)),
-            ],
-            options={
-                'db_table': 'WalleModels_banned_users',
-            },
-        ),
-        migrations.CreateModel(
+    operations = [migrations.CreateModel(
             name='BanRecords',
             fields=[
                 ('ban_id', WalleModels.customFields.GeneratedIdentityField(always=True, primary_key=True,
                  serialize=False)),
                 ('username', models.CharField(max_length=32)),
-                ('user_id', WalleModels.customFields.FixedCharField(max_length=18)),
+                ('user_id', models.BigIntegerField()),
                 ('mod', models.CharField(max_length=32, null=True)),
-                ('mod_id', WalleModels.customFields.FixedCharField(max_length=18, null=True)),
-                ('date', models.BigIntegerField(null=True)),
+                ('mod_id', models.BigIntegerField(null=True)),
+                ('ban_date', models.BigIntegerField(null=True)),
                 ('reason', models.TextField()),
+                ('unban_date', models.BigIntegerField(default=None, null=True)),
             ],
             options={
                 'db_table': 'WalleModels_ban_records'
