@@ -34,14 +34,12 @@ class BanRecords(models.Model):
     def insert_records(cls, records: List[BanRecords]) -> None:
         """Adds entry to BanRecords table"""
         for record in records:
-            logger.info(f"[BanRecords insert_records()] Saving the following ban_record: {record}")
             record.save()
 
     @classmethod
     @sync_to_async
     def insert_record(cls, record: BanRecords) -> None:
         """Adds entry to BanRecords table"""
-        logger.info(f"[BanRecords insert_record()] Adding the following  ban record: {record}")
         record.save()
 
     @classmethod
