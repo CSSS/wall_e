@@ -300,6 +300,32 @@ class Ban(commands.Cog):
         await BanRecords.insert_records(records)
 
     @commands.command()
+    async def purgeban(self, ctx, user: discord.User, timeframe = 7, *args):
+        # first do the ban
+        if timeframe <= 0 or timeframe > 14:
+            await ctx.send('Window to purge message must be between 1 - 14 days. Command aborted')
+
+        # await self.ban(ctx, user, ' '.join(list(args)))
+
+        # begin purging messages
+        ## get list of all channels
+        channels = self.bot.guilds[0].text_channels
+        is_banned_user = lambda msg: msg.author == user
+        date = datetime.datetime.now() - datetime.timedelta(timeframe)
+
+        for channel in channels:
+            # print(channel, channel.id, channel.category)
+            if not channel.overwrites_for(ctx.guild.default_role).send_messages:
+                print(f'Private channel :\t{channel.name}')
+            else:
+                print(f'Public Channel :\t{channel.name}')
+
+            # await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
+
+
+
+
+    @commands.command()
     async def unban(self, ctx, user_id: int):
         """Unbans a user"""
 
