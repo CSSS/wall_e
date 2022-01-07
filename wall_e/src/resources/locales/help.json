@@ -354,6 +354,20 @@
 			"Reason can be given with or without quotes."
 		]
 	},
+	"purgeban" : {
+		"class" : "Ban",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases": [ ],
+		"example": [
+			"`.purgeban @user they broke rules`",
+			"`.purgeban @user 7 \"they broke rules\"`"
+		],
+		"description": [
+			"Works like `.ban` but will also purge the user(s) messages from the last X days.",
+			"Default message purge timeframe is 1 day. Can go back upto 14 days."
+		]
+	},
 	"unban" : {
 		"class" : "Ban",
 		"access": "roles",
