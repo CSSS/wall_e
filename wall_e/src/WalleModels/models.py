@@ -113,8 +113,8 @@ class UserPoint(models.Model):
     @staticmethod
     @sync_to_async
     def create_user_point(
-            user_id, points=random.randint(15, 25), message_count=1, latest_time_xp_was_earned=datetime.datetime.now(),
-            level=0):
+            user_id, points=random.randint(15, 25), message_count=1,
+            latest_time_xp_was_earned=datetime.datetime.now(), level=0):
         user_point = UserPoint(
             user_id=user_id, points=points,
             level_up_specific_points=UserPoint.calculate_level_up_specific_points(points),

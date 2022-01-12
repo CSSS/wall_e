@@ -44,7 +44,7 @@ class Mee6(commands.Cog):
         await self.get_bot_general_channel()
         await self.bot_channel.send("loading XP commands......")
         if not await Level.level_points_have_been_imported():
-            logger.info(f"[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
+            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
             with open('resources/mee6_levels/levels.json') as f:
                 self.levels = {
                     level_number: await Level.create_level(
@@ -118,13 +118,15 @@ class Mee6(commands.Cog):
         if environment == 'PRODUCTION' or environment == 'LOCALHOST':
             logger.info(
                 f"[Mee6 load_data_from_mee6_endpoint_and_json()] bot_channel_name set to {bot_channel_name} for "
-                f"environment {environment}")
+                f"environment {environment}"
+            )
             self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
         elif environment == 'TEST':
             bot_channel_name = f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
             logger.info(
                 f"[Mee6 load_data_from_mee6_endpoint_and_json()] bot_channel_name set to {bot_channel_name} for "
-                f"environment {environment}")
+                f"environment {environment}"
+            )
             self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
         number_of_retries_to_attempt = 10
         number_of_retries = 0
@@ -137,7 +139,8 @@ class Mee6(commands.Cog):
         if self.bot_channel is None:
             logger.info(
                 "[Mee6 load_data_from_mee6_endpoint_and_json()] ultimately unable to get the bot_channel. exiting "
-                "now.")
+                "now."
+            )
             await asyncio.sleep(20)  # this is just here so that the above log line gets a chance to get printed to
             # discord
             exit(1)
@@ -147,10 +150,11 @@ class Mee6(commands.Cog):
             self.council_channel = discord.utils.get(self.bot.guilds[0].channels, name="council")
             if self.council_channel is None:
                 logger.info(
-                    "[Mee6 load_data_from_mee6_endpoint_and_json()] the council channel does not seem to exist. exiting"
-                    " now.")
-                await asyncio.sleep(20)  # this is just here so that the above log line gets a chance to get printed to
-                # discord
+                    "[Mee6 load_data_from_mee6_endpoint_and_json()] the council channel does not seem to exist"
+                    " exiting now."
+                )
+                await asyncio.sleep(20)
+                # this is just here so that the above log line gets a chance to get printed to discord
                 exit(1)
 
     async def ensure_roles_exist_and_have_right_users(self):
@@ -165,10 +169,10 @@ class Mee6(commands.Cog):
 
                 guild_roles = []
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that all {len(levels_with_a_role)} XP "
-                    f"roles "
-                    f"exist")
-                XP_roles_that_are_missing = {}
+                    "[Mee6 ensure_roles_exist_and_have_right_users()]"
+                    f" ensuring that all {len(levels_with_a_role)} XP roles exist"
+                )
+                xp_roles_that_are_missing = {}
                 for level_with_role in levels_with_a_role:
                     role = discord.utils.get(self.bot.guilds[0].roles, name=level_with_role.role_name)
                     if role is None and self.create_XP_roles:
@@ -178,21 +182,22 @@ class Mee6(commands.Cog):
                         level_with_role.role_id = role.id
                         await level_with_role.async_save()
                     else:
-                        XP_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
-                if len(XP_roles_that_are_missing) == 0:
+                        xp_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
+                if len(xp_roles_that_are_missing) == 0:
                     logger.info(
-                        f"[Mee6 ensure_roles_exist_and_have_right_users()] all {len(levels_with_a_role)} XP roles exist"
+                        "[Mee6 ensure_roles_exist_and_have_right_users()] all"
+                        f" {len(levels_with_a_role)} XP roles exist"
                     )
                 else:
-                    XP_roles_that_are_missing = [
-                        f"{role_name} - {role_number}" for role_name, role_number in XP_roles_that_are_missing.items()
+                    xp_roles_that_are_missing = [
+                        f"{role_name} - {role_number}" for role_name, role_number in xp_roles_that_are_missing.items()
                     ]
-                    XP_roles_that_are_missing = "\n".join(XP_roles_that_are_missing)
+                    xp_roles_that_are_missing = "\n".join(xp_roles_that_are_missing)
                     await self.council_channel.send(
                         "The following XP roles could not be found. Please call `.remove_level_name <level_number>` "
                         "to confirm that you want the XP roles deleted or re-create the roles:\n\n"
                         "Role Name - Linked XP Level\n"
-                        f"{XP_roles_that_are_missing}"
+                        f"{xp_roles_that_are_missing}"
                     )
                 members = await self.bot.guilds[0].fetch_members().flatten()
                 # sorts the members in ascending order by their total cls
@@ -200,28 +205,30 @@ class Mee6(commands.Cog):
                 members_with_points.sort(key=lambda member: self.user_points[member.id].points)
                 role_indx = 0
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members with cls have the right "
-                    f"XP roles")
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members with cls have the right "
+                    "XP roles")
                 for member_with_point in members_with_points:
-                    if self.user_points[member_with_point.id].points >= levels_with_a_role[
-                        role_indx].total_points_required:
+                    if (
+                            self.user_points[member_with_point.id].points >=
+                            levels_with_a_role[role_indx].total_points_required
+                    ):
                         role_indx += 1
                         self.user_points[member_with_point.id].async_save()
                     await member_with_point.remove_roles(*guild_roles[role_indx:])
                     await member_with_point.add_roles(*guild_roles[:role_indx])
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] ensured that the members with cls have the "
-                    f"right XP roles")
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that the members with cls have the "
+                    "right XP roles")
 
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members without cls don't have "
-                    f"any XP roles "
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members without cls don't have "
+                    "any XP roles "
                 )
                 for member_without_points in [member for member in members if member.id not in self.user_points]:
                     await member_without_points.remove_roles(*guild_roles)
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] ensured that members without cls don't have "
-                    f"any XP roles "
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that members without cls don't have "
+                    "any XP roles "
                 )
                 self.levels_have_been_changed = False
                 self.xp_system_ready = True
@@ -358,9 +365,9 @@ class Mee6(commands.Cog):
 
         description = f"""
         {self.user_points[message_author_id].level_up_specific_points} / {xp_required_to_level_up} XP
-        
+
         Total Messages: {self.user_points[message_author_id].message_count}
-        
+
         """
 
         e_obj = await embed(
