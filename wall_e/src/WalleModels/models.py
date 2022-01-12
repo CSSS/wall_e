@@ -1,4 +1,5 @@
 import datetime
+import random
 import time
 
 import pytz
@@ -82,6 +83,168 @@ class CommandStat(models.Model):
             f"{self.epoch_time} - {self.command} as invoked with {self.invoked_with} with " \
             f"subcommand {self.invoked_subcommand} and year {self.year}, " \
             f"month {self.month} and hour {self.hour}"
+
+
+class UserPoint(models.Model):
+    user_id = models.PositiveBigIntegerField(
+
+    )
+    points = models.PositiveBigIntegerField(
+
+    )
+    level_up_specific_points = models.PositiveBigIntegerField(
+
+    )
+    message_count = models.PositiveBigIntegerField(
+
+    )
+    latest_time_xp_was_earned = models.DateTimeField(
+
+    )
+
+    level_number = models.PositiveBigIntegerField(
+
+    )
+
+    @sync_to_async
+    def async_save(self):
+        self.save()
+
+    @staticmethod
+    @sync_to_async
+    def create_user_point(
+            user_id, points=random.randint(15, 25), message_count=1, latest_time_xp_was_earned=datetime.datetime.now(),
+            level=0):
+        user_point = UserPoint(
+            user_id=user_id, points=points,
+            level_up_specific_points=UserPoint.calculate_level_up_specific_points(points),
+            message_count=message_count,
+            latest_time_xp_was_earned=latest_time_xp_was_earned, level_number=level,
+        )
+        user_point.save()
+        return user_point
+
+    @classmethod
+    def calculate_level_up_specific_points(cls, points):
+        indx = 0
+        levels = Level.objects.all().order_by('total_points_required')
+        while levels[indx].xp_needed_to_level_up_to_next_level < points and indx < len(levels):
+            points -= levels[indx].xp_needed_to_level_up_to_next_level
+            indx += 1
+
+        return points
+
+    @sync_to_async
+    def increment_points(self):
+        point = random.randint(15, 25)
+        self.points += point
+        self.level_up_specific_points += point
+        self.message_count += 1
+        alert_user = False
+        if self.level_number < 100:
+            current_level = Level.objects.get(number=self.level_number)
+            if self.level_up_specific_points >= current_level.xp_needed_to_level_up_to_next_level:
+                self.level_up_specific_points -= current_level.xp_needed_to_level_up_to_next_level
+                self.level_number += 1
+                alert_user = True
+        self.latest_time_xp_was_earned = datetime.datetime.now()
+        self.save()
+        return alert_user
+
+    @sync_to_async
+    def get_rank(self):
+        users_above_in_rank = []
+        user_encountered = False
+        indx = 0
+        users = UserPoint.objects.all().order_by('-points')
+        while not user_encountered:
+            if users[indx].user_id != self.user_id:
+                users_above_in_rank.append(users[indx])
+                indx += 1
+            else:
+                user_encountered = True
+        return len(users_above_in_rank)
+
+    @sync_to_async
+    def get_xp_needed_to_level_up_to_next_level(self):
+        return Level.objects.get(number=self.level_number).xp_needed_to_level_up_to_next_level
+
+    @staticmethod
+    @sync_to_async
+    def user_points_have_been_imported():
+        return len(list(UserPoint.objects.all()[:1])) == 1
+
+    def message_counts_towards_points(self):
+        return self.latest_time_xp_was_earned.minute < datetime.datetime.now().minute
+
+    @staticmethod
+    @sync_to_async
+    def load_to_dict():
+        return {user_point.user_id: user_point for user_point in UserPoint.objects.all()}
+
+
+class Level(models.Model):
+    number = models.PositiveBigIntegerField(
+
+    )  # xp_level
+    total_points_required = models.PositiveBigIntegerField(
+
+    )  # xp_level_points_required
+
+    xp_needed_to_level_up_to_next_level = models.PositiveBigIntegerField(
+
+    )
+
+    role_id = models.PositiveBigIntegerField(
+        null=True
+    )
+    role_name = models.CharField(
+        max_length=500,
+        null=True
+    )  # xp_role_name
+
+    @staticmethod
+    @sync_to_async
+    def create_level(number, total_points_required, xp_needed_to_level_up_to_next_level,
+                     role_id=None, role_name=None):
+        level = Level(
+            number=number, total_points_required=total_points_required,
+            xp_needed_to_level_up_to_next_level=xp_needed_to_level_up_to_next_level,
+            role_id=role_id, role_name=role_name
+        )
+        level.save()
+        return level
+
+    @sync_to_async
+    def async_save(self):
+        self.save()
+
+    @staticmethod
+    @sync_to_async
+    def level_points_have_been_imported():
+        return len(list(Level.objects.all()[:1])) == 1
+
+    @staticmethod
+    @sync_to_async
+    def load_to_dict():
+        return {level.number: level for level in Level.objects.all()}
+
+    @sync_to_async
+    def set_level_name(self, new_role_name, role_id):
+        self.role_name = new_role_name
+        self.role_id = role_id
+        self.save()
+
+    @sync_to_async
+    def rename_level_name(self, new_role_name):
+        self.name = new_role_name
+        self.save()
+
+    @sync_to_async
+    def remove_role(self):
+        self.name = None
+        self.role_id = None
+        self.save()
 
 
 class Reminder(models.Model):

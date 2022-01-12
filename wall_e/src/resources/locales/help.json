@@ -61,6 +61,174 @@
 			"The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
+	"cmpt276" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"cmpt361" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"cmpt376" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"f" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"gnu" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"impeach" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"macm101" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"macm316" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"math150" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"math152" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"medipack" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"monty" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"prettygood" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"psyduck" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"thebest" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"anime" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"imgur" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"manga" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"pokemon" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"twitch" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
+	"youtube" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".exc <arg>" ],
+		"description": []
+	},
 	"ping" : {
 		"class": "HealthChecks",
 		"access": "roles",
@@ -95,6 +263,45 @@
 		"aliases": [  ],
 		"example": [ ".debuginfo" ],
 		"description": [ "returns which branch the user is testing" ]
+	},
+	"rank" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [],
+		"description" : []
+	},
+	"set_level_name" : {
+		"class" : "Mee6",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases" : [],
+		"example" : [ ".set_level_name <level_number> <name_for_level>"],
+		"description" : [
+			"creates a new role with the specified named for the specified level",
+			"or it renames a role that is already assigned to the specified level"
+		]
+	},
+	"remove_level_name" : {
+		"class" : "Mee6",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases" : [],
+		"example" : [ ".remove_level_name <level_number>"],
+		"description" : [
+			"Remove the role attached to an existing level"
+		]
+	},
+	"add_command" : {
+		"class" : "Mee6",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases" : [],
+		"example" : [ ".remove_level_name <level_number>"],
+		"description" : [
+			"Remove the role attached to an existing level"
+		]
 	},
 	"emojispeak" : {
 		"class": "Misc",

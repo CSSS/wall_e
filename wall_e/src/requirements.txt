@@ -7,4 +7,6 @@ wolframalpha==3.0.1
 configparser
 
 # needed for DB interactions
-django
+Django==3.2.7
+
+requests
