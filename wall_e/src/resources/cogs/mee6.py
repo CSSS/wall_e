@@ -353,7 +353,7 @@ class Mee6(commands.Cog):
             return
         mentioned_users = ctx.message.mentions
         if len(mentioned_users) > 0:
-            message_author_id = mentioned_users[0]
+            message_author_id = mentioned_users[0].id
         else:
             message_author_id = ctx.author.id
         if message_author_id not in self.user_points:
