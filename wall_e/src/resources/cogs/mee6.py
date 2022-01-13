@@ -213,7 +213,6 @@ class Mee6(commands.Cog):
                             levels_with_a_role[role_indx].total_points_required
                     ):
                         role_indx += 1
-                        await self.user_points[member_with_point.id].async_save()
                     await member_with_point.remove_roles(*guild_roles[role_indx:])
                     await member_with_point.add_roles(*guild_roles[:role_indx])
                 logger.info(
