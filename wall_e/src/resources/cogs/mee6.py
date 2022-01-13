@@ -353,8 +353,10 @@ class Mee6(commands.Cog):
             return
         mentioned_users = ctx.message.mentions
         if len(mentioned_users) > 0:
+            message_author = mentioned_users[0]
             message_author_id = mentioned_users[0].id
         else:
+            message_author = ctx.author
             message_author_id = ctx.author.id
         if message_author_id not in self.user_points:
             await ctx.send("specified user is not being tracked")
@@ -371,9 +373,9 @@ class Mee6(commands.Cog):
 
         e_obj = await embed(
             ctx,
-            avatar=ctx.author.avatar_url,
-            author=ctx.author.name,
-            title=f"{ctx.author.name}'s Stat Card",
+            avatar=message_author.avatar_url,
+            author=message_author.name,
+            title=f"{message_author.name}'s Stat Card",
             content=[
                 (
                     f"Rank # {await self.user_points[message_author_id].get_rank()}",
