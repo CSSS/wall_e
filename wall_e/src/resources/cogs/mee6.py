@@ -30,8 +30,6 @@ class Mee6(commands.Cog):
         self.xp_system_ready = False
         self.bot_channel = None
         self.council_channel = None
-        self.create_XP_roles = True  # this should only ever be true when testing locally and
-        # you want wall_e to create the XP roles for you
         self.bot.loop.create_task(self.load_data_from_mee6_endpoint_and_json())
         self.bot.loop.create_task(self.ensure_roles_exist_and_have_right_users())
 
@@ -175,8 +173,6 @@ class Mee6(commands.Cog):
                 xp_roles_that_are_missing = {}
                 for level_with_role in levels_with_a_role:
                     role = discord.utils.get(self.bot.guilds[0].roles, name=level_with_role.role_name)
-                    if role is None and self.create_XP_roles:
-                        role = await self.bot.guilds[0].create_role(name=level_with_role.role_name)
                     if role is not None:
                         guild_roles.append(role)
                         level_with_role.role_id = role.id
