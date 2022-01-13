@@ -351,18 +351,12 @@ class Mee6(commands.Cog):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
-        mentioned_users = ctx.message.mentions
-        if len(mentioned_users) > 0:
-            message_author = mentioned_users[0]
-            message_author_id = mentioned_users[0].id
-        else:
-            message_author = ctx.author
-            message_author_id = ctx.author.id
+        message_author = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
+        message_author_id = message_author.id
         if message_author_id not in self.user_points:
             await ctx.send("specified user is not being tracked")
             return
-        xp_required_to_level_up = await self.user_points[
-            message_author_id].get_xp_needed_to_level_up_to_next_level()
+        xp_required_to_level_up = await self.user_points[message_author_id].get_xp_needed_to_level_up_to_next_level()
 
         description = f"""
         {self.user_points[message_author_id].level_up_specific_points} / {xp_required_to_level_up} XP
