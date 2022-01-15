@@ -303,6 +303,16 @@
 			"Remove the role attached to an existing level"
 		]
 	},
+	"levels" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "Minions" ],
+		"aliases" : [],
+		"example" : [ ".levels"],
+		"description" : [
+			"Shows a list of all the XP levels and their associated roles and whether or not the roles exist"
+		]
+	},
 	"emojispeak" : {
 		"class": "Misc",
 		"access": "roles",

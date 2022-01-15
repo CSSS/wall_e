@@ -8,6 +8,8 @@ from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
 
+import django_db_orm_settings
+
 
 class CommandStat(models.Model):
     epoch_time = models.BigAutoField(
@@ -98,10 +100,9 @@ class UserPoint(models.Model):
     message_count = models.PositiveBigIntegerField(
 
     )
-    latest_time_xp_was_earned = models.DateTimeField(
-
+    latest_time_xp_was_earned_epoch = models.BigIntegerField(
+        default=0
     )
-
     level_number = models.PositiveBigIntegerField(
 
     )
@@ -119,7 +120,7 @@ class UserPoint(models.Model):
             user_id=user_id, points=points,
             level_up_specific_points=UserPoint.calculate_level_up_specific_points(points),
             message_count=message_count,
-            latest_time_xp_was_earned=latest_time_xp_was_earned, level_number=level,
+            latest_time_xp_was_earned_epoch=latest_time_xp_was_earned.timestamp(), level_number=level,
         )
         user_point.save()
         return user_point
@@ -136,19 +137,20 @@ class UserPoint(models.Model):
 
     @sync_to_async
     def increment_points(self):
-        point = random.randint(15, 25)
-        self.points += point
-        self.level_up_specific_points += point
-        self.message_count += 1
         alert_user = False
-        if self.level_number < 100:
-            current_level = Level.objects.get(number=self.level_number)
-            if self.level_up_specific_points >= current_level.xp_needed_to_level_up_to_next_level:
-                self.level_up_specific_points -= current_level.xp_needed_to_level_up_to_next_level
-                self.level_number += 1
-                alert_user = True
-        self.latest_time_xp_was_earned = datetime.datetime.now()
-        self.save()
+        if self._message_counts_towards_points():
+            point = random.randint(15, 25)
+            self.points += point
+            self.level_up_specific_points += point
+            self.message_count += 1
+            if self.level_number < 100:
+                current_level = Level.objects.get(number=self.level_number)
+                if self.level_up_specific_points >= current_level.xp_needed_to_level_up_to_next_level:
+                    self.level_up_specific_points -= current_level.xp_needed_to_level_up_to_next_level
+                    self.level_number += 1
+                    alert_user = True
+            self.latest_time_xp_was_earned_epoch = datetime.datetime.now().timestamp()
+            self.save()
         return alert_user
 
     @sync_to_async
@@ -174,8 +176,11 @@ class UserPoint(models.Model):
     def user_points_have_been_imported():
         return len(list(UserPoint.objects.all()[:1])) == 1
 
-    def message_counts_towards_points(self):
-        return self.latest_time_xp_was_earned.minute < datetime.datetime.now().minute
+    def _message_counts_towards_points(self):
+        return datetime.datetime.fromtimestamp(
+            self.latest_time_xp_was_earned_epoch,
+            pytz.timezone(django_db_orm_settings.TIME_ZONE)
+        ).minute < datetime.datetime.now().minute
 
     @staticmethod
     @sync_to_async
@@ -237,12 +242,12 @@ class Level(models.Model):
 
     @sync_to_async
     def rename_level_name(self, new_role_name):
-        self.name = new_role_name
+        self.role_name = new_role_name
         self.save()
 
     @sync_to_async
     def remove_role(self):
-        self.name = None
+        self.role_name = None
         self.role_id = None
         self.save()
 
