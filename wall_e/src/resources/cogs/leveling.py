@@ -288,9 +288,18 @@ class Leveling(commands.Cog):
             if not self.xp_system_ready:
                 return
             message_author_id = message.author.id
+            logger.info(f"[Mee6 ensure_roles_exist_and_have_right_users()] detected message from {message_author_id}")
             if message_author_id not in self.user_points:
+                logger.info(
+                    f"[Mee6 ensure_roles_exist_and_have_right_users()] could not detect author {message_author_id} "
+                    "in the user_points dict"
+                )
                 self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
             if await self.user_points[message_author_id].increment_points():
+                logger.info(
+                    f"[Mee6 ensure_roles_exist_and_have_right_users()] increased points for {message_author_id} "
+                    " and alerting them that they are in a new level"
+                )
                 await message.channel.send(
                     f"<@{message_author_id}> is now **level {self.user_points[message_author_id].level_number}**!"
                 )
@@ -307,9 +316,16 @@ class Leveling(commands.Cog):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
+        logger.info(
+            f"[Mee6 set_level_name()] received request to set name for level {level_number} to {new_role_name}"
+        )
         existing_xp_level_with_specified_role_name = [
             level for level in self.levels.values() if level.role_name == new_role_name
         ]
+        logger.info(
+            f"[Mee6 set_level_name()] len(existing_xp_level_with_specified_role_name)="
+            f"{len(existing_xp_level_with_specified_role_name)}"
+        )
         if len(existing_xp_level_with_specified_role_name) > 0:
             await ctx.send(
                 f"role {new_role_name} is already in use by level "
@@ -317,6 +333,7 @@ class Leveling(commands.Cog):
             )
             return
         if level_number not in list(self.levels.keys()):
+            logger.info(f"[Mee6 set_level_name()] {level_number} is not valid")
             current_levels = sorted([level.number for level in self.levels.values() if level.role_id is None])
             current_levels = [f"{level}" for level in current_levels]
 
@@ -327,11 +344,19 @@ class Leveling(commands.Cog):
             )
             return
         if self.levels[level_number].role_id is None:
+            logger.info(f"[Mee6 set_level_name()] no role_id detected for level {level_number}")
             # level does not yet have a role associated with it
             role = discord.utils.get(self.bot.guilds[0].roles, name=new_role_name)
             if role is None:
+                logger.info(
+                    f"[Mee6 set_level_name()] could not find the role {new_role_name}"
+                    f" to associate with {level_number}"
+                )
                 await ctx.send(f"could not find role {new_role_name}. ")
             else:
+                logger.info(
+                    f"[Mee6 set_level_name()] associating level {level_number} with role {new_role_name}"
+                )
                 await self.levels[level_number].set_level_name(new_role_name, role.id)
                 self.levels_have_been_changed = True
                 await ctx.send(
@@ -341,14 +366,19 @@ class Leveling(commands.Cog):
                 )
 
         else:
+            logger.info(f"[Mee6 set_level_name()] role_id detected for level {level_number}")
             role = ctx.guild.get_role(self.levels[level_number].role_id)
             if role is None:
+                logger.info(f"[Mee6 set_level_name()] detected role_id detected for level {level_number} is invalid")
                 # the XP level is getting a new role since the role it was associated with was an error
                 role = discord.utils.get(self.bot.guilds[0].roles, name=new_role_name)
                 if role is None:
                     await ctx.send(f"could not find role {new_role_name}. ")
                 else:
                     await self.levels[level_number].set_level_name(new_role_name, role.id)
+                    logger.info(
+                        f"[Mee6 set_level_name()] set flag to associate level {level_number} with role {role.name}"
+                    )
                     self.levels_have_been_changed = True
                     await ctx.send(
                         f"Associated role {new_role_name} for level {level_number}. "
@@ -357,6 +387,9 @@ class Leveling(commands.Cog):
                     )
             else:
                 old_name = role.name
+                logger.info(
+                    f"[Mee6 set_level_name()] renaming role {old_name} to {new_role_name} for level {level_number}"
+                )
                 await role.edit(name=new_role_name)
                 await self.levels[level_number].rename_level_name(new_role_name)
                 await ctx.send(f"renamed role {old_name} to {new_role_name} for level {level_number}")
@@ -373,11 +406,17 @@ class Leveling(commands.Cog):
             await ctx.send("level command is not yet ready...")
             return
         if self.levels[level_number].role_id is None:
+            logger.info(
+                f"[Mee6 remove_level_name()] resetting role info to Null for level {level_number}"
+            )
             await self.levels[level_number].remove_role()
             await ctx.send(f"level {level_number} does not have an existing role associated with it")
             return
         role_name = self.levels[level_number].role_name
         await self.levels[level_number].remove_role()
+        logger.info(
+            f"[Mee6 remove_level_name()] resetting role info to Null for level {level_number}"
+        )
         self.levels_have_been_changed = True
         await ctx.send(
             f"role {role_name} was disassociated from level {level_number}\n\n"
