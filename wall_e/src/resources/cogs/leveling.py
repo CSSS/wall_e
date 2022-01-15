@@ -441,23 +441,22 @@ class Leveling(commands.Cog):
                 levels_with_an_invalid_role.append(level_with_role)
 
         descriptions_to_embed = []
-        description_to_embed = ""
+        description_to_embed = "\nLevel Number - Level Role\n"
         for (index, level) in enumerate(levels_with_a_valid_role):
-            if index % 10 == 0:
-                if index > 0:
-                    descriptions_to_embed.append(description_to_embed)
+            if index % 10 == 0 and index > 0:
+                descriptions_to_embed.append(description_to_embed)
                 description_to_embed = "\nLevel Number - Level Role\n"
             description_to_embed += f"{level.number} - {level.role_name}\n"
-        if description_to_embed != "":
+        if description_to_embed != "\nLevel Number - Level Role\n":
             descriptions_to_embed.append(description_to_embed)
 
+        description_to_embed = "\nLevel Number - Invalid Level Role\n"
         for (index, level) in enumerate(levels_with_an_invalid_role):
-            if index % 10 == 0:
-                if index > 0:
-                    descriptions_to_embed.append(description_to_embed)
+            if index % 10 == 0 and index > 0:
+                descriptions_to_embed.append(description_to_embed)
                 description_to_embed = "\nLevel Number - Invalid Level Role\n"
             description_to_embed += f"{level.number} - {level.role_name}\n"
-        if description_to_embed != "":
+        if description_to_embed != "\nLevel Number - Invalid Level Role\n":
             descriptions_to_embed.append(description_to_embed)
 
         await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed, title="Levels")
