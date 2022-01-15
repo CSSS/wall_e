@@ -180,7 +180,9 @@ class Leveling(commands.Cog):
                     logger.info("[Mee6 create_council_channel()] variables "
                                 f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
                 else:
-                    logger.info("[Mee6 create_council_channel()] council channel exists in local dev and was detected.")
+                    logger.info(
+                        "[Mee6 create_council_channel()] council channel exists in local dev and was detected."
+                    )
                     council_channel_id = council_chan.id
         except Exception as e:
             logger.error("[Mee6 create_council_channel()] encountered following exception when connecting to council "
