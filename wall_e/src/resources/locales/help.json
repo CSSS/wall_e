@@ -364,8 +364,9 @@
 			"`.purgeban @user 7 \"they broke rules\"`"
 		],
 		"description": [
-			"Works like `.ban` but will also purge the user(s) messages from the last X days.",
-			"Default message purge timeframe is 1 day. Can go back upto 14 days."
+			"Bans 1 user at a time and will purge their messages from the last X days.",
+			"By default will purge messages in the last 1 day. Max days is 14.",
+			"Message purging is skipped in private and read-only channels."
 		]
 	},
 	"unban" : {
