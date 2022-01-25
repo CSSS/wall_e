@@ -1,11 +1,9 @@
-from itertools import filterfalse
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
 from WalleModels.models import BanRecords
 import datetime
 import pytz
-import re
 from typing import Union
 import logging
 logger = logging.getLogger('wall_e')
@@ -209,8 +207,8 @@ class Ban(commands.Cog):
     async def ban(self, ctx, user: discord.Member, purge_window_days: int=1, *reason: str):
         """Bans a user from the guild"""
 
-        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: {user=}, {reason=}, "+
-                    f"{purge_window_days=}]")
+        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, reason={reason}, "+
+                    f"purge_window_days={purge_window_days}]")
 
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
@@ -218,7 +216,7 @@ class Ban(commands.Cog):
             e_obj = await em(ctx=ctx, title="Invalid Arguments",
                              content=[("Error", "Please @ mention the user to ban"),
                              ("Command Usage", "`.ban @user_to_ban [# of days to purge messages from] reason`"),
-                              ("Example Usage", "`.ban @user1 2 they're being weird`")],
+                             ("Example Usage", "`.ban @user1 2 they're being weird`")],
                              colour=self.error_colour,
                              footer="Command Error")
             if e_obj:
@@ -303,9 +301,11 @@ class Ban(commands.Cog):
             await ctx.send('Window to purge message must be between 1 - 14 days. Command aborted')
 
         # begin purging messages
-        ## get list of all channels
+        # get list of all channels
         channels = self.bot.guilds[0].text_channels
-        is_banned_user = lambda msg: msg.author == user
+        def is_banned_user(msg):
+            msg.author == user
+
         date = datetime.datetime.now() - datetime.timedelta(timeframe)
 
         for channel in channels:
@@ -315,7 +315,7 @@ class Ban(commands.Cog):
 
             # skip private channel, defined as @everyone cannot see the channel
             # can also skip channels where @everyone cannot send messages
-            if view_perm == False or send_perm == False:
+            if view_perm is False or send_perm is False:
                 continue
             else:
                 await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
