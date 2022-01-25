@@ -344,7 +344,7 @@
 		"roles" : [ "Minions" ],
 		"aliases": [ ],
 		"example": [
-			"`.ban @user_mention [<# of days to purge messages>] [<reason for ban>]`",
+			"`.ban @user [<# of days to purge messages>] [<reason>]`",
 			"`.ban @user they broke rules`",
 			"`.ban @user 5 \"they broke rules\"`"
 		],
