@@ -1,3 +1,4 @@
+from itertools import filterfalse
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
@@ -205,107 +206,101 @@ class Ban(commands.Cog):
         logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
 
     @commands.command()
-    async def ban(self, ctx, *args):
+    async def ban(self, ctx, user: discord.Member, purge_window_days: int=1, *reason: str):
         """Bans a user from the guild"""
 
-        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args=[ {args} ]")
-        args = list(args)
-        ban_record = BanRecords(
-                                mod=ctx.author.name+'#'+ctx.author.discriminator,
-                                mod_id=ctx.author.id
-                                )
+        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: {user=}, {reason=}, "+
+                    f"{purge_window_days=}]")
 
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
-            logger.info("[Ban ban()] No users were @ mentioned in the args")
+            logger.info("[Ban ban()] No user were @ mentioned in the args")
             e_obj = await em(ctx=ctx, title="Invalid Arguments",
-                             content=[("Error", "Please @ mention the user(s) to ban")],
+                             content=[("Error", "Please @ mention the user to ban"),
+                             ("Command Usage", "`.ban @user_to_ban [# of days to purge messages from] reason`"),
+                              ("Example Usage", "`.ban @user1 2 they're being weird`")],
                              colour=self.error_colour,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
             return
 
-        # get mentions
-        users_to_ban = ctx.message.mentions
-        logger.info(f"[Ban ban()] list of user to be banned={users_to_ban}")
+        logger.info(f"[Ban ban()] User to ban: {user}")
 
-        # construct reason, but first remove @'s from the args
-        reason = ' '.join([arg for arg in args if not re.match(r'<@!?[0-9]*>', arg)])
-        reason = reason if reason else "No Reason Given!"
-        logger.info(f"[Ban ban()] reason for ban(s)={reason}")
+        # construct reason
+        reason = ' '.join(reason)
+        reason = reason if reason else "No Reason Given."
+        logger.info(f"[Ban ban()] Ban reason{reason}")
 
         # ban
         dm = True
-        records = []
-        for user in users_to_ban:
-            ban = BanRecords(
-                             username=user.name + '#' + user.discriminator,
-                             user_id=user.id,
-                             mod=ban_record.mod,
-                             mod_id=ban_record.mod_id,
-                             reason=reason
-                             )
+        # for user in users_to_ban:
+        ban = BanRecords(
+                         username=user.name + '#' + user.discriminator,
+                         user_id=user.id,
+                         mod=ctx.author.name+'#'+ctx.author.discriminator,
+                         mod_id=ctx.author.id,
+                         reason=reason
+                         )
 
-            logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
+        logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
 
-            # add to ban_list
-            self.ban_list.append(ban.user_id)
+        # add to ban_list
+        self.ban_list.append(ban.user_id)
 
-            # dm banned user
-            e_obj = discord.Embed(title="Ban Notification",
-                                  description="You have been **PERMANENTLY BANNED** from " +
-                                  f"**{self.bot.guilds[0].name.upper()}**",
-                                  color=discord.Color.red(),
-                                  timestamp=datetime.datetime.now(pytz.utc))
-            e_obj.add_field(name='Reason',
-                            value=f"```{reason}```\n" +
-                            "**Please refrain from this kind of behaviour in the future. Thank you.**")
+        # dm banned user
+        e_obj = discord.Embed(title="Ban Notification",
+                              description="You have been **PERMANENTLY BANNED** from " +
+                              f"**{self.bot.guilds[0].name.upper()}**",
+                              color=discord.Color.red(),
+                              timestamp=datetime.datetime.now(pytz.utc)
+                              )
+        e_obj.add_field(name='Reason',
+                        value=f"```{reason}```\n" +
+                        "**Please refrain from this kind of behaviour in the future. Thank you.**"
+                        )
 
-            e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
-            try:
-                if e_obj:
-                    await user.send(embed=e_obj)
-                    logger.info("[Ban ban()] User notified via dm of their ban")
-            except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
-                dm = False
-                logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
-
-            # kick
-            await user.kick(reason=reason)
-            dt = datetime.datetime.now(pytz.utc)
-            ban.ban_date = dt.timestamp()
-
-            logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
-
-            # report to council
-            e_obj = discord.Embed(title="Ban Hammer Deployed",
-                                  colour=discord.Color.red())
-
-            e_obj.add_field(name="Banned User", value=f"**{ban.username}**", inline=True)
-            e_obj.add_field(name="Moderator", value=f"**{ban.mod}**", inline=True)
-            e_obj.add_field(name="Reason", value=f"```{ban.reason}```", inline=False)
-            e_obj.add_field(name="User Notified via DM", value="*YES*\n" if dm else "*NO*\n*USER HAS DM's DISABLED*",
-                            inline=False)
-            e_obj.set_footer(text="Moderator Action")
+        e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
+        try:
             if e_obj:
-                e_obj.timestamp = dt
-                await self.mod_channel.send(embed=e_obj)
-            logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
+                await user.send(embed=e_obj)
+                logger.info("[Ban ban()] User notified via dm of their ban")
+        except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
+            dm = False
+            logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
 
-            # add ban and record objects to lists
-            records.append(ban)
+        # kick
+        await user.kick(reason=reason)
+        dt = datetime.datetime.now(pytz.utc)
+        ban.ban_date = dt.timestamp()
+
+        logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
+
+        # begin purging messages from user in the last purge_window_days
+        await self.purge_messages(ctx, user, purge_window_days)
+
+        # report to council
+        e_obj = discord.Embed(title="Ban Hammer Deployed",
+                                colour=discord.Color.red())
+
+        e_obj.add_field(name="Banned User", value=f"**{ban.username}**", inline=True)
+        e_obj.add_field(name="Moderator", value=f"**{ban.mod}**", inline=True)
+        e_obj.add_field(name="Reason", value=f"```{ban.reason}```", inline=False)
+        e_obj.add_field(name="User Notified via DM", value="*YES*\n" if dm else "*NO*\n*USER HAS DM's DISABLED*",
+                        inline=False)
+        e_obj.set_footer(text="Moderator Action")
+        if e_obj:
+            e_obj.timestamp = dt
+            await self.mod_channel.send(embed=e_obj)
+        logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
 
         # update database
-        await BanRecords.insert_records(records)
+        await BanRecords.insert_records(ban)
 
-    @commands.command()
-    async def purgeban(self, ctx, user: discord.User, timeframe = 7, *args):
+    async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
         if timeframe <= 0 or timeframe > 14:
             await ctx.send('Window to purge message must be between 1 - 14 days. Command aborted')
-
-        # await self.ban(ctx, user, ' '.join(list(args)))
 
         # begin purging messages
         ## get list of all channels
@@ -315,15 +310,15 @@ class Ban(commands.Cog):
 
         for channel in channels:
             # print(channel, channel.id, channel.category)
-            if not channel.overwrites_for(ctx.guild.default_role).send_messages:
-                print(f'Private channel :\t{channel.name}')
+            send_perm = channel.overwrites_for(ctx.guild.default_role).send_messages
+            view_perm = channel.overwrites_for(ctx.guild.default_role).view_channel
+
+            # skip private channel, defined as @everyone cannot see the channel
+            # can also skip channels where @everyone cannot send messages
+            if view_perm == False or send_perm == False:
+                continue
             else:
-                print(f'Public Channel :\t{channel.name}')
-
-            # await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
-
-
-
+                await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
 
     @commands.command()
     async def unban(self, ctx, user_id: int):

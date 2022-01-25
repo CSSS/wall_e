@@ -344,29 +344,15 @@
 		"roles" : [ "Minions" ],
 		"aliases": [ ],
 		"example": [
+			"`.ban @user_mention [<# of days to purge messages>] [<reason for ban>]`",
 			"`.ban @user they broke rules`",
-			"`.ban @user \"they broke rules\"`",
-			"`.ban @user @user1 @user2 they broke rules`",
-			"`.ban @user @user1 @user2 \"they broke rules\"`"
+			"`.ban @user 5 \"they broke rules\"`"
 		],
 		"description": [
-			"Bans the @ mentioned user(s) with the given reason. Default reason is \"No Reason Given!\"",
-			"Reason can be given with or without quotes."
-		]
-	},
-	"purgeban" : {
-		"class" : "Ban",
-		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ ],
-		"example": [
-			"`.purgeban @user they broke rules`",
-			"`.purgeban @user 7 \"they broke rules\"`"
-		],
-		"description": [
-			"Bans 1 user at a time and will purge their messages from the last X days.",
+			"Bans a user and purges their messages from the last X days.",
 			"By default will purge messages in the last 1 day. Max days is 14.",
-			"Message purging is skipped in private and read-only channels."
+			"Message purging is skipped in private and read-only channels.",
+			"Put 0 if you don't want to purge any messages."
 		]
 	},
 	"unban" : {
