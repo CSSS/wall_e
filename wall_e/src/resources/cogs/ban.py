@@ -204,10 +204,10 @@ class Ban(commands.Cog):
         logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
 
     @commands.command()
-    async def ban(self, ctx, user: discord.Member, purge_window_days: int=1, *reason: str):
+    async def ban(self, ctx, user: discord.Member, purge_window_days: int = 1, *reason: str):
         """Bans a user from the guild"""
 
-        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, reason={reason}, "+
+        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, reason={reason}, " +
                     f"purge_window_days={purge_window_days}]")
 
         # confirm at least 1 @ mention of user to ban
@@ -215,8 +215,8 @@ class Ban(commands.Cog):
             logger.info("[Ban ban()] No user were @ mentioned in the args")
             e_obj = await em(ctx=ctx, title="Invalid Arguments",
                              content=[("Error", "Please @ mention the user to ban"),
-                             ("Command Usage", "`.ban @user_to_ban [# of days to purge messages from] reason`"),
-                             ("Example Usage", "`.ban @user1 2 they're being weird`")],
+                                      ("Command Usage", "`.ban @user [<# of days to purge messages>] [<reason>]`"),
+                                      ("Example Usage", "`.ban @user1 2 they're being weird`")],
                              colour=self.error_colour,
                              footer="Command Error")
             if e_obj:
@@ -279,7 +279,7 @@ class Ban(commands.Cog):
 
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed",
-                                colour=discord.Color.red())
+                              colour=discord.Color.red())
 
         e_obj.add_field(name="Banned User", value=f"**{ban.username}**", inline=True)
         e_obj.add_field(name="Moderator", value=f"**{ban.mod}**", inline=True)
@@ -303,6 +303,7 @@ class Ban(commands.Cog):
         # begin purging messages
         # get list of all channels
         channels = self.bot.guilds[0].text_channels
+
         def is_banned_user(msg):
             msg.author == user
 
