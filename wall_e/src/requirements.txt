@@ -1,11 +1,15 @@
+yarl<1.2
+bs4
+discord.py[voice]==1.5.1
 pytz==2018.5
 parsedatetime==2.4
 wolframalpha==3.0.1
 configparser==5.2.0
+aiohttp==3.6.3
 
 # needed for DB interactions
 Django==3.2.7
-
-requests==2.27.1
-aiohttp==3.6.3
 asgiref==3.4.1
+
+# needed temporarily for importing data from mee6
+requests==2.27.1
