@@ -1,4 +1,5 @@
 import datetime
+import logging
 import random
 import time
 
@@ -9,6 +10,7 @@ from django.db import models
 from django.forms import model_to_dict
 
 import django_db_orm_settings
+logger = logging.getLogger('wall_e')
 
 
 class CommandStat(models.Model):
@@ -177,10 +179,16 @@ class UserPoint(models.Model):
         return len(list(UserPoint.objects.all()[:1])) == 1
 
     def _message_counts_towards_points(self):
-        return datetime.datetime.fromtimestamp(
+        current_minute = datetime.datetime.now().minute
+        recorded_minute = datetime.datetime.fromtimestamp(
             self.latest_time_xp_was_earned_epoch,
             pytz.timezone(django_db_orm_settings.TIME_ZONE)
-        ).minute < datetime.datetime.now().minute
+        ).minute
+        logger.info(
+            f"[models.py _message_counts_towards_points()] current_minute = {current_minute} "
+            f" recorded_minute = {recorded_minute}"
+        )
+        return recorded_minute < current_minute
 
     @staticmethod
     @sync_to_async
