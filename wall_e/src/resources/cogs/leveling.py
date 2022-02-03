@@ -34,10 +34,6 @@ class Leveling(commands.Cog):
         self.bot.loop.create_task(self.ensure_roles_exist_and_have_right_users())
 
     async def load_data_from_mee6_endpoint_and_json(self):
-        """
-
-        :return:
-        """
         await self.bot.wait_until_ready()
         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading XP data")
         if not await Level.level_points_have_been_imported():
@@ -61,9 +57,13 @@ class Leveling(commands.Cog):
             logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
             page = 0
             all_users_loaded = False
+            headers = {
+                'Authorization': 'M2ZmYjViMmJlODIwMDBi.NjFkY2M4NmE=.nho3DIo10IWgVwV5ZvljDU5xNEY'
+            }
             while not all_users_loaded:
                 r = requests.get(
-                    f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000"
+                    f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
+                    headers=headers
                 )
                 if r.status_code == 200:
                     data = json.loads(r.text)
@@ -278,12 +278,6 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
-        """
-
-        :param message:
-        :return:
-        """
-
         if not message.author.bot:
             if not self.xp_system_ready:
                 return

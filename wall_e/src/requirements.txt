@@ -1,12 +1,11 @@
-yarl<1.2
-bs4
-discord.py[voice]==1.5.1
 pytz==2018.5
 parsedatetime==2.4
 wolframalpha==3.0.1
-configparser
+configparser==5.2.0
 
 # needed for DB interactions
 Django==3.2.7
 
-requests
+requests==2.27.1
+aiohttp==3.6.3
+asgiref==3.4.1

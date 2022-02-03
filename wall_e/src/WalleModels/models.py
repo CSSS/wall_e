@@ -10,6 +10,7 @@ from django.db import models
 from django.forms import model_to_dict
 
 import django_db_orm_settings
+
 logger = logging.getLogger('wall_e')
 
 
@@ -179,16 +180,19 @@ class UserPoint(models.Model):
         return len(list(UserPoint.objects.all()[:1])) == 1
 
     def _message_counts_towards_points(self):
-        current_minute = datetime.datetime.now().minute
-        recorded_minute = datetime.datetime.fromtimestamp(
+        current_date = datetime.datetime.now(tz=pytz.timezone(django_db_orm_settings.TIME_ZONE))
+        date_for_incrementing_points = datetime.datetime.fromtimestamp(
             self.latest_time_xp_was_earned_epoch,
             pytz.timezone(django_db_orm_settings.TIME_ZONE)
-        ).minute
+        ) + datetime.timedelta(minutes=1)
+
+        current_date_str = current_date.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
+        date_for_incrementing_points_str = date_for_incrementing_points.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
         logger.info(
-            f"[models.py _message_counts_towards_points()] current_minute = {current_minute} "
-            f" recorded_minute = {recorded_minute}"
+            f"[models.py _message_counts_towards_points()] current_date = {current_date_str} "
+            f" date_for_incrementing_points = {date_for_incrementing_points_str}"
         )
-        return recorded_minute < current_minute
+        return date_for_incrementing_points < current_date
 
     @staticmethod
     @sync_to_async
