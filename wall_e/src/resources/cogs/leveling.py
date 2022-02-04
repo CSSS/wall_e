@@ -57,13 +57,12 @@ class Leveling(commands.Cog):
             logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
             page = 0
             all_users_loaded = False
-            headers = {
-                'Authorization': 'M2ZmYjViMmJlODIwMDBi.NjFkY2M4NmE=.nho3DIo10IWgVwV5ZvljDU5xNEY'
-            }
             while not all_users_loaded:
                 r = requests.get(
                     f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
-                    headers=headers
+                    headers={
+                        'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
+                    }
                 )
                 if r.status_code == 200:
                     data = json.loads(r.text)
