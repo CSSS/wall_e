@@ -30,8 +30,8 @@ class Leveling(commands.Cog):
         self.xp_system_ready = False
         self.council_channel = None
         self.bot.loop.create_task(self.load_data_from_mee6_endpoint_and_json())
-        # self.bot.loop.create_task(self.create_council_channel())
-        # self.bot.loop.create_task(self.ensure_roles_exist_and_have_right_users())
+        self.bot.loop.create_task(self.create_council_channel())
+        self.bot.loop.create_task(self.ensure_roles_exist_and_have_right_users())
 
     async def load_data_from_mee6_endpoint_and_json(self):
         await self.bot.wait_until_ready()
