@@ -1,10 +1,11 @@
 import asyncio
+import json
 import logging
 
 import discord
 from discord.ext import commands
 
-from WalleModels.models import UserPoint
+from WalleModels.models import UserPoint, Level
 from resources.utilities.embed import embed
 from resources.utilities.paginate import paginate_embed
 
@@ -34,22 +35,22 @@ class Leveling(commands.Cog):
     async def load_data_from_mee6_endpoint_and_json(self):
         await self.bot.wait_until_ready()
         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading XP data")
-        # if not await Level.level_points_have_been_imported():
-        #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
-        #     with open('resources/mee6_levels/levels.json') as f:
-        #         self.levels = {
-        #             int(level_number): await Level.create_level(
-        #                 int(level_number),
-        #                 level_info['total_xp_required_for_level'],
-        #                 level_info['xp_needed_to_level_up_to_next_level'],
-        #                 role_name=level_info['role_name'] if 'role_name' in level_info else None,
-        #             )
-        #             for (level_number, level_info) in json.load(f).items()
-        #         }
-        # elif len(self.levels) == 0:
-        #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
-        #     self.levels = await Level.load_to_dict()
-        # logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
+        if not await Level.level_points_have_been_imported():
+            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
+            with open('resources/mee6_levels/levels.json') as f:
+                self.levels = {
+                    int(level_number): await Level.create_level(
+                        int(level_number),
+                        level_info['total_xp_required_for_level'],
+                        level_info['xp_needed_to_level_up_to_next_level'],
+                        role_name=level_info['role_name'] if 'role_name' in level_info else None,
+                    )
+                    for (level_number, level_info) in json.load(f).items()
+                }
+        elif len(self.levels) == 0:
+            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
+            self.levels = await Level.load_to_dict()
+        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
         #
         # if not await UserPoint.user_points_have_been_imported():
         #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
