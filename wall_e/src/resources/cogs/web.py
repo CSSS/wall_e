@@ -26,5 +26,5 @@ class Web(commands.Cog):
         await runner.setup()
         self.site = web.TCPSite(runner, '0.0.0.0', 31337)
         await self.bot.wait_until_ready()
-        logger.info(f"[Web server()] web to start")
+        logger.info('[Web server()] web to start')
         await self.site.start()
