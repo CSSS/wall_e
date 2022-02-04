@@ -97,14 +97,21 @@ class Leveling(commands.Cog):
                             )
                     else:
                         all_users_loaded = True
+                if r.status_code == 429:
+                    logger.info(
+                        "[Mee6 load_data_from_mee6_endpoint_and_json()] wall_e is currently rate-limited by the"
+                        " mee6 website. exiting now"
+                    )
+                    await asyncio.sleep(120)
+                    exit(0)
                 else:
                     await asyncio.sleep(120)
-        # elif len(self.user_points) == 0:
-        #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
-        #     self.user_points = await UserPoint.load_to_dict()
-        # logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
-        # logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
-        # self.database_and_dict_populated = True
+        elif len(self.user_points) == 0:
+            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
+            self.user_points = await UserPoint.load_to_dict()
+        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
+        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
+        self.database_and_dict_populated = True
 
     async def create_council_channel(self):
         await self.bot.wait_until_ready()
