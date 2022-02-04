@@ -509,13 +509,17 @@ class Leveling(commands.Cog):
         user_points.sort(key=lambda x: x.points, reverse=True)
         descriptions_to_embed = []
         description_to_embed = "\nUser - Messages - Experience - Level\n"
+        rank = 1
         for (index, user_point) in enumerate(user_points):
             if index % 10 == 0 and index > 0:
                 descriptions_to_embed.append(description_to_embed)
-                description_to_embed = "\nUser - Messages - Experience - Level\n"
+                description_to_embed = "\nRank - User - Messages - Experience - Level\n"
             description_to_embed += (
-                f"<@{user_point.user_id}> - {user_point.message_count} - {user_point.points}"
-                f" - {user_point.level_number}"
+                f"{rank} - <@{user_point.user_id}> - {user_point.message_count} - {user_point.points}"
+                f" - {user_point.level_number}\n"
             )
-        await paginate_embed(self.bot, ctx, self.config, description_to_embed)
+            rank += 1
+        if description_to_embed != "\nUser - Messages - Experience - Level\n":
+            descriptions_to_embed.append(description_to_embed)
 
+        await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed)

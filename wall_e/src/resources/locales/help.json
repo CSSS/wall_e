@@ -211,66 +211,6 @@
 			"Just a custom command"
 		]
 	},
-	"anime" : {
-		"class": "Custom_Commands",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".anime" ],
-		"description": [
-			"Just a custom command"
-		]
-	},
-	"imgur" : {
-		"class": "Custom_Commands",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".imgur" ],
-		"description": [
-			"Just a custom command"
-		]
-	},
-	"manga" : {
-		"class": "Custom_Commands",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".manga" ],
-		"description": [
-			"Just a custom command"
-		]
-	},
-	"pokemon" : {
-		"class": "Custom_Commands",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".pokemon" ],
-		"description": [
-			"Just a custom command"
-		]
-	},
-	"twitch" : {
-		"class": "Custom_Commands",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".twitch" ],
-		"description": [
-			"Just a custom command"
-		]
-	},
-	"youtube" : {
-		"class": "Custom_Commands",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".youtube" ],
-		"description": [
-			"Just a custom command"
-		]
-	},
 	"ping" : {
 		"class": "HealthChecks",
 		"access": "roles",
@@ -306,16 +246,6 @@
 		"example": [ ".debuginfo" ],
 		"description": [ "returns which branch the user is testing" ]
 	},
-	"rank" : {
-		"class" : "Mee6",
-		"access" : "roles",
-		"roles" : [ "@everyone" ],
-		"aliases" : [],
-		"example" : [ ".rank", ".rank @user"],
-		"description" : [
-			"Get the XP rank for either the calling user or the first user that is mentioned."
-		]
-	},
 	"set_level_name" : {
 		"class" : "Mee6",
 		"access": "roles",
@@ -323,7 +253,7 @@
 		"aliases" : [],
 		"example" : [ ".set_level_name <level_number> <name_for_level>"],
 		"description" : [
-			"creates a new role with the specified named for the specified level",
+			"associates an existing role with the specified named for the specified level",
 			"or it renames a role that is already assigned to the specified level"
 		]
 	},
@@ -334,7 +264,27 @@
 		"aliases" : [],
 		"example" : [ ".remove_level_name <level_number>"],
 		"description" : [
-			"Remove the role attached to an existing level"
+			"unmaps the any role that is currently mapped to the specified level"
+		]
+	},
+	"rank" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".rank", ".rank @user"],
+		"description" : [
+			"Get the XP rank for either the calling user or the first user that is mentioned."
+		]
+	},
+	"ranks" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".ranks"],
+		"description" : [
+			"shows the current leaderboards embeds."
 		]
 	},
 	"levels" : {

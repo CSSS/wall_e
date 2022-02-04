@@ -159,16 +159,12 @@ class UserPoint(models.Model):
     @sync_to_async
     def get_rank(self):
         users_above_in_rank = []
-        user_encountered = False
-        indx = 0
-        users = UserPoint.objects.all().order_by('-points')
-        while not user_encountered:
-            if users[indx].user_id != self.user_id:
-                users_above_in_rank.append(users[indx])
-                indx += 1
+        for user in UserPoint.objects.all().order_by('-points'):
+            if user.user_id != self.user_id:
+                users_above_in_rank.append(user)
             else:
-                user_encountered = True
-        return len(users_above_in_rank)
+                return len(users_above_in_rank)+1
+        return len(users_above_in_rank)+1
 
     @sync_to_async
     def get_xp_needed_to_level_up_to_next_level(self):
