@@ -1,12 +1,10 @@
 import asyncio
-import json
 import logging
 
 import discord
-import requests
 from discord.ext import commands
 
-from WalleModels.models import Level, UserPoint
+from WalleModels.models import UserPoint
 from resources.utilities.embed import embed
 from resources.utilities.paginate import paginate_embed
 
