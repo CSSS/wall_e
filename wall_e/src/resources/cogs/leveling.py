@@ -66,7 +66,8 @@ class Leveling(commands.Cog):
                         'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
                     }
                 )
-                logger.info(f"request made with status {r.status_code}")
+                logger.info(f"request made with status {r.status_code} and body")
+                logger.info(f"{r.content}")
                 if r.status_code == 200:
                     data = json.loads(r.text)
                     if len(data['players']) > 0:
