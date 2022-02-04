@@ -27,8 +27,6 @@ INSTALLED_APPS = (
     'WalleModels',
 )
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
 TIME_ZONE = 'Canada/Pacific'
 
 USE_TZ = True

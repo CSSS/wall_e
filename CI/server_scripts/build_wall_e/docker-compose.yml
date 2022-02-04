@@ -20,7 +20,6 @@ services:  #Services that are needed for the wall_e app
             - WALL_E_DB_USER
             - WALL_E_DB_DBNAME
             - WALL_E_DB_PASSWORD
-            - MEE6_AUTHORIZATION
         volumes: #volume are for hot reload
             - logs:/usr/src/app/logs
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
