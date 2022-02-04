@@ -97,6 +97,8 @@ class Leveling(commands.Cog):
                             )
                     else:
                         all_users_loaded = True
+                else:
+                    await asyncio.sleep(120)
         # elif len(self.user_points) == 0:
         #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
         #     self.user_points = await UserPoint.load_to_dict()
