@@ -36,69 +36,69 @@ class Leveling(commands.Cog):
     async def load_data_from_mee6_endpoint_and_json(self):
         await self.bot.wait_until_ready()
         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading XP data")
-        if not await Level.level_points_have_been_imported():
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
-            with open('resources/mee6_levels/levels.json') as f:
-                self.levels = {
-                    int(level_number): await Level.create_level(
-                        int(level_number),
-                        level_info['total_xp_required_for_level'],
-                        level_info['xp_needed_to_level_up_to_next_level'],
-                        role_name=level_info['role_name'] if 'role_name' in level_info else None,
-                    )
-                    for (level_number, level_info) in json.load(f).items()
-                }
-        elif len(self.levels) == 0:
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
-            self.levels = await Level.load_to_dict()
-        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
-
-        if not await UserPoint.user_points_have_been_imported():
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
-            page = 0
-            all_users_loaded = False
-            while not all_users_loaded:
-                r = requests.get(
-                    f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
-                    headers={
-                        'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
-                    }
-                )
-                if r.status_code == 200:
-                    data = json.loads(r.text)
-                    if len(data['players']) > 0:
-                        page += 1
-                        for player in data['players']:
-                            # player = {
-                            #     'avatar': '3fd2cc8fda2a0af3b1a06bb27d5151f0',
-                            #     'detailed_xp': [
-                            #         8349,  # how much of the "XP needed to level up" I have so far
-                            #         11980,  # XP needed to level up
-                            #         197219  # Total XP I have so far
-                            #     ],
-                            #     'discriminator': '6816',
-                            #     'guild_id': '228761314644852736',
-                            #     'id': '288148680479997963',
-                            #     'level': 44,
-                            #     'message_count': 9858,  # total messages sent
-                            #     'username': 'modernNeo',
-                            #     'xp': 197219  # Total XP
-                            # }
-                            user_id = int(player['id'])
-                            message_count = int(player['message_count'])
-                            level = int(player['level'])
-                            user_xp = int(player['xp'])
-                            self.user_points[user_id] = await UserPoint.create_user_point(
-                                user_id, points=user_xp, message_count=message_count, level=level
-                            )
-                    else:
-                        all_users_loaded = True
-        elif len(self.user_points) == 0:
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
-            self.user_points = await UserPoint.load_to_dict()
-        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
-        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
-        self.database_and_dict_populated = True
+        # if not await Level.level_points_have_been_imported():
+        #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
+        #     with open('resources/mee6_levels/levels.json') as f:
+        #         self.levels = {
+        #             int(level_number): await Level.create_level(
+        #                 int(level_number),
+        #                 level_info['total_xp_required_for_level'],
+        #                 level_info['xp_needed_to_level_up_to_next_level'],
+        #                 role_name=level_info['role_name'] if 'role_name' in level_info else None,
+        #             )
+        #             for (level_number, level_info) in json.load(f).items()
+        #         }
+        # elif len(self.levels) == 0:
+        #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
+        #     self.levels = await Level.load_to_dict()
+        # logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
+        #
+        # if not await UserPoint.user_points_have_been_imported():
+        #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
+        #     page = 0
+        #     all_users_loaded = False
+        #     while not all_users_loaded:
+        #         r = requests.get(
+        #             f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
+        #             headers={
+        #                 'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
+        #             }
+        #         )
+        #         if r.status_code == 200:
+        #             data = json.loads(r.text)
+        #             if len(data['players']) > 0:
+        #                 page += 1
+        #                 for player in data['players']:
+        #                     # player = {
+        #                     #     'avatar': '3fd2cc8fda2a0af3b1a06bb27d5151f0',
+        #                     #     'detailed_xp': [
+        #                     #         8349,  # how much of the "XP needed to level up" I have so far
+        #                     #         11980,  # XP needed to level up
+        #                     #         197219  # Total XP I have so far
+        #                     #     ],
+        #                     #     'discriminator': '6816',
+        #                     #     'guild_id': '228761314644852736',
+        #                     #     'id': '288148680479997963',
+        #                     #     'level': 44,
+        #                     #     'message_count': 9858,  # total messages sent
+        #                     #     'username': 'modernNeo',
+        #                     #     'xp': 197219  # Total XP
+        #                     # }
+        #                     user_id = int(player['id'])
+        #                     message_count = int(player['message_count'])
+        #                     level = int(player['level'])
+        #                     user_xp = int(player['xp'])
+        #                     self.user_points[user_id] = await UserPoint.create_user_point(
+        #                         user_id, points=user_xp, message_count=message_count, level=level
+        #                     )
+        #             else:
+        #                 all_users_loaded = True
+        # elif len(self.user_points) == 0:
+        #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
+        #     self.user_points = await UserPoint.load_to_dict()
+        # logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
+        # logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
+        # self.database_and_dict_populated = True
 
     async def create_council_channel(self):
         await self.bot.wait_until_ready()
