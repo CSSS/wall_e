@@ -10,6 +10,7 @@ merged="${4}"
 action="${5}"
 token="${6}"
 WOLFRAM_API_TOKEN="${7}"
+MEE6_AUTHORIZATION="${8}"
 
 deleted_discord_pr_channels () {
 
@@ -39,6 +40,9 @@ deleted_discord_pr_channels () {
 		if [ "${list_of_channel_names[$i]}" = "pr-${pr_number}_bot_channel" ]; then
 			reminder_channel_id="${list_of_channel_ids[$i]}"
 		fi
+		if [ "${list_of_channel_names[$i]}" = "pr-${pr_number}_council" ]; then
+			council_channel_id="${list_of_channel_ids[$i]}"
+		fi
 	done
 
 
@@ -61,6 +65,13 @@ deleted_discord_pr_channels () {
 		echo -e "\nreminder_channel_id was not detected"
 	else
 		url="https://discordapp.com/api/channels/${reminder_channel_id}"
+		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
+	fi
+
+	if [ -z "${council_channel_id}" ]; then
+		echo -e "\ncouncil_channel_id was not detected"
+	else
+		url="https://discordapp.com/api/channels/${council_channel_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
 	fi
 }
@@ -90,6 +101,7 @@ if [ "${action}" = "closed" ]; then
 		export WALL_E_DB_PASSWORD=wallEPassword;
 		export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
 		export TOKEN=${token};
+		export MEE6_AUTHORIZATION="'"${MEE6_AUTHORIZATION}"'";
 		export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
 		./CI/server_scripts/build_wall_e/deploy_to_staging_discord_guild.sh;
