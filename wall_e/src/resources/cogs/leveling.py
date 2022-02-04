@@ -58,16 +58,12 @@ class Leveling(commands.Cog):
             page = 0
             all_users_loaded = False
             while not all_users_loaded:
-                url = f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000"
-                logger.info(f"making request={url}")
                 r = requests.get(
-                    url,
+                    f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
                     headers={
                         'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
                     }
                 )
-                logger.info(f"request made with status {r.status_code} and body")
-                logger.info(f"{r.content}")
                 if r.status_code == 200:
                     data = json.loads(r.text)
                     if len(data['players']) > 0:
@@ -97,7 +93,7 @@ class Leveling(commands.Cog):
                             )
                     else:
                         all_users_loaded = True
-                if r.status_code == 429:
+                elif r.status_code == 429:
                     logger.info(
                         "[Mee6 load_data_from_mee6_endpoint_and_json()] wall_e is currently rate-limited by the"
                         " mee6 website. exiting now"
