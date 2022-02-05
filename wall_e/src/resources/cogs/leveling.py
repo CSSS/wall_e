@@ -202,7 +202,7 @@ class Leveling(commands.Cog):
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         if not message.author.bot:
-        # if message.author.id == 288148680479997963:
+            # if message.author.id == 288148680479997963:
             if not self.xp_system_ready:
                 return
             message_author_id = message.author.id
@@ -227,8 +227,8 @@ class Leveling(commands.Cog):
                     if role is not None:
                         logger.info(
                             f"[Mee6 on_message()] the new level {level.number} "
-                            f" for user {message.author}({message_author_id}) has the role {role} associated with it. "
-                            f"Assigning to user"
+                            f" for user {message.author}({message_author_id}) has the role {role} "
+                            f"associated with it. Assigning to user"
                         )
                         await message.author.add_roles(role)
                     else:

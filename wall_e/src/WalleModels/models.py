@@ -191,7 +191,8 @@ class UserPoint(models.Model):
         date_for_incrementing_points_str = date_for_incrementing_points.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
         logger.info(
             f"[models.py _message_counts_towards_points()] current_date = {current_date_str} "
-            f" date_for_incrementing_points = {date_for_incrementing_points_str} == incrementing is {date_for_incrementing_points < current_date}"
+            f" date_for_incrementing_points = {date_for_incrementing_points_str} == incrementing is"
+            f" {date_for_incrementing_points < current_date}"
         )
         return date_for_incrementing_points < current_date
 
