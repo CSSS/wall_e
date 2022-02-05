@@ -220,7 +220,7 @@ class Leveling(commands.Cog):
                     role = message.ctx.guild.get_role(level.role_id)
                     if role is not None:
                         logger.info(
-                            f"[Mee6 on_message()] the new level {self.user_points[message_author_id].level_number} "
+                            f"[Mee6 on_message()] the new level {level.number} "
                             f" for user {message_author_id} has the role {role} associated with it. Assigning to user"
                         )
                         await message.author.add_roles(role)
@@ -238,7 +238,7 @@ class Leveling(commands.Cog):
                         )
 
                 await message.channel.send(
-                    f"<@{message_author_id}> is now **level {self.user_points[message_author_id].level_number}**!"
+                    f"<@{message_author_id}> is now **level {level.number}**!"
                 )
 
     @commands.command()
