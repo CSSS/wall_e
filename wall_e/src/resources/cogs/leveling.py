@@ -35,6 +35,9 @@ class Leveling(commands.Cog):
     async def load_data_from_mee6_endpoint_and_json(self):
         await self.bot.wait_until_ready()
         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading XP data")
+        await Level.clear_all_entries()
+        await UserPoint.clear_all_entries()
+
         if not await Level.level_points_have_been_imported():
             logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
             with open('resources/mee6_levels/levels.json') as f:
@@ -199,35 +202,40 @@ class Leveling(commands.Cog):
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         if not message.author.bot:
+            # if message.author.id == 288148680479997963:
             if not self.xp_system_ready:
                 return
             message_author_id = message.author.id
-            logger.info(f"[Mee6 ensure_roles_exist_and_have_right_users()] detected message from {message_author_id}")
+            logger.info(
+                f"[Mee6 on_message()] detected message from author "
+                f"{message.author}({message_author_id})"
+            )
             if message_author_id not in self.user_points:
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] could not detect author {message_author_id} "
+                    f"[Mee6 on_message()] could not detect author {message.author}({message_author_id}) "
                     "in the user_points dict"
                 )
                 self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
             if await self.user_points[message_author_id].increment_points():
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] increased points for {message_author_id} "
+                    f"[Mee6 on_message()] increased points for {message.author}({message_author_id}) "
                     " and alerting them that they are in a new level"
                 )
                 level = self.levels[self.user_points[message_author_id].level_number]
                 if level.role_id is not None:
-                    role = message.ctx.guild.get_role(level.role_id)
+                    role = message.guild.get_role(level.role_id)
                     if role is not None:
                         logger.info(
                             f"[Mee6 on_message()] the new level {level.number} "
-                            f" for user {message_author_id} has the role {role} associated with it. Assigning to user"
+                            f" for user {message.author}({message_author_id}) has the role {role} "
+                            f"associated with it. Assigning to user"
                         )
                         await message.author.add_roles(role)
                     else:
                         logger.info(
                             f"[Mee6 on_message()] the new level {level.number} "
-                            f" for user {message_author_id} has an invalid role {role} associated with it. "
-                            f"Alerting the council to this "
+                            f" for user {message.author}({message_author_id}) has an invalid role {role} associated "
+                            f"with it. Alerting the council to this "
                         )
                         await self.council_channel.send(
                             "The XP role could not be found. Please call `.remove_level_name <level_number>` "

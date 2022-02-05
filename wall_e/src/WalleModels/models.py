@@ -92,7 +92,7 @@ class CommandStat(models.Model):
 
 class UserPoint(models.Model):
     user_id = models.PositiveBigIntegerField(
-
+        unique=True
     )
     points = models.PositiveBigIntegerField(
 
@@ -175,6 +175,11 @@ class UserPoint(models.Model):
     def user_points_have_been_imported():
         return len(list(UserPoint.objects.all()[:1])) == 1
 
+    @staticmethod
+    @sync_to_async
+    def clear_all_entries():
+        UserPoint.objects.all().delete()
+
     def _message_counts_towards_points(self):
         current_date = datetime.datetime.now(tz=pytz.timezone(django_db_orm_settings.TIME_ZONE))
         date_for_incrementing_points = datetime.datetime.fromtimestamp(
@@ -186,7 +191,8 @@ class UserPoint(models.Model):
         date_for_incrementing_points_str = date_for_incrementing_points.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
         logger.info(
             f"[models.py _message_counts_towards_points()] current_date = {current_date_str} "
-            f" date_for_incrementing_points = {date_for_incrementing_points_str}"
+            f" date_for_incrementing_points = {date_for_incrementing_points_str} == incrementing is"
+            f" {date_for_incrementing_points < current_date}"
         )
         return date_for_incrementing_points < current_date
 
@@ -198,7 +204,7 @@ class UserPoint(models.Model):
 
 class Level(models.Model):
     number = models.PositiveBigIntegerField(
-
+        unique=True
     )  # xp_level
     total_points_required = models.PositiveBigIntegerField(
 
@@ -209,11 +215,13 @@ class Level(models.Model):
     )
 
     role_id = models.PositiveBigIntegerField(
-        null=True
+        null=True,
+        unique=True
     )
     role_name = models.CharField(
         max_length=500,
-        null=True
+        null=True,
+        unique=True
     )  # xp_role_name
 
     @staticmethod
@@ -236,6 +244,11 @@ class Level(models.Model):
     @sync_to_async
     def level_points_have_been_imported():
         return len(list(Level.objects.all()[:1])) == 1
+
+    @staticmethod
+    @sync_to_async
+    def clear_all_entries():
+        Level.objects.all().delete()
 
     @staticmethod
     @sync_to_async
