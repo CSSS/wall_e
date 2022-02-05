@@ -108,6 +108,7 @@ class Leveling(commands.Cog):
         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
         self.database_and_dict_populated = True
+        self.xp_system_ready = True
 
     async def create_council_channel(self):
         await self.bot.wait_until_ready()
@@ -197,93 +198,6 @@ class Leveling(commands.Cog):
                          f"channel\n{e}")
         self.council_channel = self.bot.get_channel(council_channel_id)  # channel ID goes here
 
-    async def ensure_roles_exist_and_have_right_users(self):
-        while not self.database_and_dict_populated:
-            await asyncio.sleep(5)
-        while True:
-            if self.levels_have_been_changed:
-                logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] updating user and roles for XP system"
-                )
-                levels_with_a_role = [level for level in self.levels.values() if level.role_name is not None]
-                levels_with_a_role.sort(key=lambda level: level.number)
-                # ordering level roles in an ascending order
-
-                guild_roles = []
-                logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()]"
-                    f" ensuring that all {len(levels_with_a_role)} XP roles exist"
-                )
-                xp_roles_that_are_missing = {}
-                for level_with_role in levels_with_a_role:
-                    role = discord.utils.get(self.bot.guilds[0].roles, name=level_with_role.role_name)
-                    if role is not None:
-                        guild_roles.append(role)
-                        level_with_role.role_id = role.id
-                        await level_with_role.async_save()
-                    else:
-                        xp_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
-                if len(xp_roles_that_are_missing) == 0:
-                    logger.info(
-                        "[Mee6 ensure_roles_exist_and_have_right_users()] all"
-                        f" {len(levels_with_a_role)} XP roles exist"
-                    )
-                else:
-                    xp_roles_that_are_missing = [
-                        f"{role_name} - {role_number}" for role_name, role_number in xp_roles_that_are_missing.items()
-                    ]
-                    xp_roles_that_are_missing = "\n".join(xp_roles_that_are_missing)
-                    await self.council_channel.send(
-                        "The following XP roles could not be found. Please call `.remove_level_name <level_number>` "
-                        "to confirm that you want the XP roles deleted or re-create the roles:\n\n"
-                        "Role Name - Linked XP Level\n"
-                        f"{xp_roles_that_are_missing}"
-                    )
-                    logger.info(
-                        "[Mee6 ensure_roles_exist_and_have_right_users()]"
-                        f" Moderators have been informed that {len(xp_roles_that_are_missing)}"
-                        f" XP roles do not exist "
-                    )
-                members = await self.bot.guilds[0].fetch_members().flatten()
-
-                # sorts the members in ascending order by their total cls
-                members_with_points = [member for member in members if member.id in self.user_points]
-                members_with_points.sort(key=lambda member: self.user_points[member.id].points)
-
-                role_index = 0
-                logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members with XP points"
-                    " have the right XP roles"
-                )
-                for member_with_point in members_with_points:
-                    while (
-                            self.user_points[member_with_point.id].points >=
-                            levels_with_a_role[role_index + 1].total_points_required
-                    ):
-                        role_index += 1
-                    await member_with_point.remove_roles(*guild_roles[role_index:])
-                    await member_with_point.add_roles(*guild_roles[:role_index])
-                logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that the members with XP points"
-                    " have the right XP roles")
-
-                logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members without XP points"
-                    " don't have any XP roles "
-                )
-                for member_without_points in [member for member in members if member.id not in self.user_points]:
-                    await member_without_points.remove_roles(*guild_roles)
-                logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
-                    " don't have any XP roles "
-                )
-                self.levels_have_been_changed = False
-                self.xp_system_ready = True
-                logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] users and role are now updated for XP system"
-                )
-            await asyncio.sleep(86400)
-
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         if not message.author.bot:
@@ -302,6 +216,11 @@ class Leveling(commands.Cog):
                     f"[Mee6 ensure_roles_exist_and_have_right_users()] increased points for {message_author_id} "
                     " and alerting them that they are in a new level"
                 )
+                level = self.levels[self.user_points[message_author_id].level_number]
+                if level.role_id is not None:
+                    role = message.ctx.guild.get_role(level.role_id)
+                    if role is not None:
+                        await message.author.add_roles(role)
                 await message.channel.send(
                     f"<@{message_author_id}> is now **level {self.user_points[message_author_id].level_number}**!"
                 )
@@ -523,3 +442,139 @@ class Leveling(commands.Cog):
             descriptions_to_embed.append(description_to_embed)
 
         await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed)
+
+    async def ensure_roles_exist_and_have_right_users(self):
+        while not self.database_and_dict_populated:
+            await asyncio.sleep(5)
+        while True:
+            if self.levels_have_been_changed:
+                logger.info(
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] updating user and roles for XP system"
+                )
+                levels_with_a_role = [level for level in self.levels.values() if level.role_name is not None]
+                levels_with_a_role.sort(key=lambda level: level.number)
+                # ordering level roles in an ascending order
+
+                guild_roles = []
+                logger.info(
+                    "[Mee6 ensure_roles_exist_and_have_right_users()]"
+                    f" ensuring that all {len(levels_with_a_role)} XP roles exist"
+                )
+                xp_roles_that_are_missing = {}
+                for level_with_role in levels_with_a_role:
+                    role = discord.utils.get(self.bot.guilds[0].roles, name=level_with_role.role_name)
+                    if role is not None:
+                        guild_roles.append(role)
+                        level_with_role.role_id = role.id
+                        await level_with_role.async_save()
+                    else:
+                        xp_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
+                if len(xp_roles_that_are_missing) == 0:
+                    logger.info(
+                        "[Mee6 ensure_roles_exist_and_have_right_users()] all"
+                        f" {len(levels_with_a_role)} XP roles exist"
+                    )
+                else:
+                    xp_roles_that_are_missing = [
+                        f"{role_name} - {role_number}" for role_name, role_number in xp_roles_that_are_missing.items()
+                    ]
+                    xp_roles_that_are_missing = "\n".join(xp_roles_that_are_missing)
+                    await self.council_channel.send(
+                        "The following XP roles could not be found. Please call `.remove_level_name <level_number>` "
+                        "to confirm that you want the XP roles deleted or re-create the roles:\n\n"
+                        "Role Name - Linked XP Level\n"
+                        f"{xp_roles_that_are_missing}"
+                    )
+                    logger.info(
+                        "[Mee6 ensure_roles_exist_and_have_right_users()]"
+                        f" Moderators have been informed that {len(xp_roles_that_are_missing)}"
+                        f" XP roles do not exist "
+                    )
+                members = await self.bot.guilds[0].fetch_members().flatten()
+
+                # sorts the members in ascending order by their total cls
+                members_with_points = [member for member in members if member.id in self.user_points]
+                members_with_points.sort(key=lambda member: self.user_points[member.id].points)
+
+                role_index = 0
+                logger.info(
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members with XP points"
+                    " have the right XP roles"
+                )
+                prev_number_of_members_fixed = number_of_members_fixed = 0
+                prev_number_of_members_skipped = number_of_members_skipped = 0
+                for member_with_point in members_with_points:
+                    while (
+                            self.user_points[member_with_point.id].points >=
+                            levels_with_a_role[role_index + 1].total_points_required
+                    ):
+                        role_index += 1
+                    number_of_retries = 0
+                    successful = False
+                    skip = False
+                    while not successful and not skip:
+                        skip = False
+                        successful = False
+                        try:
+                            number_of_retries += 1
+                            await member_with_point.remove_roles(*guild_roles[role_index:])
+                            await member_with_point.add_roles(*guild_roles[:role_index])
+                            successful = True
+                            number_of_retries = 0
+                            number_of_members_fixed += 1
+                        except Exception as e:
+                            logger.info(
+                                "[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> encountered "
+                                f"following error when fixing the roles for member {member_with_point}, \n{e}"
+                            )
+                            if number_of_retries == 5:
+                                logger.info(
+                                    f"[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> "
+                                    f"tried to fix the"
+                                    f" permissions for member {member_with_point} 5 times, moving onto "
+                                    f"next member"
+                                )
+                                skip = True
+                                number_of_retries = 0
+                                number_of_members_skipped += 1
+                            else:
+                                logger.info(
+                                    "[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> "
+                                    "will try again in one minute"
+                                )
+                                await asyncio.sleep(60)
+                    if (
+                            (prev_number_of_members_skipped != number_of_members_skipped and
+                             number_of_members_skipped % 10 == 0) or
+                            (prev_number_of_members_fixed != number_of_members_fixed and
+                             number_of_members_fixed % 10 == 0)
+                    ):
+                        prev_number_of_members_skipped = number_of_members_skipped
+                        prev_number_of_members_fixed = number_of_members_fixed
+                        logger.info(
+                            f"[Mee6 ensure_roles_exist_and_have_right_users()] current_progress so far..."
+                            f" number_of_members_fixed = {number_of_members_fixed} || "
+                            f"number_of_members_skipped = {number_of_members_skipped}"
+                        )
+                    await asyncio.sleep(5)
+
+                logger.info(
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that the members with XP points"
+                    " have the right XP roles")
+
+                logger.info(
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members without XP points"
+                    " don't have any XP roles "
+                )
+                for member_without_points in [member for member in members if member.id not in self.user_points]:
+                    await member_without_points.remove_roles(*guild_roles)
+                    await asyncio.sleep(5)
+                logger.info(
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
+                    " don't have any XP roles "
+                )
+                self.levels_have_been_changed = False
+                logger.info(
+                    "[Mee6 ensure_roles_exist_and_have_right_users()] users and role are now updated for XP system"
+                )
+            await asyncio.sleep(86400)
