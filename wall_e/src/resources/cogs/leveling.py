@@ -519,6 +519,7 @@ class Leveling(commands.Cog):
                 )
                 prev_number_of_members_fixed = number_of_members_fixed = 0
                 prev_number_of_members_skipped = number_of_members_skipped = 0
+                number_of_members = len(members_with_points)
                 for member_with_point in members_with_points:
                     while (
                             self.user_points[member_with_point.id].points >=
@@ -569,8 +570,8 @@ class Leveling(commands.Cog):
                         prev_number_of_members_fixed = number_of_members_fixed
                         logger.info(
                             f"[Mee6 ensure_roles_exist_and_have_right_users()] current_progress so far..."
-                            f" number_of_members_fixed = {number_of_members_fixed} || "
-                            f"number_of_members_skipped = {number_of_members_skipped}"
+                            f" number_of_members_fixed = {number_of_members_fixed}/{number_of_members} || "
+                            f"number_of_members_skipped = {number_of_members_skipped}/{number_of_members}"
                         )
                     await asyncio.sleep(5)
 
