@@ -13,6 +13,7 @@ from django.db import models
 from django.forms import model_to_dict
 from .customFields import GeneratedIdentityField
 import django_db_orm_settings
+
 logger = logging.getLogger('wall_e')
 
 
