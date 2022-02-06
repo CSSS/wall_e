@@ -61,6 +61,156 @@
 			"The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
+	"cmpt276" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".cmpt276" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"cmpt361" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".cmpt361" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"cmpt376" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".cmpt376" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"f" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".f" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"gnu" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".gnu" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"impeach" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".impeach" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"macm101" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".macm101" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"macm316" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".macm316" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"math150" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".math150" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"math152" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".math152" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"medipack" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".medipack" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"monty" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".monty" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"prettygood" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".prettygood" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"psyduck" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".psyduck" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
+	"thebest" : {
+		"class": "Custom_Commands",
+		"access": "roles",
+		"roles" : [ "@everyone" ],
+		"aliases": [ ],
+		"example": [ ".thebest" ],
+		"description": [
+			"Just a custom command"
+		]
+	},
 	"ping" : {
 		"class": "HealthChecks",
 		"access": "roles",
@@ -95,6 +245,57 @@
 		"aliases": [  ],
 		"example": [ ".debuginfo" ],
 		"description": [ "returns which branch the user is testing" ]
+	},
+	"set_level_name" : {
+		"class" : "Mee6",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases" : [],
+		"example" : [ ".set_level_name <level_number> <name_for_level>"],
+		"description" : [
+			"associates an existing role with the specified named for the specified level",
+			"or it renames a role that is already assigned to the specified level"
+		]
+	},
+	"remove_level_name" : {
+		"class" : "Mee6",
+		"access": "roles",
+		"roles" : [ "Minions" ],
+		"aliases" : [],
+		"example" : [ ".remove_level_name <level_number>"],
+		"description" : [
+			"unmaps the any role that is currently mapped to the specified level"
+		]
+	},
+	"rank" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".rank", ".rank @user"],
+		"description" : [
+			"Get the XP rank for either the calling user or the first user that is mentioned."
+		]
+	},
+	"ranks" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".ranks"],
+		"description" : [
+			"shows the current leaderboards embeds."
+		]
+	},
+	"levels" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "Minions" ],
+		"aliases" : [],
+		"example" : [ ".levels"],
+		"description" : [
+			"Shows a list of all the XP levels and their associated roles and whether or not the roles exist"
+		]
 	},
 	"emojispeak" : {
 		"class": "Misc",

@@ -10,6 +10,7 @@ node {
           [
             string(credentialsId: 'DISCORD_DEV_TOKEN', variable: 'token'),
             string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'worlfram_api_token')
+            string(credentialsId: 'MEE6_AUTHORIZATION', variable: 'mee6_authorization')
           ]
         ) {
             def object = readJSON text: "${payload}"
@@ -26,7 +27,7 @@ node {
               git remote add origin https://github.com/CSSS/wall_e.git;
               git fetch --depth 1 origin;
               git checkout master;
-              ./CI/server_scripts/process_pr_action/process_pr_action.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${token}\" \"{worlfram_api_token}\";
+              ./CI/server_scripts/process_pr_action/process_pr_action.sh \"${pr_number}\" \"${branch_name}\" \"${destination_branch_name}\" \"${merged}\" \"${action}\" \"${token}\" \"{worlfram_api_token}\" \"{mee6_authorization}\";
               cd ../;
               rm -fr wall_e;
               \'"""
