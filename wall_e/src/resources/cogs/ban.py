@@ -137,8 +137,6 @@ class Ban(commands.Cog):
         e_obj.add_field(name="Reason", value=f"```{ban.reason}```", inline=False)
         e_obj.add_field(name="Notification DM", value="*NOT SENT*\nCause: NO COMMON GUILD\n", inline=False)
         e_obj.set_footer(text="Intercepted Moderator Action")
-
-
         e_obj.timestamp = audit_ban.created_at
         await self.mod_channel.send(embed=e_obj)
         logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")

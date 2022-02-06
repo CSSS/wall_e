@@ -13,8 +13,6 @@ from django.db import models
 from django.forms import model_to_dict
 from .customFields import GeneratedIdentityField
 
-
-import logging
 logger = logging.getLogger('wall_e')
 
 
@@ -76,10 +74,6 @@ class BanRecords(models.Model):
         return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}] " \
                f"mod=[{self.mod}] mod_id=[{self.mod_id}] date=[{self.ban_date}] reason=[{self.reason}]" \
                f"unban_date=[{self.unban_date}]"
-
-import django_db_orm_settings
-
-logger = logging.getLogger('wall_e')
 
 
 class CommandStat(models.Model):
