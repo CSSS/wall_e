@@ -529,6 +529,7 @@ class Leveling(commands.Cog):
                 number_of_members = len(members_with_points)
                 for member_with_point in members_with_points:
                     while (
+                            len(levels_with_a_role) > (role_index + 1) and
                             self.user_points[member_with_point.id].points >=
                             levels_with_a_role[role_index + 1].total_points_required
                     ):
@@ -541,8 +542,8 @@ class Leveling(commands.Cog):
                         successful = False
                         try:
                             number_of_retries += 1
-                            await member_with_point.remove_roles(*guild_roles[role_index:])
-                            await member_with_point.add_roles(*guild_roles[:role_index])
+                            await member_with_point.remove_roles(*guild_roles[role_index+1:])
+                            await member_with_point.add_roles(*guild_roles[:role_index+1])
                             successful = True
                             number_of_retries = 0
                             number_of_members_fixed += 1
@@ -591,7 +592,13 @@ class Leveling(commands.Cog):
                     " don't have any XP roles "
                 )
                 for member_without_points in [member for member in members if member.id not in self.user_points]:
-                    await member_without_points.remove_roles(*guild_roles)
+                    try:
+                        await member_without_points.remove_roles(*guild_roles)
+                    except Exception as e:
+                        logger.info(
+                            "[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> encountered "
+                            f"following error when fixing the roles for member {member_without_points}, \n{e}"
+                        )
                     await asyncio.sleep(5)
                 logger.info(
                     "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
