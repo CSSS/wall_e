@@ -1,3 +1,4 @@
+from time import sleep
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
@@ -34,6 +35,7 @@ class Ban(commands.Cog):
             else:
                 logger.info(f"[Ban load()] Couldn't get {mod_channel_name} from guild."
                             " Channel doesn't exist. Exiting.")
+                sleep(20)
                 exit('No mod channel')
 
         # read in ban_list of banned users
@@ -66,6 +68,7 @@ class Ban(commands.Cog):
                     f"in {branch if env == 'TEST' else env +' server'} does not exist and I was unable to create it, "
                     "exiting now...."
                 )
+                sleep(20)
                 exit(1)
             logger.info(f"[Ban make_mod_channel()] mod channel successfully created [{self.mod_channel}]")
             await self.mod_channel.send('this is a public channel, set to private as you see fit to match prod.')
@@ -135,9 +138,9 @@ class Ban(commands.Cog):
         e_obj.add_field(name="Notification DM", value="*NOT SENT*\nCause: NO COMMON GUILD\n", inline=False)
         e_obj.set_footer(text="Intercepted Moderator Action")
 
-        if e_obj:
-            e_obj.timestamp = audit_ban.created_at
-            await self.mod_channel.send(embed=e_obj)
+
+        e_obj.timestamp = audit_ban.created_at
+        await self.mod_channel.send(embed=e_obj)
         logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
 
     @commands.command()
@@ -260,9 +263,8 @@ class Ban(commands.Cog):
 
         e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
         try:
-            if e_obj:
-                await user.send(embed=e_obj)
-                logger.info("[Ban ban()] User notified via dm of their ban")
+            await user.send(embed=e_obj)
+            logger.info("[Ban ban()] User notified via dm of their ban")
         except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
             dm = False
             logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
@@ -287,9 +289,9 @@ class Ban(commands.Cog):
         e_obj.add_field(name="User Notified via DM", value="*YES*\n" if dm else "*NO*\n*USER HAS DM's DISABLED*",
                         inline=False)
         e_obj.set_footer(text="Moderator Action")
-        if e_obj:
-            e_obj.timestamp = dt
-            await self.mod_channel.send(embed=e_obj)
+        e_obj.timestamp = dt
+
+        await self.mod_channel.send(embed=e_obj)
         logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
 
         # update database
@@ -310,12 +312,10 @@ class Ban(commands.Cog):
         date = datetime.datetime.now() - datetime.timedelta(timeframe)
 
         for channel in channels:
-            # print(channel, channel.id, channel.category)
             send_perm = channel.overwrites_for(ctx.guild.default_role).send_messages
             view_perm = channel.overwrites_for(ctx.guild.default_role).view_channel
 
-            # skip private channel, defined as @everyone cannot see the channel
-            # can also skip channels where @everyone cannot send messages
+            # skip private channels and read-only channels
             if view_perm is False or send_perm is False:
                 continue
             else:
@@ -341,6 +341,9 @@ class Ban(commands.Cog):
         self.ban_list.remove(user_id)
 
         name = await BanRecords.unban_by_id(user_id)
+        if not name:
+            logger.info(f"[Ban unban()] No user with id: {user_id} found.")
+            await self.mod_channel.send(f"*No user with id: **{user_id}** found.*")
 
         logger.info(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
         e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())

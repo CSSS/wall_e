@@ -33,6 +33,7 @@ class BanRecords(models.Model):
     @sync_to_async
     def insert_records(cls, records: List[BanRecords]) -> None:
         """Adds entry to BanRecords table"""
+        BanRecords.objects.bulk_create(records)
         for record in records:
             record.save()
 
@@ -60,7 +61,11 @@ class BanRecords(models.Model):
     @sync_to_async
     def unban_by_id(cls, user_id: int) -> str:
         """Set active=False for user with the given user_id. This representes unbanning a user."""
-        user = BanRecords.objects.get(user_id=user_id, unban_date=None)
+        try:
+            user = BanRecords.objects.get(user_id=user_id, unban_date=None)
+        except Exception:
+            return None
+
         user.unban_date = datetime.datetime.now().timestamp()
         user.save()
         return user.username
