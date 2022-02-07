@@ -159,7 +159,7 @@ class Ban(commands.Cog):
 
         if not guild_ban_list:
             logger.info("[Ban convertbans()] No bans to migrate into the ban system from guild. "
-                        "Sening message and ending command."
+                        "Sending message and ending command."
                         )
             await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
             return
