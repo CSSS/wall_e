@@ -298,7 +298,8 @@ class Ban(commands.Cog):
     async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
         if timeframe <= 0 or timeframe > 14:
-            await ctx.send('Window to purge message must be between 1 - 14 days. Command aborted')
+            await ctx.send('Window to purge message must be between 1 - 14 days. Using default of `1 day`')
+            timeframe = 1
 
         # begin purging messages
         # get list of all channels
