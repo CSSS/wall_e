@@ -35,8 +35,6 @@ class BanRecords(models.Model):
     def insert_records(cls, records: List[BanRecords]) -> None:
         """Adds entry to BanRecords table"""
         BanRecords.objects.bulk_create(records)
-        for record in records:
-            record.save()
 
     @classmethod
     @sync_to_async
