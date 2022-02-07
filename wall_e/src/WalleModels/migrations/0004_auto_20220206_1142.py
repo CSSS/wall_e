@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('mod', models.CharField(max_length=32, null=True)),
                 ('mod_id', models.BigIntegerField(null=True)),
                 ('ban_date', models.BigIntegerField(null=True)),
-                ('reason', models.TextField()),
+                ('reason', models.CharField(max_length=512)),
                 ('unban_date', models.BigIntegerField(default=None, null=True)),
             ],
             options={

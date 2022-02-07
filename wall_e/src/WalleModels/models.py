@@ -24,7 +24,7 @@ class BanRecords(models.Model):
     mod = models.CharField(max_length=32, null=True)
     mod_id = models.BigIntegerField(null=True)
     ban_date = models.BigIntegerField(null=True)
-    reason = models.TextField(null=False)
+    reason = models.CharField(max_length=512, null=False)
     unban_date = models.BigIntegerField(null=True, default=None)
 
     class Meta:
