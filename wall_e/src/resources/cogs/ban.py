@@ -1,4 +1,3 @@
-from time import sleep
 from discord.ext import commands
 import discord
 from resources.utilities.embed import embed as em
