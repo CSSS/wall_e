@@ -315,6 +315,7 @@ class Ban(commands.Cog):
             view_perm = channel.overwrites_for(ctx.guild.default_role).view_channel
 
             # skip private channels and read-only channels
+            # because the user wouldn't have any messages in these channels
             if view_perm is False or send_perm is False:
                 continue
             else:
@@ -376,11 +377,9 @@ class Ban(commands.Cog):
         names = ""
         ids = ""
         for ban in bans:
-            # name = ban[0]
-            # user_id = ban[1]
             name = ban['username']
             user_id = ban['user_id']
-            if len(names) + len(name) > 1024 or len(ids) + len(str(user_id)) > 1024:
+            if len(names) + len(name) > 1024 or (len(ids) + len(str(user_id))) > 1024:
                 emb.add_field(name="Names", value=names, inline=True)
                 emb.add_field(name="IDs", value=ids, inline=True)
                 await ctx.send(embed=emb)
