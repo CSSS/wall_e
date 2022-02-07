@@ -36,7 +36,7 @@ class Ban(commands.Cog):
             else:
                 logger.info(f"[Ban load()] Couldn't get {mod_channel_name} from guild."
                             " Channel doesn't exist. Exiting.")
-                asyncio.sleep(20)
+                await asyncio.sleep(20)
                 exit('No mod channel')
 
         # read in ban_list of banned users
@@ -69,7 +69,7 @@ class Ban(commands.Cog):
                     f"in {branch if env == 'TEST' else env +' server'} does not exist and I was unable to create it, "
                     "exiting now...."
                 )
-                asyncio.sleep(20)
+                await asyncio.sleep(20)
                 exit(1)
             logger.info(f"[Ban make_mod_channel()] mod channel successfully created [{self.mod_channel}]")
             await self.mod_channel.send('this is a public channel, set to private as you see fit to match prod.')
