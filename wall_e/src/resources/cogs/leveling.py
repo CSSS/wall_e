@@ -274,7 +274,7 @@ class Leveling(commands.Cog):
                     f"<@{message_author_id}> is now **level {level.number}**!"
                 )
 
-    # @commands.Cog.listener(name="on_ready")
+    @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
         while not self.xp_system_ready or self.council_channel is None:
             await asyncio.sleep(5)
