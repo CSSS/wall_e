@@ -26,11 +26,11 @@ class CustomCommands(commands.Cog):
     @commands.command()
     async def f(self, ctx):
         await ctx.send("""
-:F_Eggplant: :F_Eggplant: :F_Eggplant: :F_Eggplant:
-:F_Eggplant:
-:F_Eggplant: :F_Eggplant: :F_Eggplant:
-:F_Eggplant:
-:F_Eggplant:
+<:F_Eggplant:313248902021120000> <:F_Eggplant:313248902021120000> <:F_Eggplant:313248902021120000> <:F_Eggplant:313248902021120000>
+<:F_Eggplant:313248902021120000>
+<:F_Eggplant:313248902021120000> <:F_Eggplant:313248902021120000> <:F_Eggplant:313248902021120000>
+<:F_Eggplant:313248902021120000>
+<:F_Eggplant:313248902021120000>
         """)
 
     @commands.command()
