@@ -1,9 +1,7 @@
 import asyncio
-import json
 import logging
 
 import discord
-import requests
 from discord.ext import commands
 
 from WalleModels.models import UserPoint, Level
@@ -614,4 +612,3 @@ class Leveling(commands.Cog):
             descriptions_to_embed.append(description_to_embed)
 
         await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed)
-
