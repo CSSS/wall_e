@@ -218,6 +218,15 @@ class Leveling(commands.Cog):
         self.council_channel = self.bot.get_channel(council_channel_id)  # channel ID goes here
 
     @commands.Cog.listener(name='on_message')
+    async def alert_users_about_new_xp_commands(self, message):
+        if not message.author.bot and message.content[0] in ["/", "!"]:
+            await message.channel.send(
+                "Good news, wall-e can finally track you and your points, which means we don't use mee6 "
+                "anymore. try using `.` instead of `!` or `/` now instead. (but `!levels` has been "
+                "remapped to `.ranks`\n"
+                "")
+
+    @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         if not message.author.bot:
             if not self.xp_system_ready:
