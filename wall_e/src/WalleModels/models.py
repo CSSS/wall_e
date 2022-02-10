@@ -181,20 +181,10 @@ class UserPoint(models.Model):
         UserPoint.objects.all().delete()
 
     def _message_counts_towards_points(self):
-        current_date = datetime.datetime.now(tz=pytz.timezone(django_db_orm_settings.TIME_ZONE))
-        date_for_incrementing_points = datetime.datetime.fromtimestamp(
+        return datetime.datetime.fromtimestamp(
             self.latest_time_xp_was_earned_epoch,
             pytz.timezone(django_db_orm_settings.TIME_ZONE)
-        ) + datetime.timedelta(minutes=1)
-
-        current_date_str = current_date.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
-        date_for_incrementing_points_str = date_for_incrementing_points.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
-        logger.info(
-            f"[models.py _message_counts_towards_points()] current_date = {current_date_str} "
-            f" date_for_incrementing_points = {date_for_incrementing_points_str} == incrementing is"
-            f" {date_for_incrementing_points < current_date}"
-        )
-        return date_for_incrementing_points < current_date
+        ) + datetime.timedelta(minutes=1) < datetime.datetime.now(tz=pytz.timezone(django_db_orm_settings.TIME_ZONE))
 
     @staticmethod
     @sync_to_async
