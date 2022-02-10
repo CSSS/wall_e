@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 
 import discord
@@ -29,8 +30,22 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def load_points_into_dict(self):
-        self.levels = await Level.load_to_dict()
-        logger.info("[Mee6 load_points_into_dict()] levels loaded into dict")
+        if not await Level.level_points_have_been_imported():
+            logger.info("[Mee6 load_points_into_dict()] loading levels into DB and dict")
+            with open('resources/mee6_levels/levels.json') as f:
+                self.levels = {
+                    int(level_number): await Level.create_level(
+                        int(level_number),
+                        level_info['total_xp_required_for_level'],
+                        level_info['xp_needed_to_level_up_to_next_level'],
+                        role_name=level_info['role_name'] if 'role_name' in level_info else None,
+                    )
+                    for (level_number, level_info) in json.load(f).items()
+                }
+        elif len(self.levels) == 0:
+            logger.info("[Mee6 load_points_into_dict()] loading level from DB into dict")
+            self.levels = await Level.load_to_dict()
+        logger.info("[Mee6 load_points_into_dict()] levels loaded in DB and dict")
         self.user_points = await UserPoint.load_to_dict()
         logger.info("[Mee6 load_points_into_dict()] UserPoints loaded into dict")
         self.xp_system_ready = True
