@@ -454,7 +454,7 @@ class Leveling(commands.Cog):
         ):
             role_index += 1
         number_of_retries = 0
-        while number_of_retries > 5:
+        while number_of_retries < 5:
             try:
                 number_of_retries += 1
                 await member.remove_roles(*guild_roles[role_index + 1:])
