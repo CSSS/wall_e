@@ -421,6 +421,8 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_member_join')
     async def re_assign_roles(self, member: discord.Member):
+        while not self.xp_system_ready:
+            await asyncio.sleep(5)
         logger.info(
             "[Mee6 re_assign_roles()] ensuring a user gets their roles back if they leave and re-join the guild"
         )
