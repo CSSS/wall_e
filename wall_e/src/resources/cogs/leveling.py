@@ -444,21 +444,22 @@ class Leveling(commands.Cog):
             f"[Mee6 re_assign_roles()] user {member} currently has {self.user_points[member.id].points} points"
         )
 
-        logger.info(
-            f"[Mee6 re_assign_roles()] will get the {guild_roles} roles added back to them"
-        )
         while (
                 len(levels_with_a_role) > (role_index + 1) and
                 self.user_points[member.id].points >=
                 levels_with_a_role[role_index + 1].total_points_required
         ):
             role_index += 1
+        logger.info(
+            f"[Mee6 re_assign_roles()] will get the {guild_roles[:role_index + 1]} roles added back to {member}"
+        )
         number_of_retries = 0
         while number_of_retries < 5:
             try:
                 number_of_retries += 1
                 await member.remove_roles(*guild_roles[role_index + 1:])
                 await member.add_roles(*guild_roles[:role_index + 1])
+                logger.info(f"[Mee6 re_assign_roles()] XP roles fixed for user {member}")
                 return
             except Exception as e:
                 logger.info(
