@@ -130,7 +130,9 @@ if (you are using the dockerized database){
   --set=WALL_E_DB_PASSWORD="${WALL_E_DB_PASSWORD}"  --set=WALL_E_DB_DBNAME="${WALL_E_DB_DBNAME}" \
   -h "${HOST}" -U "postgres" -f WalleModels/create-database.ddl
   python3 django_db_orm_manage.py migrate
-  wget https://dev.sfucsss.org/dev_csss_wall_e/fixtures/wall_e.json | python3 django_db_orm_manage.py loaddata
+  rm wall_e.json*
+  wget https://dev.sfucsss.org/dev_csss_wall_e/fixtures/wall_e.json
+  python3 django_db_orm_manage.py loaddata wall_e.json
   python3 django_db_orm_manage.py makemigrations
   python3 django_db_orm_manage.py migrate
 }
