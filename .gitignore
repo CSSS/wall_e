@@ -165,3 +165,6 @@ wall_e/src/validate-line-endings.sh
 wall_e/src/pytest.ini
 wall_e/src/setup.cfg
 wall_e/src/resources/utilities/config/local.ini
+
+# R project files
+.Rproj.user

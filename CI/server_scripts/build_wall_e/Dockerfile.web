@@ -1,1 +1,2 @@
 FROM rocker/shiny:4.1.2
+COPY web /srv/shiny-server/
