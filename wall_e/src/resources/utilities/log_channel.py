@@ -56,9 +56,7 @@ async def write_to_bot_log_channel(bot, config, f):
             while line:
                 if line.strip() != "":
                     # this was done so that no one gets accidentally pinged from the bot log channel
-                    if '<@288148680479997963>' in line:
-                        await channel.send('<@288148680479997963>')
-                    line = line.replace("@", "[at]")
+                    line = line.replace("@", "[at]").replace('alertJace', '<@288148680479997963>')
                     if line[0] == ' ':
                         line = ".{}".format(line)
                     output = line
