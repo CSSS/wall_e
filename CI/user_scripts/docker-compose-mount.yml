@@ -22,6 +22,15 @@ services:  #Services that are needed for the wall_e app
             - wall_e.env
         image: postgres:alpine #using postgres image
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
+    web: #declaration of the web container
+        env_file:
+            - wall_e.env
+        build:
+            context: ../../ #Saying that all of my source files are at the root path
+            dockerfile: CI/server_scripts/build_wall_e/Dockerfile.web
+        depends_on: # used to ensure that docker wont start web until after it has started the database container
+            - "db"
+        container_name: "${COMPOSE_PROJECT_NAME}_wall_e_web"
 volumes:
     logs:
         external:

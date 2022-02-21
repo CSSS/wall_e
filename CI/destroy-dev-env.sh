@@ -11,6 +11,7 @@ fi
 export image_name=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e | awk '{print tolower($0)}')
 export network_name=$(echo "${COMPOSE_PROJECT_NAME}"_default | awk '{print tolower($0)}')
 export volume_name="${COMPOSE_PROJECT_NAME}_logs"
+export web_image_name=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_web | awk '{print tolower($0)}')
 
 
 pushd CI/user_scripts
@@ -18,6 +19,7 @@ cp docker-compose-mount.yml docker-compose.yml
 docker-compose rm -f -s -v || true
 docker volume rm "${volume_name}" || true
 docker image rm "${image_name}" || true
+docker image rm "${web_image_name}" || true
 docker network rm "${network_name}" || true
 rm docker-compose.yml
 popd
