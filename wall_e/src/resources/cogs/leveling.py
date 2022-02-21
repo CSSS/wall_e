@@ -354,12 +354,12 @@ class Leveling(commands.Cog):
                             number_of_members_fixed += 1
                         except Exception as e:
                             logger.info(
-                                "[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> encountered "
+                                "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace encountered "
                                 f"following error when fixing the roles for member {member_with_point}, \n{e}"
                             )
                             if number_of_retries == 5:
                                 logger.info(
-                                    f"[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> "
+                                    f"[Mee6 ensure_roles_exist_and_have_right_users()] alertJace "
                                     f"tried to fix the"
                                     f" permissions for member {member_with_point} 5 times, moving onto "
                                     f"next member"
@@ -369,7 +369,7 @@ class Leveling(commands.Cog):
                                 number_of_members_skipped += 1
                             else:
                                 logger.info(
-                                    "[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> "
+                                    "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace "
                                     "will try again in one minute"
                                 )
                                 await asyncio.sleep(60)
@@ -401,7 +401,7 @@ class Leveling(commands.Cog):
                         await member_without_points.remove_roles(*guild_roles)
                     except Exception as e:
                         logger.info(
-                            "[Mee6 ensure_roles_exist_and_have_right_users()] <@288148680479997963> encountered "
+                            "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace encountered "
                             f"following error when fixing the roles for member {member_without_points}, \n{e}"
                         )
                     await asyncio.sleep(5)
@@ -463,7 +463,7 @@ class Leveling(commands.Cog):
             logger.info(f"[Mee6 re_assign_roles()] XP roles fixed for user {member}")
         else:
             logger.info(
-                f"[Mee6 re_assign_roles()] <@288148680479997963> could not fix the XP roles for user {member}"
+                f"[Mee6 re_assign_roles()] alertJace could not fix the XP roles for user {member}"
             )
 
     @commands.command()
