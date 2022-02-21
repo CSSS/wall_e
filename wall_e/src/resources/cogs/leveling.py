@@ -241,7 +241,7 @@ class Leveling(commands.Cog):
             if await self.user_points[message_author_id].increment_points():
                 logger.info(
                     f"[Mee6 on_message()] increased points for {message.author}({message_author_id}) "
-                    " and alerting them that they are in a new level"
+                    f" and alerting them that they are in a new level in channel {message.channel}"
                 )
                 level = self.levels[self.user_points[message_author_id].level_number]
                 if level.role_id is not None:
@@ -269,6 +269,7 @@ class Leveling(commands.Cog):
                 await message.channel.send(
                     f"<@{message_author_id}> is now **level {level.number}**!"
                 )
+                logger.info(f"[Mee6 on_message()] message sent to {message.author}({message_author_id})")
 
     @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
