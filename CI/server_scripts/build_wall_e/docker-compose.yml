@@ -31,7 +31,7 @@ services:  #Services that are needed for the wall_e app
             - POSTGRES_PASSWORD
         image: postgres:alpine #using postgres image
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
-    web: #declaration of the web container
+    wall_e_web: #declaration of the web container
         build:
             context: ../../../ #Saying that all of my source files are at the root path
             dockerfile: CI/server_scripts/build_wall_e/Dockerfile.web
