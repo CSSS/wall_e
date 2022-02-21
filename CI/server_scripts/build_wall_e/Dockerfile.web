@@ -1,2 +1,5 @@
 FROM rocker/shiny:4.1.2
 COPY web /srv/shiny-server/
+RUN apt update && \
+    apt install libpq5 && \
+    Rscript -e 'install.packages("RPostgres")'
