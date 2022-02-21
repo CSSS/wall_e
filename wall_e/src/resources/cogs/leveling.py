@@ -232,10 +232,6 @@ class Leveling(commands.Cog):
             if not self.xp_system_ready:
                 return
             message_author_id = message.author.id
-            logger.info(
-                f"[Mee6 on_message()] detected message from author "
-                f"{message.author}({message_author_id})"
-            )
             if message_author_id not in self.user_points:
                 logger.info(
                     f"[Mee6 on_message()] could not detect author {message.author}({message_author_id}) "
@@ -421,56 +417,54 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_member_join')
     async def re_assign_roles(self, member: discord.Member):
+        if member.id not in self.user_points:
+            return
         while not self.xp_system_ready:
             await asyncio.sleep(5)
         logger.info(
-            "[Mee6 re_assign_roles()] ensuring a user gets their roles back if they leave and re-join the guild"
-        )
-        levels_with_a_role = [level for level in self.levels.values() if level.role_name is not None]
-        levels_with_a_role.sort(key=lambda level: level.number)
-        # ordering level roles in an ascending order
-
-        guild_roles = []
-        for level_with_role in levels_with_a_role:
-            role = member.guild.get_role(self.levels[level_with_role.number].role_id)
-            if role is not None:
-                guild_roles.append(role)
-
-        # sorts the members in ascending order by their total cls
-        if member.id not in self.user_points:
-            return
-        role_index = 0
-        logger.info(
-            f"[Mee6 re_assign_roles()] user {member} currently has {self.user_points[member.id].points} points"
+            f"[Mee6 re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} points wil "
+            f"get their roles back if they leave and re-join the guild"
         )
 
-        while (
-                len(levels_with_a_role) > (role_index + 1) and
-                self.user_points[member.id].points >=
-                levels_with_a_role[role_index + 1].total_points_required
-        ):
-            role_index += 1
+        levels_with_a_role = [
+            level for level in self.levels.values()
+            if level.role_name is not None and level.total_points_required <= self.user_points[member.id].points
+        ]
         logger.info(
-            f"[Mee6 re_assign_roles()] will get the {guild_roles[:role_index + 1]} roles added back to {member}"
+            f"[Mee6 re_assign_roles()] seems user {member} is entitled to the following levels which have"
+            f" a role: {levels_with_a_role}"
+        )
+
+        guild_roles = [
+            member.guild.get_role(self.levels[level_with_role.number].role_id)
+            for level_with_role in levels_with_a_role
+        ]
+        guild_roles = [guild_role for guild_role in guild_roles if guild_role]
+
+        logger.info(
+            f"[Mee6 re_assign_roles()] will get the {guild_roles} roles added back to {member}"
         )
         number_of_retries = 0
-        while number_of_retries < 5:
+        success = False
+        while number_of_retries < 5 and success is False:
             try:
                 number_of_retries += 1
-                await member.remove_roles(*guild_roles[role_index + 1:])
-                await member.add_roles(*guild_roles[:role_index + 1])
-                logger.info(f"[Mee6 re_assign_roles()] XP roles fixed for user {member}")
-                return
+                await member.add_roles(*guild_roles)
+                success = True
             except Exception as e:
                 logger.info(
-                    "[Mee6 re_assign_roles()] <@288148680479997963> encountered "
-                    f"following error when fixing the roles for member {member}, \n{e}"
+                    f"[Mee6 re_assign_roles()] encountered following error when fixing the roles for "
+                    f"member {member}, \n{e}"
                 )
-                logger.info(
-                    "[Mee6 re_assign_roles()] <@288148680479997963> "
-                    "will try again in one minute"
-                )
-                await asyncio.sleep(60)
+                if number_of_retries < 5:
+                    logger.info("[Mee6 re_assign_roles()] will try again in one minute")
+                    await asyncio.sleep(60)
+        if success:
+            logger.info(f"[Mee6 re_assign_roles()] XP roles fixed for user {member}")
+        else:
+            logger.info(
+                f"[Mee6 re_assign_roles()] <@288148680479997963> could not fix the XP roles for user {member}"
+            )
 
     @commands.command()
     async def set_level_name(self, ctx, level_number: int, new_role_name: str):
