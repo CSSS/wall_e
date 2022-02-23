@@ -107,7 +107,7 @@ class CustomCommands(commands.Cog):
         await ctx.send(
             "oh, i was waiting for a hold on my investment account to clear and crypto is one of the few things I "
             "even could invest it. Wouldn't say I have a hard on for it, but i thought at least it couldn't hurt. "
-            "Didn't invest anything I wasn't prepared to lose it all and not even blink"
+            "Didn't invest anything I wasn't prepared to lose it all and not even blink\n"
             "to be fair, even with my 40% rate of return, i didn't really care because i didn't put much in to "
             "begin with\n"
             "in summary, i was just learning about crypto and any gains or losses were inconsequential to me"
