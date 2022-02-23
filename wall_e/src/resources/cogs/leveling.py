@@ -219,7 +219,7 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_message')
     async def alert_users_about_new_xp_commands(self, message):
-        if not message.author.bot and message.content[0] in ["/", "!"]:
+        if not message.author.bot and len(message.content) > 0 and message.content[0] in ["/", "!"]:
             await message.channel.send(
                 "Good news, wall-e can finally track you and your points, which means we don't use mee6 "
                 "anymore. try using `.` instead of `!` or `/` now instead. (but `!levels` has been "
