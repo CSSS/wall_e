@@ -217,7 +217,6 @@ class Leveling(commands.Cog):
                          f"channel\n{e}")
         self.council_channel = self.bot.get_channel(council_channel_id)  # channel ID goes here
 
-
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         if not message.author.bot:
