@@ -104,6 +104,8 @@ class ManageCog(commands.Cog):
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
+            else if isinstance(error, commands.errors.CommandNotFound):
+                return
             else:
                 # only prints out an error to the log if the string that was entered doesnt contain just "."
                 pattern = r'[^\.]'
