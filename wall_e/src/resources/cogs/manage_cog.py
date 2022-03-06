@@ -110,9 +110,6 @@ class ManageCog(commands.Cog):
                 # only prints out an error to the log if the string that was entered doesnt contain just "."
                 pattern = r'[^\.]'
                 if re.search(pattern, f"{error}"[9:-14]):
-                    # author = ctx.author.nick or ctx.author.name
-                    # await ctx.send('Error:\n```Sorry '+author+', seems like the command
-                    # \"'+str(error)[9:-14]+'\"" doesn\'t exist :(```')
                     if type(error) is discord.ext.commands.errors.CheckFailure:
                         logger.warning(
                             f"[ManageCog on_command_error()] user {ctx.author} "
