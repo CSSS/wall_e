@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import logging
 import re
@@ -17,6 +18,7 @@ logger = logging.getLogger('wall_e')
 class ManageCog(commands.Cog):
 
     def __init__(self, bot, config):
+        self.bot_channel = None
         logger.info("[ManageCog __init__()] initializing the TestCog")
         bot.add_check(self.check_test_environment)
         bot.add_check(self.check_privilege)
@@ -134,3 +136,39 @@ class ManageCog(commands.Cog):
                     f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}"
                 )
                 await self.bot.guilds[0].create_text_channel(branch_name)
+
+    @commands.Cog.listener()
+    async def on_raw_message_delete(self, payload):
+        await self.bot_channel.send(
+            f"deleted Message from author {payload.cached_message.author} "
+            f"with content {payload.cached_message.content}"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def get_deleted_message_channel(self):
+        bot_channel_name = self.config.get_config_value('basic_config', 'DELETED_MESSAGES_CHANNEL')
+        environment = self.config.get_config_value('basic_config', 'ENVIRONMENT')
+        self.bot_channel = None
+        if environment == 'TEST':
+            bot_channel_name = (
+                f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_deleted_messages"
+            )
+        logger.info(f"[ManageCog get_deleted_message_channel()] bot_channel_name set to {bot_channel_name} for "
+                    f"environment {environment}")
+        number_of_retries_to_attempt = 10
+        number_of_retries = 0
+        while self.bot_channel is None and number_of_retries < number_of_retries_to_attempt:
+            logger.info("[ManageCog get_deleted_message_channel()] attempt "
+                        f"({number_of_retries}/{number_of_retries_to_attempt}) for getting {bot_channel_name} ")
+            await asyncio.sleep(10)
+            number_of_retries += 1
+            self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
+        if self.bot_channel is None:
+            logger.info(
+                f"[ManageCog get_deleted_message_channel()] ultimately "
+                f"unable to get the {bot_channel_name}. exiting now."
+            )
+            await asyncio.sleep(20)  # this is just here so that the above log line gets a chance to get printed to
+            # discord
+            exit(1)
+        logger.info(f"[ManageCog get_deleted_message_channel()] {bot_channel_name} acquired.")
