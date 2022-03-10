@@ -150,7 +150,9 @@ class ManageCog(commands.Cog):
         environment = self.config.get_config_value('basic_config', 'ENVIRONMENT')
         self.bot_channel = None
         if environment == 'TEST':
-            bot_channel_name = f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_deleted_messages"
+            bot_channel_name = (
+                f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_deleted_messages"
+            )
         logger.info(f"[ManageCog get_deleted_message_channel()] bot_channel_name set to {bot_channel_name} for "
                     f"environment {environment}")
         number_of_retries_to_attempt = 10
