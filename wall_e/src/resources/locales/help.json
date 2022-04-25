@@ -211,16 +211,6 @@
 			"Just a custom command"
 		]
 	},
-		"crypto" : {
-		"class": "Custom_Commands",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".crypto" ],
-		"description": [
-			"Just a custom command"
-		]
-	},
 	"ping" : {
 		"class": "HealthChecks",
 		"access": "roles",
