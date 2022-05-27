@@ -150,7 +150,10 @@ class Ban(commands.Cog):
         try:
             # audit logs contains info about user who did the banning, the timestamp of the ban, and the reason
             # however audit logs only go back 3 months, so have to read older bans from the bans list
-            ban_logs = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+            ban_logs = {
+                ban_log.target.id: ban_log
+                for ban_log in await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+            }
             guild_ban_list = await self.bot.guilds[0].bans()
         except Exception as e:
             logger.info(f'[Ban convertbans()] error while fetching ban data: {e}')
@@ -159,7 +162,7 @@ class Ban(commands.Cog):
 
         if not guild_ban_list:
             logger.info("[Ban convertbans()] No bans to migrate into the ban system from guild. "
-                        "Sending message and ending command."
+                        "Sening message and ending command."
                         )
             await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
             return
@@ -170,34 +173,38 @@ class Ban(commands.Cog):
         logger.info("[Ban convertbans()] Starting process to move all guild bans into db")
 
         # update self.ban_list
-        self.ban_list.extend([ban.user.id for ban in guild_ban_list])
         ban_records = []
-        ban_log_ids = []
-        for ban in ban_logs:
-            # Check to make sure this ban is active
-            if ban.target.id in guild_ban_list:
-                ban_log_ids.append(ban.target.id)
-
-                ban_records.append(BanRecords(
-                                   username=ban.target.name+'#'+ban.target.discriminator,
-                                   user_id=ban.target.id,
-                                   mod=ban.user.name+'#'+ban.user.discriminator,
-                                   mod_id=ban.user.id,
-                                   ban_date=ban.created_at.timestamp(),
-                                   reason=ban.reason if ban.reason else 'No Reason Given!'
-                                   ))
-
         for ban in guild_ban_list:
-            # make BannedUser objects
-            if ban.user.id not in ban_log_ids:
+            # NOTE: In the unlikely case there are >1 bans for the same user only 1 will be recorded
+            if ban.user.id not in self.ban_list:
+                self.ban_list.append(ban.user.id)
+
+                mod = None
+                mod_id = None
+                ban_date = None
+                reason = 'No Reason Given!'
+
+                if ban.user.id in ban_logs:
+                    banned = ban_logs[ban.user.id]
+                    username = banned.target.name + '#' + banned.target.discriminator
+                    user_id = banned.target.id
+                    mod = banned.user.name + '#' + banned.user.discriminator
+                    mod_id = banned.user.id
+                    ban_date = banned.created_at.timestamp()
+                    reason = banned.reason if banned.reason else 'No Reason Given!'
+
+                else:
+                    username = ban.user.name + '#' + ban.user.discriminator
+                    user_id = ban.user.id
+
                 ban_records.append(BanRecords(
-                                   username=ban.user.name+'#'+ban.user.discriminator,
-                                   user_id=ban.user.id,
-                                   mod=None,
-                                   mod_id=None,
-                                   ban_date=None,
-                                   reason='No Reason Given!'
-                                   ))
+                    username=username,
+                    user_id=user_id,
+                    mod=mod,
+                    mod_id=mod_id,
+                    ban_date=ban_date,
+                    reason=reason
+                ))
 
         await BanRecords.insert_records(ban_records)
 
