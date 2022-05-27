@@ -16,9 +16,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('ban_id', WalleModels.customFields.GeneratedIdentityField(always=True, primary_key=True,
                                                                            serialize=False)),
-                ('username', models.CharField(max_length=32)),
+                ('username', models.CharField(max_length=37)),
                 ('user_id', models.BigIntegerField()),
-                ('mod', models.CharField(max_length=32, null=True)),
+                ('mod', models.CharField(max_length=37, null=True)),
                 ('mod_id', models.BigIntegerField(null=True)),
                 ('ban_date', models.BigIntegerField(null=True)),
                 ('reason', models.CharField(max_length=512)),
