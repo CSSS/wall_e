@@ -338,7 +338,6 @@ class Ban(commands.Cog):
             if view_perm is False or send_perm is False:
                 continue
             else:
-                print(f'purging {channel}')
                 await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
 
     @commands.command()
