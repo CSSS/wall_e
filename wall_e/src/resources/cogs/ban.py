@@ -238,7 +238,7 @@ class Ban(commands.Cog):
             # check if purge window was specified
             purge_window_days = int(args[0])
             args.remove(args[0])
-        except:
+        except Exception:
             # use default value set above
             pass
         logger.info(f"[Ban ban()] Purge window days set to {purge_window_days}")
