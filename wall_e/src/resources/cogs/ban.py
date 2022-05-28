@@ -212,11 +212,10 @@ class Ban(commands.Cog):
         logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
 
     @commands.command()
-    async def ban(self, ctx, user: discord.Member, purge_window_days: int = 1, *reason: str):
-        """Bans a user from the guild"""
+    async def ban(self, ctx, user: discord.Member, *args):
 
-        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, reason={reason}, " +
-                    f"purge_window_days={purge_window_days}]")
+        """Bans a user from the guild"""
+        logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, args={args}")
 
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
@@ -233,14 +232,25 @@ class Ban(commands.Cog):
 
         logger.info(f"[Ban ban()] User to ban: {user}")
 
+        args = list(args)
+        purge_window_days = 1
+        try:
+            # check if purge window was specified
+            purge_window_days = int(args[0])
+            args.remove(args[0])
+        except:
+            # use default value set above
+            pass
+        logger.info(f"[Ban ban()] Purge window days set to {purge_window_days}")
+
         # construct reason
-        reason = ' '.join(reason)
+        reason = ' '.join(args)
         reason = reason if reason else "No Reason Given."
-        logger.info(f"[Ban ban()] Ban reason{reason}")
+        logger.info(f"[Ban ban()] Ban reason '{reason}'")
 
         # ban
         dm = True
-        # for user in users_to_ban:
+
         ban = BanRecords(
                          username=user.name + '#' + user.discriminator,
                          user_id=user.id,
@@ -300,22 +310,24 @@ class Ban(commands.Cog):
         logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
 
         # update database
-        await BanRecords.insert_records(ban)
+        await BanRecords.insert_record(ban)
 
     async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
         if timeframe <= 0 or timeframe > 14:
             await ctx.send('Window to purge message must be between 1 - 14 days. Using default of `1 day`')
             timeframe = 1
+        logger.info(f"[Ban purge_message()] timeframe: {timeframe}")
 
         # begin purging messages
         # get list of all channels
         channels = self.bot.guilds[0].text_channels
 
         def is_banned_user(msg):
-            msg.author == user
+            return msg.author == user
 
         date = datetime.datetime.now() - datetime.timedelta(timeframe)
+        logger.info(f"[Ban purge_message()] message from {user} will be purge starting from date {date}")
 
         for channel in channels:
             send_perm = channel.overwrites_for(ctx.guild.default_role).send_messages
@@ -326,6 +338,7 @@ class Ban(commands.Cog):
             if view_perm is False or send_perm is False:
                 continue
             else:
+                print(f'purging {channel}')
                 await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
 
     @commands.command()
