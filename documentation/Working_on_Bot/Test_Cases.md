@@ -37,7 +37,11 @@
   1. `.help here`
   1. `.help nothing`
 ## Mod
-
+  1. `.em`
+  1. `.em "description" "title" "field"`
+  1. `.em "title" "field"`
+  1. `.warn`
+  1. `.warn behold my mod powers and be scarred`
 ## Reminders
   1. `.remindmein`
   1. `.remindmein 10 seconds to turn in my assignment`
@@ -95,3 +99,14 @@
    1. `.team "spaces #1" "musical voice channels" "Billy, Bob, Megan, Cary" "notAHexCode"`
    1. `.reportwin`
    1. `.reportwin "team 1337" "Jeffrey, Harry, Noble, Ali"`
+## Ban
+   1. `.initban`
+   1. `.ban @user reason for my ban`
+   1. `.ban @user "reason for my ban"`
+   1. `.ban @user @user1 reason`
+   1. `.ban @user @user1 "reason blah"`
+   1. `.ban user reason for ban`
+   1. `.unban <id of banned user>`
+   1. `.unban <id of not banned user>`
+   1. `.unban <non integer something>`
+   1. `.bans`

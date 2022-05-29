@@ -1,17 +1,78 @@
+# for type references to own class
+# https://stackoverflow.com/a/33533514
+from __future__ import annotations
+from typing import List
 import datetime
 import logging
 import random
 import time
-
 import pytz
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
-
+from .customFields import GeneratedIdentityField
 import django_db_orm_settings
 
 logger = logging.getLogger('wall_e')
+
+
+class BanRecords(models.Model):
+    ban_id = GeneratedIdentityField(primary_key=True, always=True)
+    username = models.CharField(max_length=32, null=False)
+    user_id = models.BigIntegerField(null=False)
+    mod = models.CharField(max_length=32, null=True)
+    mod_id = models.BigIntegerField(null=True)
+    ban_date = models.BigIntegerField(null=True)
+    reason = models.CharField(max_length=512, null=False)
+    unban_date = models.BigIntegerField(null=True, default=None)
+
+    class Meta:
+        db_table = 'WalleModels_ban_records'
+
+    @classmethod
+    @sync_to_async
+    def insert_records(cls, records: List[BanRecords]) -> None:
+        """Adds entry to BanRecords table"""
+        BanRecords.objects.bulk_create(records)
+
+    @classmethod
+    @sync_to_async
+    def insert_record(cls, record: BanRecords) -> None:
+        """Adds entry to BanRecords table"""
+        record.save()
+
+    @classmethod
+    @sync_to_async
+    def get_all_active_ban_user_ids(cls) -> List[int]:
+        """Returns list of user_ids for all currently banned users"""
+
+        return list(BanRecords.objects.values_list('user_id', flat=True).filter(unban_date=None))
+
+    @classmethod
+    @sync_to_async
+    def get_all_active_bans(cls) -> List[BanRecords]:
+        """Returns list of usernames and user_ids for all currently banned users"""
+
+        return list(BanRecords.objects.values('username', 'user_id').filter(unban_date=None))
+
+    @classmethod
+    @sync_to_async
+    def unban_by_id(cls, user_id: int) -> str:
+        """Set active=False for user with the given user_id. This representes unbanning a user."""
+        try:
+            user = BanRecords.objects.get(user_id=user_id, unban_date=None)
+        except Exception:
+            return None
+
+        user.unban_date = datetime.datetime.now().timestamp()
+        user.save()
+        return user.username
+
+    def __str__(self) -> str:
+        return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}] " \
+               f"mod=[{self.mod}] mod_id=[{self.mod_id}] date=[{self.ban_date}] reason=[{self.reason}]" \
+               f"unban_date=[{self.unban_date}]"
 
 
 class CommandStat(models.Model):
