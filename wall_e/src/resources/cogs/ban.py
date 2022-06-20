@@ -101,13 +101,15 @@ class Ban(commands.Cog):
         # need to read the audit log to grab mod, date, and reason
         logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
         try:
-            audit_ban = await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+            date = datetime.datetime.now() - datetime.timedelta(minutes=1)
+            audit_ban = await guild.audit_logs(action=discord.AuditLogAction.ban, after=date,
+                                               oldest_first=False).flatten()
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
-        audit_ban = audit_ban[0]
+        audit_ban = next( user for user in audit_ban if user.target.id == member.id )
         logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
 
         # name, id, mod, mod id, date, reason
@@ -125,7 +127,7 @@ class Ban(commands.Cog):
         await BanRecords.insert_record(ban)
 
         # unban
-        await self.bot.guilds[0].unban(member)
+        await guild.unban(member)
         logger.info(f"[Ban intercept()] ban for {ban.username} moved into db and guild ban was removed")
 
         # report to council
@@ -139,7 +141,7 @@ class Ban(commands.Cog):
         e_obj.set_footer(text="Intercepted Moderator Action")
         e_obj.timestamp = audit_ban.created_at
         await self.mod_channel.send(embed=e_obj)
-        logger.info(f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}.")
+        logger.info(f"[Ban intercept()] Message sent to mod channel,{self.mod_channel}, for ban of {ban.username}.")
 
     @commands.command()
     async def convertbans(self, ctx):
