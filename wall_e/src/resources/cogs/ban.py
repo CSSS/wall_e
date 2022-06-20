@@ -109,7 +109,7 @@ class Ban(commands.Cog):
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
-        audit_ban = next( user for user in audit_ban if user.target.id == member.id )
+        audit_ban = next(user for user in audit_ban if user.target.id == member.id)
         logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
 
         # name, id, mod, mod id, date, reason
