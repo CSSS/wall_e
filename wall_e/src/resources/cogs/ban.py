@@ -100,7 +100,7 @@ class Ban(commands.Cog):
 
         # need to read the audit log to grab mod, date, and reason
         logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
-        logger.info(f"[Ban intercept()] waiting 1 second to ensure ban log is created")
+        logger.info("[Ban intercept()] waiting 1 second to ensure ban log is created")
         await asyncio.sleep(1)
 
         try:
