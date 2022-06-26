@@ -111,7 +111,7 @@ class Ban(commands.Cog):
         if audit_ban is None:
             logger.info("[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel")
             await self.mod_channel.send(f"Ban for {member.name} has not been added to walle due to error"
-                                   "Please use `.convertbans` then `.purgebans` to add to walle system.")
+                                        "Please use `.convertbans` then `.purgebans` to add to walle system.")
             return
 
         logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
