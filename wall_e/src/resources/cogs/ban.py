@@ -448,3 +448,9 @@ class Ban(commands.Cog):
             await self.bot.guilds[0].unban(ban.user)
 
         await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
+
+    def cog_unload(self):
+        logger.info('[Ban cog_load()] Removing listeners for ban cog: on_ready, on_member_join, on_member_ban')
+        self.bot.remove_listener(self.load, 'on_ready')
+        self.bot.remove_listener(self.watchdog, 'on_member_join')
+        self.bot.remove_listener(self.intercept, 'on_member_ban')
