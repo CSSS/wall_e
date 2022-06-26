@@ -16,6 +16,7 @@ export web_image_name=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e_web | awk '{print 
 
 pushd CI/user_scripts
 cp docker-compose-mount.yml docker-compose.yml
+touch wall_e.env
 docker-compose rm -f -s -v || true
 docker volume rm "${volume_name}" || true
 docker image rm "${image_name}" || true

@@ -1,17 +1,78 @@
+# for type references to own class
+# https://stackoverflow.com/a/33533514
+from __future__ import annotations
+from typing import List
 import datetime
 import logging
 import random
 import time
-
 import pytz
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
-
+from .customFields import GeneratedIdentityField
 import django_db_orm_settings
 
 logger = logging.getLogger('wall_e')
+
+
+class BanRecords(models.Model):
+    ban_id = GeneratedIdentityField(primary_key=True, always=True)
+    username = models.CharField(max_length=32, null=False)
+    user_id = models.BigIntegerField(null=False)
+    mod = models.CharField(max_length=32, null=True)
+    mod_id = models.BigIntegerField(null=True)
+    ban_date = models.BigIntegerField(null=True)
+    reason = models.CharField(max_length=512, null=False)
+    unban_date = models.BigIntegerField(null=True, default=None)
+
+    class Meta:
+        db_table = 'WalleModels_ban_records'
+
+    @classmethod
+    @sync_to_async
+    def insert_records(cls, records: List[BanRecords]) -> None:
+        """Adds entry to BanRecords table"""
+        BanRecords.objects.bulk_create(records)
+
+    @classmethod
+    @sync_to_async
+    def insert_record(cls, record: BanRecords) -> None:
+        """Adds entry to BanRecords table"""
+        record.save()
+
+    @classmethod
+    @sync_to_async
+    def get_all_active_ban_user_ids(cls) -> List[int]:
+        """Returns list of user_ids for all currently banned users"""
+
+        return list(BanRecords.objects.values_list('user_id', flat=True).filter(unban_date=None))
+
+    @classmethod
+    @sync_to_async
+    def get_all_active_bans(cls) -> List[BanRecords]:
+        """Returns list of usernames and user_ids for all currently banned users"""
+
+        return list(BanRecords.objects.values('username', 'user_id').filter(unban_date=None))
+
+    @classmethod
+    @sync_to_async
+    def unban_by_id(cls, user_id: int) -> str:
+        """Set active=False for user with the given user_id. This representes unbanning a user."""
+        try:
+            user = BanRecords.objects.get(user_id=user_id, unban_date=None)
+        except Exception:
+            return None
+
+        user.unban_date = datetime.datetime.now().timestamp()
+        user.save()
+        return user.username
+
+    def __str__(self) -> str:
+        return f"ban_id=[{self.ban_id}] username=[{self.username}] user_id=[{self.user_id}] " \
+               f"mod=[{self.mod}] mod_id=[{self.mod_id}] date=[{self.ban_date}] reason=[{self.reason}]" \
+               f"unban_date=[{self.unban_date}]"
 
 
 class CommandStat(models.Model):
@@ -92,7 +153,7 @@ class CommandStat(models.Model):
 
 class UserPoint(models.Model):
     user_id = models.PositiveBigIntegerField(
-
+        unique=True
     )
     points = models.PositiveBigIntegerField(
 
@@ -175,20 +236,16 @@ class UserPoint(models.Model):
     def user_points_have_been_imported():
         return len(list(UserPoint.objects.all()[:1])) == 1
 
+    @staticmethod
+    @sync_to_async
+    def clear_all_entries():
+        UserPoint.objects.all().delete()
+
     def _message_counts_towards_points(self):
-        current_date = datetime.datetime.now(tz=pytz.timezone(django_db_orm_settings.TIME_ZONE))
-        date_for_incrementing_points = datetime.datetime.fromtimestamp(
+        return datetime.datetime.fromtimestamp(
             self.latest_time_xp_was_earned_epoch,
             pytz.timezone(django_db_orm_settings.TIME_ZONE)
-        ) + datetime.timedelta(minutes=1)
-
-        current_date_str = current_date.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
-        date_for_incrementing_points_str = date_for_incrementing_points.strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
-        logger.info(
-            f"[models.py _message_counts_towards_points()] current_date = {current_date_str} "
-            f" date_for_incrementing_points = {date_for_incrementing_points_str}"
-        )
-        return date_for_incrementing_points < current_date
+        ) + datetime.timedelta(minutes=1) < datetime.datetime.now(tz=pytz.timezone(django_db_orm_settings.TIME_ZONE))
 
     @staticmethod
     @sync_to_async
@@ -198,7 +255,7 @@ class UserPoint(models.Model):
 
 class Level(models.Model):
     number = models.PositiveBigIntegerField(
-
+        unique=True
     )  # xp_level
     total_points_required = models.PositiveBigIntegerField(
 
@@ -209,11 +266,13 @@ class Level(models.Model):
     )
 
     role_id = models.PositiveBigIntegerField(
-        null=True
+        null=True,
+        unique=True
     )
     role_name = models.CharField(
         max_length=500,
-        null=True
+        null=True,
+        unique=True
     )  # xp_role_name
 
     @staticmethod
@@ -236,6 +295,11 @@ class Level(models.Model):
     @sync_to_async
     def level_points_have_been_imported():
         return len(list(Level.objects.all()[:1])) == 1
+
+    @staticmethod
+    @sync_to_async
+    def clear_all_entries():
+        Level.objects.all().delete()
 
     @staticmethod
     @sync_to_async

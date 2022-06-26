@@ -3,7 +3,6 @@ import json
 import logging
 
 import discord
-import requests
 from discord.ext import commands
 
 from WalleModels.models import UserPoint, Level
@@ -21,23 +20,18 @@ class Leveling(commands.Cog):
         :param bot:
         :param config:
         """
-        self.levels_have_been_changed = True
+        self.levels_have_been_changed = False
         self.bot = bot
         self.config = config
         self.user_points = {}
         self.levels = {}
-        self.database_and_dict_populated = False
         self.xp_system_ready = False
         self.council_channel = None
-        self.bot.loop.create_task(self.load_data_from_mee6_endpoint_and_json())
-        self.bot.loop.create_task(self.create_council_channel())
-        self.bot.loop.create_task(self.ensure_roles_exist_and_have_right_users())
 
-    async def load_data_from_mee6_endpoint_and_json(self):
-        await self.bot.wait_until_ready()
-        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading XP data")
+    @commands.Cog.listener(name="on_ready")
+    async def load_points_into_dict(self):
         if not await Level.level_points_have_been_imported():
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
+            logger.info("[Mee6 load_points_into_dict()] loading levels into DB and dict")
             with open('resources/mee6_levels/levels.json') as f:
                 self.levels = {
                     int(level_number): await Level.create_level(
@@ -49,68 +43,94 @@ class Leveling(commands.Cog):
                     for (level_number, level_info) in json.load(f).items()
                 }
         elif len(self.levels) == 0:
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
+            logger.info("[Mee6 load_points_into_dict()] loading level from DB into dict")
             self.levels = await Level.load_to_dict()
-        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
+        logger.info("[Mee6 load_points_into_dict()] levels loaded in DB and dict")
+        self.user_points = await UserPoint.load_to_dict()
+        logger.info("[Mee6 load_points_into_dict()] UserPoints loaded into dict")
+        self.xp_system_ready = True
 
-        if not await UserPoint.user_points_have_been_imported():
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
-            page = 0
-            all_users_loaded = False
-            while not all_users_loaded:
-                r = requests.get(
-                    f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
-                    headers={
-                        'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
-                    }
-                )
-                if r.status_code == 200:
-                    data = json.loads(r.text)
-                    if len(data['players']) > 0:
-                        page += 1
-                        for player in data['players']:
-                            # player = {
-                            #     'avatar': '3fd2cc8fda2a0af3b1a06bb27d5151f0',
-                            #     'detailed_xp': [
-                            #         8349,  # how much of the "XP needed to level up" I have so far
-                            #         11980,  # XP needed to level up
-                            #         197219  # Total XP I have so far
-                            #     ],
-                            #     'discriminator': '6816',
-                            #     'guild_id': '228761314644852736',
-                            #     'id': '288148680479997963',
-                            #     'level': 44,
-                            #     'message_count': 9858,  # total messages sent
-                            #     'username': 'modernNeo',
-                            #     'xp': 197219  # Total XP
-                            # }
-                            user_id = int(player['id'])
-                            message_count = int(player['message_count'])
-                            level = int(player['level'])
-                            user_xp = int(player['xp'])
-                            self.user_points[user_id] = await UserPoint.create_user_point(
-                                user_id, points=user_xp, message_count=message_count, level=level
-                            )
-                    else:
-                        all_users_loaded = True
-                elif r.status_code == 429:
-                    logger.info(
-                        "[Mee6 load_data_from_mee6_endpoint_and_json()] wall_e is currently rate-limited by the"
-                        " mee6 website. exiting now"
-                    )
-                    await asyncio.sleep(120)
-                    exit(0)
-                else:
-                    await asyncio.sleep(120)
-        elif len(self.user_points) == 0:
-            logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
-            self.user_points = await UserPoint.load_to_dict()
-        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
-        logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
-        self.database_and_dict_populated = True
+    # async def load_data_from_mee6_endpoint_and_json(self):
+    #     await self.bot.wait_until_ready()
+    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading XP data")
+    #     await Level.clear_all_entries()
+    #     await UserPoint.clear_all_entries()
+    #
+    #     if not await Level.level_points_have_been_imported():
+    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
+    #         with open('resources/mee6_levels/levels.json') as f:
+    #             self.levels = {
+    #                 int(level_number): await Level.create_level(
+    #                     int(level_number),
+    #                     level_info['total_xp_required_for_level'],
+    #                     level_info['xp_needed_to_level_up_to_next_level'],
+    #                     role_name=level_info['role_name'] if 'role_name' in level_info else None,
+    #                 )
+    #                 for (level_number, level_info) in json.load(f).items()
+    #             }
+    #     elif len(self.levels) == 0:
+    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
+    #         self.levels = await Level.load_to_dict()
+    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
+    #
+    #     if not await UserPoint.user_points_have_been_imported():
+    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
+    #         page = 0
+    #         all_users_loaded = False
+    #         while not all_users_loaded:
+    #             r = requests.get(
+    #                 f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
+    #                 headers={
+    #                     'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
+    #                 }
+    #             )
+    #             if r.status_code == 200:
+    #                 data = json.loads(r.text)
+    #                 if len(data['players']) > 0:
+    #                     page += 1
+    #                     for player in data['players']:
+    #                         # player = {
+    #                         #     'avatar': '3fd2cc8fda2a0af3b1a06bb27d5151f0',
+    #                         #     'detailed_xp': [
+    #                         #         8349,  # how much of the "XP needed to level up" I have so far
+    #                         #         11980,  # XP needed to level up
+    #                         #         197219  # Total XP I have so far
+    #                         #     ],
+    #                         #     'discriminator': '6816',
+    #                         #     'guild_id': '228761314644852736',
+    #                         #     'id': '288148680479997963',
+    #                         #     'level': 44,
+    #                         #     'message_count': 9858,  # total messages sent
+    #                         #     'username': 'modernNeo',
+    #                         #     'xp': 197219  # Total XP
+    #                         # }
+    #                         user_id = int(player['id'])
+    #                         message_count = int(player['message_count'])
+    #                         level = int(player['level'])
+    #                         user_xp = int(player['xp'])
+    #                         self.user_points[user_id] = await UserPoint.create_user_point(
+    #                             user_id, points=user_xp, message_count=message_count, level=level
+    #                         )
+    #                 else:
+    #                     all_users_loaded = True
+    #             elif r.status_code == 429:
+    #                 logger.info(
+    #                     "[Mee6 load_data_from_mee6_endpoint_and_json()] wall_e is currently rate-limited by the"
+    #                     " mee6 website. exiting now"
+    #                 )
+    #                 await asyncio.sleep(120)
+    #                 exit(0)
+    #             else:
+    #                 await asyncio.sleep(120)
+    #     elif len(self.user_points) == 0:
+    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
+    #         self.user_points = await UserPoint.load_to_dict()
+    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
+    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
+    #     self.xp_system_ready = True
 
+    @commands.Cog.listener(name="on_ready")
     async def create_council_channel(self):
-        await self.bot.wait_until_ready()
         council_channel_id = None
         # determines the channel to send the XP messages on to the Moderators
         try:
@@ -197,8 +217,54 @@ class Leveling(commands.Cog):
                          f"channel\n{e}")
         self.council_channel = self.bot.get_channel(council_channel_id)  # channel ID goes here
 
+    @commands.Cog.listener(name='on_message')
+    async def on_message(self, message):
+        if not message.author.bot:
+            if not self.xp_system_ready:
+                return
+            message_author_id = message.author.id
+            if message_author_id not in self.user_points:
+                logger.info(
+                    f"[Mee6 on_message()] could not detect author {message.author}({message_author_id}) "
+                    "in the user_points dict"
+                )
+                self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
+            if await self.user_points[message_author_id].increment_points():
+                logger.info(
+                    f"[Mee6 on_message()] increased points for {message.author}({message_author_id}) "
+                    f" and alerting them that they are in a new level in channel {message.channel}"
+                )
+                level = self.levels[self.user_points[message_author_id].level_number]
+                if level.role_id is not None:
+                    role = message.guild.get_role(level.role_id)
+                    if role is not None:
+                        logger.info(
+                            f"[Mee6 on_message()] the new level {level.number} "
+                            f" for user {message.author}({message_author_id}) has the role {role} "
+                            f"associated with it. Assigning to user"
+                        )
+                        await message.author.add_roles(role)
+                    else:
+                        logger.info(
+                            f"[Mee6 on_message()] the new level {level.number} "
+                            f" for user {message.author}({message_author_id}) has an invalid role {role} associated "
+                            f"with it. Alerting the council to this "
+                        )
+                        await self.council_channel.send(
+                            "The XP role could not be found. Please call `.remove_level_name <level_number>` "
+                            "to confirm that you want the XP roles deleted or re-create the roles:\n\n"
+                            "Role Name - Linked XP Level\n"
+                            f"{level.role_name} - {level.number}"
+                        )
+
+                await message.channel.send(
+                    f"<@{message_author_id}> is now **level {level.number}**!"
+                )
+                logger.info(f"[Mee6 on_message()] message sent to {message.author}({message_author_id})")
+
+    @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
-        while not self.database_and_dict_populated:
+        while not self.xp_system_ready or self.council_channel is None:
             await asyncio.sleep(5)
         while True:
             if self.levels_have_been_changed:
@@ -255,14 +321,65 @@ class Leveling(commands.Cog):
                     "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members with XP points"
                     " have the right XP roles"
                 )
+                prev_number_of_members_fixed = number_of_members_fixed = 0
+                prev_number_of_members_skipped = number_of_members_skipped = 0
+                number_of_members = len(members_with_points)
                 for member_with_point in members_with_points:
                     while (
+                            len(levels_with_a_role) > (role_index + 1) and
                             self.user_points[member_with_point.id].points >=
                             levels_with_a_role[role_index + 1].total_points_required
                     ):
                         role_index += 1
-                    await member_with_point.remove_roles(*guild_roles[role_index:])
-                    await member_with_point.add_roles(*guild_roles[:role_index])
+                    number_of_retries = 0
+                    successful = False
+                    skip = False
+                    while not successful and not skip:
+                        skip = False
+                        successful = False
+                        try:
+                            number_of_retries += 1
+                            await member_with_point.remove_roles(*guild_roles[role_index + 1:])
+                            await member_with_point.add_roles(*guild_roles[:role_index + 1])
+                            successful = True
+                            number_of_retries = 0
+                            number_of_members_fixed += 1
+                        except Exception as e:
+                            logger.info(
+                                "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace encountered "
+                                f"following error when fixing the roles for member {member_with_point}, \n{e}"
+                            )
+                            if number_of_retries == 5:
+                                logger.info(
+                                    f"[Mee6 ensure_roles_exist_and_have_right_users()] alertJace "
+                                    f"tried to fix the"
+                                    f" permissions for member {member_with_point} 5 times, moving onto "
+                                    f"next member"
+                                )
+                                skip = True
+                                number_of_retries = 0
+                                number_of_members_skipped += 1
+                            else:
+                                logger.info(
+                                    "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace "
+                                    "will try again in one minute"
+                                )
+                                await asyncio.sleep(60)
+                    if (
+                            (prev_number_of_members_skipped != number_of_members_skipped and
+                             number_of_members_skipped % 10 == 0) or
+                            (prev_number_of_members_fixed != number_of_members_fixed and
+                             number_of_members_fixed % 10 == 0)
+                    ):
+                        prev_number_of_members_skipped = number_of_members_skipped
+                        prev_number_of_members_fixed = number_of_members_fixed
+                        logger.info(
+                            f"[Mee6 ensure_roles_exist_and_have_right_users()] current_progress so far..."
+                            f" number_of_members_fixed = {number_of_members_fixed}/{number_of_members} || "
+                            f"number_of_members_skipped = {number_of_members_skipped}/{number_of_members}"
+                        )
+                    await asyncio.sleep(5)
+
                 logger.info(
                     "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that the members with XP points"
                     " have the right XP roles")
@@ -272,39 +389,74 @@ class Leveling(commands.Cog):
                     " don't have any XP roles "
                 )
                 for member_without_points in [member for member in members if member.id not in self.user_points]:
-                    await member_without_points.remove_roles(*guild_roles)
+                    try:
+                        await member_without_points.remove_roles(*guild_roles)
+                    except Exception as e:
+                        logger.info(
+                            "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace encountered "
+                            f"following error when fixing the roles for member {member_without_points}, \n{e}"
+                        )
+                    await asyncio.sleep(5)
                 logger.info(
                     "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
                     " don't have any XP roles "
                 )
                 self.levels_have_been_changed = False
-                self.xp_system_ready = True
                 logger.info(
                     "[Mee6 ensure_roles_exist_and_have_right_users()] users and role are now updated for XP system"
                 )
             await asyncio.sleep(86400)
 
-    @commands.Cog.listener(name='on_message')
-    async def on_message(self, message):
-        if not message.author.bot:
-            if not self.xp_system_ready:
-                return
-            message_author_id = message.author.id
-            logger.info(f"[Mee6 ensure_roles_exist_and_have_right_users()] detected message from {message_author_id}")
-            if message_author_id not in self.user_points:
+    @commands.Cog.listener(name='on_member_join')
+    async def re_assign_roles(self, member: discord.Member):
+        if member.id not in self.user_points:
+            return
+        while not self.xp_system_ready:
+            await asyncio.sleep(5)
+        logger.info(
+            f"[Mee6 re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} points wil "
+            f"get their roles back if they leave and re-join the guild"
+        )
+
+        levels_with_a_role = [
+            level for level in self.levels.values()
+            if level.role_name is not None and level.total_points_required <= self.user_points[member.id].points
+        ]
+        logger.info(
+            f"[Mee6 re_assign_roles()] seems user {member} is entitled to the following levels which have"
+            f" a role: {levels_with_a_role}"
+        )
+
+        guild_roles = [
+            member.guild.get_role(self.levels[level_with_role.number].role_id)
+            for level_with_role in levels_with_a_role
+        ]
+        guild_roles = [guild_role for guild_role in guild_roles if guild_role]
+
+        logger.info(
+            f"[Mee6 re_assign_roles()] will get the {guild_roles} roles added back to {member}"
+        )
+        number_of_retries = 0
+        success = False
+        while number_of_retries < 5 and success is False:
+            try:
+                number_of_retries += 1
+                await member.add_roles(*guild_roles)
+                success = True
+            except Exception as e:
                 logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] could not detect author {message_author_id} "
-                    "in the user_points dict"
+                    f"[Mee6 re_assign_roles()] encountered following error when fixing the roles for "
+                    f"member {member}, \n{e}"
                 )
-                self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
-            if await self.user_points[message_author_id].increment_points():
-                logger.info(
-                    f"[Mee6 ensure_roles_exist_and_have_right_users()] increased points for {message_author_id} "
-                    " and alerting them that they are in a new level"
-                )
-                await message.channel.send(
-                    f"<@{message_author_id}> is now **level {self.user_points[message_author_id].level_number}**!"
-                )
+                if number_of_retries < 5:
+                    logger.info("[Mee6 re_assign_roles()] will try again in one minute")
+                    await asyncio.sleep(60)
+        if success:
+            logger.info(f"[Mee6 re_assign_roles()] XP roles fixed for user {member}")
+        else:
+            logger.info(
+                f"[Mee6 re_assign_roles()] alertJace could not fix the XP roles for user {member}"
+            )
 
     @commands.command()
     async def set_level_name(self, ctx, level_number: int, new_role_name: str):
