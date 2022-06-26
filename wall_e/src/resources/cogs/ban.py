@@ -100,6 +100,9 @@ class Ban(commands.Cog):
 
         # need to read the audit log to grab mod, date, and reason
         logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
+        logger.info(f"[Ban intercept()] waiting 1 second to ensure ban log is created")
+        await asyncio.sleep(1)
+
         try:
             audit_ban = await guild.audit_logs(action=discord.AuditLogAction.ban, oldest_first=False).flatten()
         except Exception as e:
@@ -107,11 +110,14 @@ class Ban(commands.Cog):
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
+
         audit_ban = next((audit_ban for audit_ban in audit_ban if audit_ban.target.id == member.id), None)
         if audit_ban is None:
             logger.info("[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel")
             await self.mod_channel.send(f"Ban for {member.name} has not been added to walle due to error"
-                                        "Please use `.convertbans` then `.purgebans` to add to walle system.")
+                                        "Please use `.convertbans` then `.purgebans` to add to walle system.\n"
+                                        "Don't use `.purgebans` if you have a user ip banned, manually unban from "
+                                        "server settings instead.")
             return
 
         logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
