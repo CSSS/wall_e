@@ -100,6 +100,10 @@ class Ban(commands.Cog):
 
         # need to read the audit log to grab mod, date, and reason
         logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
+        logger.info("[Ban intercept()] waiting 1 second to ensure ban log is created")
+        # sleep is needed so discord has time to create the audit log
+        await asyncio.sleep(1)
+
         try:
             audit_ban = await guild.audit_logs(action=discord.AuditLogAction.ban, oldest_first=False).flatten()
         except Exception as e:
@@ -107,6 +111,7 @@ class Ban(commands.Cog):
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
+
         audit_ban = next((audit_ban for audit_ban in audit_ban if audit_ban.target.id == member.id), None)
         if audit_ban is None:
             logger.info("[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel")
@@ -442,3 +447,9 @@ class Ban(commands.Cog):
             await self.bot.guilds[0].unban(ban.user)
 
         await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
+
+    def cog_unload(self):
+        logger.info('[Ban cog_load()] Removing listeners for ban cog: on_ready, on_member_join, on_member_ban')
+        self.bot.remove_listener(self.load, 'on_ready')
+        self.bot.remove_listener(self.watchdog, 'on_member_join')
+        self.bot.remove_listener(self.intercept, 'on_member_ban')
