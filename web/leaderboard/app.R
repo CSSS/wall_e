@@ -6,7 +6,8 @@ con = dbConnect(RPostgres::Postgres(),
                 host = 'db',
                 port = 5432,
                 user = Sys.getenv('WALL_E_DB_USER'),
-                password = Sys.getenv('WALL_E_DB_PASSWORD'))
+                password = Sys.getenv('WALL_E_DB_PASSWORD'),
+                bigint = 'character')
 
 ui = fluidPage(
     titlePanel("CSSS Discord Leaderboard"),
