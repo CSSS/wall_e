@@ -15,7 +15,7 @@ ui = fluidPage(
 )
 
 server = function(input, output, session) {
-    res = dbSendQuery(con, 'SELECT * FROM "WalleModels_userpoint" ORDER BY points DESC')
+    res = dbSendQuery(con, 'SELECT user_id, message_count, points, level_number FROM "WalleModels_userpoint" ORDER BY points DESC')
     df = dbFetch(res)
     dbClearResult(res)
     output$table = renderDataTable(df,options = list(pageLength = 100))
