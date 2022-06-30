@@ -18,6 +18,10 @@ server = function(input, output, session) {
     res = dbSendQuery(con, 'SELECT user_id, message_count, points, level_number FROM "WalleModels_userpoint" ORDER BY points DESC')
     df = dbFetch(res)
     dbClearResult(res)
+    names(df)[names(df) == 'user_id'] = 'User ID'
+    names(df)[names(df) == 'message_count'] <- 'Message count'
+    names(df)[names(df) == 'points'] <- 'Points'
+    names(df)[names(df) == 'level_number'] <- 'Level number'
     output$table = renderDataTable(df,options = list(pageLength = 100))
 }
 
