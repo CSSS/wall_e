@@ -36,6 +36,7 @@ services:  #Services that are needed for the wall_e app
             context: ../../../ #Saying that all of my source files are at the root path
             dockerfile: CI/server_scripts/build_wall_e/Dockerfile.web
         environment:
+            - TOKEN
             - BRANCH_NAME
             - ENVIRONMENT
             - COMPOSE_PROJECT_NAME
