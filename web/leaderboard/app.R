@@ -9,20 +9,65 @@ con = dbConnect(RPostgres::Postgres(),
                 password = Sys.getenv('WALL_E_DB_PASSWORD'),
                 bigint = 'character')
 
+update_users = function() {
+    system('python3 users.py')
+    users = read.csv('users.csv')
+    return(users)
+}
+
+users = update_users()
+
 ui = fluidPage(
-    titlePanel("CSSS Discord Leaderboard"),
-    fluidRow(column(12,dataTableOutput('table')))
+    titlePanel('CSSS Discord Leaderboard'),
+    fluidRow(
+        column(12,
+               textOutput('timestamp', inline = TRUE),
+               actionLink('refresh', '[Refresh]'))),
+    fluidRow(
+        column(12,
+               dataTableOutput('table')))
 )
 
-server = function(input, output, session) {
-    res = dbSendQuery(con, 'SELECT user_id, message_count, points, level_number FROM "WalleModels_userpoint" ORDER BY points DESC')
+get_user_points = function() {
+    res = dbSendQuery(
+        con,
+        'SELECT user_id, message_count, points, level_number FROM "WalleModels_userpoint" ORDER BY points DESC')
     df = dbFetch(res)
     dbClearResult(res)
+    return(df)
+}
+
+get_user_names = function(df) {
+    df = merge(df, users)
+    return(df)
+}
+
+set_col_names = function(df) {
     names(df)[names(df) == 'user_id'] = 'User ID'
-    names(df)[names(df) == 'message_count'] <- 'Message count'
-    names(df)[names(df) == 'points'] <- 'Points'
-    names(df)[names(df) == 'level_number'] <- 'Level number'
-    output$table = renderDataTable(df,options = list(pageLength = 100))
+    names(df)[names(df) == 'user_name'] = 'User name'
+    names(df)[names(df) == 'message_count'] = 'Message count'
+    names(df)[names(df) == 'points'] = 'Points'
+    names(df)[names(df) == 'level_number'] = 'Level number'
+    return(df)
+}
+
+update_df = function() {
+    df = get_user_points()
+    df = get_user_names(df)
+    df = set_col_names(df)
+    return(df)
+}
+
+data = reactiveValues(frame = update_df(), date = date())
+date_tz = Sys.timezone()
+
+server = function(input, output, session) {
+    bindEvent(observe({
+        data$frame = update_df()
+        data$date = date()
+    }), input$refresh)
+    output$table = renderDataTable(data$frame)
+    output$timestamp = renderText(c(data$date,date_tz))
 }
 
 shinyApp(ui = ui, server = server)
