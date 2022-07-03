@@ -1,4 +1,5 @@
 FROM rocker/shiny:4.2.1
+RUN rm -rf /srv/shiny-server/*
 COPY web /srv/shiny-server/
 RUN apt update && \
     apt -y install libpq5 python3-pip && \
