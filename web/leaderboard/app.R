@@ -9,10 +9,10 @@ con = dbConnect(RPostgres::Postgres(),
                 password = Sys.getenv('WALL_E_DB_PASSWORD'),
                 bigint = 'character')
 
-system('python3 /srv/shiny-server/leaderboard/users.py')
-
 update_users = function() {
-    users = read.csv('/srv/shiny-server/leaderboard/users.csv')
+    system('python3 /srv/shiny-server/leaderboard/users.py')
+    users = read.csv('/srv/shiny-server/leaderboard/users.csv',
+                     colClasses = 'character')
     return(users)
 }
 
@@ -39,12 +39,15 @@ get_user_points = function() {
 }
 
 get_user_names = function(df) {
-    df = merge(df, users)
+    df$rank = 1:nrow(df)
+    df = merge(df, users, all.x = TRUE)
+    df = df[order(df$rank),]
     return(df)
 }
 
 set_col_names = function(df) {
-    names(df)[names(df) == 'user_id'] = 'User ID'
+    df = df[c('rank', 'user_name', 'message_count', 'points', 'level_number')]
+    names(df)[names(df) == 'rank'] = 'Rank'
     names(df)[names(df) == 'user_name'] = 'User name'
     names(df)[names(df) == 'message_count'] = 'Message count'
     names(df)[names(df) == 'points'] = 'Points'
@@ -67,7 +70,8 @@ server = function(input, output, session) {
         data$frame = update_df()
         data$date = date()
     }), input$refresh)
-    output$table = renderDataTable(data$frame)
+    output$table = renderDataTable(data$frame,
+                                   list(columnDefs = list(list(orderable = FALSE, targets = '_all'))))
     output$timestamp = renderText(c(data$date,date_tz))
 }
 
