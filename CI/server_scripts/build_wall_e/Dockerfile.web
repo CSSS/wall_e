@@ -6,4 +6,5 @@ RUN apt update && \
     pip install pandas discord.py && \
     Rscript -e 'install.packages("RPostgres")' && \
     touch /srv/shiny-server/leaderboard/users.csv && \
-    chown shiny:shiny /srv/shiny-server/leaderboard/users.csv
+    chown shiny:shiny /srv/shiny-server/leaderboard/users.csv && \
+    cp /srv/shiny-server/leaderboard/shiny-customized.config /etc/shiny-server/shiny-server.conf
