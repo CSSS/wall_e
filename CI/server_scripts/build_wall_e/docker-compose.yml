@@ -44,9 +44,7 @@ services:  #Services that are needed for the wall_e app
             - WALL_E_DB_DBNAME
             - WALL_E_DB_PASSWORD
         ports: # Map a random port on the host to 3838 on the container
-            - target: 3838
-              protocol: tcp
-              mode: host
+            - "3838"
         depends_on: # used to ensure that docker wont start web until after it has started the database container
             - "db"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_web"
