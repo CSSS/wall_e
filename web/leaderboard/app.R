@@ -9,7 +9,7 @@ con = dbConnect(RPostgres::Postgres(),
                 password = Sys.getenv('WALL_E_DB_PASSWORD'),
                 bigint = 'character')
 
-system('/srv/shiny-server/leaderboard/users.py')
+system('python3 /srv/shiny-server/leaderboard/users.py')
 
 update_users = function() {
     users = read.csv('/srv/shiny-server/leaderboard/users.csv')
