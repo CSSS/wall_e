@@ -42,13 +42,15 @@ get_user_names = function(df) {
     df$rank = 1:nrow(df)
     df = merge(df, users, all.x = TRUE)
     df = df[order(df$rank),]
+    na_user_name = is.na(df['user_name'])
+    df[na_user_name, 'user_name'] = df[na_user_name, 'user_id']
     return(df)
 }
 
 set_col_names = function(df) {
     df = df[c('rank', 'user_name', 'message_count', 'points', 'level_number')]
     names(df)[names(df) == 'rank'] = 'Rank'
-    names(df)[names(df) == 'user_name'] = 'User name and server nickname'
+    names(df)[names(df) == 'user_name'] = 'User identifier and server nickname'
     names(df)[names(df) == 'message_count'] = 'Message count'
     names(df)[names(df) == 'points'] = 'Points'
     names(df)[names(df) == 'level_number'] = 'Level number'
