@@ -10,8 +10,7 @@ con = dbConnect(RPostgres::Postgres(),
                 bigint = 'character')
 
 update_users = function() {
-    system('python3 users.py')
-    users = read.csv('users.csv')
+    users = read.csv('/srv/shiny-server/leaderboard/users.csv')
     return(users)
 }
 

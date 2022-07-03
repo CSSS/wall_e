@@ -3,4 +3,5 @@ COPY web /srv/shiny-server/
 RUN apt update && \
     apt -y install libpq5 python3-pip && \
     pip install pandas discord.py && \
-    Rscript -e 'install.packages("RPostgres")'
+    Rscript -e 'install.packages("RPostgres")' && \
+    python3 /srv/shiny-server/leaderboard/users.py
