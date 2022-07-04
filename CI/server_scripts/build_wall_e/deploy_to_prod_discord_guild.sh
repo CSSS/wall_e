@@ -14,6 +14,7 @@ export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 export prod_image_name_lower_case=$(echo "$prod_container_name" | awk '{print tolower($0)}')
 export prod_image_web_name_lower_case=$(echo "$prod_container_web_name" | awk '{print tolower($0)}')
+export prod_network_web_name="${compose_project_name}_web"
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
 
 
@@ -24,6 +25,12 @@ docker image rm -f ${prod_image_web_name_lower_case} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 docker-compose -f "${docker_compose_file}" up -d
 sleep 20
+# Web container: fixed IP address assignment to 192.168.168.169
+docker network rm ${prod_network_web_name} || true
+docker network create \
+  --driver=bridge --subnet=192.168.168.168/30 --gateway=192.168.168.170 --ip-range=192.168.168.169/32 \
+  ${prod_network_web_name} || true
+docker network connect ${prod_network_web_name} ${prod_container_web_name} || true
 
 container_failed=$(docker ps -a -f name=${prod_container_name} --format "{{.Status}}" | head -1)
 container_db_failed=$(docker ps -a -f name=${prod_container_db_name} --format "{{.Status}}" | head -1)
