@@ -38,6 +38,11 @@ update_users = function() {
 
 get_user_names = function(df) {
     users = update_users()
+    if (nrow(df) == 0) {
+        placeholder = data.frame('(No user point data available)', '-', '-', '-')
+        names(placeholder) = c('user_id', 'message_count', 'points', 'level_number')
+        df = rbind(df, placeholder)
+    }
     df$rank = 1:nrow(df)
     df = merge(df, users, all.x = TRUE)
     df = df[order(df$rank),]
