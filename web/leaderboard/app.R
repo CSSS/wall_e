@@ -9,15 +9,6 @@ con = dbConnect(RPostgres::Postgres(),
                 password = Sys.getenv('WALL_E_DB_PASSWORD'),
                 bigint = 'character')
 
-update_users = function() {
-    system('python3 /srv/shiny-server/leaderboard/users.py')
-    users = read.csv('/srv/shiny-server/leaderboard/users.csv',
-                     colClasses = 'character')
-    return(users)
-}
-
-users = update_users()
-
 ui = fluidPage(
     titlePanel('CSSS Discord Leaderboard'),
     fluidRow(
@@ -38,7 +29,15 @@ get_user_points = function() {
     return(df)
 }
 
+update_users = function() {
+    system('python3 /srv/shiny-server/leaderboard/users.py')
+    users = read.csv('/srv/shiny-server/leaderboard/users.csv',
+                     colClasses = 'character')
+    return(users)
+}
+
 get_user_names = function(df) {
+    users = update_users()
     df$rank = 1:nrow(df)
     df = merge(df, users, all.x = TRUE)
     df = df[order(df$rank),]
