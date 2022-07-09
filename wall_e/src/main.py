@@ -3,6 +3,7 @@ import inspect
 import os
 import sys
 import django
+import time
 
 from discord import Intents
 from discord.ext import commands
@@ -110,7 +111,7 @@ if __name__ == "__main__":
         except Exception as e:
             exception = f'{type(e).__name__}: {e}'
             logger.error(f'[main.py] Failed to load command {cog}\n{exception}')
-            sleep(20)
+            time.sleep(20)
             exit(1)
     # final step, running the bot with the passed in environment TOKEN variable
     bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"))
