@@ -155,7 +155,7 @@ docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
 echo "ORIGIN_IMAGE=${ORIGIN_IMAGE}"
 docker-compose -f "${docker_compose_file}" up --force-recreate  -d
-sleep 20
+sleep 60
 
 export container_failed=$(docker ps -a -f name=${test_container_name} --format "{{.Status}}" | head -1)
 export container_db_failed=$(docker ps -a -f name=${test_container_db_name} --format "{{.Status}}" | head -1)
