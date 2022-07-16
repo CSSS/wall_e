@@ -18,7 +18,7 @@ logger = logging.getLogger('wall_e')
 
 
 class BanRecords(models.Model):
-    ban_id = GeneratedIdentityField(primary_key=True, always=True)
+    ban_id = GeneratedIdentityField(primary_key=True)
     username = models.CharField(max_length=32, null=False)
     user_id = models.BigIntegerField(null=False)
     mod = models.CharField(max_length=32, null=True)
