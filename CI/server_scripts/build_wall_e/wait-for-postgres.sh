@@ -21,5 +21,10 @@ PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${WALL_E_DB_USER}" \
 
 python3 django_db_orm_manage.py migrate
 
+if [ "$ENVIRONMENT" != "PRODUCTION" ]; then
+  mv WalleModels/staging_migrations/*.py WalleModels/migrations/. || true
+  python3 django_db_orm_manage.py migrate
+fi
+
 exec $cmd
 
