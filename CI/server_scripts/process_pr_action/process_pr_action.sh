@@ -43,6 +43,9 @@ deleted_discord_pr_channels () {
 		if [ "${list_of_channel_names[$i]}" = "pr-${pr_number}_council" ]; then
 			council_channel_id="${list_of_channel_ids[$i]}"
 		fi
+		if [ "${list_of_channel_names[$i]}" = "pr-${pr_number}_mod_channel" ]; then
+			mod_channel_id="${list_of_channel_ids[$i]}"
+		fi		
 	done
 
 
@@ -74,6 +77,12 @@ deleted_discord_pr_channels () {
 		url="https://discordapp.com/api/channels/${council_channel_id}"
 		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
 	fi
+	if [ -z "${mod_channel_id}" ]; then
+		echo -e "\nmod_channel_id was not detected"
+	else
+		url="https://discordapp.com/api/channels/${mod_channel_id}"
+		curl -X DELETE -H "Authorization: Bot ${token}"  "${url}"
+	fi	
 }
 
 if [ "${action}" = "closed" ]; then
