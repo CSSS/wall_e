@@ -62,7 +62,7 @@ pipeline {
         }
         stage('Deploy To Test Guild'){
             steps {
-                withCredentials([string(credentialsId: 'STAGING_WALL_E_DISCORD_BOT_TOKEN', variable: 'STAGING_WALL_E_DISCORD_BOT_TOKEN'),
+                withCredentials([string(credentialsId: 'WALL_E_STAGING_DISCORD_BOT_TOKEN', variable: 'WALL_E_STAGING_DISCORD_BOT_TOKEN'),
                 string(credentialsId: 'MEE6_AUTHORIZATION', variable: 'MEE6_AUTHORIZATION'),
                 string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN')]) {
                     sh label: '', script: """bash -c \'
@@ -80,7 +80,7 @@ pipeline {
                         export WALL_E_DB_PASSWORD=wallEPassword;
                         export WOLFRAM_API_TOKEN="'"${WOLFRAM_API_TOKEN}"'";
                         export MEE6_AUTHORIZATION="'"${MEE6_AUTHORIZATION}"'";
-                        export TOKEN="'"${STAGING_WALL_E_DISCORD_BOT_TOKEN}"'";
+                        export TOKEN="'"${WALL_E_STAGING_DISCORD_BOT_TOKEN}"'";
                         export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
                         ./CI/server_scripts/build_wall_e/deploy_to_staging_discord_guild.sh;
@@ -94,7 +94,7 @@ pipeline {
                 branch 'master'
             }
             steps {
-                withCredentials([string(credentialsId: 'PROD_WALL_E_DISCORD_BOT_TOKEN', variable: 'PROD_WALL_E_DISCORD_BOT_TOKEN'),
+                withCredentials([string(credentialsId: 'WALL_E_PROD_DISCORD_BOT_TOKEN', variable: 'WALL_E_PROD_DISCORD_BOT_TOKEN'),
                 string(credentialsId: 'WOLFRAM_API_TOKEN', variable: 'WOLFRAM_API_TOKEN'),
                 string(credentialsId: 'MEE6_AUTHORIZATION', variable: 'MEE6_AUTHORIZATION'),
                 string(credentialsId: 'POSTGRES_PASSWORD', variable: 'POSTGRES_PASSWORD'),
@@ -114,7 +114,7 @@ pipeline {
 
                         export WOLFRAM_API_TOKEN="'"${WOLFRAM_API_TOKEN}"'";
                         export MEE6_AUTHORIZATION="'"${MEE6_AUTHORIZATION}"'";
-                        export TOKEN="'"${PROD_WALL_E_DISCORD_BOT_TOKEN}"'";
+                        export TOKEN="'"${WALL_E_PROD_DISCORD_BOT_TOKEN}"'";
 
                         export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
