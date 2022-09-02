@@ -5,7 +5,7 @@ pytz==2018.5
 parsedatetime==2.4
 wolframalpha==3.0.1
 configparser==5.2.0
-aiohttp==3.7.4
+aiohttp==3.6.3
 
 # needed for DB interactions
 Django==3.2.15
