@@ -170,6 +170,9 @@ class UserPoint(models.Model):
     level_number = models.PositiveBigIntegerField(
 
     )
+    hidden = models.BooleanField(
+        default=False
+    )
 
     @sync_to_async
     def async_save(self):
@@ -230,6 +233,16 @@ class UserPoint(models.Model):
     @sync_to_async
     def get_xp_needed_to_level_up_to_next_level(self):
         return Level.objects.get(number=self.level_number).xp_needed_to_level_up_to_next_level
+
+    @sync_to_async
+    def hide_xp(self):
+        self.hidden = True
+        self.save()
+
+    @sync_to_async
+    def show_xp(self):
+        self.hidden = False
+        self.save()
 
     @staticmethod
     @sync_to_async

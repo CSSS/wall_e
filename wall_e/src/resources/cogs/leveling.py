@@ -592,6 +592,9 @@ class Leveling(commands.Cog):
         if message_author_id not in self.user_points:
             await ctx.send("specified user is not being tracked")
             return
+        if self.user_points[message_author_id].hidden and message_author_id != ctx.author.id:
+            await ctx.send("This user has hidden their score")
+            return
         xp_required_to_level_up = await self.user_points[message_author_id].get_xp_needed_to_level_up_to_next_level()
 
         description = f"""
@@ -657,7 +660,13 @@ class Leveling(commands.Cog):
     @commands.command()
     async def ranks(self, ctx):
         user_points = self.user_points.copy()
-        user_points = [user_point for user_point in list(user_points.values())]
+        user_points = [
+            user_point for user_point in list(user_points.values())
+            if (
+                (user_point.user_id == ctx.author.id and user_point.hidden) or
+                (user_point.user_id != ctx.author.id and not user_point.hidden)
+            )
+        ]
         user_points.sort(key=lambda x: x.points, reverse=True)
         descriptions_to_embed = []
         description_to_embed = "\nUser - Messages - Experience - Level\n"
@@ -673,5 +682,56 @@ class Leveling(commands.Cog):
             rank += 1
         if description_to_embed != "\nUser - Messages - Experience - Level\n":
             descriptions_to_embed.append(description_to_embed)
+        if len(descriptions_to_embed) == 0:
+            await ctx.send("No users currently being tracked")
+        else:
+            await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed)
 
-        await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed)
+    @commands.command()
+    async def hide_xp(self, ctx):
+        user_to_hide = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
+        if user_to_hide.id != ctx.author.id:
+            user_roles = [
+                role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
+            ]
+            if 'Minions' not in user_roles:
+                await ctx.send(
+                    "You do not have adequate permission to hide another user's rank, incident will be reported"
+                )
+                return
+        if self.user_points[user_to_hide.id].hidden:
+            await ctx.send(
+                "You are already hidden" if user_to_hide.id == ctx.author.id else
+                f"User {user_to_hide} is already hidden"
+            )
+        else:
+            await self.user_points[user_to_hide.id].hide_xp()
+            await ctx.send(
+                "You are now hidden" if user_to_hide.id == ctx.author.id else
+                f"User {user_to_hide} is now hidden"
+            )
+
+    @commands.command()
+    async def show_xp(self, ctx):
+        user_to_show = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
+        if user_to_show.id != ctx.author.id:
+            user_roles = [
+                role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
+            ]
+            if 'Minions' not in user_roles:
+                await ctx.send(
+                    "You do not have adequate permission to show another user's rank, incident will be reported"
+                )
+                return
+
+        if not self.user_points[user_to_show.id].hidden:
+            await ctx.send(
+                "You are already visible" if user_to_show.id == ctx.author.id else
+                f"User {user_to_show} is already visible"
+            )
+        else:
+            await self.user_points[user_to_show.id].show_xp()
+            await ctx.send(
+                "You are now visible" if user_to_show.id == ctx.author.id else
+                f"User {user_to_show} is now visible"
+            )

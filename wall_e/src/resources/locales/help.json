@@ -297,6 +297,26 @@
 			"Shows a list of all the XP levels and their associated roles and whether or not the roles exist"
 		]
 	},
+	"hide_xp" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".hide_xp", ".hide_xp @user"],
+		"description" : [
+			"Hide a user's ranking from .rank @user and .ranks"
+		]
+	},
+	"show_xp" : {
+		"class" : "Mee6",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".show_xp", ".show_xp @user"],
+		"description" : [
+			"Makes the user's rank visible again from .rank @user and .ranks"
+		]
+	},
 	"emojispeak" : {
 		"class": "Misc",
 		"access": "roles",
