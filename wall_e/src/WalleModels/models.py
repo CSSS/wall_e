@@ -21,7 +21,7 @@ class BanRecords(models.Model):
     ban_id = GeneratedIdentityField(primary_key=True)
     username = models.CharField(max_length=37, null=False)
     user_id = models.BigIntegerField(null=False)
-    mod = models.CharField(max_length=32, null=True)
+    mod = models.CharField(max_length=37, null=True)
     mod_id = models.BigIntegerField(null=True)
     ban_date = models.BigIntegerField(null=True)
     reason = models.CharField(max_length=512, null=False)
