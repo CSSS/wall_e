@@ -2,7 +2,7 @@
 # wait-for-postgres.sh
 
 # aquired from https://docs.docker.com/compose/startup-order/
-set -e
+set -e -o xtrace
 
 host="$1"
 shift
@@ -15,20 +15,28 @@ done
 
 >&2 echo "Postgres is up - executing command"
 
-PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${WALL_E_DB_USER}" \
-  --set=WALL_E_DB_PASSWORD="${WALL_E_DB_PASSWORD}"  --set=WALL_E_DB_DBNAME="${WALL_E_DB_DBNAME}" \
-  -h "$host" -U "postgres" -f WalleModels/create-database.ddl
+HOME_DIR=`pwd`
+BRANCH_PREFIX=`echo "${BRANCH_NAME}" | cut -c1-3`
+if [[ "${BRANCH_PREFIX}" == "PR-" ]]; then
+  rm -r /wall_e || true
+  git clone https://github.com/CSSS/wall_e.git /wall_e
+  cd /wall_e/wall_e/src/
+  PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${WALL_E_DB_USER}" \
+    --set=WALL_E_DB_PASSWORD="${WALL_E_DB_PASSWORD}"  --set=WALL_E_DB_DBNAME="${WALL_E_DB_DBNAME}" \
+    -h "$host" -U "postgres" -f WalleModels/create-database.ddl
+fi
 
 python3 django_db_orm_manage.py migrate
 
-if [ "$ENVIRONMENT" != "PRODUCTION" ]; then
-  rm wall_e.json || true
+#BRANCH_NAME=PR-379
+if [[ "${BRANCH_PREFIX}" == "PR-" ]]; then
   wget https://dev.sfucsss.org/dev_csss_wall_e/fixtures/wall_e.json
   python3 django_db_orm_manage.py loaddata wall_e.json
-
-  mv WalleModels/staging_migrations/*.py WalleModels/migrations/. || true
+  cd "${HOME_DIR}"
   python3 django_db_orm_manage.py migrate
+  rm -r /wall_e || true
 fi
+## making a separate script for prod that is what this originally was
 
 exec $cmd
 
