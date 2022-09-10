@@ -15,7 +15,7 @@ DATABASES = {
 }
 
 if environment == "LOCALHOST":
-    if not wall_e_config.get_config_value('basic_config', 'DOCKERIZED'):
+    if not wall_e_config.enabled('basic_config', 'DOCKERIZED'):
         DATABASES['default']['PORT'] = wall_e_config.get_config_value("database_config", "DB_PORT")
     DATABASES['default']['HOST'] = wall_e_config.get_config_value("database_config", "HOST")
 else:

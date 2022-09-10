@@ -125,10 +125,11 @@ if (you are using a database){
 python3 -m pip install -r requirements.txt
 
 if (you are using the dockerized database){
-  docker run -d --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p "${DB_PORT}":5432 --name "${COMPOSE_PROJECT_NAME}_wall_e_db" postgres:alpine
+  docker run -d --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p "${DB_PORT}":5432 --name \
+  "${COMPOSE_PROJECT_NAME}_wall_e_db" postgres:alpine
   PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${WALL_E_DB_USER}" \
   --set=WALL_E_DB_PASSWORD="${WALL_E_DB_PASSWORD}"  --set=WALL_E_DB_DBNAME="${WALL_E_DB_DBNAME}" \
-  -h "${HOST}" -U "postgres" -f WalleModels/create-database.ddl
+  -h "${HOST}" -p "${DB_PORT}"  -U "postgres" -f WalleModels/create-database.ddl
   python3 django_db_orm_manage.py migrate
   rm wall_e.json*
   wget https://dev.sfucsss.org/dev_csss_wall_e/fixtures/wall_e.json
