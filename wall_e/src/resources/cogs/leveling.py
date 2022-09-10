@@ -31,7 +31,7 @@ class Leveling(commands.Cog):
     @commands.Cog.listener(name="on_ready")
     async def load_points_into_dict(self):
         if not await Level.level_points_have_been_imported():
-            logger.info("[Mee6 load_points_into_dict()] loading levels into DB and dict")
+            logger.info("[Leveling load_points_into_dict()] loading levels into DB and dict")
             with open('resources/mee6_levels/levels.json') as f:
                 self.levels = {
                     int(level_number): await Level.create_level(
@@ -43,21 +43,21 @@ class Leveling(commands.Cog):
                     for (level_number, level_info) in json.load(f).items()
                 }
         elif len(self.levels) == 0:
-            logger.info("[Mee6 load_points_into_dict()] loading level from DB into dict")
+            logger.info("[Leveling load_points_into_dict()] loading level from DB into dict")
             self.levels = await Level.load_to_dict()
-        logger.info("[Mee6 load_points_into_dict()] levels loaded in DB and dict")
+        logger.info("[Leveling load_points_into_dict()] levels loaded in DB and dict")
         self.user_points = await UserPoint.load_to_dict()
-        logger.info("[Mee6 load_points_into_dict()] UserPoints loaded into dict")
+        logger.info("[Leveling load_points_into_dict()] UserPoints loaded into dict")
         self.xp_system_ready = True
 
     # async def load_data_from_mee6_endpoint_and_json(self):
     #     await self.bot.wait_until_ready()
-    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading XP data")
+    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading XP data")
     #     await Level.clear_all_entries()
     #     await UserPoint.clear_all_entries()
     #
     #     if not await Level.level_points_have_been_imported():
-    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
+    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
     #         with open('resources/mee6_levels/levels.json') as f:
     #             self.levels = {
     #                 int(level_number): await Level.create_level(
@@ -69,12 +69,12 @@ class Leveling(commands.Cog):
     #                 for (level_number, level_info) in json.load(f).items()
     #             }
     #     elif len(self.levels) == 0:
-    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
+    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
     #         self.levels = await Level.load_to_dict()
-    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
+    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
     #
     #     if not await UserPoint.user_points_have_been_imported():
-    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
+    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
     #         page = 0
     #         all_users_loaded = False
     #         while not all_users_loaded:
@@ -115,7 +115,7 @@ class Leveling(commands.Cog):
     #                     all_users_loaded = True
     #             elif r.status_code == 429:
     #                 logger.info(
-    #                     "[Mee6 load_data_from_mee6_endpoint_and_json()] wall_e is currently rate-limited by the"
+    #                     "[Leveling load_data_from_mee6_endpoint_and_json()] wall_e is currently rate-limited by the"
     #                     " mee6 website. exiting now"
     #                 )
     #                 await asyncio.sleep(120)
@@ -123,10 +123,10 @@ class Leveling(commands.Cog):
     #             else:
     #                 await asyncio.sleep(120)
     #     elif len(self.user_points) == 0:
-    #         logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
+    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
     #         self.user_points = await UserPoint.load_to_dict()
-    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
-    #     logger.info("[Mee6 load_data_from_mee6_endpoint_and_json()] XP data loaded")
+    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
+    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] XP data loaded")
     #     self.xp_system_ready = True
 
     @commands.Cog.listener(name="on_ready")
@@ -137,29 +137,29 @@ class Leveling(commands.Cog):
             council_channel_name = 'council'
             if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'PRODUCTION':
                 logger.info(
-                    "[Mee6 create_council_channel()] environment is "
+                    "[Leveling create_council_channel()] environment is "
                     f"=[{self.config.get_config_value('basic_config', 'ENVIRONMENT')}]"
                 )
                 council_chan = discord.utils.get(self.bot.guilds[0].channels, name=council_channel_name)
                 if council_chan is None:
-                    logger.info("[Mee6 create_council_channel()] council channel does not exist in PRODUCTION.")
+                    logger.info("[Leveling create_council_channel()] council channel does not exist in PRODUCTION.")
                     council_chan = await self.bot.guilds[0].create_text_channel(council_channel_name)
                     council_channel_id = council_chan.id
                     if council_channel_id is None:
-                        logger.info("[Mee6 create_council_channel()] the channel designated for council messages "
+                        logger.info("[Leveling create_council_channel()] the channel designated for council messages "
                                     f"[{council_channel_name}] in PRODUCTION does not exist and I was"
                                     f" unable to create "
                                     "it, exiting now....")
                         exit(1)
-                    logger.info("[Mee6 create_council_channel()] variable "
+                    logger.info("[Leveling create_council_channel()] variable "
                                 f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
                 else:
                     logger.info(
-                        "[Mee6 create_council_channel()] council channel exists in PRODUCTION and was detected.")
+                        "[Leveling create_council_channel()] council channel exists in PRODUCTION and was detected.")
                     council_channel_id = council_chan.id
             elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
                 logger.info(
-                    "[Mee6 create_council_channel()] branch is "
+                    "[Leveling create_council_channel()] branch is "
                     f"=[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}]"
                 )
                 council_chan = discord.utils.get(
@@ -173,17 +173,17 @@ class Leveling(commands.Cog):
                     council_channel_id = council_chan.id
                     if council_channel_id is None:
                         logger.info(
-                            "[Mee6 create_council_channel()] the channel designated for council messages "
+                            "[Leveling create_council_channel()] the channel designated for council messages "
                             f"[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}_council] "
                             f"in {self.config.get_config_value('basic_config', 'BRANCH_NAME')} "
                             "does not exist and I was unable to create it, exiting now...."
                         )
                         exit(1)
-                    logger.info("[Mee6 create_council_channel()] variable "
+                    logger.info("[Leveling create_council_channel()] variable "
                                 f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
                 else:
                     logger.info(
-                        f"[Mee6 create_council_channel()] council channel exists in "
+                        f"[Leveling create_council_channel()] council channel exists in "
                         f"{self.config.get_config_value('basic_config', 'BRANCH_NAME')} and was "
                         "detected."
                     )
@@ -191,7 +191,7 @@ class Leveling(commands.Cog):
             elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
                 council_channel_name = 'council'
                 logger.info(
-                    "[Mee6 create_council_channel()] environment is "
+                    "[Leveling create_council_channel()] environment is "
                     f"=[{self.config.get_config_value('basic_config', 'ENVIRONMENT')}]"
                 )
                 council_chan = discord.utils.get(self.bot.guilds[0].channels, name=council_channel_name)
@@ -200,20 +200,20 @@ class Leveling(commands.Cog):
                     council_chan = await self.bot.guilds[0].create_text_channel(council_channel_name)
                     council_channel_id = council_chan.id
                     if council_channel_id is None:
-                        logger.info("[Mee6 create_council_channel()] the channel designated for council messages "
+                        logger.info("[Leveling create_council_channel()] the channel designated for council messages "
                                     f"[{council_channel_name}] in local dev does not exist and "
                                     f"I was unable to create it "
                                     "it, exiting now.....")
                         exit(1)
-                    logger.info("[Mee6 create_council_channel()] variables "
+                    logger.info("[Leveling create_council_channel()] variables "
                                 f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
                 else:
                     logger.info(
-                        "[Mee6 create_council_channel()] council channel exists in local dev and was detected."
+                        "[Leveling create_council_channel()] council channel exists in local dev and was detected."
                     )
                     council_channel_id = council_chan.id
         except Exception as e:
-            logger.error("[Mee6 create_council_channel()] encountered following exception when connecting to council "
+            logger.error("[Leveling create_council_channel()] encountered following exception when connecting to council "
                          f"channel\n{e}")
         self.council_channel = self.bot.get_channel(council_channel_id)  # channel ID goes here
 
@@ -225,13 +225,13 @@ class Leveling(commands.Cog):
             message_author_id = message.author.id
             if message_author_id not in self.user_points:
                 logger.info(
-                    f"[Mee6 on_message()] could not detect author {message.author}({message_author_id}) "
+                    f"[Leveling on_message()] could not detect author {message.author}({message_author_id}) "
                     "in the user_points dict"
                 )
                 self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
             if await self.user_points[message_author_id].increment_points():
                 logger.info(
-                    f"[Mee6 on_message()] increased points for {message.author}({message_author_id}) "
+                    f"[Leveling on_message()] increased points for {message.author}({message_author_id}) "
                     f" and alerting them that they are in a new level in channel {message.channel}"
                 )
                 level = self.levels[self.user_points[message_author_id].level_number]
@@ -239,14 +239,14 @@ class Leveling(commands.Cog):
                     role = message.guild.get_role(level.role_id)
                     if role is not None:
                         logger.info(
-                            f"[Mee6 on_message()] the new level {level.number} "
+                            f"[Leveling on_message()] the new level {level.number} "
                             f" for user {message.author}({message_author_id}) has the role {role} "
                             f"associated with it. Assigning to user"
                         )
                         await message.author.add_roles(role)
                     else:
                         logger.info(
-                            f"[Mee6 on_message()] the new level {level.number} "
+                            f"[Leveling on_message()] the new level {level.number} "
                             f" for user {message.author}({message_author_id}) has an invalid role {role} associated "
                             f"with it. Alerting the council to this "
                         )
@@ -260,7 +260,7 @@ class Leveling(commands.Cog):
                 await message.channel.send(
                     f"<@{message_author_id}> is now **level {level.number}**!"
                 )
-                logger.info(f"[Mee6 on_message()] message sent to {message.author}({message_author_id})")
+                logger.info(f"[Leveling on_message()] message sent to {message.author}({message_author_id})")
 
     @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
@@ -269,7 +269,7 @@ class Leveling(commands.Cog):
         while True:
             if self.levels_have_been_changed:
                 logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] updating user and roles for XP system"
+                    "[Leveling ensure_roles_exist_and_have_right_users()] updating user and roles for XP system"
                 )
                 levels_with_a_role = [level for level in self.levels.values() if level.role_name is not None]
                 levels_with_a_role.sort(key=lambda level: level.number)
@@ -277,7 +277,7 @@ class Leveling(commands.Cog):
 
                 guild_roles = []
                 logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()]"
+                    "[Leveling ensure_roles_exist_and_have_right_users()]"
                     f" ensuring that all {len(levels_with_a_role)} XP roles exist"
                 )
                 xp_roles_that_are_missing = {}
@@ -291,7 +291,7 @@ class Leveling(commands.Cog):
                         xp_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
                 if len(xp_roles_that_are_missing) == 0:
                     logger.info(
-                        "[Mee6 ensure_roles_exist_and_have_right_users()] all"
+                        "[Leveling ensure_roles_exist_and_have_right_users()] all"
                         f" {len(levels_with_a_role)} XP roles exist"
                     )
                 else:
@@ -306,7 +306,7 @@ class Leveling(commands.Cog):
                         f"{xp_roles_that_are_missing}"
                     )
                     logger.info(
-                        "[Mee6 ensure_roles_exist_and_have_right_users()]"
+                        "[Leveling ensure_roles_exist_and_have_right_users()]"
                         f" Moderators have been informed that {len(xp_roles_that_are_missing)}"
                         f" XP roles do not exist "
                     )
@@ -318,7 +318,7 @@ class Leveling(commands.Cog):
 
                 role_index = 0
                 logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members with XP points"
+                    "[Leveling ensure_roles_exist_and_have_right_users()] ensuring that members with XP points"
                     " have the right XP roles"
                 )
                 prev_number_of_members_fixed = number_of_members_fixed = 0
@@ -346,12 +346,12 @@ class Leveling(commands.Cog):
                             number_of_members_fixed += 1
                         except Exception as e:
                             logger.info(
-                                "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace encountered "
+                                "[Leveling ensure_roles_exist_and_have_right_users()] alertJace encountered "
                                 f"following error when fixing the roles for member {member_with_point}, \n{e}"
                             )
                             if number_of_retries == 5:
                                 logger.info(
-                                    f"[Mee6 ensure_roles_exist_and_have_right_users()] alertJace "
+                                    f"[Leveling ensure_roles_exist_and_have_right_users()] alertJace "
                                     f"tried to fix the"
                                     f" permissions for member {member_with_point} 5 times, moving onto "
                                     f"next member"
@@ -361,7 +361,7 @@ class Leveling(commands.Cog):
                                 number_of_members_skipped += 1
                             else:
                                 logger.info(
-                                    "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace "
+                                    "[Leveling ensure_roles_exist_and_have_right_users()] alertJace "
                                     "will try again in one minute"
                                 )
                                 await asyncio.sleep(60)
@@ -374,18 +374,18 @@ class Leveling(commands.Cog):
                         prev_number_of_members_skipped = number_of_members_skipped
                         prev_number_of_members_fixed = number_of_members_fixed
                         logger.info(
-                            f"[Mee6 ensure_roles_exist_and_have_right_users()] current_progress so far..."
+                            f"[Leveling ensure_roles_exist_and_have_right_users()] current_progress so far..."
                             f" number_of_members_fixed = {number_of_members_fixed}/{number_of_members} || "
                             f"number_of_members_skipped = {number_of_members_skipped}/{number_of_members}"
                         )
                     await asyncio.sleep(5)
 
                 logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that the members with XP points"
+                    "[Leveling ensure_roles_exist_and_have_right_users()] ensured that the members with XP points"
                     " have the right XP roles")
 
                 logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensuring that members without XP points"
+                    "[Leveling ensure_roles_exist_and_have_right_users()] ensuring that members without XP points"
                     " don't have any XP roles "
                 )
                 for member_without_points in [member for member in members if member.id not in self.user_points]:
@@ -393,17 +393,17 @@ class Leveling(commands.Cog):
                         await member_without_points.remove_roles(*guild_roles)
                     except Exception as e:
                         logger.info(
-                            "[Mee6 ensure_roles_exist_and_have_right_users()] alertJace encountered "
+                            "[Leveling ensure_roles_exist_and_have_right_users()] alertJace encountered "
                             f"following error when fixing the roles for member {member_without_points}, \n{e}"
                         )
                     await asyncio.sleep(5)
                 logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
+                    "[Leveling ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
                     " don't have any XP roles "
                 )
                 self.levels_have_been_changed = False
                 logger.info(
-                    "[Mee6 ensure_roles_exist_and_have_right_users()] users and role are now updated for XP system"
+                    "[Leveling ensure_roles_exist_and_have_right_users()] users and role are now updated for XP system"
                 )
             await asyncio.sleep(86400)
 
@@ -414,7 +414,7 @@ class Leveling(commands.Cog):
         while not self.xp_system_ready:
             await asyncio.sleep(5)
         logger.info(
-            f"[Mee6 re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} points wil "
+            f"[Leveling re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} points wil "
             f"get their roles back if they leave and re-join the guild"
         )
 
@@ -423,7 +423,7 @@ class Leveling(commands.Cog):
             if level.role_name is not None and level.total_points_required <= self.user_points[member.id].points
         ]
         logger.info(
-            f"[Mee6 re_assign_roles()] seems user {member} is entitled to the following levels which have"
+            f"[Leveling re_assign_roles()] seems user {member} is entitled to the following levels which have"
             f" a role: {levels_with_a_role}"
         )
 
@@ -434,7 +434,7 @@ class Leveling(commands.Cog):
         guild_roles = [guild_role for guild_role in guild_roles if guild_role]
 
         logger.info(
-            f"[Mee6 re_assign_roles()] will get the {guild_roles} roles added back to {member}"
+            f"[Leveling re_assign_roles()] will get the {guild_roles} roles added back to {member}"
         )
         number_of_retries = 0
         success = False
@@ -445,17 +445,17 @@ class Leveling(commands.Cog):
                 success = True
             except Exception as e:
                 logger.info(
-                    f"[Mee6 re_assign_roles()] encountered following error when fixing the roles for "
+                    f"[Leveling re_assign_roles()] encountered following error when fixing the roles for "
                     f"member {member}, \n{e}"
                 )
                 if number_of_retries < 5:
-                    logger.info("[Mee6 re_assign_roles()] will try again in one minute")
+                    logger.info("[Leveling re_assign_roles()] will try again in one minute")
                     await asyncio.sleep(60)
         if success:
-            logger.info(f"[Mee6 re_assign_roles()] XP roles fixed for user {member}")
+            logger.info(f"[Leveling re_assign_roles()] XP roles fixed for user {member}")
         else:
             logger.info(
-                f"[Mee6 re_assign_roles()] alertJace could not fix the XP roles for user {member}"
+                f"[Leveling re_assign_roles()] alertJace could not fix the XP roles for user {member}"
             )
 
     @commands.command()
@@ -471,13 +471,13 @@ class Leveling(commands.Cog):
             await ctx.send("level command is not yet ready...")
             return
         logger.info(
-            f"[Mee6 set_level_name()] received request to set name for level {level_number} to {new_role_name}"
+            f"[Leveling set_level_name()] received request to set name for level {level_number} to {new_role_name}"
         )
         existing_xp_level_with_specified_role_name = [
             level for level in self.levels.values() if level.role_name == new_role_name
         ]
         logger.info(
-            f"[Mee6 set_level_name()] len(existing_xp_level_with_specified_role_name)="
+            f"[Leveling set_level_name()] len(existing_xp_level_with_specified_role_name)="
             f"{len(existing_xp_level_with_specified_role_name)}"
         )
         if len(existing_xp_level_with_specified_role_name) > 0:
@@ -487,7 +487,7 @@ class Leveling(commands.Cog):
             )
             return
         if level_number not in list(self.levels.keys()):
-            logger.info(f"[Mee6 set_level_name()] {level_number} is not valid")
+            logger.info(f"[Leveling set_level_name()] {level_number} is not valid")
             current_levels = sorted([level.number for level in self.levels.values() if level.role_id is None])
             current_levels = [f"{level}" for level in current_levels]
 
@@ -498,18 +498,18 @@ class Leveling(commands.Cog):
             )
             return
         if self.levels[level_number].role_id is None:
-            logger.info(f"[Mee6 set_level_name()] no role_id detected for level {level_number}")
+            logger.info(f"[Leveling set_level_name()] no role_id detected for level {level_number}")
             # level does not yet have a role associated with it
             role = discord.utils.get(self.bot.guilds[0].roles, name=new_role_name)
             if role is None:
                 logger.info(
-                    f"[Mee6 set_level_name()] could not find the role {new_role_name}"
+                    f"[Leveling set_level_name()] could not find the role {new_role_name}"
                     f" to associate with {level_number}"
                 )
                 await ctx.send(f"could not find role {new_role_name}. ")
             else:
                 logger.info(
-                    f"[Mee6 set_level_name()] associating level {level_number} with role {new_role_name}"
+                    f"[Leveling set_level_name()] associating level {level_number} with role {new_role_name}"
                 )
                 await self.levels[level_number].set_level_name(new_role_name, role.id)
                 self.levels_have_been_changed = True
@@ -520,10 +520,10 @@ class Leveling(commands.Cog):
                 )
 
         else:
-            logger.info(f"[Mee6 set_level_name()] role_id detected for level {level_number}")
+            logger.info(f"[Leveling set_level_name()] role_id detected for level {level_number}")
             role = ctx.guild.get_role(self.levels[level_number].role_id)
             if role is None:
-                logger.info(f"[Mee6 set_level_name()] detected role_id detected for level {level_number} is invalid")
+                logger.info(f"[Leveling set_level_name()] detected role_id detected for level {level_number} is invalid")
                 # the XP level is getting a new role since the role it was associated with was an error
                 role = discord.utils.get(self.bot.guilds[0].roles, name=new_role_name)
                 if role is None:
@@ -531,7 +531,7 @@ class Leveling(commands.Cog):
                 else:
                     await self.levels[level_number].set_level_name(new_role_name, role.id)
                     logger.info(
-                        f"[Mee6 set_level_name()] set flag to associate level {level_number} with role {role.name}"
+                        f"[Leveling set_level_name()] set flag to associate level {level_number} with role {role.name}"
                     )
                     self.levels_have_been_changed = True
                     await ctx.send(
@@ -542,7 +542,7 @@ class Leveling(commands.Cog):
             else:
                 old_name = role.name
                 logger.info(
-                    f"[Mee6 set_level_name()] renaming role {old_name} to {new_role_name} for level {level_number}"
+                    f"[Leveling set_level_name()] renaming role {old_name} to {new_role_name} for level {level_number}"
                 )
                 await role.edit(name=new_role_name)
                 await self.levels[level_number].rename_level_name(new_role_name)
@@ -561,7 +561,7 @@ class Leveling(commands.Cog):
             return
         if self.levels[level_number].role_id is None:
             logger.info(
-                f"[Mee6 remove_level_name()] resetting role info to Null for level {level_number}"
+                f"[Leveling remove_level_name()] resetting role info to Null for level {level_number}"
             )
             await self.levels[level_number].remove_role()
             await ctx.send(f"level {level_number} does not have an existing role associated with it")
@@ -569,7 +569,7 @@ class Leveling(commands.Cog):
         role_name = self.levels[level_number].role_name
         await self.levels[level_number].remove_role()
         logger.info(
-            f"[Mee6 remove_level_name()] resetting role info to Null for level {level_number}"
+            f"[Leveling remove_level_name()] resetting role info to Null for level {level_number}"
         )
         self.levels_have_been_changed = True
         await ctx.send(

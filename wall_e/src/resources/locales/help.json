@@ -247,7 +247,7 @@
 		"description": [ "returns which branch the user is testing" ]
 	},
 	"set_level_name" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access": "roles",
 		"roles" : [ "Minions" ],
 		"aliases" : [],
@@ -258,7 +258,7 @@
 		]
 	},
 	"remove_level_name" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access": "roles",
 		"roles" : [ "Minions" ],
 		"aliases" : [],
@@ -268,7 +268,7 @@
 		]
 	},
 	"rank" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "@everyone" ],
 		"aliases" : [],
@@ -278,7 +278,7 @@
 		]
 	},
 	"ranks" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "@everyone" ],
 		"aliases" : [],
@@ -288,7 +288,7 @@
 		]
 	},
 	"levels" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "Minions" ],
 		"aliases" : [],
@@ -298,7 +298,7 @@
 		]
 	},
 	"hide_xp" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "@everyone" ],
 		"aliases" : [],
@@ -308,7 +308,7 @@
 		]
 	},
 	"show_xp" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "@everyone" ],
 		"aliases" : [],
