@@ -16,8 +16,7 @@ done
 >&2 echo "Postgres is up - executing command"
 
 HOME_DIR=`pwd`
-BRANCH_PREFIX=`echo "${BRANCH_NAME}" | cut -c1-3`
-if [[ "${BRANCH_PREFIX}" == "PR-" ]]; then
+if [[ "${ENVIRONMENT}" == "TEST" ]]; then
   rm -r /wall_e || true
   git clone https://github.com/CSSS/wall_e.git /wall_e
   cd /wall_e/wall_e/src/
@@ -28,8 +27,7 @@ fi
 
 python3 django_db_orm_manage.py migrate
 
-#BRANCH_NAME=PR-379
-if [[ "${BRANCH_PREFIX}" == "PR-" ]]; then
+if [[ "${ENVIRONMENT}" == "TEST" ]]; then
   wget https://dev.sfucsss.org/dev_csss_wall_e/fixtures/wall_e.json
   python3 django_db_orm_manage.py loaddata wall_e.json
   cd "${HOME_DIR}"
