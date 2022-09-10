@@ -532,7 +532,7 @@
 		"roles" : [ "Minions" ],
 		"aliases": [ ],
 		"example": [
-			".initban"
+			".convertbans"
 		],
 		"description": [
 			"Command will read in all the guild bans into wall_e database to use custom ban system.",
