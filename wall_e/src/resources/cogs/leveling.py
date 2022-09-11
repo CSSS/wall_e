@@ -48,6 +48,7 @@ class Leveling(commands.Cog):
         logger.info("[Leveling load_points_into_dict()] levels loaded in DB and dict")
         self.user_points = await UserPoint.load_to_dict()
         logger.info("[Leveling load_points_into_dict()] UserPoints loaded into dict")
+        logger.info("[Leveling load_points_into_dict()] XP system ready")
         self.xp_system_ready = True
 
     # async def load_data_from_mee6_endpoint_and_json(self):
@@ -155,7 +156,8 @@ class Leveling(commands.Cog):
                                 f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
                 else:
                     logger.info(
-                        "[Leveling create_council_channel()] council channel exists in PRODUCTION and was detected.")
+                        "[Leveling create_council_channel()] council channel exists in PRODUCTION and was detected."
+                    )
                     council_channel_id = council_chan.id
             elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
                 logger.info(
@@ -213,8 +215,10 @@ class Leveling(commands.Cog):
                     )
                     council_channel_id = council_chan.id
         except Exception as e:
-            logger.error("[Leveling create_council_channel()] encountered following exception when connecting to council "
-                         f"channel\n{e}")
+            logger.error(
+                "[Leveling create_council_channel()] encountered following exception when connecting to council "
+                f"channel\n{e}"
+            )
         self.council_channel = self.bot.get_channel(council_channel_id)  # channel ID goes here
 
     @commands.Cog.listener(name='on_message')
@@ -403,7 +407,8 @@ class Leveling(commands.Cog):
                 )
                 self.levels_have_been_changed = False
                 logger.info(
-                    "[Leveling ensure_roles_exist_and_have_right_users()] users and role are now updated for XP system"
+                    "[Leveling ensure_roles_exist_and_have_right_users()] "
+                    "users and role are now updated for XP system"
                 )
             await asyncio.sleep(86400)
 
@@ -523,7 +528,9 @@ class Leveling(commands.Cog):
             logger.info(f"[Leveling set_level_name()] role_id detected for level {level_number}")
             role = ctx.guild.get_role(self.levels[level_number].role_id)
             if role is None:
-                logger.info(f"[Leveling set_level_name()] detected role_id detected for level {level_number} is invalid")
+                logger.info(
+                    f"[Leveling set_level_name()] detected role_id detected for level {level_number} is invalid"
+                )
                 # the XP level is getting a new role since the role it was associated with was an error
                 role = discord.utils.get(self.bot.guilds[0].roles, name=new_role_name)
                 if role is None:
@@ -531,7 +538,8 @@ class Leveling(commands.Cog):
                 else:
                     await self.levels[level_number].set_level_name(new_role_name, role.id)
                     logger.info(
-                        f"[Leveling set_level_name()] set flag to associate level {level_number} with role {role.name}"
+                        f"[Leveling set_level_name()] set flag to associate level {level_number} with role"
+                        f" {role.name}"
                     )
                     self.levels_have_been_changed = True
                     await ctx.send(
@@ -542,7 +550,8 @@ class Leveling(commands.Cog):
             else:
                 old_name = role.name
                 logger.info(
-                    f"[Leveling set_level_name()] renaming role {old_name} to {new_role_name} for level {level_number}"
+                    f"[Leveling set_level_name()] renaming role {old_name} to {new_role_name} for level"
+                    f" {level_number}"
                 )
                 await role.edit(name=new_role_name)
                 await self.levels[level_number].rename_level_name(new_role_name)
@@ -659,6 +668,9 @@ class Leveling(commands.Cog):
 
     @commands.command()
     async def ranks(self, ctx):
+        if not self.xp_system_ready:
+            await ctx.send("level command is not yet ready...")
+            return
         user_points = self.user_points.copy()
         user_points = [
             user_point for user_point in list(user_points.values())
@@ -689,6 +701,9 @@ class Leveling(commands.Cog):
 
     @commands.command()
     async def hide_xp(self, ctx):
+        if not self.xp_system_ready:
+            await ctx.send("level command is not yet ready...")
+            return
         user_to_hide = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
         if user_to_hide.id != ctx.author.id:
             user_roles = [
@@ -713,6 +728,9 @@ class Leveling(commands.Cog):
 
     @commands.command()
     async def show_xp(self, ctx):
+        if not self.xp_system_ready:
+            await ctx.send("level command is not yet ready...")
+            return
         user_to_show = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
         if user_to_show.id != ctx.author.id:
             user_roles = [
