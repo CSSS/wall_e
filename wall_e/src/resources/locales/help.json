@@ -247,7 +247,7 @@
 		"description": [ "returns which branch the user is testing" ]
 	},
 	"set_level_name" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access": "roles",
 		"roles" : [ "Minions" ],
 		"aliases" : [],
@@ -258,7 +258,7 @@
 		]
 	},
 	"remove_level_name" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access": "roles",
 		"roles" : [ "Minions" ],
 		"aliases" : [],
@@ -268,7 +268,7 @@
 		]
 	},
 	"rank" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "@everyone" ],
 		"aliases" : [],
@@ -278,7 +278,7 @@
 		]
 	},
 	"ranks" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "@everyone" ],
 		"aliases" : [],
@@ -288,13 +288,33 @@
 		]
 	},
 	"levels" : {
-		"class" : "Mee6",
+		"class" : "Leveling",
 		"access" : "roles",
 		"roles" : [ "Minions" ],
 		"aliases" : [],
 		"example" : [ ".levels"],
 		"description" : [
 			"Shows a list of all the XP levels and their associated roles and whether or not the roles exist"
+		]
+	},
+	"hide_xp" : {
+		"class" : "Leveling",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".hide_xp", ".hide_xp @user"],
+		"description" : [
+			"Hide a user's ranking from .rank @user and .ranks"
+		]
+	},
+	"show_xp" : {
+		"class" : "Leveling",
+		"access" : "roles",
+		"roles" : [ "@everyone" ],
+		"aliases" : [],
+		"example" : [ ".show_xp", ".show_xp @user"],
+		"description" : [
+			"Makes the user's rank visible again from .rank @user and .ranks"
 		]
 	},
 	"emojispeak" : {
