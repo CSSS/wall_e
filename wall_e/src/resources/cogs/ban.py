@@ -41,7 +41,7 @@ class Ban(commands.Cog):
         # read in ban_list of banned users
         logger.info('[Ban load()] loading ban list from the database')
         self.ban_list = await BanRecords.get_all_active_ban_user_ids()
-        logger.info(f"[Ban load()] loaded the following banned users: {self.ban_list}")
+        logger.info(f"[Ban load()] loaded {len(self.ban_list)} banned users from database")
 
     async def make_mod_channel(self):
         """When ENVIRONMENT is TEST or LOCALHOST: Attempts to get channel for mod report.
