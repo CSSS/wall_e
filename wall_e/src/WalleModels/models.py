@@ -58,6 +58,13 @@ class BanRecords(models.Model):
 
     @classmethod
     @sync_to_async
+    def get_active_bans_count(cls) -> int:
+        """Returns count of all the active bans"""
+
+        return BanRecords.objects.filter(unban_date=None).count()
+
+    @classmethod
+    @sync_to_async
     def unban_by_id(cls, user_id: int) -> str:
         """Set active=False for user with the given user_id. This representes unbanning a user."""
         try:

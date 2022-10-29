@@ -41,7 +41,8 @@ class Ban(commands.Cog):
         # read in ban_list of banned users
         logger.info('[Ban load()] loading ban list from the database')
         self.ban_list = await BanRecords.get_all_active_ban_user_ids()
-        logger.info(f"[Ban load()] loaded {len(self.ban_list)} banned users from database")
+        count = await BanRecords.get_active_bans_count()
+        logger.info(f"[Ban load()] loaded {count} banned users from database")
 
     async def make_mod_channel(self):
         """When ENVIRONMENT is TEST or LOCALHOST: Attempts to get channel for mod report.
@@ -400,6 +401,7 @@ class Ban(commands.Cog):
         logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
 
         bans = await BanRecords.get_all_active_bans()
+        count = await BanRecords.get_active_bans_count()
         logger.info(f"[Ban bans()] retrieved all banned users: {bans}")
 
         emb = discord.Embed(title="Banned members", color=discord.Color.red())
@@ -425,7 +427,7 @@ class Ban(commands.Cog):
             emb.add_field(name="Names", value=names, inline=True)
             emb.add_field(name="IDs", value=ids, inline=True)
             await ctx.send(embed=emb)
-        await ctx.send(f"Total number of banned users: {len(bans)}")
+        await ctx.send(f"Total number of banned users: {count}")
         logger.info("[Ban bans()] done sending embeds with banned user lists and total ban count")
 
     @commands.command()
