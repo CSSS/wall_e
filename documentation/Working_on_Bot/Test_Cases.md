@@ -100,13 +100,11 @@
    1. `.reportwin`
    1. `.reportwin "team 1337" "Jeffrey, Harry, Noble, Ali"`
 ## Ban
-   1. `.initban`
+   1. `.convertbans`
    1. `.ban @user reason for my ban`
    1. `.ban @user "reason for my ban"`
-   1. `.ban @user @user1 reason`
-   1. `.ban @user @user1 "reason blah"`
-   1. `.ban user reason for ban`
    1. `.unban <id of banned user>`
    1. `.unban <id of not banned user>`
    1. `.unban <non integer something>`
    1. `.bans`
+   1. `.purgebans`

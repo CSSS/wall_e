@@ -21,7 +21,7 @@ class BanRecords(models.Model):
     ban_id = GeneratedIdentityField(primary_key=True)
     username = models.CharField(max_length=37, null=False)
     user_id = models.BigIntegerField(null=False)
-    mod = models.CharField(max_length=32, null=True)
+    mod = models.CharField(max_length=37, null=True)
     mod_id = models.BigIntegerField(null=True)
     ban_date = models.BigIntegerField(null=True)
     reason = models.CharField(max_length=512, null=False)
@@ -55,6 +55,13 @@ class BanRecords(models.Model):
         """Returns list of usernames and user_ids for all currently banned users"""
 
         return list(BanRecords.objects.values('username', 'user_id').filter(unban_date=None))
+
+    @classmethod
+    @sync_to_async
+    def get_active_bans_count(cls) -> int:
+        """Returns count of all the active bans"""
+
+        return BanRecords.objects.filter(unban_date=None).count()
 
     @classmethod
     @sync_to_async
