@@ -28,7 +28,7 @@ fi
 python3 django_db_orm_manage.py migrate
 
 if [[ "${ENVIRONMENT}" == "TEST" ]]; then
-  wget https://dev.sfucsss.org/dev_csss_wall_e/fixtures/wall_e.json
+  wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
   python3 django_db_orm_manage.py loaddata wall_e.json
   cd "${HOME_DIR}"
   python3 django_db_orm_manage.py migrate
