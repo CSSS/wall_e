@@ -12,4 +12,4 @@ Django==3.2.19
 asgiref==3.4.1
 
 # needed temporarily for importing data from mee6
-requests==2.27.1
+requests==2.31.0
