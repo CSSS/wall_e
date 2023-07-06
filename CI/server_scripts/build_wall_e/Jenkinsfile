@@ -151,6 +151,15 @@ pipeline {
                     discordSend description: "Branch or PR Name: " + BRANCH_NAME + '\n' + summary, footer: env.GIT_COMMIT, link: env.BUILD_URL, successful: status, title: theTitle, webhookURL: "$WEBHOOKURL"
                 }
             }
+            cleanWs(
+            cleanWhenAborted: true,
+            cleanWhenFailure: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true
+        )
         }
     }
 }
