@@ -2,6 +2,8 @@ import importlib
 import inspect
 import os
 import sys
+
+import discord
 import django
 import time
 
@@ -23,7 +25,68 @@ from resources.cogs.manage_cog import ManageCog  # noqa: E402
 application = get_wsgi_application()
 
 intents = Intents.all()
-bot = commands.Bot(command_prefix='.', intents=intents)
+
+
+class WalleBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix='.', intents=intents)
+
+    async def setup_hook(self) -> None:
+        # load the code dealing with test server interaction
+        try:
+            await bot.add_cog(ManageCog(bot, wall_e_config))
+        except Exception as err:
+            exception = f'{type(err).__name_}: {err}'
+            logger.error(f'[main.py] Failed to load test server code testenv\n{exception}')
+
+        # removing default help command to allow for custom help command
+        logger.info("[main.py] default help command being removed")
+        bot.remove_command("help")
+
+        # tries to load any commands specified in the_commands into the bot
+        await self.add_custom_cog()
+
+        logger.info("commands cleared and synced")
+
+    async def remove_custom_cog(self, module_path_and_name: str):
+        cog_file = importlib.import_module(module_path_and_name)
+        cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
+        await self.remove_cog(cog_class_name)
+
+    async def add_custom_cog(self, module_path_and_name: str = None):
+        adding_all_cogs = module_path_and_name is None
+        cog_unloaded = False
+        for cog in wall_e_config.get_cogs():
+            if cog_unloaded:
+                break
+            try:
+                if adding_all_cogs or module_path_and_name == f"{cog['path']}{cog['name']}":
+                    cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
+                    classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
+                    for class_that_match in classes_that_match:
+                        cog_class_to_load = getattr(cog_module, class_that_match[0])
+                        if type(cog_class_to_load) is commands.cog.CogMeta:
+                            logger.info(f"[main.py] attempting to load cog {cog['name']}")
+                            await bot.add_cog(cog_class_to_load(bot, wall_e_config))
+                            logger.info(f"[main.py] {cog['name']} successfully loaded")
+                            if not adding_all_cogs:
+                                cog_unloaded = True
+                                break
+            except Exception as err:
+                exception = f'{type(err).__name__}: {err}'
+                logger.error(f'[main.py] Failed to load command {cog}\n{exception}')
+                if adding_all_cogs:
+                    time.sleep(20)
+                    exit(1)
+        await self.tree_refresh()
+
+    async def tree_refresh(self):
+        guild = discord.Object(id=wall_e_config.get_config_value("basic_config", "DISCORD_ID"))
+        self.tree.copy_global_to(guild=guild)
+        await self.tree.sync(guild=guild)
+
+
+bot = WalleBot()
 
 
 ##################################################
@@ -86,32 +149,5 @@ if __name__ == "__main__":
             "[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
             f"following error {e}")
 
-    # load the code dealing with test server interaction
-    try:
-        bot.add_cog(ManageCog(bot, wall_e_config))
-    except Exception as e:
-        exception = f'{type(e).__name_}: {e}'
-        logger.error(f'[main.py] Failed to load test server code testenv\n{exception}')
-
-    # removing default help command to allow for custom help command
-    logger.info("[main.py] default help command being removed")
-    bot.remove_command("help")
-    # tries to loads any commands specified in the_commands into the bot
-
-    for cog in wall_e_config.get_cogs():
-        try:
-            logger.info(f"[main.py] attempting to load command {cog['name']}")
-            cog_file = importlib.import_module(f"{cog['path']}{cog['name']}")
-            classes_that_match = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)
-            for class_that_match in classes_that_match:
-                cog_to_load = getattr(cog_file, class_that_match[0])
-                if type(cog_to_load) is commands.cog.CogMeta:
-                    bot.add_cog(cog_to_load(bot, wall_e_config))
-                    logger.info(f"[main.py] {cog['name']} successfully loaded")
-        except Exception as e:
-            exception = f'{type(e).__name__}: {e}'
-            logger.error(f'[main.py] Failed to load command {cog}\n{exception}')
-            time.sleep(20)
-            exit(1)
     # final step, running the bot with the passed in environment TOKEN variable
     bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"))

@@ -1,6 +1,6 @@
 yarl<1.2
 bs4
-discord.py[voice]==1.5.1
+discord.py[voice]==2.3.2
 pytz==2018.5
 parsedatetime==2.4
 wolframalpha==5.0.0
