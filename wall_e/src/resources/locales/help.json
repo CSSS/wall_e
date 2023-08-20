@@ -1,48 +1,62 @@
 {
-	"load" : {
+	"load": {
 		"class": "Administration",
 		"access": "roles",
-		"roles" : [ "Bot_manager" ],
-		"aliases": [ ],
-		"example": [ ".load <arg>" ],
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			".load <arg>"
+		],
 		"description": [
 			"loads the commands in the class <arg>.",
 			"The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
-	"unload" : {
+	"unload": {
 		"class": "Administration",
 		"access": "roles",
-		"roles" : [ "Bot_manager" ],
-		"aliases": [ ],
-		"example": [ ".unload <arg>" ],
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			".unload <arg>"
+		],
 		"description": [
 			"unloads the commands in the class <arg>.",
 			" The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
-	"reload" : {
+	"reload": {
 		"class": "Administration",
 		"access": "roles",
-		"roles" : [ "Bot_manager" ],
-		"aliases": [ ],
-		"example": [".reload <arg>" ],
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			".reload <arg>"
+		],
 		"description": [
 			"reloads the commands in the class <arg>.",
 			"The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
-	"frequency" : {
+	"frequency": {
 		"class": "Administration",
-		"access" : "roles",
-		"roles" : ["Bot_manager"],
-		"aliases": [ ],
+		"access": "roles",
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
 		"example": [
 			".frequency command",
 			".frequency day",
 			".frequency command hour"
 		],
-		"description" : [
+		"description": [
 			"creates a graph to show some statistics regarding the command usage.",
 			"the different way to count up the command usage are: \"command\", \"year\", \"month\", \"day\"",
 			"\"hour\", \"channel_aliases\", \"invoked_with\", \"invoked_subcommand\"",
@@ -50,466 +64,700 @@
 			"You can do this with the command \".frequency command day\""
 		]
 	},
-	"exc" : {
+	"exc": {
 		"class": "Administration",
 		"access": "roles",
-		"roles" : [ "Bot_manager" ],
-		"aliases": [ ],
-		"example": [ ".exc <arg>" ],
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			".exc <arg>"
+		],
 		"description": [
 			"executes the command <arg> on the bot server.",
 			"The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
-	"cmpt276" : {
+	"cmpt276": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".cmpt276" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".cmpt276"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"cmpt361" : {
+	"cmpt361": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".cmpt361" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".cmpt361"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"cmpt376" : {
+	"cmpt376": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".cmpt376" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".cmpt376"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"f" : {
+	"f": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".f" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".f"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"gnu" : {
+	"gnu": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".gnu" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".gnu"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"impeach" : {
+	"impeach": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".impeach" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".impeach"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"macm101" : {
+	"macm101": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".macm101" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".macm101"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"macm316" : {
+	"macm316": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".macm316" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".macm316"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"math150" : {
+	"math150": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".math150" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".math150"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"math152" : {
+	"math152": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".math152" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".math152"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"medipack" : {
+	"medipack": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".medipack" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".medipack"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"monty" : {
+	"monty": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".monty" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".monty"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"prettygood" : {
+	"prettygood": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".prettygood" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".prettygood"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"psyduck" : {
+	"psyduck": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".psyduck" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".psyduck"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"thebest" : {
+	"thebest": {
 		"class": "Custom_Commands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".thebest" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".thebest"
+		],
 		"description": [
 			"Just a custom command"
 		]
 	},
-	"ping" : {
+	"ping": {
 		"class": "HealthChecks",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".ping" ],
-		"description": [ "returns pong!" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".ping"
+		],
+		"description": [
+			"returns pong!"
+		]
 	},
-	"echo" : {
+	"echo": {
 		"class": "HealthChecks",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".echo <arg>" ],
-		"description": [ "returns <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".echo <arg>"
+		],
+		"description": [
+			"returns <arg>"
+		]
 	},
-	"here" : {
+	"here": {
 		"class": "Here",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".here <filters> ..." ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".here <filters> ..."
+		],
 		"description": [
 			"Displays all users with permissions to view the current channel.",
 			"Results can be filter by looking for users whose useraliases or nickaliases on the server contains the substring indicated with any of the included strings or all users if no args are given. Multiple may be entered."
 		]
 	},
-	"debuginfo" : {
+	"debuginfo": {
 		"class": "ManageCog",
 		"access": "roles",
-		"roles" : [ "Bot_manager" ],
-		"aliases": [  ],
-		"example": [ ".debuginfo" ],
-		"description": [ "returns which branch the user is testing" ]
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			".debuginfo"
+		],
+		"description": [
+			"returns which branch the user is testing"
+		]
 	},
-	"set_level_name" : {
-		"class" : "Leveling",
+	"set_level_name": {
+		"class": "Leveling",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases" : [],
-		"example" : [ ".set_level_name <level_number> <name_for_level>"],
-		"description" : [
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
+		"example": [
+			".set_level_name <level_number> <name_for_level>"
+		],
+		"description": [
 			"associates an existing role with the specified named for the specified level",
 			"or it renames a role that is already assigned to the specified level"
 		]
 	},
-	"remove_level_name" : {
-		"class" : "Leveling",
+	"remove_level_name": {
+		"class": "Leveling",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases" : [],
-		"example" : [ ".remove_level_name <level_number>"],
-		"description" : [
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
+		"example": [
+			".remove_level_name <level_number>"
+		],
+		"description": [
 			"unmaps the any role that is currently mapped to the specified level"
 		]
 	},
-	"rank" : {
-		"class" : "Leveling",
-		"access" : "roles",
-		"roles" : [ "@everyone" ],
-		"aliases" : [],
-		"example" : [ ".rank", ".rank @user"],
-		"description" : [
+	"rank": {
+		"class": "Leveling",
+		"access": "roles",
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".rank",
+			".rank @user"
+		],
+		"description": [
 			"Get the XP rank for either the calling user or the first user that is mentioned."
 		]
 	},
-	"ranks" : {
-		"class" : "Leveling",
-		"access" : "roles",
-		"roles" : [ "@everyone" ],
-		"aliases" : [],
-		"example" : [ ".ranks"],
-		"description" : [
+	"ranks": {
+		"class": "Leveling",
+		"access": "roles",
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".ranks"
+		],
+		"description": [
 			"shows the current leaderboards embeds."
 		]
 	},
-	"levels" : {
-		"class" : "Leveling",
-		"access" : "roles",
-		"roles" : [ "Minions" ],
-		"aliases" : [],
-		"example" : [ ".levels"],
-		"description" : [
+	"levels": {
+		"class": "Leveling",
+		"access": "roles",
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
+		"example": [
+			".levels"
+		],
+		"description": [
 			"Shows a list of all the XP levels and their associated roles and whether or not the roles exist"
 		]
 	},
-	"hide_xp" : {
-		"class" : "Leveling",
-		"access" : "roles",
-		"roles" : [ "@everyone" ],
-		"aliases" : [],
-		"example" : [ ".hide_xp", ".hide_xp @user"],
-		"description" : [
+	"hide_xp": {
+		"class": "Leveling",
+		"access": "roles",
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".hide_xp",
+			".hide_xp @user"
+		],
+		"description": [
 			"Hide a user's ranking from .rank @user and .ranks"
 		]
 	},
-	"show_xp" : {
-		"class" : "Leveling",
-		"access" : "roles",
-		"roles" : [ "@everyone" ],
-		"aliases" : [],
-		"example" : [ ".show_xp", ".show_xp @user"],
-		"description" : [
+	"show_xp": {
+		"class": "Leveling",
+		"access": "roles",
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".show_xp",
+			".show_xp @user"
+		],
+		"description": [
 			"Makes the user's rank visible again from .rank @user and .ranks"
 		]
 	},
-	"emojispeak" : {
+	"emojispeak": {
 		"class": "Misc",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [  ],
-		"example": [ ".emojispeak <args>" ],
-		"description": [ "returns <args> but in emoji format" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".emojispeak <args>"
+		],
+		"description": [
+			"returns <args> but in emoji format"
+		]
 	},
-	"help" : {
+	"help": {
 		"class": "Misc",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": ["man"],
-		"example": [ ".help", ".help man" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [
+			"man"
+		],
+		"example": [
+			".help",
+			".help man"
+		],
 		"description": [
 			"an interface to the reference manuals",
 			"help can be used with no argument in order to list each command and provide a brief overview of each command",
 			"In order to bring up specific examples of how to use each command, use \".man <command>\""
 		]
 	},
-	"poll" : {
+	"poll": {
 		"class": "Misc",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
 		"example": [
 			"`.poll \"<questions>\"`",
 			"`.poll \"<question>\" \"<answer1>\" \"<answer2>\" \"<answer3>\"`"
 		],
 		"description": [
 			"Commands to create a  poll in a channel.",
-			"Doing `.poll <arg>` starts a yes/no poll where <arg> is the question" ,
+			"Doing `.poll <arg>` starts a yes/no poll where <arg> is the question",
 			"A poll can also be created with multiple options. When choosing multiple options, you can specify up to 12 arguments"
 		]
 	},
-	"urban" : {
+	"urban": {
 		"class": "Misc",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [".urban <arg>"],
-		"description": [ "returns definition from urban dictionary of <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".urban <arg>"
+		],
+		"description": [
+			"returns definition from urban dictionary of <arg>"
+		]
 	},
-	"wolfram" : {
+	"wolfram": {
 		"class": "Misc",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [".wolfram <arg>"],
-		"description": [ "returns the result of passing <arg> to Wolfram Alpha" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".wolfram <arg>"
+		],
+		"description": [
+			"returns the result of passing <arg> to Wolfram Alpha"
+		]
 	},
-	"embed" : {
+	"embed": {
 		"class": "Mod",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ "em" ],
-		"example": [ ".embed <arg0> <arg1> ..." ],
+		"roles": [
+			"Minions"
+		],
+		"aliases": [
+			"em"
+		],
+		"example": [
+			".embed <arg0> <arg1> ..."
+		],
 		"description": [
 			"Allows Minions to post embed messages.",
 			"For odd number of arguments the first arg will be used as description in the embed and the rest as field title and content.",
 			"For even number there will be no description."
 		]
 	},
-	"modspeak" : {
+	"modspeak": {
 		"class": "Mod",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ "warn" ] ,
-		"example": [ ".modspeak <arg>" ],
-		"description": [ "Posts the warning message <arg> in embed format. No quotes required with message." ]
-	},
-	"remindmein" : {
-		"class": "Reminders",
-		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": ["remindmeat", "remindmeon" ],
-		"example": [
-		   "Please call command like so:\n\n",
-		   "remindmein <time format> to <what to remind you about>\n",
-		   "remindmeon <time format> to <what to remind you about>\n",
-		   "remindmeat <time format> to <what to remind you about>\n\n",
-		   "Timezone assumed to be Canada/Pacific unless otherwise specified\n",
-		   "A list of valid timezones can be found at\n",
-		   "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n\n",
-		   "Example Time Formats:\n",
-		   "[n] [seconds|minutes|hours]\n",
-		   "- Example: .remindmein 10 minutes to turn in my assignment\n\n",
-		   "[n] [day(s) after [date|tomorrow|today]]\n",
-		   "- Example: .remindmein two days after tomorrow to go to the bank\n\n",
-		   "[time] [timezone]?\n",
-		   "- Example: .remindmeat 1:15pm Canada/Eastern to video call\n\n",
-		   "[date] [at]? [time] [timezone]?\n",
-		   "- Example: .remindmeon October 5th at 12:30pm to eat lunch\n"
+		"roles": [
+			"Minions"
 		],
-		"description": [ "create a reminder" ]
+		"aliases": [
+			"warn"
+		],
+		"example": [
+			".modspeak <arg>"
+		],
+		"description": [
+			"Posts the warning message <arg> in embed format. No quotes required with message."
+		]
 	},
-	"showreminders" : {
+	"remindmein": {
 		"class": "Reminders",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".showreminders" ],
-		"description": [ "Show all your active reminders and their corresponding messageIDs" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [
+			"remindmeat",
+			"remindmeon"
+		],
+		"example": [
+			"Please call command like so:\n\n",
+			"remindmein <time format> to <what to remind you about>\n",
+			"remindmeon <time format> to <what to remind you about>\n",
+			"remindmeat <time format> to <what to remind you about>\n\n",
+			"Timezone assumed to be Canada/Pacific unless otherwise specified\n",
+			"A list of valid timezones can be found at\n",
+			"https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n\n",
+			"Example Time Formats:\n",
+			"[n] [seconds|minutes|hours]\n",
+			"- Example: .remindmein 10 minutes to turn in my assignment\n\n",
+			"[n] [day(s) after [date|tomorrow|today]]\n",
+			"- Example: .remindmein two days after tomorrow to go to the bank\n\n",
+			"[time] [timezone]?\n",
+			"- Example: .remindmeat 1:15pm Canada/Eastern to video call\n\n",
+			"[date] [at]? [time] [timezone]?\n",
+			"- Example: .remindmeon October 5th at 12:30pm to eat lunch\n"
+		],
+		"description": [
+			"create a reminder"
+		]
 	},
-	"deletereminder" : {
+	"showreminders": {
 		"class": "Reminders",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".deletereminder <arg>" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".showreminders"
+		],
+		"description": [
+			"Show all your active reminders and their corresponding messageIDs"
+		]
+	},
+	"deletereminder": {
+		"class": "Reminders",
+		"access": "roles",
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".deletereminder <arg>"
+		],
 		"description": [
 			"deletes a reminder that has a messageId of <arg>",
 			"the \"messageId\" can be obtained by using the \".showreminders\" command"
 		]
 	},
-	"newrole" : {
+	"newrole": {
 		"class": "RoleCommands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [  ],
-		"example" : [ ".newrole <arg>" ],
-		"description": [ "creates roles <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".newrole <arg>"
+		],
+		"description": [
+			"creates roles <arg>"
+		]
 	},
-	"deleterole" : {
+	"deleterole": {
 		"class": "RoleCommands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [  ],
-		"example" : [ ".deleterole <arg>" ],
-		"description": [ "deletes roles <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".deleterole <arg>"
+		],
+		"description": [
+			"deletes roles <arg>"
+		]
 	},
-	"iam" : {
+	"iam": {
 		"class": "RoleCommands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [  ],
-		"example" : [ ".iam <arg>" ] ,
-		"description": [ "adds you to roles <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".iam <arg>"
+		],
+		"description": [
+			"adds you to roles <arg>"
+		]
 	},
-	"iamn" : {
+	"iamn": {
 		"class": "RoleCommands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [  ],
-		"example" : [ ".iamn <arg>" ],
-		"description": [ "removes you from roles <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".iamn <arg>"
+		],
+		"description": [
+			"removes you from roles <arg>"
+		]
 	},
-	"whois" : {
+	"whois": {
 		"class": "RoleCommands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [  ],
-		"example" : [ ".whois <arg>" ],
-		"description": [ "returns everyone who has roles <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".whois <arg>"
+		],
+		"description": [
+			"returns everyone who has roles <arg>"
+		]
 	},
-	"roles" : {
+	"roles": {
 		"class": "RoleCommands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example" : [ ".roles"],
-		"description": [ "will display all the self-assignable roles that exist" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".roles"
+		],
+		"description": [
+			"will display all the self-assignable roles that exist"
+		]
 	},
-	"Roles" : {
+	"Roles": {
 		"class": "RoleCommands",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [  ],
-		"example" : [ ".Roles" ],
-		"description": [ "will display all the Mod/Exec/XP Assigned roles that exist" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".Roles"
+		],
+		"description": [
+			"will display all the Mod/Exec/XP Assigned roles that exist"
+		]
 	},
-	"purgeroles" : {
+	"purgeroles": {
 		"class": "RoleCommands",
 		"access": "permissions",
-		"permissions" : [ "manage_roles", "administrator" ] ,
-		"aliases": [ ],
-		"example": [ ".purgeroles" ],
-		"description": [ "deletes all empty self-assignable roles" ]
+		"permissions": [
+			"manage_roles",
+			"administrator"
+		],
+		"aliases": [],
+		"example": [
+			".purgeroles"
+		],
+		"description": [
+			"deletes all empty self-assignable roles"
+		]
 	},
-	"sfu" : {
+	"sfu": {
 		"class": "SFU",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".sfu <arg>" ],
-		"description": [ "Returns the calendar description from current semester of <arg>" ]
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".sfu <arg>"
+		],
+		"description": [
+			"Returns the calendar description from current semester of <arg>"
+		]
 	},
-	"outline" : {
+	"outline": {
 		"class": "SFU",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
-		"example": [ ".outline <arg0> [<arg1> <arg2> next]" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			".outline <arg0> [<arg1> <arg2> next]"
+		],
 		"description": [
 			"Returns outline details of course `<arg0>`.",
 			"Defaults to current term and section d100.",
@@ -517,11 +765,15 @@
 			"Added keyword `next` will look at next semesters oultine for `<arg0>`;Note `next` will return error if it is not registration time."
 		]
 	},
-	"froshteam" : {
+	"froshteam": {
 		"class": "Frosh",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ "team" ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [
+			"team"
+		],
 		"example": [
 			"`.team <team name> <game name> <comma seperated list of team members> [<hex code/value for embed colour>]`",
 			"`.team \"JL\" \"Super Tag\" \"Jon, Bruce, Clark, Diana, Barry\"`",
@@ -533,11 +785,13 @@
 			"Need help picking a colour?\n[HTML Colour Codes](https://htmlcolorcodes.com/color-picker/)"
 		]
 	},
-	"reportwin" : {
+	"reportwin": {
 		"class": "Frosh",
 		"access": "roles",
-		"roles" : [ "@everyone" ],
-		"aliases": [ ],
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
 		"example": [
 			"`.reportwin <team name> <comma seperated list of team mmembers>`",
 			"`.reportwin \"team 1337\" \"Jeffrey, Harry, Noble, Ali\"`"
@@ -546,11 +800,13 @@
 			"Creates an embed that report a win for your team."
 		]
 	},
-	"convertbans" : {
-		"class" : "Ban",
+	"convertbans": {
+		"class": "Ban",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ ],
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
 		"example": [
 			".convertbans"
 		],
@@ -559,11 +815,13 @@
 			"**Command you only be used ONCE.**"
 		]
 	},
-	"ban" : {
-		"class" : "Ban",
+	"ban": {
+		"class": "Ban",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ ],
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
 		"example": [
 			"`.ban @user [<# of days to purge messages>] [<reason>]`",
 			"`.ban @user they broke rules`",
@@ -576,40 +834,46 @@
 			"Put 0 if you don't want to purge any messages."
 		]
 	},
-	"unban" : {
-		"class" : "Ban",
+	"unban": {
+		"class": "Ban",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ ],
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
 		"example": [
 			"`.unban <id of user to unban>`"
-		 ],
+		],
 		"description": [
 			"Unbans a user with the provided user_id"
-		 ]
+		]
 	},
-	"bans" : {
-		"class" : "Ban",
+	"bans": {
+		"class": "Ban",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ ],
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
 		"example": [
 			"`.bans`"
 		],
 		"description": [
 			"Lists the `username` and `user_id` of all banned users from the guild."
-		 ]
+		]
 	},
-	"purgebans" : {
-		"class" : "Ban",
+	"purgebans": {
+		"class": "Ban",
 		"access": "roles",
-		"roles" : [ "Minions" ],
-		"aliases": [ ],
+		"roles": [
+			"Minions"
+		],
+		"aliases": [],
 		"example": [
 			"`.purgebans`"
 		],
 		"description": [
 			"Clears the ban list on the guild."
-		 ]
+		]
 	}
 }
