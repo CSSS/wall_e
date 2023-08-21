@@ -10,6 +10,7 @@ import discord
 from discord.ext import commands
 
 from WalleModels.models import CommandStat
+from resources.utilities.embed import embed
 from resources.utilities.send import send as helper_send
 
 logger = logging.getLogger('wall_e')
@@ -115,6 +116,23 @@ class Administration(commands.Cog):
         exit_code, output = subprocess.getstatusoutput(query)
         await helper_send(ctx, f"Exit Code: {exit_code}")
         await helper_send(ctx, output, prefix="```", suffix="```")
+
+    @commands.command()
+    async def sync(self, ctx):
+        logger.info("[HealthChecks sync()] sync command detected from {}".format(ctx.message.author))
+        message = "Testing guild does not provide support for Slash Commands" \
+            if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
+            else 'Syncing Commands Now!'
+        e_obj = await embed(
+            send_message_func=ctx.send,
+            description=message,
+            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+        )
+        if e_obj is not False:
+            await ctx.send(embed=e_obj)
+        if self.config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
+            await self.bot.tree.sync()
 
     @commands.command()
     async def frequency(self, ctx, *args):

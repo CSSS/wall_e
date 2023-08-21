@@ -44,6 +44,20 @@
 			"The classes and their corresponding commands can be determined using the \".help\" command."
 		]
 	},
+	"sync": {
+		"class": "Administration",
+		"access": "roles",
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			".sync"
+		],
+		"description": [
+			"resyncs the commands in wall_e to discord"
+		]
+	},
 	"frequency": {
 		"class": "Administration",
 		"access": "roles",
