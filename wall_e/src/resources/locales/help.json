@@ -311,7 +311,7 @@
 		],
 		"aliases": [],
 		"example": [
-			".ping"
+			"/ping"
 		],
 		"description": [
 			"returns pong!"
@@ -325,7 +325,7 @@
 		],
 		"aliases": [],
 		"example": [
-			".echo <arg>"
+			"/echo <arg>"
 		],
 		"description": [
 			"returns <arg>"
