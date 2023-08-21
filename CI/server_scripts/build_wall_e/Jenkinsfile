@@ -7,6 +7,7 @@ pipeline {
     stages {
         stage('Validate Formatting') {
             steps {
+                echo "${env.GITHUB_PR_STATE}"
                 sh label: '', script: """bash -c \'
                     export ENVIRONMENT=TEST;
                     export COMPOSE_PROJECT_NAME=TEST_${BRANCH_NAME};
