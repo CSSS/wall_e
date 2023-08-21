@@ -37,14 +37,16 @@ class ManageCog(commands.Cog):
     # this check is used by the TEST guild to ensur that each TEST container will only process incoming commands
     # that originate from channels that match the name of their branch
     def check_test_environment(self, ctx):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-            branch_bot_channel_name = \
-                f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
-            if ctx.message.guild is not None and \
-                    (ctx.channel.name != self.config.get_config_value('basic_config', 'BRANCH_NAME').lower() and
-                     ctx.channel.name != branch_bot_channel_name):
-                return False
-        return True
+        test_guild = self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST'
+        correct_test_guild_text_channel = (
+            ctx.message.guild is not None and
+            (ctx.channel.name == f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
+             or
+             ctx.channel.name == self.config.get_config_value('basic_config', 'BRANCH_NAME').lower())
+        )
+        if not test_guild:
+            return True
+        return correct_test_guild_text_channel
 
     # this check is used to ensure that users can only access commands that they have the rights to
     async def check_privilege(self, ctx):

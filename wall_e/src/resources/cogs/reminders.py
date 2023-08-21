@@ -44,7 +44,7 @@ class Reminders(commands.Cog):
         if parsed_time == '':
             logger.info("[Reminders remindmein()] was unable to extract a time")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -56,7 +56,7 @@ class Reminders(commands.Cog):
         if message == '':
             logger.info("[Reminders remindmein()] was unable to extract a message")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -76,7 +76,7 @@ class Reminders(commands.Cog):
         if parse_status == 0:
             logger.info("[Reminders remindmein()] couldn't parse the time")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -91,7 +91,7 @@ class Reminders(commands.Cog):
         )
         await Reminder.save_reminder(reminder_obj)
         e_obj = await embed(
-            ctx,
+            ctx_obj=ctx.send,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=reminder_obj.get_countdown()
@@ -118,7 +118,7 @@ class Reminders(commands.Cog):
             if reminders != '':
                 logger.info(f"[Reminders showreminders()] sent off the list of reminders to {ctx.message.author}")
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     title=f"Here are your reminders {author}",
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -131,7 +131,7 @@ class Reminders(commands.Cog):
                     f"[Reminders showreminders()] {ctx.message.author} didnt seem to have any reminders."
                 )
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"You don't seem to have any reminders {author}"
@@ -140,7 +140,7 @@ class Reminders(commands.Cog):
                     await ctx.send(embed=e_obj)
         except Exception as error:
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="Something screwy seems to have happened, look at the logs for more info."
@@ -157,7 +157,7 @@ class Reminders(commands.Cog):
             reminder = await Reminder.get_reminder_by_id(reminder_id)
             if reminder is None:
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     title='Delete Reminder',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -172,7 +172,7 @@ class Reminders(commands.Cog):
                     await Reminder.delete_reminder_by_id(reminder.id)
                     logger.info(f"[Reminders deletereminder()] following reminder was deleted = {reminder}")
                     e_obj = await embed(
-                        ctx,
+                        ctx_obj=ctx.send,
                         title='Delete Reminder',
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -182,7 +182,7 @@ class Reminders(commands.Cog):
                         await ctx.send(embed=e_obj)
                 else:
                     e_obj = await embed(
-                        ctx,
+                        ctx_obj=ctx.send,
                         title='Delete Reminder',
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),

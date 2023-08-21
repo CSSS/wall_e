@@ -7,8 +7,8 @@ import logging
 logger = logging.getLogger('wall_e')
 
 
-async def embed(ctx, title='', content='', description='', author='', colour=0x00bfbd, link='', thumbnail='',
-                avatar='', footer=''):
+async def embed(ctx_obj=None, send_message_func=None, title='', content='', description='', author='',
+                colour=0x00bfbd, link='', thumbnail='', avatar='', footer=''):
     """
     title:<str> Title of the embed 99% of the time it'll be the command name, exceptions when it makes sense like
         with the sfu command.\n
@@ -25,9 +25,16 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
     footer:<str> Used for whatever."""
     # these are put in place cause of the limits on embed described here
     # https://discordapp.com/developers/docs/resources/channel#embed-limits
+    send = None
+    if ctx_obj is not None:
+        send = ctx_obj
+    if send_message_func is not None:
+        send = send_message_func
+    if send is None:
+        raise Exception("did not detect a ctx or interaction method")
     if len(title) > 256:
         title = f"{title}"
-        await ctx.send(
+        await send(
             "Embed Error:\nlength of the title "
             f"being added to the title field is {len(title) - 256} characters "
             "too big, please cut down to a size of 256"
@@ -36,7 +43,7 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
         return False
 
     if len(description) > 2048:
-        await ctx.send(
+        await send(
             f"Embed Error:\nlength of description being added to the "
             f"description field is {len(description) - 2048} characters too big, please cut "
             "down to a size of 2048"
@@ -46,14 +53,16 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
         return False
 
     if len(content) > 25:
-        await ctx.send("Embed Error:\nlength of content being added to the content field "
-                       f"is {(len(content) - 25)} indices too big, please cut down to a size of 25")
+        await send(
+            "Embed Error:\nlength of content being added to the content field "
+            f"is {(len(content) - 25)} indices too big, please cut down to a size of 25"
+        )
         logger.info("[embed.py embed()] length of content array will be added to the fields is too big")
         return False
 
     for idx, record in enumerate(content):
         if len(record[0]) > 256:
-            await ctx.send(
+            await send(
                 f"Embed Error:\nlength of record[0] for content index {idx} being added to the name "
                 f"field is {(len(record[0]) - 256)} characters too big, please cut down to a size of 256"
             )
@@ -61,15 +70,17 @@ async def embed(ctx, title='', content='', description='', author='', colour=0x0
             logger.info(f"[embed.py embed()] {record[0]}")
             return False
         if len(record[1]) > 1024:
-            await ctx.send(f"Embed Error:\nlength of record[1] for content index {idx} being added to the value "
-                           f"field is {(len(record[1]) - 1024)} characters too big, please cut down to a "
-                           "size of 1024")
+            await send(
+                f"Embed Error:\nlength of record[1] for content index {idx} being added to the value "
+                f"field is {(len(record[1]) - 1024)} characters too big, please cut down to a "
+                "size of 1024"
+            )
             logger.info("[embed.py embed()] length of following record being added to the field is too big")
             logger.info(f"[embed.py embed()] {record[1]}")
             return False
 
     if len(footer) > 2048:
-        await ctx.send(
+        await send(
             f"Embed Error:\nlength of footer being added to the footer field is "
             f"{len(footer) - 2048} characters too big, please cut down to a size of 2048"
         )

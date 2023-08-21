@@ -34,7 +34,7 @@ class Frosh(commands.Cog):
             ctx,
             title='CSSS Frosh 2020 Gaming Arena',
             author=ctx.author.display_name,
-            avatar=ctx.author.avatar_url,
+            avatar=ctx.author.avatar.url,
             content=[
                     ('Team Name', info[0]),
                     ('Game', info[1]),
@@ -80,7 +80,7 @@ class Frosh(commands.Cog):
             ctx,
             title='CSSS Frosh 2020 Gaming Arena Winner',
             author=ctx.author.display_name,
-            avatar=ctx.author.avatar_url,
+            avatar=ctx.author.avatar.url,
             colour=0x00FF61,
             content=[
                 ('Team Name', info[0]),
