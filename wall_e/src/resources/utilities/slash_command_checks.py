@@ -7,11 +7,11 @@ from resources.utilities.list_of_perms import get_list_of_user_permissions_for_i
 
 
 async def slash_command_checks(config: WallEConfig, interaction: discord.Interaction, help_dict: OrderedDict):
-    await _command_in_correct_test_guild_channel(config, interaction)
+    await command_in_correct_test_guild_channel(config, interaction)
     await _check_privilege(help_dict, interaction)
 
 
-async def _command_in_correct_test_guild_channel(config: WallEConfig, interaction: discord.Interaction):
+async def command_in_correct_test_guild_channel(config: WallEConfig, interaction: discord.Interaction):
     test_guild = config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST'
     correct_test_guild_text_channel = (
         interaction.guild is not None and
