@@ -14,7 +14,7 @@ class Mod(commands.Cog):
         logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
         e_obj = await em(
-            ctx,
+            ctx_obj=ctx.send,
             title='Minion Things',
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -62,8 +62,10 @@ class Mod(commands.Cog):
             i += 2
 
         name = ctx.author.nick or ctx.author.name
-        e_obj = await em(ctx, description=desc, author=name, avatar=ctx.author.avatar_url, colour=0xffc61d,
-                         content=fields)
+        e_obj = await em(
+            ctx_obj=ctx.send, description=desc, author=name, avatar=ctx.author.avatar.url, colour=0xffc61d,
+            content=fields
+        )
         if e_obj is not False:
             await ctx.send(embed=e_obj)
 
@@ -86,7 +88,7 @@ class Mod(commands.Cog):
         for wrd in arg:
             msg += '{} '.format(wrd)
 
-        e_obj = await em(ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name,
-                         avatar=ctx.author.avatar_url, description=msg, footer='Moderator Warning')
+        e_obj = await em(ctx_obj=ctx.send, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name,
+                         avatar=ctx.author.avatar.url, description=msg, footer='Moderator Warning')
         if e_obj is not False:
             await ctx.send(embed=e_obj)

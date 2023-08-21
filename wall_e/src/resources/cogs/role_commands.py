@@ -27,7 +27,7 @@ class RoleCommands(commands.Cog):
         for role in guild.roles:
             if role.name == role_to_add:
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"Role '{role_to_add}' exists. Calling "
@@ -42,7 +42,7 @@ class RoleCommands(commands.Cog):
         logger.info(f"[RoleCommands newrole()] {role_to_add} created and is set to mentionable")
 
         e_obj = await embed(
-            ctx,
+            ctx_obj=ctx.send,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=(
@@ -61,7 +61,7 @@ class RoleCommands(commands.Cog):
         if role is None:
             logger.info("[RoleCommands deleterole()] role that user wants to delete doesnt seem to exist.")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_delete}`** does not exist."
@@ -74,7 +74,7 @@ class RoleCommands(commands.Cog):
             await role.delete()
             logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_delete}`** deleted."
@@ -83,7 +83,7 @@ class RoleCommands(commands.Cog):
         else:
             logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_delete}`** has members. Cannot delete."
@@ -98,7 +98,7 @@ class RoleCommands(commands.Cog):
         if role is None:
             logger.info("[RoleCommands iam()] role doesnt exist.")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_add}**` doesn't exist.\nCalling .newrole {role_to_add}"
@@ -110,7 +110,7 @@ class RoleCommands(commands.Cog):
         if user in members_of_role:
             logger.info(f"[RoleCommands iam()] {user} was already in the role {role_to_add}.")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="Beep Boop\n You've already got the role dude STAAAHP!!"
@@ -122,7 +122,7 @@ class RoleCommands(commands.Cog):
 
             if (role_to_add == 'froshee'):
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=(
@@ -132,7 +132,7 @@ class RoleCommands(commands.Cog):
                 )
             else:
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"You have successfully been added to role **`{role_to_add}`**."
@@ -147,7 +147,7 @@ class RoleCommands(commands.Cog):
         if role is None:
             logger.info("[RoleCommands iamn()] role doesnt exist.")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Role **`{role_to_remove}`** doesn't exist."
@@ -159,7 +159,7 @@ class RoleCommands(commands.Cog):
         if user in members_of_role:
             await user.remove_roles(role)
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"You have successfully been removed from role **`{role_to_remove}`**."
@@ -174,7 +174,7 @@ class RoleCommands(commands.Cog):
                 await role.delete()
                 logger.info("[RoleCommands iamn()] no members were detected, role has been deleted.")
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"Role **`{role.name}`** deleted."
@@ -183,7 +183,7 @@ class RoleCommands(commands.Cog):
         else:
             logger.info(f"[RoleCommands iamn()] {user} wasnt in the role {role_to_remove}")
             e_obj = await embed(
-                ctx,
+                ctx_obj=ctx.send,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description="Boop Beep??\n You don't have the role, so how am I gonna remove it????"
@@ -212,7 +212,7 @@ class RoleCommands(commands.Cog):
                                             f'avoid getting this warning'
                 )
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     title='ATTENTION:',
                     colour=0xff0000,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
@@ -242,7 +242,7 @@ class RoleCommands(commands.Cog):
             role = discord.utils.get(ctx.guild.roles, name=role_to_check)
             if role is None:
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"**`{role_to_check}`** does not exist."
@@ -254,7 +254,7 @@ class RoleCommands(commands.Cog):
             if not members_of_role:
                 logger.info(f"[RoleCommands whois()] there are no members in the role {role_to_check}")
                 e_obj = await embed(
-                    ctx,
+                    ctx_obj=ctx.send,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"No members in role **`{role_to_check}`**."
@@ -435,7 +435,7 @@ class RoleCommands(commands.Cog):
                        f"[#{self.bot_channel.name}](https://discord.com/channels/"
                        f"{ctx.guild.id}/{self.bot_channel.id}) to be able to use this command")
         e_obj = await embed(
-            ctx.author,
+            ctx_obj=ctx.send,
             title='ATTENTION:',
             colour=0xff0000,
             description=description,
