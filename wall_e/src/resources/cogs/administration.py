@@ -1,10 +1,7 @@
 import asyncio
-import importlib
-import inspect
 import logging
 import os
 import subprocess
-import sys
 
 import discord
 from discord.ext import commands
@@ -48,43 +45,38 @@ class Administration(commands.Cog):
             await self.bot.close()
 
     @commands.command()
-    async def load(self, ctx, name):
+    async def load(self, ctx, module_name):
         logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
-        valid, folder = self.valid_cog(name)
+        valid, folder = self.valid_cog(module_name)
         if not valid:
-            await ctx.send(f"```{name} isn't a real cog```")
+            await ctx.send(f"```{module_name} isn't a real cog```")
             logger.info(
                 f"[Administration load()] {ctx.message.author} tried loading "
-                f"{name} which doesn't exist."
+                f"{module_name} which doesn't exist."
             )
             return
         try:
-            cog_file = importlib.import_module(folder + name)
-            cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
-            cog_to_load = getattr(cog_file, cog_class_name)
-            self.bot.add_cog(cog_to_load(self.bot, self.config))
-            await ctx.send(f"{name} command loaded.")
-            logger.info(f"[Administration load()] {name} has been successfully loaded")
+            await self.bot.add_custom_cog(folder+module_name)
+            await ctx.send(f"{module_name} command loaded.")
+            logger.info(f"[Administration load()] {module_name} has been successfully loaded")
         except(AttributeError, ImportError) as e:
             await ctx.send(f"command load failed: {type(e)}, {e}")
-            logger.info(f"[Administration load()] loading {name} failed :{type(e)}, {e}")
+            logger.info(f"[Administration load()] loading {module_name} failed :{type(e)}, {e}")
 
     @commands.command()
-    async def unload(self, ctx, name):
+    async def unload(self, ctx, module_name):
         logger.info(f"[Administration unload()] unload command detected from {ctx.message.author}")
-        valid, folder = self.valid_cog(name)
+        valid, folder = self.valid_cog(module_name)
         if not valid:
-            await ctx.send(f"```{name} isn't a real cog```")
+            await ctx.send(f"```{module_name} isn't a real cog```")
             logger.info(
                 f"[Administration load()] {ctx.message.author} tried loading "
-                f"{name} which doesn't exist."
+                f"{module_name} which doesn't exist."
             )
             return
-        cog_file = importlib.import_module(folder + name)
-        cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
-        self.bot.remove_cog(cog_class_name)
-        await ctx.send(f"{name} command unloaded")
-        logger.info(f"[Administration unload()] {name} has been successfully loaded")
+        await self.bot.remove_custom_cog(folder, module_name)
+        await ctx.send(f"{module_name} command unloaded")
+        logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
 
     @commands.command()
     async def reload(self, ctx, name):
@@ -95,12 +87,9 @@ class Administration(commands.Cog):
             logger.info(f"[Administration reload()] {ctx.message.author} tried "
                         f"loading {name} which doesn't exist.")
             return
-        cog_file = importlib.import_module(folder + name)
-        cog_class_name = inspect.getmembers(sys.modules[cog_file.__name__], inspect.isclass)[0][0]
-        self.bot.remove_cog(cog_class_name)
+        await self.bot.remove_custom_cog(folder, name)
         try:
-            cog_to_load = getattr(cog_file, cog_class_name)
-            self.bot.add_cog(cog_to_load(self.bot, self.config))
+            await self.bot.add_custom_cog(folder + name)
             await ctx.send(f"`{folder + name} command reloaded`")
             logger.info(f"[Administration reload()] {name} has been successfully reloaded")
         except(AttributeError, ImportError) as e:

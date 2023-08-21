@@ -66,14 +66,19 @@ class WalleBot(commands.Bot):
         logger.info("commands cleared and synced")
         await super().setup_hook()
 
-    async def remove_custom_cog(self, module_path_and_name: str):
-        cog_module = importlib.import_module(module_path_and_name)
-        cog_class_name = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)[0][0]
-        cog_class_to_load = getattr(cog_module, cog_class_name)
-        cog_class_has_no_slash_commands = len(cog_class_to_load.__cog_app_commands__) == 0  # adding this in cause
-        # discord is just way to buggy to reliably unload and reload a slash command at this time
-        if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_has_no_slash_commands:
-            await self.remove_cog(cog_class_name)
+    async def remove_custom_cog(self, folder: str, module_name: str):
+        cog_module = importlib.import_module(folder + module_name)
+        class_names = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
+        for class_name in class_names:
+            if class_name[0].lower() == module_name.lower():
+                cog_class_to_load = class_name[1]
+                cog_class_has_no_slash_commands = (
+                    (not hasattr(cog_class_to_load, "__cog_app_commands__")) or
+                    len(cog_class_to_load.__cog_app_commands__) == 0
+                )  # adding this in cause
+                # discord is just way to buggy to reliably unload and reload a slash command at this time
+                if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_has_no_slash_commands:
+                    await self.remove_cog(class_name[0])
 
     async def add_custom_cog(self, module_path_and_name: str = None):
         adding_all_cogs = module_path_and_name is None
