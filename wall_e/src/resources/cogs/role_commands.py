@@ -518,7 +518,7 @@ class RoleCommands(commands.Cog):
         if ctx.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(ctx)
         else:
-            number_of_users_per_page = 20
+            number_of_users_per_page = 10
             logger.info(
                 f"[RoleCommands whois()] {ctx.message.author} called whois with role "
                 f"{role_to_check}"
@@ -553,6 +553,7 @@ class RoleCommands(commands.Cog):
                 member_string[current_index] += f"{name}\n"
                 x += 1
                 if x == number_of_users_per_page:
+                    member_string[current_index] += "\n\nPSST: try out the new `/whois` command"
                     member_string.append("")
                     current_index += 1
                     x = 0
