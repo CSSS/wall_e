@@ -111,7 +111,7 @@ class Ban(commands.Cog):
         try:
             def pred(ban: discord.AuditLogEntry):
                 return member.id == ban.target.id
-            audit_ban = discord.utils.get(pred, self.guild.audit_logs(action=BanAction, oldest_first=False))
+            audit_ban = await discord.utils.find(pred, self.guild.audit_logs(action=BanAction, oldest_first=False))
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
