@@ -77,6 +77,7 @@ class RoleCommands(commands.Cog):
         self.bot = bot
         self.config = config
         self.bot_channel = None
+        self.exec_role_colour = [3447003, 6533347]
         self.bot.loop.create_task(self.get_bot_general_channel())
 
     @app_commands.command(name="newrole", description="create a new role")
@@ -498,7 +499,10 @@ class RoleCommands(commands.Cog):
             for members in members_of_role:
                 name = members.display_name
                 member_string[current_index] += f"{name}"
-                exec_role = [role for role in members.roles if role.colour.value == 3447003 and role.name != "Execs"]
+                exec_role = [
+                    role for role in members.roles
+                    if role.colour.value in self.exec_role_colour and role.name != "Execs"
+                ]
                 if len(exec_role) > 0:
                     member_string[current_index] += f"- {exec_role[0]}"
                 member_string[current_index] += "\n"
@@ -552,10 +556,14 @@ class RoleCommands(commands.Cog):
                 await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
                 return
             x, current_index = 0, 0
+
             for members in members_of_role:
                 name = members.display_name
                 member_string[current_index] += f"{name}"
-                exec_role = [role for role in members.roles if role.colour.value == 3447003 and role.name != "Execs"]
+                exec_role = [
+                    role for role in members.roles
+                    if role.colour.value in self.exec_role_colour and role.name != "Execs"
+                ]
                 if len(exec_role) > 0:
                     member_string[current_index] += f"- {exec_role[0]}"
                 member_string[current_index] += "\n"
