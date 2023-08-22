@@ -162,7 +162,7 @@ async def on_message(message):
 async def on_app_command_completion(interaction: discord.Interaction, cmd: discord.app_commands.commands.Command):
     from WalleModels.models import CommandStat
     database_enabled = wall_e_config.enabled("database_config", option="DB_ENABLED")
-    if command_in_correct_test_guild_channel(wall_e_config, interaction) and database_enabled:
+    if await command_in_correct_test_guild_channel(wall_e_config, interaction) and database_enabled:
         await CommandStat.save_command_async(CommandStat(
             epoch_time=datetime.datetime.now().timestamp(), channel_name=interaction.channel.name,
             command=interaction.command.name, invoked_with=cmd.qualified_name,
