@@ -91,6 +91,7 @@ class WalleBot(commands.Bot):
             if cog_unloaded:
                 break
             try:
+                guild = discord.Object(id=wall_e_config.get_config_value('basic_config', 'DISCORD_ID'))
                 if adding_all_cogs or module_path_and_name == f"{cog['path']}{cog['name']}":
                     cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
                     classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
@@ -98,7 +99,7 @@ class WalleBot(commands.Bot):
                         cog_class_to_load = getattr(cog_module, class_that_match[0])
                         if type(cog_class_to_load) is commands.cog.CogMeta:
                             logger.info(f"[main.py] attempting to load cog {cog['name']}")
-                            await self.add_cog(cog_class_to_load(self, wall_e_config))
+                            await self.add_cog(cog_class_to_load(self, wall_e_config), guild=guild)
                             logger.info(f"[main.py] {cog['name']} successfully loaded")
                             if not adding_all_cogs:
                                 cog_unloaded = True
