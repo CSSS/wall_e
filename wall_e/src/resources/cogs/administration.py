@@ -111,17 +111,18 @@ class Administration(commands.Cog):
         logger.info("[HealthChecks sync()] sync command detected from {}".format(ctx.message.author))
         message = "Testing guild does not provide support for Slash Commands" \
             if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
-            else 'Syncing Commands Now!'
+            else 'Commands Synced!'
         e_obj = await embed(
-            send_message_func=ctx.send,
+            ctx=ctx,
             description=message,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
         )
+        guild = discord.Object(id=self.config.get_config_value('basic_config', 'DISCORD_ID'))
+        if self.config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
+            await self.bot.tree.sync(guild=guild)
         if e_obj is not False:
             await ctx.send(embed=e_obj)
-        if self.config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
-            await self.bot.tree.sync()
 
     @commands.command()
     async def frequency(self, ctx, *args):

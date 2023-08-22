@@ -29,7 +29,7 @@ class Misc(commands.Cog):
         if len(questions) > 12:
             logger.info("[Misc poll()] was called with too many options.")
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title='Poll Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -41,7 +41,7 @@ class Misc(commands.Cog):
             return
         elif len(questions) == 1:
             logger.info("[Misc poll()] yes/no poll being constructed.")
-            e_obj = await embed(ctx_obj=ctx.send, title='Poll', author=name, avatar=ava, description=questions[0])
+            e_obj = await embed(ctx=ctx, title='Poll', author=name, avatar=ava, description=questions[0])
             if e_obj is not False:
                 post = await ctx.send(embed=e_obj)
                 await post.add_reaction(u"\U0001F44D")
@@ -52,7 +52,7 @@ class Misc(commands.Cog):
         if len(questions) == 2:
             logger.info("[Misc poll()] poll with only 2 arguments detected.")
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title='Poll Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -65,7 +65,7 @@ class Misc(commands.Cog):
         elif len(questions) == 0:
             logger.info("[Misc poll()] poll with no arguments detected.")
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title='Usage',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -91,7 +91,7 @@ class Misc(commands.Cog):
 
             content = [['Options:', option_string]]
             e_obj = await embed(
-                ctx_obj=ctx.send, title='Poll:', author=name, avatar=ava, description=question, content=content
+                ctx=ctx, title='Poll:', author=name, avatar=ava, description=question, content=content
             )
             if e_obj is not False:
                 poll_post = await ctx.send(embed=e_obj)
@@ -120,7 +120,7 @@ class Misc(commands.Cog):
             if not data:
                 logger.info("[Misc urban()] sending message indicating 404 result")
                 e_obj = await embed(
-                    ctx_obj=ctx.send,
+                    ctx=ctx,
                     title="Urban Results",
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -143,7 +143,7 @@ class Misc(commands.Cog):
                     ['Link', f'[here]({urban_url})']
                 ]
                 e_obj = await embed(
-                    ctx_obj=ctx.send,
+                    ctx=ctx,
                     title='Results from Urban Dictionary',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -172,7 +172,7 @@ class Misc(commands.Cog):
             content = [
                 ['Results from Wolfram Alpha', f"`{next(res.results).text}`\n\n[Link]({wolfram_url})"]]
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 colour=0xdd1100,
@@ -186,7 +186,7 @@ class Misc(commands.Cog):
                 ['Results from Wolfram Alpha', f"No results found. :thinking: \n\n[Link]({wolfram_url})"],
             ]
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 colour=0xdd1100,
@@ -209,7 +209,7 @@ class Misc(commands.Cog):
             elif re.match(r':*:', word):
                 logger.info("[Misc emojispeak()] was called with a non-server emoji.")
                 e_obj = await embed(
-                    ctx_obj=ctx.send,
+                    ctx=ctx,
                     title='EmojiSpeak Error',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -311,7 +311,7 @@ class Misc(commands.Cog):
                             f"access level of {command_info['access']}....not sure how to handle "
                             "it so not adding it to the description_to_embed")
         logger.info("[Misc general_description()] transfer successful")
-        await paginate_embed(self.bot, ctx, self.config, description_to_embed, title="Help Page")
+        await paginate_embed(self.bot, self.config, description_to_embed, title="Help Page", ctx=ctx)
 
     async def specific_description(self, ctx, command):
         logger.info(f"[Misc specific_description()] invoked by user {command} for "
@@ -337,7 +337,7 @@ class Misc(commands.Cog):
             descriptions += "\n\nExample:\n"
             descriptions += "\n".join(command_info_for_searched_command['example'])
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title=f"Man Entry for {command_being_searched_for}",
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),

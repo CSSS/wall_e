@@ -359,7 +359,7 @@ class Ban(commands.Cog):
         logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
         if user_id not in self.ban_list:
             logger.info(f"Provided id: {user_id}, does not belong to a banned member.")
-            e_obj = await em(ctx, title="Error",
+            e_obj = await em(ctx=ctx, title="Error",
                              content=[("Problem",
                                        f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")],
                              colour=self.error_colour,
@@ -377,7 +377,9 @@ class Ban(commands.Cog):
             await self.mod_channel.send(f"*No user with id: **{user_id}** found.*")
 
         logger.info(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
-        e_obj = await em(ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red())
+        e_obj = await em(
+            ctx=ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red()
+        )
         if e_obj:
             await self.mod_channel.send(embed=e_obj)
 
@@ -387,7 +389,7 @@ class Ban(commands.Cog):
 
         logger.info("[Ban Unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
         if isinstance(error, commands.BadArgument):
-            e_obj = await em(ctx, title="Error",
+            e_obj = await em(ctx=ctx, title="Error",
                              content=[("Problem", "Please enter a numerical Discord ID.")],
                              colour=self.error_colour,
                              footer="Command Error")

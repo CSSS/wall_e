@@ -618,7 +618,7 @@ class Leveling(commands.Cog):
         """
 
         e_obj = await embed(
-            ctx_obj=ctx,
+            ctx=ctx,
             avatar=message_author.avatar.url,
             author=message_author.name,
             title=f"{message_author.name}'s Stat Card",
@@ -668,7 +668,7 @@ class Leveling(commands.Cog):
         if description_to_embed != "\nLevel Number - Invalid Level Role\n":
             descriptions_to_embed.append(description_to_embed)
 
-        await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed, title="Levels")
+        await paginate_embed(self.bot, self.config, descriptions_to_embed, title="Levels", ctx=ctx)
 
     @commands.command()
     async def ranks(self, ctx):
@@ -701,7 +701,7 @@ class Leveling(commands.Cog):
         if len(descriptions_to_embed) == 0:
             await ctx.send("No users currently being tracked")
         else:
-            await paginate_embed(self.bot, ctx, self.config, descriptions_to_embed)
+            await paginate_embed(self.bot, self.config, descriptions_to_embed, ctx=ctx)
 
     @commands.command()
     async def hide_xp(self, ctx):

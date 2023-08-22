@@ -91,6 +91,7 @@ class WalleBot(commands.Bot):
             if cog_unloaded:
                 break
             try:
+                guild = discord.Object(id=wall_e_config.get_config_value('basic_config', 'DISCORD_ID'))
                 if adding_all_cogs or module_path_and_name == f"{cog['path']}{cog['name']}":
                     cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
                     classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
@@ -98,7 +99,7 @@ class WalleBot(commands.Bot):
                         cog_class_to_load = getattr(cog_module, class_that_match[0])
                         if type(cog_class_to_load) is commands.cog.CogMeta:
                             logger.info(f"[main.py] attempting to load cog {cog['name']}")
-                            await self.add_cog(cog_class_to_load(self, wall_e_config))
+                            await self.add_cog(cog_class_to_load(self, wall_e_config), guild=guild)
                             logger.info(f"[main.py] {cog['name']} successfully loaded")
                             if not adding_all_cogs:
                                 cog_unloaded = True
@@ -146,9 +147,12 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if message.guild is None and message.author != bot.user:
-        await message.author.send("DM has been detected \nUnfortunately none of my developers are smart enough to "
-                                  "make me an AI capable of holding a conversation and no one else has volunteered"
-                                  " :( \nAll I can say is Harry Potter for life and Long Live Windows Vista!")
+        em = await imported_embed(
+            ctx=message.author,
+            description="[welcome to the machine](https://platform.openai.com/login?launch)"
+        )
+        if em is not None:
+            await message.author.send(embed=em)
     else:
         await bot.process_commands(message)
 
@@ -161,7 +165,7 @@ async def on_message(message):
 async def on_app_command_completion(interaction: discord.Interaction, cmd: discord.app_commands.commands.Command):
     from WalleModels.models import CommandStat
     database_enabled = wall_e_config.enabled("database_config", option="DB_ENABLED")
-    if command_in_correct_test_guild_channel(wall_e_config, interaction) and database_enabled:
+    if await command_in_correct_test_guild_channel(wall_e_config, interaction) and database_enabled:
         await CommandStat.save_command_async(CommandStat(
             epoch_time=datetime.datetime.now().timestamp(), channel_name=interaction.channel.name,
             command=interaction.command.name, invoked_with=cmd.qualified_name,
@@ -179,7 +183,7 @@ async def on_command_error(interaction: discord.Interaction, error):
         if isinstance(error, commands.MissingRequiredArgument):
             logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
             e_obj = await imported_embed(
-                ctx_obj=interaction.response.send_message,
+                interaction=interaction,
                 author=wall_e_config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=wall_e_config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Missing argument: {error.param}"

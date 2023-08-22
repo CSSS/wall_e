@@ -24,7 +24,7 @@ class SFU(commands.Cog):
 
         if(not course):
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -57,7 +57,7 @@ class SFU(commands.Cog):
             if(len(crs) < 2):
                 # Bad args
                 e_obj = await embed(
-                    ctx_obj=ctx.send,
+                    ctx=ctx,
                     title='Bad Arguments',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -95,7 +95,7 @@ class SFU(commands.Cog):
             else:
                 logger.info('[SFU sfu()] get resulted in {}'.format(res.status))
                 e_obj = await embed(
-                    ctx_obj=ctx.send,
+                    ctx=ctx,
                     title='Results from SFU',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -127,7 +127,7 @@ class SFU(commands.Cog):
         ]
 
         embed_obj = await embed(
-            ctx_obj=ctx.send,
+            ctx=ctx,
             title='Results from SFU',
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -154,7 +154,7 @@ class SFU(commands.Cog):
 
         if(not course):
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -198,7 +198,7 @@ class SFU(commands.Cog):
             if(len(crs) < 2):
                 # Bad args
                 e_obj = await embed(
-                    ctx_obj=ctx.send,
+                    ctx=ctx,
                     title='Bad Arguments',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -240,7 +240,7 @@ class SFU(commands.Cog):
                     # Send something saying be in this order
                     logger.info('[SFU outline] args out of order or wrong')
                     e_obj = await embed(
-                        ctx_obj=ctx.send,
+                        ctx=ctx,
                         title='Bad Arguments',
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -277,7 +277,7 @@ class SFU(commands.Cog):
             else:
                 logger.info('[SFU outline()] section get resulted in {}'.format(res.status))
                 e_obj = await embed(
-                    ctx_obj=ctx.send,
+                    ctx=ctx,
                     title='SFU Course Outlines',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -312,7 +312,7 @@ class SFU(commands.Cog):
         else:
             logger.info('[SFU outline()] full outline get resulted in {}'.format(res.status))
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title='SFU Course Outlines',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -337,7 +337,7 @@ class SFU(commands.Cog):
         except Exception:
             logger.info('[SFU outline()] info keys didn\'t exist')
             e_obj = await embed(
-                ctx_obj=ctx.send,
+                ctx=ctx,
                 title='SFU Course Outlines',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -438,7 +438,7 @@ class SFU(commands.Cog):
         fields.append(['URL', '[here]({})'.format(url)])
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
         e_obj = await embed(
-            ctx_obj=ctx.send,
+            ctx=ctx,
             title='SFU Outline Results',
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),

@@ -7,7 +7,11 @@ from resources.utilities.embed import embed as imported_embed
 logger = logging.getLogger('wall_e')
 
 
-async def paginate_embed(bot, ctx, config, description_to_embed, title=" "):
+async def paginate_embed(bot, config, description_to_embed, title=" ", ctx=None, interaction=None):
+    send_func = interaction.response.send_message if interaction is not None else None
+    send_func = ctx.send if ctx is not None and send_func is None else send_func
+    if send_func is None:
+        raise Exception("did not detect a ctx or interaction method")
     num_of_pages = len(description_to_embed)
     logger.info(
         "[paginate.py paginate_embed()] called with following argument: "
@@ -22,7 +26,8 @@ async def paginate_embed(bot, ctx, config, description_to_embed, title=" "):
         logger.info("[paginate.py paginate_embed()] loading page {}".format(current_page))
         logger.info("[paginate.py paginate_embed()] loading roles {}".format(description_to_embed[current_page]))
         embed_obj = await imported_embed(
-            ctx,
+            interaction=interaction,
+            ctx=ctx,
             title=title,
             author=config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -44,7 +49,9 @@ async def paginate_embed(bot, ctx, config, description_to_embed, title=" "):
         # setting the content if it was the first run through or not.
         if first_run is True:
             first_run = False
-            msg = await ctx.send(content=None, embed=embed_obj)
+            msg = await send_func(content=None, embed=embed_obj)
+            if interaction is not None:
+                msg = await interaction.original_response()
             logger.info("[paginate.py paginate_embed()] sent message")
         else:
             await msg.edit(embed=embed_obj)
