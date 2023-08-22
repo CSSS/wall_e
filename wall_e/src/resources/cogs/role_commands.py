@@ -501,7 +501,7 @@ class RoleCommands(commands.Cog):
                 exec_role = [role for role in members.roles if role.colour.value == 3447003 and role.name != "Execs"]
                 if len(exec_role) > 0:
                     member_string[current_index] += f"- {exec_role[0]}"
-                member_string[current_index] += f"\n"
+                member_string[current_index] += "\n"
                 x += 1
                 if x == number_of_users_per_page:
                     member_string.append("")
@@ -558,7 +558,7 @@ class RoleCommands(commands.Cog):
                 exec_role = [role for role in members.roles if role.colour.value == 3447003 and role.name != "Execs"]
                 if len(exec_role) > 0:
                     member_string[current_index] += f"- {exec_role[0]}"
-                member_string[current_index] += f"\n"
+                member_string[current_index] += "\n"
                 x += 1
                 if x == number_of_users_per_page:
                     member_string[current_index] += "\n\nPSST: try out the new `/whois` command"
