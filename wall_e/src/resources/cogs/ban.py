@@ -19,7 +19,7 @@ class Ban(commands.Cog):
         self.ban_list = []
         self.error_colour = 0xA6192E
         self.mod_channel = None
-        self.guild = None
+        self.guild: discord.Guild = None
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
@@ -109,16 +109,15 @@ class Ban(commands.Cog):
         await asyncio.sleep(1)
 
         try:
-            audit_ban = [ban async for ban in guild.audit_logs(action=BanAction, oldest_first=False)]
+            def pred(ban: discord.AuditLogEntry):
+                return member.id == ban.target.id
+            audit_ban = discord.utils.get(pred, self.guild.audit_logs(action=BanAction, oldest_first=False))
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
 
-        # TODO: test this, not sure why next is required. trying to find the entry
-        # USE: https://discordpy.readthedocs.io/en/v2.3.2/migrating.html#moving-away-from-custom-asynciterator:~:text=AsyncIterator.find()
-        audit_ban = next((audit_ban for audit_ban in audit_ban if audit_ban.target.id == member.id), None)
         if audit_ban is None:
             logger.info("[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel")
             await self.mod_channel.send(f"Ban for {member.name} has not been added to walle due to error"
