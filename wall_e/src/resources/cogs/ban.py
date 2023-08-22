@@ -7,6 +7,7 @@ import pytz
 from typing import Union
 import logging
 import asyncio
+from discord import AuditLogAction
 logger = logging.getLogger('wall_e')
 
 
@@ -106,13 +107,15 @@ class Ban(commands.Cog):
         await asyncio.sleep(1)
 
         try:
-            audit_ban = await guild.audit_logs(action=discord.AuditLogAction.ban, oldest_first=False).flatten()
+            audit_ban = [ban async for ban in guild.audit_logs(action=AuditLogAction.ban, oldest_first=False)]
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
 
+        # TODO: test this, not sure why next is required. trying to find the entry
+        # USE: https://discordpy.readthedocs.io/en/v2.3.2/migrating.html#moving-away-from-custom-asynciterator:~:text=AsyncIterator.find()
         audit_ban = next((audit_ban for audit_ban in audit_ban if audit_ban.target.id == member.id), None)
         if audit_ban is None:
             logger.info("[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel")
@@ -164,9 +167,9 @@ class Ban(commands.Cog):
             # however audit logs only go back 3 months, so have to read older bans from the bans list
             ban_logs = {
                 ban_log.target.id: ban_log
-                for ban_log in await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+                for ban_log in [ban async for ban in self.bot.guilds[0].guild.audit_logs(action=AuditLogAction.ban)]
             }
-            guild_ban_list = await self.bot.guilds[0].bans()
+            guild_ban_list = [ban async for ban in self.bot.guilds[0].bans()]
         except Exception as e:
             logger.info(f'[Ban convertbans()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
@@ -174,8 +177,7 @@ class Ban(commands.Cog):
 
         if not guild_ban_list:
             logger.info("[Ban convertbans()] No bans to migrate into the ban system from guild. "
-                        "Sening message and ending command."
-                        )
+                        "Sening message and ending command.")
             await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
             return
 
@@ -338,6 +340,8 @@ class Ban(commands.Cog):
         def is_banned_user(msg):
             return msg.author == user
 
+        # TODO: fix naive datetime
+        # https://discordpy.readthedocs.io/en/v2.3.2/migrating.html#datetime-objects-are-now-utc-aware
         date = datetime.datetime.now() - datetime.timedelta(timeframe)
         logger.info(f"[Ban purge_message()] message from {user} will be purge starting from date {date}")
 
@@ -438,7 +442,7 @@ class Ban(commands.Cog):
 
         logger.info(f"[Ban purgebans()] purgebans command detected from {ctx.author}")
 
-        bans = await self.bot.guilds[0].bans()
+        bans = [ban async for ban in self.bot.guilds[0].bans()]
         logger.info(f"[Ban purgebans()] Retrieved list of banned users from guild: {bans}")
 
         if not bans:
