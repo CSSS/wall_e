@@ -168,7 +168,7 @@ class Ban(commands.Cog):
             # however audit logs only go back 3 months, so have to read older bans from the bans list
             ban_logs = {
                 ban_log.target.id: ban_log
-                for ban_log in [ban async for ban in self.guild.guild.audit_logs(action=BanAction)]
+                for ban_log in [ban async for ban in self.guild.audit_logs(action=BanAction)]
             }
             guild_ban_list = [ban async for ban in self.guild.bans()]
         except Exception as e:
