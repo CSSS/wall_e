@@ -17,7 +17,7 @@ class Frosh(commands.Cog):
 
         if len(info) < 3:
             e_obj = await em(
-                ctx,
+                ctx=ctx,
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -31,7 +31,7 @@ class Frosh(commands.Cog):
 
         # just gonna assume the provided stuff is all good
         e_obj = await em(
-            ctx,
+            ctx=ctx,
             title='CSSS Frosh 2020 Gaming Arena',
             author=ctx.author.display_name,
             avatar=ctx.author.avatar.url,
@@ -64,7 +64,7 @@ class Frosh(commands.Cog):
 
         if len(info) < 2:
             e_obj = await em(
-                ctx,
+                ctx=ctx,
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -77,7 +77,7 @@ class Frosh(commands.Cog):
             return
 
         e_obj = await em(
-            ctx,
+            ctx=ctx,
             title='CSSS Frosh 2020 Gaming Arena Winner',
             author=ctx.author.display_name,
             avatar=ctx.author.avatar.url,

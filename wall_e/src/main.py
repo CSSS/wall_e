@@ -180,7 +180,7 @@ async def on_command_error(interaction: discord.Interaction, error):
         if isinstance(error, commands.MissingRequiredArgument):
             logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
             e_obj = await imported_embed(
-                ctx_obj=interaction.response.send_message,
+                interaction=interaction,
                 author=wall_e_config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=wall_e_config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Missing argument: {error.param}"

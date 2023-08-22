@@ -99,7 +99,7 @@ class ManageCog(commands.Cog):
             if isinstance(error, commands.MissingRequiredArgument):
                 logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
                 e_obj = await imported_embed(
-                    ctx,
+                    ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"Missing argument: {error.param}"

@@ -21,7 +21,7 @@ class HealthChecks(commands.Cog):
         await slash_command_checks(self.config, interaction, self.help_dict)
         logger.info("[HealthChecks ping()] ping command detected from {}".format(interaction.user))
         e_obj = await embed(
-            send_message_func=interaction.response.send_message,
+            interaction=interaction,
             description='Pong!',
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
@@ -38,7 +38,7 @@ class HealthChecks(commands.Cog):
                     "detected from {} with argument {}".format(interaction.user, user_input))
         avatar = interaction.user.avatar.url
         e_obj = await embed(
-            send_message_func=interaction.response.send_message, author=user, avatar=avatar, description=user_input
+            interaction=interaction, author=user, avatar=avatar, description=user_input
         )
         if e_obj is not False:
             await interaction.response.send_message(embed=e_obj)
