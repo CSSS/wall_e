@@ -567,7 +567,8 @@ class RoleCommands(commands.Cog):
 
     @commands.command()
     async def whois(self, ctx, role_to_check):
-        if f"{role_to_check}" == "Muted" and ctx.message.author not in discord.utils.get(ctx.guild.roles, name="Minions").members:
+        if f"{role_to_check}" == "Muted" and \
+                ctx.message.author not in discord.utils.get(ctx.guild.roles, name="Minions").members:
             await ctx.send("no peaking at the muted folks!\n\nPSST: try out the new `/whois` command")
             return
         if ctx.channel.id != self.bot_channel.id:
