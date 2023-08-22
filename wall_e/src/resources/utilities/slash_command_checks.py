@@ -20,7 +20,7 @@ async def command_in_correct_test_guild_channel(config: WallEConfig, interaction
          interaction.channel.name == config.get_config_value('basic_config', 'BRANCH_NAME').lower())
     )
     if not test_guild:
-        return
+        return True
     if interaction.guild is None:
         return True
     if not correct_test_guild_text_channel:
