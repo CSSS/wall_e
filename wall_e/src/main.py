@@ -147,9 +147,12 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if message.guild is None and message.author != bot.user:
-        await message.author.send("DM has been detected \nUnfortunately none of my developers are smart enough to "
-                                  "make me an AI capable of holding a conversation and no one else has volunteered"
-                                  " :( \nAll I can say is Harry Potter for life and Long Live Windows Vista!")
+        em = await imported_embed(
+            ctx=message.author,
+            description="[welcome to the machine](https://platform.openai.com/login?launch)"
+        )
+        if em is not None:
+            await message.author.send(embed=em)
     else:
         await bot.process_commands(message)
 
