@@ -56,7 +56,7 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
         f'No assignable roles could be found that contain "{current}"',
         "No assignable roles could be found",
         f'You are in all the assignable roles that contain "{current}"',
-        f'You are in all the assignable roles',
+        'You are in all the assignable roles',
         "Start typing to get better results"
     ]
     return await get_assigned_or_unassigned_roles(interaction, current, error_message, assigned_roles=False)
@@ -67,13 +67,14 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
         f'No assigned roles could be found that contain "{current}"',
         "No assigned roles could be found",
         f'You are not in any assignable roles that contain "{current}"',
-        f'You are not in any assignable roles',
+        'You are not in any assignable roles',
         "Start typing to get better results"
     ]
     return await get_assigned_or_unassigned_roles(interaction, current, error_message)
 
 
-async def get_roles_that_can_be_deleted(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
+                                        current: str) -> List[app_commands.Choice[str]]:
     current = current.strip()
     roles = get_lowercase_roles(interaction, current)
     roles = [
@@ -83,7 +84,11 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction, curren
     ]
     if len(roles) == 0:
         if len(current) > 0:
-            roles.append(app_commands.Choice(name=f'No empty assignable roles could be found that contain "{current}"', value="-1"))
+            roles.append(
+                app_commands.Choice(
+                    name=f'No empty assignable roles could be found that contain "{current}"', value="-1"
+                )
+            )
         else:
             roles.append(app_commands.Choice(name="No empty assignable roles could be found", value="-1"))
     if len(roles) > 25:
@@ -101,7 +106,11 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
     ]
     if len(roles) == 0:
         if len(current) > 0:
-            roles.append(app_commands.Choice(name=f'No roles could be found with a member that contain "{current}"', value="-1"))
+            roles.append(
+                app_commands.Choice(
+                    name=f'No roles could be found with a member that contain "{current}"', value="-1"
+                )
+            )
         else:
             roles.append(app_commands.Choice(name="No roles could be found with a member", value="-1"))
     if len(roles) > 25:
@@ -519,7 +528,7 @@ class RoleCommands(commands.Cog):
         author_roles = [
             role.name for role in interaction.user.roles
         ]
-        if role.name == "Muted" and "Minions" in author_roles:
+        if role.name == "Muted" and "Minions" not in author_roles:
             await interaction.response.send_message("no peaking at the muted folks!")
             return
         if interaction.channel.id != self.bot_channel.id:
@@ -558,8 +567,7 @@ class RoleCommands(commands.Cog):
 
     @commands.command()
     async def whois(self, ctx, role_to_check):
-        if f"{role_to_check}" == "Muted" and ctx.message.author not in \
-            discord.utils.get(ctx.guild.roles, name="Minions").members:
+        if f"{role_to_check}" == "Muted" and ctx.message.author not in discord.utils.get(ctx.guild.roles, name="Minions").members:
             await ctx.send("no peaking at the muted folks!\n\nPSST: try out the new `/whois` command")
             return
         if ctx.channel.id != self.bot_channel.id:
