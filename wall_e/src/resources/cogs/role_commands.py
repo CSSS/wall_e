@@ -23,7 +23,7 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
         roles.append(app_commands.Choice(name="You are in all the assignable roles", value="-1"))
     if len(roles) > 25:
         roles = roles[:24]
-        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
+        roles.append(app_commands.Choice(name="more roles are hidden due to discord limitations...", value="-1"))
     return roles
 
 
@@ -38,7 +38,7 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
         roles.append(app_commands.Choice(name="You are not in any assignable roles", value="-1"))
     if len(roles) > 25:
         roles = roles[:24]
-        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
+        roles.append(app_commands.Choice(name="more roles are hidden due to discord limitations...", value="-1"))
     return roles
 
 
@@ -52,7 +52,7 @@ async def get_role_members(interaction: discord.Interaction, current: str) -> Li
         roles.append(app_commands.Choice(name="No roles exists with a member", value="-1"))
     if len(roles) > 25:
         roles = roles[:24]
-        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
+        roles.append(app_commands.Choice(name="more roles are hidden due to discord limitations...", value="-1"))
     return roles
 
 
@@ -67,7 +67,7 @@ async def get_empty_roles(interaction: discord.Interaction, current: str) -> Lis
         roles.append(app_commands.Choice(name="No empty assignable roles exist", value="-1"))
     if len(roles) > 25:
         roles = roles[:24]
-        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
+        roles.append(app_commands.Choice(name="more roles are hidden due to discord limitations...", value="-1"))
     return roles
 
 
