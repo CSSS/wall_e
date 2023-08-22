@@ -7,6 +7,7 @@ import pytz
 from typing import Union
 import logging
 import asyncio
+BanAction = discord.AuditLogAction.ban
 logger = logging.getLogger('wall_e')
 
 
@@ -18,10 +19,12 @@ class Ban(commands.Cog):
         self.ban_list = []
         self.error_colour = 0xA6192E
         self.mod_channel = None
+        self.guild: discord.Guild = None
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
-        """Grabs channel to send mod reports to and reads in the ban_list from db"""
+        """Sets local ban list, mod channel, and guild object"""
+        self.guild = self.bot.guilds[0]
 
         mod_channel_name = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
         if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'PRODUCTION':
@@ -29,7 +32,7 @@ class Ban(commands.Cog):
         else:
             logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel_name}')
 
-            self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=mod_channel_name)
+            self.mod_channel = discord.utils.get(self.guild.channels, name=mod_channel_name)
             if self.mod_channel:
                 logger.info(f"[Ban load()] #{mod_channel_name} channel successfully found: {self.mod_channel}")
             else:
@@ -57,10 +60,10 @@ class Ban(commands.Cog):
             channel_name = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
 
         logger.info(f"[Ban make_mod_channel()] mod channel is =[{channel_name}]")
-        self.mod_channel = discord.utils.get(self.bot.guilds[0].channels, name=channel_name.lower())
+        self.mod_channel = discord.utils.get(self.guild.channels, name=channel_name.lower())
 
         if self.mod_channel is None:
-            self.mod_channel = await self.bot.guilds[0].create_text_channel(channel_name)
+            self.mod_channel = await self.guild.create_text_channel(channel_name)
 
             mod_channel_id = self.mod_channel.id
             if mod_channel_id is None:
@@ -85,9 +88,9 @@ class Ban(commands.Cog):
                                   color=discord.Color.red(),
                                   timestamp=datetime.datetime.now(pytz.utc)
                                   )
-            e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.bot.guilds[0]}\n\n"
+            e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.guild}\n\n"
                             "You may NOT rejoin the guild!**")
-            e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
+            e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
 
             try:
                 await member.send(embed=e_obj)
@@ -106,14 +109,15 @@ class Ban(commands.Cog):
         await asyncio.sleep(1)
 
         try:
-            audit_ban = await guild.audit_logs(action=discord.AuditLogAction.ban, oldest_first=False).flatten()
+            def pred(ban: discord.AuditLogEntry):
+                return member.id == ban.target.id
+            audit_ban = await discord.utils.find(pred, self.guild.audit_logs(action=BanAction, oldest_first=False))
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
 
-        audit_ban = next((audit_ban for audit_ban in audit_ban if audit_ban.target.id == member.id), None)
         if audit_ban is None:
             logger.info("[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel")
             await self.mod_channel.send(f"Ban for {member.name} has not been added to walle due to error"
@@ -164,9 +168,9 @@ class Ban(commands.Cog):
             # however audit logs only go back 3 months, so have to read older bans from the bans list
             ban_logs = {
                 ban_log.target.id: ban_log
-                for ban_log in await self.bot.guilds[0].audit_logs(action=discord.AuditLogAction.ban).flatten()
+                for ban_log in [ban async for ban in self.guild.audit_logs(action=BanAction)]
             }
-            guild_ban_list = await self.bot.guilds[0].bans()
+            guild_ban_list = [ban async for ban in self.guild.bans()]
         except Exception as e:
             logger.info(f'[Ban convertbans()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
@@ -174,8 +178,7 @@ class Ban(commands.Cog):
 
         if not guild_ban_list:
             logger.info("[Ban convertbans()] No bans to migrate into the ban system from guild. "
-                        "Sening message and ending command."
-                        )
+                        "Sening message and ending command.")
             await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
             return
 
@@ -279,7 +282,7 @@ class Ban(commands.Cog):
         # dm banned user
         e_obj = discord.Embed(title="Ban Notification",
                               description="You have been **PERMANENTLY BANNED** from " +
-                              f"**{self.bot.guilds[0].name.upper()}**",
+                              f"**{self.guild.name.upper()}**",
                               color=discord.Color.red(),
                               timestamp=datetime.datetime.now(pytz.utc)
                               )
@@ -288,7 +291,7 @@ class Ban(commands.Cog):
                         "**Please refrain from this kind of behaviour in the future. Thank you.**"
                         )
 
-        e_obj.set_footer(icon_url=self.bot.guilds[0].icon_url, text=self.bot.guilds[0])
+        e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
         try:
             await user.send(embed=e_obj)
             logger.info("[Ban ban()] User notified via dm of their ban")
@@ -333,12 +336,12 @@ class Ban(commands.Cog):
 
         # begin purging messages
         # get list of all channels
-        channels = self.bot.guilds[0].text_channels
+        channels = self.guild.text_channels
 
         def is_banned_user(msg):
             return msg.author == user
 
-        date = datetime.datetime.now() - datetime.timedelta(timeframe)
+        date = discord.utils.utcnow() - datetime.timedelta(timeframe)
         logger.info(f"[Ban purge_message()] message from {user} will be purge starting from date {date}")
 
         for channel in channels:
@@ -438,7 +441,7 @@ class Ban(commands.Cog):
 
         logger.info(f"[Ban purgebans()] purgebans command detected from {ctx.author}")
 
-        bans = await self.bot.guilds[0].bans()
+        bans = [ban async for ban in self.guild.bans()]
         logger.info(f"[Ban purgebans()] Retrieved list of banned users from guild: {bans}")
 
         if not bans:
@@ -448,7 +451,7 @@ class Ban(commands.Cog):
 
         for ban in bans:
             logger.info(f"[Ban purgebans()] Unbanning user: {ban}")
-            await self.bot.guilds[0].unban(ban.user)
+            await self.guild.unban(ban.user)
 
         await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
 
