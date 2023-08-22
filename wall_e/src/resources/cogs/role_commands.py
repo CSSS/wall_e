@@ -129,28 +129,28 @@ class RoleCommands(commands.Cog):
         self.bot.loop.create_task(self.get_bot_general_channel())
 
     @app_commands.command(name="newrole", description="create a new role")
-    @app_commands.describe(role_to_add="name for new role")
-    async def slash_newrole(self, interaction: discord.Interaction, role_to_add: str):
+    @app_commands.describe(new_role_name="name for new role")
+    async def slash_newrole(self, interaction: discord.Interaction, new_role_name: str):
         logger.info(f"[RoleCommands newrole()] {interaction.user} "
-                    f"called newrole with following argument: role_to_add={role_to_add}")
-        role_to_add = role_to_add.lower()
+                    f"called newrole with following argument: new_role_name={new_role_name}")
+        new_role_name = new_role_name.lower()
         guild = interaction.guild
-        role_already_exists = len([role for role in guild.roles if role.name == role_to_add]) > 0
+        role_already_exists = len([role for role in guild.roles if role.name == new_role_name]) > 0
         if role_already_exists:
             e_obj = await embed(
                 interaction=interaction,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"Role '{role_to_add}' exists. Calling "
-                            f".iam {role_to_add} will add you to it."
+                description=f"Role '{new_role_name}' exists. Calling "
+                            f".iam {new_role_name} will add you to it."
             )
             if e_obj is not False:
                 await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
-                logger.info(f"[RoleCommands newrole()] {role_to_add} already exists")
+                logger.info(f"[RoleCommands newrole()] {new_role_name} already exists")
             return
-        role = await guild.create_role(name=role_to_add)
+        role = await guild.create_role(name=new_role_name)
         await role.edit(mentionable=True)
-        logger.info(f"[RoleCommands newrole()] {role_to_add} created and is set to mentionable")
+        logger.info(f"[RoleCommands newrole()] {new_role_name} created and is set to mentionable")
 
         e_obj = await embed(
             interaction=interaction,
@@ -158,7 +158,7 @@ class RoleCommands(commands.Cog):
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=(
                 "You have successfully created role "
-                f"**`{role_to_add}`**.\nCalling `.iam {role_to_add}` will add it to you."
+                f"**`{new_role_name}`**.\nCalling `.iam {new_role_name}` will add it to you."
             )
         )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -271,22 +271,22 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
 
     @app_commands.command(name="iam", description="add yourself to an assignable role")
-    @app_commands.autocomplete(assignable_role=get_assignable_roles)
-    async def slash_iam(self, interaction: discord.Interaction, assignable_role: str):
-        logger.info(f"[RoleCommands iam()] {interaction.user} called iam with role {assignable_role}")
-        if assignable_role == "-1":
+    @app_commands.autocomplete(role_to_assign_to_me=get_assignable_roles)
+    async def slash_iam(self, interaction: discord.Interaction, role_to_assign_to_me: str):
+        logger.info(f"[RoleCommands iam()] {interaction.user} called iam with role {role_to_assign_to_me}")
+        if role_to_assign_to_me == "-1":
             return
-        if not assignable_role.isdigit():
-            logger.info(f"[RoleCommands deleterole()] invalid role id of {assignable_role} detected")
+        if not role_to_assign_to_me.isdigit():
+            logger.info(f"[RoleCommands deleterole()] invalid role id of {role_to_assign_to_me} detected")
             e_obj = await embed(
                 interaction=interaction,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"Invalid role **`{assignable_role}`** specified. Please select from the list."
+                description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
-        role = discord.utils.get(interaction.guild.roles, id=int(assignable_role))
+        role = discord.utils.get(interaction.guild.roles, id=int(role_to_assign_to_me))
         user = interaction.user
         await user.add_roles(role)
         logger.info(f"[RoleCommands iam()] user {user} added to role {role}.")
@@ -368,22 +368,22 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
 
     @app_commands.command(name="iamn", description="remove yourself from an assignable role")
-    @app_commands.autocomplete(assigned_role=get_assigned_roles)
-    async def slash_iamn(self, interaction: discord.Interaction, assigned_role: str):
-        logger.info(f"[RoleCommands iamn()] {interaction.user} called iamn with role {assigned_role}")
-        if assigned_role == "-1":
+    @app_commands.autocomplete(role_to_remove_from_me=get_assigned_roles)
+    async def slash_iamn(self, interaction: discord.Interaction, role_to_remove_from_me: str):
+        logger.info(f"[RoleCommands iamn()] {interaction.user} called iamn with role {role_to_remove_from_me}")
+        if role_to_remove_from_me == "-1":
             return
-        if not assigned_role.isdigit():
-            logger.info(f"[RoleCommands deleterole()] invalid role id of {assigned_role} detected")
+        if not role_to_remove_from_me.isdigit():
+            logger.info(f"[RoleCommands deleterole()] invalid role id of {role_to_remove_from_me} detected")
             e_obj = await embed(
                 interaction=interaction,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"Invalid role **`{assigned_role}`** specified. Please select from the list."
+                description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
-        role = discord.utils.get(interaction.guild.roles, id=int(assigned_role))
+        role = discord.utils.get(interaction.guild.roles, id=int(role_to_remove_from_me))
         user = interaction.user
         await user.remove_roles(role)
         e_obj = await embed(
