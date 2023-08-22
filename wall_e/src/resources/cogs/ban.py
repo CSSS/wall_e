@@ -7,7 +7,7 @@ import pytz
 from typing import Union
 import logging
 import asyncio
-from discord import AuditLogAction
+BanAction = discord.AuditLogAction.ban
 logger = logging.getLogger('wall_e')
 
 
@@ -109,7 +109,7 @@ class Ban(commands.Cog):
         await asyncio.sleep(1)
 
         try:
-            audit_ban = [ban async for ban in guild.audit_logs(action=AuditLogAction.ban, oldest_first=False)]
+            audit_ban = [ban async for ban in guild.audit_logs(action=BanAction, oldest_first=False)]
         except Exception as e:
             logger.info(f'error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
@@ -169,7 +169,7 @@ class Ban(commands.Cog):
             # however audit logs only go back 3 months, so have to read older bans from the bans list
             ban_logs = {
                 ban_log.target.id: ban_log
-                for ban_log in [ban async for ban in self.guild.guild.audit_logs(action=AuditLogAction.ban)]
+                for ban_log in [ban async for ban in self.guild.guild.audit_logs(action=BanAction)]
             }
             guild_ban_list = [ban async for ban in self.guild.bans()]
         except Exception as e:
