@@ -498,7 +498,7 @@ class RoleCommands(commands.Cog):
             for members in members_of_role:
                 name = members.display_name
                 member_string[current_index] += f"{name}"
-                exec_role = [role for role in members.roles if role.colour.value == 3447003]
+                exec_role = [role for role in members.roles if role.colour.value == 3447003 and role.name != "Execs"]
                 if len(exec_role) > 0:
                     member_string[current_index] += f"- {exec_role[0]}"
                 member_string[current_index] += f"\n"
@@ -555,7 +555,7 @@ class RoleCommands(commands.Cog):
             for members in members_of_role:
                 name = members.display_name
                 member_string[current_index] += f"{name}"
-                exec_role = [role for role in members.roles if role.colour.value == 3447003]
+                exec_role = [role for role in members.roles if role.colour.value == 3447003 and role.name != "Execs"]
                 if len(exec_role) > 0:
                     member_string[current_index] += f"- {exec_role[0]}"
                 member_string[current_index] += f"\n"
