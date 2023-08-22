@@ -497,7 +497,11 @@ class RoleCommands(commands.Cog):
             x, current_index = 0, 0
             for members in members_of_role:
                 name = members.display_name
-                member_string[current_index] += f"{name}\n"
+                member_string[current_index] += f"{name}"
+                exec_role = [role for role in members.roles if role.colour.value == 3447003]
+                if len(exec_role) > 0:
+                    member_string[current_index] += f"- {exec_role[0]}"
+                member_string[current_index] += f"\n"
                 x += 1
                 if x == number_of_users_per_page:
                     member_string.append("")
@@ -550,7 +554,11 @@ class RoleCommands(commands.Cog):
             x, current_index = 0, 0
             for members in members_of_role:
                 name = members.display_name
-                member_string[current_index] += f"{name}\n"
+                member_string[current_index] += f"{name}"
+                exec_role = [role for role in members.roles if role.colour.value == 3447003]
+                if len(exec_role) > 0:
+                    member_string[current_index] += f"- {exec_role[0]}"
+                member_string[current_index] += f"\n"
                 x += 1
                 if x == number_of_users_per_page:
                     member_string[current_index] += "\n\nPSST: try out the new `/whois` command"
