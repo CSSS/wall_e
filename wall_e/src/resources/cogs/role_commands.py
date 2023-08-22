@@ -11,55 +11,63 @@ from operator import itemgetter
 
 logger = logging.getLogger('wall_e')
 
-ASSIGNABLE_ROLES = {}
-ALL_ROLES = {}
-EMPTY_ROLES = {}
-
 
 async def get_assignable_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
-    global ASSIGNABLE_ROLES
     roles = [
-        app_commands.Choice(name=role.name, value=f"{role_id}")
-        for role_id, role in ASSIGNABLE_ROLES.items()
-        if current.lower() in role.name.lower() and role not in interaction.user.roles
+            app_commands.Choice(name=role.name, value=f"{role.id}")
+            for role in list(interaction.guild.roles)
+            if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
+            role not in interaction.user.roles and role.name != "@everyone"
     ]
     if len(roles) == 0:
         roles.append(app_commands.Choice(name="You are in all the assignable roles", value="-1"))
+    if len(roles) > 25:
+        roles = roles[:24]
+        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
     return roles
 
 
 async def get_assigned_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
-    global ASSIGNABLE_ROLES
     roles = [
-        app_commands.Choice(name=role.name, value=f"{role_id}")
-        for role_id, role in ASSIGNABLE_ROLES.items()
-        if current.lower() in role.name.lower() and role in interaction.user.roles
+            app_commands.Choice(name=role.name, value=f"{role.id}")
+            for role in list(interaction.guild.roles)
+            if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
+            role in interaction.user.roles and role.name != "@everyone"
     ]
     if len(roles) == 0:
         roles.append(app_commands.Choice(name="You are not in any assignable roles", value="-1"))
+    if len(roles) > 25:
+        roles = roles[:24]
+        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
     return roles
 
 
 async def get_role_members(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
     roles = [
-        app_commands.Choice(name=role.name, value=f"{role_id}")
-        for role_id, role in ALL_ROLES.items()
-        if len(role.members) > 0 and current.lower() in role.name.lower()
+            app_commands.Choice(name=role.name, value=f"{role.id}")
+            for role in list(interaction.guild.roles)
+            if len(role.members) > 0 and role.name != "@everyone" and current.lower() in role.name.lower()
     ]
     if len(roles) == 0:
         roles.append(app_commands.Choice(name="No roles exists with a member", value="-1"))
+    if len(roles) > 25:
+        roles = roles[:24]
+        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
     return roles
 
 
 async def get_empty_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
     roles = [
-        app_commands.Choice(name=role.name, value=f"{role_id}")
-        for role_id, role in EMPTY_ROLES.items()
-        if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
-        len(role.members) == 0
+            app_commands.Choice(name=role.name, value=f"{role.id}")
+            for role in list(interaction.guild.roles)
+            if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
+            len(role.members) == 0 and role.name != "@everyone"
     ]
     if len(roles) == 0:
         roles.append(app_commands.Choice(name="No empty assignable roles exist", value="-1"))
+    if len(roles) > 25:
+        roles = roles[:24]
+        roles.append(app_commands.Choice(name=f"more roles are hidden due to discord limitations ", value="-1"))
     return roles
 
 
@@ -70,25 +78,6 @@ class RoleCommands(commands.Cog):
         self.config = config
         self.bot_channel = None
         self.bot.loop.create_task(self.get_bot_general_channel())
-
-    @commands.Cog.listener("on_ready")
-    async def load_role(self):
-        global ASSIGNABLE_ROLES
-        ASSIGNABLE_ROLES = {
-            role.id: role
-            for role in list(self.bot.guilds[0].roles)
-            if role.name[0] == role.name[0].lower() and role.name != "@everyone"
-        }
-        global ALL_ROLES
-        ALL_ROLES = {
-            role.id: role
-            for role in list(self.bot.guilds[0].roles) if role.name != "@everyone"
-        }
-        global EMPTY_ROLES
-        EMPTY_ROLES = {
-            role.id: role
-            for role in list(self.bot.guilds[0].roles) if role.name != "@everyone"
-        }
 
     @app_commands.command(name="newrole", description="create a new role")
     @app_commands.describe(role_to_add="name for new role")
@@ -111,9 +100,6 @@ class RoleCommands(commands.Cog):
                 logger.info(f"[RoleCommands newrole()] {role_to_add} already exists")
             return
         role = await guild.create_role(name=role_to_add)
-        EMPTY_ROLES[role.id] = role
-        ASSIGNABLE_ROLES[role.id] = role
-        ALL_ROLES[role.id] = role
         await role.edit(mentionable=True)
         logger.info(f"[RoleCommands newrole()] {role_to_add} created and is set to mentionable")
 
@@ -148,9 +134,6 @@ class RoleCommands(commands.Cog):
                     logger.info(f"[RoleCommands newrole()] {role_to_add} already exists")
                 return
         role = await guild.create_role(name=role_to_add)
-        EMPTY_ROLES[role.id] = role
-        ASSIGNABLE_ROLES[role.id] = role
-        ALL_ROLES[role.id] = role
         await role.edit(mentionable=True)
         logger.info(f"[RoleCommands newrole()] {role_to_add} created and is set to mentionable")
 
@@ -184,12 +167,6 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
             return
         role = discord.utils.get(interaction.guild.roles, id=int(empty_role))
-        if role.id in EMPTY_ROLES:
-            del EMPTY_ROLES[role.id]
-        if role.id in ASSIGNABLE_ROLES:
-            del ASSIGNABLE_ROLES[role.id]
-        if role.id in ALL_ROLES:
-            del ALL_ROLES[role.id]
         await role.delete()
         logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
         e_obj = await embed(
@@ -222,12 +199,6 @@ class RoleCommands(commands.Cog):
         members_of_role = role.members
         if not members_of_role:
             # deleteRole = await role.delete()
-            if role.id in EMPTY_ROLES:
-                del EMPTY_ROLES[role.id]
-            if role.id in ASSIGNABLE_ROLES:
-                del ASSIGNABLE_ROLES[role.id]
-            if role.id in ALL_ROLES:
-                del ALL_ROLES[role.id]
             await role.delete()
             logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
             e_obj = await embed(
@@ -269,8 +240,6 @@ class RoleCommands(commands.Cog):
         role = discord.utils.get(interaction.guild.roles, id=int(assignable_role))
         user = interaction.user
         await user.add_roles(role)
-        if role.id in EMPTY_ROLES:
-            del EMPTY_ROLES[role.id]
         logger.info(f"[RoleCommands iam()] user {user} added to role {role}.")
         if (role == 'froshee'):
             e_obj = await embed(
@@ -311,8 +280,6 @@ class RoleCommands(commands.Cog):
             return
         user = ctx.message.author
         members_of_role = role.members
-        if role.id in EMPTY_ROLES:
-            del EMPTY_ROLES[role.id]
         if user in members_of_role:
             logger.info(f"[RoleCommands iam()] {user} was already in the role {role_to_add}.")
             e_obj = await embed(
@@ -382,12 +349,6 @@ class RoleCommands(commands.Cog):
         # delete role if last person
         members_of_role = role.members
         if not members_of_role:
-            if role.id in EMPTY_ROLES:
-                del EMPTY_ROLES[role.id]
-            if role.id in ASSIGNABLE_ROLES:
-                del ASSIGNABLE_ROLES[role.id]
-            if role.id in ALL_ROLES:
-                del ALL_ROLES[role.id]
             await role.delete()
             logger.info("[RoleCommands iamn()] no members were detected, role has been deleted.")
             e_obj = await embed(
@@ -434,12 +395,6 @@ class RoleCommands(commands.Cog):
             # delete role if last person
             members_of_role = role.members
             if not members_of_role:
-                if role.id in EMPTY_ROLES:
-                    del EMPTY_ROLES[role.id]
-                if role.id in ASSIGNABLE_ROLES:
-                    del ASSIGNABLE_ROLES[role.id]
-                if role.id in ALL_ROLES:
-                    del ALL_ROLES[role.id]
                 # deleteRole = await role.delete()
                 await role.delete()
                 logger.info("[RoleCommands iamn()] no members were detected, role has been deleted.")
