@@ -341,9 +341,7 @@ class Ban(commands.Cog):
         def is_banned_user(msg):
             return msg.author == user
 
-        # TODO: fix naive datetime
-        # https://discordpy.readthedocs.io/en/v2.3.2/migrating.html#datetime-objects-are-now-utc-aware
-        date = datetime.datetime.now() - datetime.timedelta(timeframe)
+        date = discord.utils.utcnow() - datetime.timedelta(timeframe)
         logger.info(f"[Ban purge_message()] message from {user} will be purge starting from date {date}")
 
         for channel in channels:
