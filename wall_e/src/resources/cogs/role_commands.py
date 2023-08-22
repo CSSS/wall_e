@@ -12,59 +12,98 @@ from operator import itemgetter
 logger = logging.getLogger('wall_e')
 
 
-async def get_assignable_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
-    roles = [
-            app_commands.Choice(name=role.name, value=f"{role.id}")
-            for role in list(interaction.guild.roles)
-            if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
-            role not in interaction.user.roles and role.name != "@everyone"
+def get_lowercase_roles(interaction: discord.Interaction, current: str):
+    return [
+        role
+        for role in list(interaction.guild.roles)
+        if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
+        role.name != "@everyone"
     ]
+
+
+async def get_assigned_or_unassigned_roles(
+    interaction: discord.Interaction, current: str, error_message: List[str],
+        assigned_roles=True) -> List[app_commands.Choice[str]]:
+    current = current.strip()
+    roles = get_lowercase_roles(interaction, current)
     if len(roles) == 0:
-        roles.append(app_commands.Choice(name="You are in all the assignable roles", value="-1"))
-    if len(roles) > 25:
-        roles = roles[:24]
-        roles.append(app_commands.Choice(name="Start typing to get better results", value="-1"))
+        if len(current) > 0:
+            roles = [app_commands.Choice(name=error_message[0], value="-1")]
+        else:
+            roles = [app_commands.Choice(name=error_message[1], value="-1")]
+    else:
+        roles = [
+            app_commands.Choice(name=role.name, value=f"{role.id}")
+            for role in roles if (
+                role in interaction.user.roles if assigned_roles
+                else role not in interaction.user.roles
+            )
+        ]
+        if len(roles) == 0:
+            if len(current) > 0:
+                roles.append(
+                    app_commands.Choice(name=error_message[2], value="-1"))
+            else:
+                roles.append(app_commands.Choice(name=error_message[3], value="-1"))
+        if len(roles) > 25:
+            roles = roles[:24]
+            roles.append(app_commands.Choice(name=error_message[4], value="-1"))
     return roles
+
+
+async def get_assignable_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    error_message = [
+        f'No assignable roles could be found that contain "{current}"',
+        "No assignable roles could be found",
+        f'You are in all the assignable roles that contain "{current}"',
+        f'You are in all the assignable roles',
+        "Start typing to get better results"
+    ]
+    return await get_assigned_or_unassigned_roles(interaction, current, error_message, assigned_roles=False)
 
 
 async def get_assigned_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    error_message = [
+        f'No assigned roles could be found that contain "{current}"',
+        "No assigned roles could be found",
+        f'You are not in any assignable roles that contain "{current}"',
+        f'You are not in any assignable roles',
+        "Start typing to get better results"
+    ]
+    return await get_assigned_or_unassigned_roles(interaction, current, error_message)
+
+
+async def get_roles_that_can_be_deleted(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    current = current.strip()
+    roles = get_lowercase_roles(interaction, current)
     roles = [
-            app_commands.Choice(name=role.name, value=f"{role.id}")
-            for role in list(interaction.guild.roles)
-            if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
-            role in interaction.user.roles and role.name != "@everyone"
+        app_commands.Choice(name=role.name, value=f"{role.id}")
+        for role in roles
+        if len(role.members) == 0
     ]
     if len(roles) == 0:
-        roles.append(app_commands.Choice(name="You are not in any assignable roles", value="-1"))
+        if len(current) > 0:
+            roles.append(app_commands.Choice(name=f'No empty assignable roles could be found that contain "{current}"', value="-1"))
+        else:
+            roles.append(app_commands.Choice(name="No empty assignable roles could be found", value="-1"))
     if len(roles) > 25:
         roles = roles[:24]
         roles.append(app_commands.Choice(name="Start typing to get better results", value="-1"))
     return roles
 
 
-async def get_role_members(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+async def get_roles_with_members(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    current = current.strip()
     roles = [
-            app_commands.Choice(name=role.name, value=f"{role.id}")
-            for role in list(interaction.guild.roles)
-            if len(role.members) > 0 and role.name != "@everyone" and current.lower() in role.name.lower()
+        app_commands.Choice(name=role.name, value=f"{role.id}")
+        for role in list(interaction.guild.roles)
+        if len(role.members) > 0 and role.name != "@everyone" and current.lower() in role.name.lower()
     ]
     if len(roles) == 0:
-        roles.append(app_commands.Choice(name="No roles exists with a member", value="-1"))
-    if len(roles) > 25:
-        roles = roles[:24]
-        roles.append(app_commands.Choice(name="Start typing to get better results", value="-1"))
-    return roles
-
-
-async def get_empty_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
-    roles = [
-            app_commands.Choice(name=role.name, value=f"{role.id}")
-            for role in list(interaction.guild.roles)
-            if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
-            len(role.members) == 0 and role.name != "@everyone"
-    ]
-    if len(roles) == 0:
-        roles.append(app_commands.Choice(name="No empty assignable roles exist", value="-1"))
+        if len(current) > 0:
+            roles.append(app_commands.Choice(name=f'No roles could be found with a member that contain "{current}"', value="-1"))
+        else:
+            roles.append(app_commands.Choice(name="No roles could be found with a member", value="-1"))
     if len(roles) > 25:
         roles = roles[:24]
         roles.append(app_commands.Choice(name="Start typing to get better results", value="-1"))
@@ -151,7 +190,7 @@ class RoleCommands(commands.Cog):
         await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
 
     @app_commands.command(name="deleterole", description="delete a role")
-    @app_commands.autocomplete(empty_role=get_empty_roles)
+    @app_commands.autocomplete(empty_role=get_roles_that_can_be_deleted)
     async def slash_deleterole(self, interaction: discord.Interaction, empty_role: str):
         logger.info(f"[RoleCommands deleterole()] {interaction.user} "
                     f"called deleterole with role {empty_role}.")
@@ -462,7 +501,7 @@ class RoleCommands(commands.Cog):
                     await author.send(embed=e_obj)
 
     @app_commands.command(name="whois", description="list folks in a role")
-    @app_commands.autocomplete(role=get_role_members)
+    @app_commands.autocomplete(role=get_roles_with_members)
     async def slash_whois(self, interaction: discord.Interaction, role: str):
         if role == "-1":
             return
@@ -520,7 +559,7 @@ class RoleCommands(commands.Cog):
     @commands.command()
     async def whois(self, ctx, role_to_check):
         if f"{role_to_check}" == "Muted" and ctx.message.author not in \
-                discord.utils.get(ctx.guild.roles, name="Minions").members:
+            discord.utils.get(ctx.guild.roles, name="Minions").members:
             await ctx.send("no peaking at the muted folks!\n\nPSST: try out the new `/whois` command")
             return
         if ctx.channel.id != self.bot_channel.id:
