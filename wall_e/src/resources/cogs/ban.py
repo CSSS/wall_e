@@ -90,7 +90,7 @@ class Ban(commands.Cog):
                                   )
             e_obj.add_field(name="Notice", value=f"**You are PERMANENTLY BANNED from\n{self.guild}\n\n"
                             "You may NOT rejoin the guild!**")
-            e_obj.set_footer(icon_url=self.guild.icon_url, text=self.guild)
+            e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
 
             try:
                 await member.send(embed=e_obj)
@@ -291,7 +291,7 @@ class Ban(commands.Cog):
                         "**Please refrain from this kind of behaviour in the future. Thank you.**"
                         )
 
-        e_obj.set_footer(icon_url=self.guild.icon_url, text=self.guild)
+        e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
         try:
             await user.send(embed=e_obj)
             logger.info("[Ban ban()] User notified via dm of their ban")
