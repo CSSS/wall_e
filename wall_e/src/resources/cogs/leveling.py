@@ -14,7 +14,7 @@ logger = logging.getLogger('wall_e')
 
 class Leveling(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         """
 
         :param bot:
@@ -27,6 +27,7 @@ class Leveling(commands.Cog):
         self.levels = {}
         self.xp_system_ready = False
         self.council_channel = None
+        self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
     async def load_points_into_dict(self):
@@ -133,94 +134,13 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def create_council_channel(self):
-        council_channel_id = None
-        # determines the channel to send the XP messages on to the Moderators
-        try:
-            council_channel_name = 'council'
-            if self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'PRODUCTION':
-                logger.info(
-                    "[Leveling create_council_channel()] environment is "
-                    f"=[{self.config.get_config_value('basic_config', 'ENVIRONMENT')}]"
-                )
-                council_chan = discord.utils.get(self.bot.guilds[0].channels, name=council_channel_name)
-                if council_chan is None:
-                    logger.info("[Leveling create_council_channel()] council channel does not exist in PRODUCTION.")
-                    council_chan = await self.bot.guilds[0].create_text_channel(council_channel_name)
-                    council_channel_id = council_chan.id
-                    if council_channel_id is None:
-                        logger.info("[Leveling create_council_channel()] the channel designated for council messages "
-                                    f"[{council_channel_name}] in PRODUCTION does not exist and I was"
-                                    f" unable to create "
-                                    "it, exiting now....")
-                        exit(1)
-                    logger.info("[Leveling create_council_channel()] variable "
-                                f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
-                else:
-                    logger.info(
-                        "[Leveling create_council_channel()] council channel exists in PRODUCTION and was detected."
-                    )
-                    council_channel_id = council_chan.id
-            elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-                logger.info(
-                    "[Leveling create_council_channel()] branch is "
-                    f"=[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}]"
-                )
-                council_chan = discord.utils.get(
-                    self.bot.guilds[0].channels,
-                    name=f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_council"
-                )
-                if council_chan is None:
-                    council_chan = await self.bot.guilds[0].create_text_channel(
-                        f"{self.config.get_config_value('basic_config', 'BRANCH_NAME')}_council"
-                    )
-                    council_channel_id = council_chan.id
-                    if council_channel_id is None:
-                        logger.info(
-                            "[Leveling create_council_channel()] the channel designated for council messages "
-                            f"[{self.config.get_config_value('basic_config', 'BRANCH_NAME')}_council] "
-                            f"in {self.config.get_config_value('basic_config', 'BRANCH_NAME')} "
-                            "does not exist and I was unable to create it, exiting now...."
-                        )
-                        exit(1)
-                    logger.info("[Leveling create_council_channel()] variable "
-                                f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
-                else:
-                    logger.info(
-                        f"[Leveling create_council_channel()] council channel exists in "
-                        f"{self.config.get_config_value('basic_config', 'BRANCH_NAME')} and was "
-                        "detected."
-                    )
-                    council_channel_id = council_chan.id
-            elif self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'LOCALHOST':
-                council_channel_name = 'council'
-                logger.info(
-                    "[Leveling create_council_channel()] environment is "
-                    f"=[{self.config.get_config_value('basic_config', 'ENVIRONMENT')}]"
-                )
-                council_chan = discord.utils.get(self.bot.guilds[0].channels, name=council_channel_name)
-                if council_chan is None:
-                    logger.info("[Remindes create_council_channel()] council channel does not exist in local dev.")
-                    council_chan = await self.bot.guilds[0].create_text_channel(council_channel_name)
-                    council_channel_id = council_chan.id
-                    if council_channel_id is None:
-                        logger.info("[Leveling create_council_channel()] the channel designated for council messages "
-                                    f"[{council_channel_name}] in local dev does not exist and "
-                                    f"I was unable to create it "
-                                    "it, exiting now.....")
-                        exit(1)
-                    logger.info("[Leveling create_council_channel()] variables "
-                                f"\"reminder_channel_id\" is set to \"{council_channel_id}\"")
-                else:
-                    logger.info(
-                        "[Leveling create_council_channel()] council channel exists in local dev and was detected."
-                    )
-                    council_channel_id = council_chan.id
-        except Exception as e:
-            logger.error(
-                "[Leveling create_council_channel()] encountered following exception when connecting to council "
-                f"channel\n{e}"
-            )
-        self.council_channel = self.bot.get_channel(council_channel_id)  # channel ID goes here
+        council_channel_id = await self.bot_loop_manager.create_or_get_channel_id(
+            self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            "leveling"
+        )
+        self.council_channel = discord.utils.get(
+            self.bot.guilds[0].channels, id=council_channel_id
+        )
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):

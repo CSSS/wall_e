@@ -15,7 +15,7 @@ logger = logging.getLogger('wall_e')
 
 class Administration(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         self.config = config
         self.bot = bot
         if self.config.enabled("database_config", option="DB_ENABLED"):

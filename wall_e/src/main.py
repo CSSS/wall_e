@@ -14,6 +14,8 @@ import time
 from discord import Intents
 from discord.ext import commands
 from django.core.wsgi import get_wsgi_application
+
+from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.logger_setup import initialize_logger
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.log_channel import write_to_bot_log_channel
@@ -36,6 +38,7 @@ intents = Intents.all()
 class WalleBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix='.', intents=intents)
+        self.bot_loop_manager = BotChannelManager(wall_e_config, self)
 
     async def setup_hook(self) -> None:
         # tries to open log file in prep for write_to_bot_log_channel function
@@ -44,7 +47,7 @@ class WalleBot(commands.Bot):
                         "its output to #bot_log channel")
             f = open(f'{FILENAME}.log', 'r')
             f.seek(0)
-            self.loop.create_task(write_to_bot_log_channel(self, wall_e_config, f))
+            self.loop.create_task(write_to_bot_log_channel(self, wall_e_config, f, self.bot_loop_manager))
             logger.info(
                 "[main.py] log file successfully opened and connection to "
                 "bot_log channel has been made"
@@ -56,7 +59,7 @@ class WalleBot(commands.Bot):
 
         # load the code dealing with test server interaction
         try:
-            await self.add_cog(ManageCog(self, wall_e_config))
+            await self.add_cog(ManageCog(self, wall_e_config, self.bot_loop_manager))
         except Exception as err:
             exception = f'{type(err).__name_}: {err}'
             logger.error(f'[main.py] Failed to load test server code testenv\n{exception}')
@@ -99,7 +102,10 @@ class WalleBot(commands.Bot):
                         cog_class_to_load = getattr(cog_module, class_that_match[0])
                         if type(cog_class_to_load) is commands.cog.CogMeta:
                             logger.info(f"[main.py] attempting to load cog {cog['name']}")
-                            await self.add_cog(cog_class_to_load(self, wall_e_config), guild=guild)
+                            await self.add_cog(
+                                cog_class_to_load(self, wall_e_config, self.bot_loop_manager),
+                                guild=guild
+                            )
                             logger.info(f"[main.py] {cog['name']} successfully loaded")
                             if not adding_all_cogs:
                                 cog_unloaded = True

@@ -10,7 +10,7 @@ logger = logging.getLogger('wall_e')
 
 class Here(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         self.bot = bot
         self.config = config
 

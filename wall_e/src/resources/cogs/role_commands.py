@@ -1,4 +1,3 @@
-import asyncio
 from typing import List
 
 from discord import app_commands
@@ -121,12 +120,23 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
 
 class RoleCommands(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         self.bot = bot
         self.config = config
         self.bot_channel = None
         self.exec_role_colour = [3447003, 6533347]
-        self.bot.loop.create_task(self.get_bot_general_channel())
+        self.bot_loop_manager = bot_loop_manager
+
+    @commands.Cog.listener(name="on_ready")
+    async def get_bot_general_channel(self):
+        reminder_chan_id = await self.bot_loop_manager.create_or_get_channel_id(
+            self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            "role_commands"
+        )
+        self.bot_channel = discord.utils.get(
+            self.bot.guilds[0].channels, id=reminder_chan_id
+        )
+        logger.info("[RoleCommands get_bot_general_channel()] bot_channel acquired.")
 
     @app_commands.command(name="newrole", description="create a new role")
     @app_commands.describe(new_role_name="name for new role")
@@ -799,40 +809,3 @@ class RoleCommands(commands.Cog):
                 "[RoleCommands send_error_message_to_user_for_paginated_commands()] "
                 f"embed sent to member {ctx.author}"
             )
-
-    async def get_bot_general_channel(self):
-        """
-        gets the bot channel that the commands in the RoleCommands class are limited to operating in. Due to the fact
-        that the reminder class was the first class to utilize that bot channel in a specific way and is already
-        handling its detection and possible creation, the RoleCommands class will just wait approximately 100 seconds
-        to give the reminder class a chance to create the bot channel before exiting if the RoleCommands class cannot
-        find the bot channel.
-        """
-        await self.bot.wait_until_ready()
-        bot_channel_name = self.config.get_config_value('basic_config', 'BOT_GENERAL_CHANNEL')
-        environment = self.config.get_config_value('basic_config', 'ENVIRONMENT')
-        self.bot_channel = None
-        if environment == 'PRODUCTION' or environment == 'LOCALHOST':
-            logger.info(f"[RoleCommands get_bot_general_channel()] bot_channel_name set to {bot_channel_name} for "
-                        f"environment {environment}")
-            self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
-        elif environment == 'TEST':
-            bot_channel_name = f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
-            logger.info(f"[RoleCommands get_bot_general_channel()] bot_channel_name set to {bot_channel_name} for "
-                        f"environment {environment}")
-            self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
-        number_of_retries_to_attempt = 10
-        number_of_retries = 0
-        while self.bot_channel is None and number_of_retries < number_of_retries_to_attempt:
-            logger.info("[RoleCommands get_bot_general_channel()] attempt "
-                        f"({number_of_retries}/{number_of_retries_to_attempt}) for getting bot_channel ")
-            await asyncio.sleep(10)
-            number_of_retries += 1
-            self.bot_channel = discord.utils.get(self.bot.guilds[0].channels, name=bot_channel_name)
-        if self.bot_channel is None:
-            logger.info("[RoleCommands get_bot_general_channel()] ultimately unable to get the bot_channel. exiting "
-                        "now.")
-            await asyncio.sleep(20)  # this is just here so that the above log line gets a chance to get printed to
-            # discord
-            exit(1)
-        logger.info("[RoleCommands get_bot_general_channel()] bot_channel acquired.")

@@ -16,13 +16,26 @@ logger = logging.getLogger('wall_e')
 
 class ManageCog(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         logger.info("[ManageCog __init__()] initializing the TestCog")
         bot.add_check(self.check_test_environment)
         bot.add_check(self.check_privilege)
         self.bot = bot
         self.config = config
         self.help_dict = self.config.get_help_json()
+        self.bot_loop_manager = bot_loop_manager
+
+    # this command is used by the TEST guild to create the channel from which this TEST container will process
+    # commands
+    @commands.Cog.listener()
+    async def on_ready(self):
+        logger.info(f"[ManageCog on_ready()] acquired {len(self.bot.guilds[0].channels)} channels")
+        if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
+            logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
+            await self.bot_loop_manager.create_or_get_channel_id(
+                self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+                "general_channel"
+            )
 
     @commands.command(hidden=True)
     async def debuginfo(self, ctx):
@@ -120,19 +133,3 @@ class ManageCog(commands.Cog):
                     else:
                         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
                         return
-
-    # this command is used by the TEST guild to create the channel from which this TEST container will process
-    # commands
-    @commands.Cog.listener()
-    async def on_ready(self):
-        logger.info(f"[ManageCog on_ready()] acquired {len(self.bot.guilds[0].channels)} channels")
-        if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
-            logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
-            channels = self.bot.guilds[0].channels
-            branch_name = self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()
-            if discord.utils.get(channels, name=branch_name) is None:
-                logger.info(
-                    "[ManageCog on_ready()] creating the text channel "
-                    f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}"
-                )
-                await self.bot.guilds[0].create_text_channel(branch_name)
