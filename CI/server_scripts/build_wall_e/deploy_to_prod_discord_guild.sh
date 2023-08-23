@@ -8,15 +8,21 @@ set -e -o xtrace
 rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
 export prod_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
+export prod_website_container_name="${COMPOSE_PROJECT_NAME}_leveling_website"
 export prod_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
+export COMPOSE_PROJECT_NAME_lower=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 export prod_image_name_lower_case=$(echo "$prod_container_name" | awk '{print tolower($0)}')
+export prod_website_image_name_lower_case=$(echo "$prod_website_container_name" | awk '{print tolower($0)}')
 export ORIGIN_IMAGE="sfucsssorg/wall_e"
 
 
 docker rm -f ${prod_container_name} || true
+docker rm -f ${prod_website_container_name} || true
 docker image rm -f ${prod_image_name_lower_case} || true
+docker image rm -f ${prod_website_image_name_lower_case} || true
+docker rm -f TEST_master_leveling_website|| true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 docker-compose -f "${docker_compose_file}" up -d
 sleep 20

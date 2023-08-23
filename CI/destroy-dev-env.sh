@@ -9,6 +9,7 @@ if [ -z "${COMPOSE_PROJECT_NAME}" ]; then
 fi
 
 export image_name=$(echo "${COMPOSE_PROJECT_NAME}"_wall_e | awk '{print tolower($0)}')
+export website_image_name=$(echo "${COMPOSE_PROJECT_NAME}"_leveling_website | awk '{print tolower($0)}')
 export network_name=$(echo "${COMPOSE_PROJECT_NAME}"_default | awk '{print tolower($0)}')
 export volume_name="${COMPOSE_PROJECT_NAME}_logs"
 
@@ -19,6 +20,7 @@ touch wall_e.env
 docker-compose rm -f -s -v || true
 docker volume rm "${volume_name}" || true
 docker image rm "${image_name}" || true
+docker image rm "${website_image_name}" || true
 docker network rm "${network_name}" || true
 rm docker-compose.yml
 popd

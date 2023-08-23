@@ -21,8 +21,6 @@ services:  #Services that are needed for the wall_e app
             - WALL_E_DB_DBNAME
             - WALL_E_DB_PASSWORD
             - MEE6_AUTHORIZATION
-        volumes: #volume are for hot reload
-            - logs:/usr/src/app/logs
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
@@ -31,6 +29,25 @@ services:  #Services that are needed for the wall_e app
             - POSTGRES_PASSWORD
         image: postgres:alpine #using postgres image
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
+    wall_e_leveling_website:
+        build:
+            context: ../../../
+            dockerfile: CI/server_scripts/build_wall_e/Dockerfile.website
+        depends_on:
+            - 'db'
+        container_name: "${COMPOSE_PROJECT_NAME}_leveling_website"
+        image: "${COMPOSE_PROJECT_NAME_lower}_leveling_website"
+        ports:
+            - "8081:8000"
+        environment:
+            - TOKEN
+            - WALL_E_DB_DBNAME
+            - WALL_E_DB_USER
+            - WALL_E_DB_PASSWORD
+            - COMPOSE_PROJECT_NAME
+            - DB_PORT
+            - HOST
+        restart: unless-stopped
 volumes:
     logs:
         external:
