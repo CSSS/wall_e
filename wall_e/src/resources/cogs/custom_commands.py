@@ -8,7 +8,7 @@ logger = logging.getLogger('wall_e')
 
 class CustomCommands(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         pass
 
     @commands.command()

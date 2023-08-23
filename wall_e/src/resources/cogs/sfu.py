@@ -12,7 +12,7 @@ sfu_red = 0xA6192E
 
 
 class SFU(commands.Cog):
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         self.bot = bot
         self.req = aiohttp.ClientSession(loop=bot.loop)
         self.config = config

@@ -14,7 +14,7 @@ logger = logging.getLogger('wall_e')
 
 class Misc(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config

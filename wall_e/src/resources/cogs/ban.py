@@ -13,69 +13,32 @@ logger = logging.getLogger('wall_e')
 
 class Ban(commands.Cog):
 
-    def __init__(self, bot, config):
+    def __init__(self, bot, config, bot_loop_manager):
         self.bot = bot
         self.config = config
         self.ban_list = []
         self.error_colour = 0xA6192E
         self.mod_channel = None
         self.guild: discord.Guild = None
+        self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
+        mod_channel_id = await self.bot_loop_manager.create_or_get_channel_id(
+            self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            "ban"
+        )
+        self.mod_channel = discord.utils.get(
+            self.bot.guilds[0].channels, id=mod_channel_id
+        )
         """Sets local ban list, mod channel, and guild object"""
         self.guild = self.bot.guilds[0]
-
-        mod_channel_name = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'PRODUCTION':
-            await self.make_mod_channel()
-        else:
-            logger.info(f'[Ban load()] Attempting to get the report channel: {mod_channel_name}')
-
-            self.mod_channel = discord.utils.get(self.guild.channels, name=mod_channel_name)
-            if self.mod_channel:
-                logger.info(f"[Ban load()] #{mod_channel_name} channel successfully found: {self.mod_channel}")
-            else:
-                logger.info(f"[Ban load()] Couldn't get {mod_channel_name} from guild."
-                            " Channel doesn't exist. Exiting.")
-                await asyncio.sleep(20)
-                exit('No mod channel')
 
         # read in ban_list of banned users
         logger.info('[Ban load()] loading ban list from the database')
         self.ban_list = await BanRecords.get_all_active_ban_user_ids()
         count = await BanRecords.get_active_bans_count()
         logger.info(f"[Ban load()] loaded {count} banned users from database")
-
-    async def make_mod_channel(self):
-        """When ENVIRONMENT is TEST or LOCALHOST: Attempts to get channel for mod report.
-        If it doesn't exist attempts to create it, and if that fails then it exits"""
-
-        env = self.config.get_config_value('basic_config', 'ENVIRONMENT')
-
-        if env == 'TEST':
-            branch = self.config.get_config_value('basic_config', 'BRANCH_NAME')
-            channel_name = f"{branch}_mod_channel"
-        elif env == 'LOCALHOST':
-            channel_name = self.config.get_config_value('basic_config', 'MOD_CHANNEL')
-
-        logger.info(f"[Ban make_mod_channel()] mod channel is =[{channel_name}]")
-        self.mod_channel = discord.utils.get(self.guild.channels, name=channel_name.lower())
-
-        if self.mod_channel is None:
-            self.mod_channel = await self.guild.create_text_channel(channel_name)
-
-            mod_channel_id = self.mod_channel.id
-            if mod_channel_id is None:
-                logger.info(
-                    f"[Ban make_mod_channel()] the channel designated for mod reports [{channel_name}] "
-                    f"in {branch if env == 'TEST' else env +' server'} does not exist and I was unable to create it, "
-                    "exiting now...."
-                )
-                await asyncio.sleep(20)
-                exit(1)
-            logger.info(f"[Ban make_mod_channel()] mod channel successfully created [{self.mod_channel}]")
-            await self.mod_channel.send('this is a public channel, set to private as you see fit to match prod.')
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
