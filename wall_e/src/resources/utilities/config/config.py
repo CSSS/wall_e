@@ -4,8 +4,6 @@ import json
 import configparser
 from collections import OrderedDict
 
-import logging
-logger = logging.getLogger('wall_e')
 
 config_file_dockerized_location_local = "resources/utilities/config/local.ini"
 config_file_location_prouction = "resources/utilities/config/production.ini"
@@ -28,7 +26,7 @@ class WallEConfig:
         elif environment == "PRODUCTION":
             config.read(config_file_location_prouction)
         else:
-            logger.info(f"[WallEConfig __init__()] incorrect environment specified {environment}")
+            raise Exception(f"[WallEConfig __init__()] incorrect environment specified {environment}")
         self.config = {'wall_e': config}
 
         # needed to ensure that the environment variables aren't wiped clean until after they have been used
@@ -50,7 +48,7 @@ class WallEConfig:
         if self.config['wall_e'].has_option(section, option) and self.config['wall_e'].get(section, option) != '':
             return self.config['wall_e'].get(section, option)
 
-        logger.info(
+        print(
             f"[WallEConfig get_config_value()] no key found for option {option} under section {section}"
         )
         return "NONE"
@@ -61,7 +59,7 @@ class WallEConfig:
 
     def set_config_value(self, section, option, value):
         if self.config['wall_e'].has_option(section, option):
-            logger.info(
+            print(
                 f"[WallEConfig set_config_value()] setting value for section "
                 f"[{section}] option [{option}]"
             )

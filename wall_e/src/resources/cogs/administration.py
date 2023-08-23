@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import os
 import subprocess
 
@@ -8,9 +7,9 @@ from discord.ext import commands
 
 from WalleModels.models import CommandStat
 from resources.utilities.embed import embed
+from resources.utilities.log_channel import write_to_bot_log_channel
 from resources.utilities.send import send as helper_send
-
-logger = logging.getLogger('wall_e')
+from resources.utilities.setup_logger import Loggers
 
 
 class Administration(commands.Cog):
@@ -18,6 +17,9 @@ class Administration(commands.Cog):
     def __init__(self, bot, config, bot_loop_manager):
         self.config = config
         self.bot = bot
+        self.bot_loop_manager = bot_loop_manager
+        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
+            = Loggers.get_logger(logger_name="Administration")
         if self.config.enabled("database_config", option="DB_ENABLED"):
             import matplotlib
             matplotlib.use("agg")
@@ -33,6 +35,26 @@ class Administration(commands.Cog):
                 if os.path.isdir(image_parent_directory):
                     self.image_parent_directory = image_parent_directory
 
+    @commands.Cog.listener(name="on_ready")
+    async def upload_debug_logs(self):
+        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
+            self.config,
+            "administration_debug"
+        )
+        await write_to_bot_log_channel(
+            self.bot, self.debug_log_file_absolute_path, chan_id
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_error_logs(self):
+        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
+            self.config,
+            "administration_error"
+        )
+        await write_to_bot_log_channel(
+            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        )
+
     def valid_cog(self, name):
         for cog in self.config.get_cogs():
             if cog["name"] == name:
@@ -46,11 +68,11 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def load(self, ctx, module_name):
-        logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
+        self.logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(module_name)
         if not valid:
             await ctx.send(f"```{module_name} isn't a real cog```")
-            logger.info(
+            self.logger.info(
                 f"[Administration load()] {ctx.message.author} tried loading "
                 f"{module_name} which doesn't exist."
             )
@@ -58,61 +80,62 @@ class Administration(commands.Cog):
         try:
             await self.bot.add_custom_cog(folder+module_name)
             await ctx.send(f"{module_name} command loaded.")
-            logger.info(f"[Administration load()] {module_name} has been successfully loaded")
+            self.logger.info(f"[Administration load()] {module_name} has been successfully loaded")
         except(AttributeError, ImportError) as e:
             await ctx.send(f"command load failed: {type(e)}, {e}")
-            logger.info(f"[Administration load()] loading {module_name} failed :{type(e)}, {e}")
+            self.logger.info(f"[Administration load()] loading {module_name} failed :{type(e)}, {e}")
 
     @commands.command()
     async def unload(self, ctx, module_name):
-        logger.info(f"[Administration unload()] unload command detected from {ctx.message.author}")
+        self.logger.info(f"[Administration unload()] unload command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(module_name)
         if not valid:
             await ctx.send(f"```{module_name} isn't a real cog```")
-            logger.info(
+            self.logger.info(
                 f"[Administration load()] {ctx.message.author} tried loading "
                 f"{module_name} which doesn't exist."
             )
             return
         await self.bot.remove_custom_cog(folder, module_name)
         await ctx.send(f"{module_name} command unloaded")
-        logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
+        self.logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
 
     @commands.command()
     async def reload(self, ctx, name):
-        logger.info(f"[Administration reload()] reload command detected from {ctx.message.author}")
+        self.logger.info(f"[Administration reload()] reload command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(name)
         if not valid:
             await ctx.send(f"```{name} isn't a real cog```")
-            logger.info(f"[Administration reload()] {ctx.message.author} tried "
-                        f"loading {name} which doesn't exist.")
+            self.logger.info(f"[Administration reload()] {ctx.message.author} tried "
+                             f"loading {name} which doesn't exist.")
             return
         await self.bot.remove_custom_cog(folder, name)
         try:
             await self.bot.add_custom_cog(folder + name)
             await ctx.send(f"`{folder + name} command reloaded`")
-            logger.info(f"[Administration reload()] {name} has been successfully reloaded")
+            self.logger.info(f"[Administration reload()] {name} has been successfully reloaded")
         except(AttributeError, ImportError) as e:
             await ctx.send(f"Command load failed: {type(e)}, {e}")
-            logger.info(f"[Administration reload()] loading {name} failed :{type(e)}, {e}")
+            self.logger.info(f"[Administration reload()] loading {name} failed :{type(e)}, {e}")
 
     @commands.command()
     async def exc(self, ctx, *args):
-        logger.info("[Administration exc()] exc command detected "
-                    f"from {ctx.message.author} with arguments {' '.join(args)}")
+        self.logger.info("[Administration exc()] exc command detected "
+                         f"from {ctx.message.author} with arguments {' '.join(args)}")
         query = " ".join(args)
         # this got implemented for cases when the output of the command is too big to send to the channel
         exit_code, output = subprocess.getstatusoutput(query)
-        await helper_send(ctx, f"Exit Code: {exit_code}")
-        await helper_send(ctx, output, prefix="```", suffix="```")
+        await helper_send(self.logger, ctx, f"Exit Code: {exit_code}")
+        await helper_send(self.logger, ctx, output, prefix="```", suffix="```")
 
     @commands.command()
     async def sync(self, ctx):
-        logger.info("[HealthChecks sync()] sync command detected from {}".format(ctx.message.author))
+        self.logger.info("[HealthChecks sync()] sync command detected from {}".format(ctx.message.author))
         message = "Testing guild does not provide support for Slash Commands" \
             if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
             else 'Commands Synced!'
         e_obj = await embed(
+            self.logger,
             ctx=ctx,
             description=message,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
@@ -127,8 +150,8 @@ class Administration(commands.Cog):
     @commands.command()
     async def frequency(self, ctx, *args):
         if self.config.enabled("database_config", option="DB_ENABLED"):
-            logger.info("[Administration frequency()] frequency command "
-                        f"detected from {ctx.message.author} with arguments [{args}]")
+            self.logger.info("[Administration frequency()] frequency command "
+                             f"detected from {ctx.message.author} with arguments [{args}]")
             column_headers = CommandStat.get_column_headers_from_database()
             if len(args) == 0:
                 await ctx.send(f"please specify which columns you want to count={column_headers}")
@@ -146,10 +169,10 @@ class Administration(commands.Cog):
                 (await CommandStat.get_command_stats_dict(args)).items(),
                 key=lambda kv: kv[1]
             )
-            logger.info("[Administration frequency()] sorted dic_results by value")
+            self.logger.info("[Administration frequency()] sorted dic_results by value")
             image_path = f"{self.image_parent_directory}image.png"
             if len(dic_result) <= 50:
-                logger.info("[Administration frequency()] dic_results's length is <= 50")
+                self.logger.info("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
                 numbers = [i[1] for i in dic_result]
                 self.plt.rcdefaults()
@@ -169,12 +192,12 @@ class Administration(commands.Cog):
                 ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
                 fig.set_size_inches(18.5, 10.5)
                 fig.savefig(image_path)
-                logger.info("[Administration frequency()] graph created and saved")
+                self.logger.info("[Administration frequency()] graph created and saved")
                 self.plt.close(fig)
                 await ctx.send(file=discord.File(image_path))
-                logger.info("[Administration frequency()] graph image file has been sent")
+                self.logger.info("[Administration frequency()] graph image file has been sent")
             else:
-                logger.info("[Administration frequency()] dic_results's length is > 50")
+                self.logger.info("[Administration frequency()] dic_results's length is > 50")
                 number_of_pages = int(len(dic_result) / 50)
                 if len(dic_result) % 50 != 0:
                     number_of_pages += 1
@@ -194,8 +217,8 @@ class Administration(commands.Cog):
                     last_index += number_of_bars_per_page
 
                 while True:
-                    logger.info("[Administration frequency()] creating "
-                                f"a graph with entries {first_index} to {last_index}")
+                    self.logger.info("[Administration frequency()] creating "
+                                     f"a graph with entries {first_index} to {last_index}")
                     to_react = ['⏪', '⏩', '✅']
                     first_index = boundaries_for_each_page[current_page]['first_index']
                     last_index = boundaries_for_each_page[current_page]['last_index']
@@ -219,7 +242,7 @@ class Administration(commands.Cog):
                     ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
                     fig.set_size_inches(30, 10.5)
                     fig.savefig(image_path)
-                    logger.info("[Administration frequency()] graph created and saved")
+                    self.logger.info("[Administration frequency()] graph created and saved")
                     self.plt.close(fig)
                     if msg is None:
                         msg = await ctx.send(file=discord.File(image_path))
@@ -233,40 +256,42 @@ class Administration(commands.Cog):
                         if not user.bot:  # just making sure the bot doesnt take its own reactions
                             # into consideration
                             e = f"{reaction.emoji}"
-                            logger.info(f"[Administration frequency()] reaction {e} detected from {user}")
+                            self.logger.info(f"[Administration frequency()] reaction {e} detected from {user}")
                             return e.startswith(('⏪', '⏩', '✅'))
 
-                    logger.info("[Administration frequency()] graph image file has been sent")
+                    self.logger.info("[Administration frequency()] graph image file has been sent")
                     user_reacted = None
                     while user_reacted is None:
                         try:
                             user_reacted = await self.bot.wait_for('reaction_add', timeout=20, check=check_reaction)
                         except asyncio.TimeoutError:
-                            logger.info("[Administration frequency()] timed out waiting for the user's reaction.")
+                            self.logger.info(
+                                "[Administration frequency()] timed out waiting for the user's reaction."
+                            )
                         if user_reacted:
                             if '⏪' == user_reacted[0].emoji:
                                 current_page -= 1
                                 if current_page < 0:
                                     current_page = number_of_pages - 1
-                                logger.info("[Administration frequency()] user indicates they "
-                                            f" want to go back to page {current_page}")
+                                self.logger.info("[Administration frequency()] user indicates they "
+                                                 f" want to go back to page {current_page}")
                             elif '⏩' == user_reacted[0].emoji:
                                 current_page += 1
                                 if current_page >= number_of_pages:
                                     current_page = 0
-                                logger.info(
+                                self.logger.info(
                                     "[Administration frequency()] user indicates they "
                                     f"want to go to page {current_page}"
                                 )
                             elif '✅' == user_reacted[0].emoji:
-                                logger.info("[Administration frequency()] user "
-                                            "indicates they are done with the roles "
-                                            "command, deleting roles message")
+                                self.logger.info("[Administration frequency()] user "
+                                                 "indicates they are done with the roles "
+                                                 "command, deleting roles message")
                                 await msg.delete()
                                 return
                         else:
-                            logger.info("[Administration frequency()] deleting message")
+                            self.logger.info("[Administration frequency()] deleting message")
                             await msg.delete()
                             return
-                    logger.info("[Administration frequency()] updating first_index "
-                                f"and last_index to {first_index} and {last_index} respectively")
+                    self.logger.info("[Administration frequency()] updating first_index "
+                                     f"and last_index to {first_index} and {last_index} respectively")

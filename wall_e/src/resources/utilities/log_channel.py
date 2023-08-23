@@ -1,29 +1,25 @@
 import asyncio
 import discord
-import logging
 import aiohttp
-logger = logging.getLogger('wall_e')
 
 
 ##################################################################################################
 # HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
 ##################################################################################################
-async def write_to_bot_log_channel(bot, config, f, bot_loop_manager):
+async def write_to_bot_log_channel(bot, file_path, chan_id):
     # only environment that doesn't do automatic creation of the bot_log channel is the PRODUCTION guild.
     # Production is a permanent channel so that it can be persistent. As for localhost,
     # the idea was that this removes a dependence on the user to make the channel and shifts that
     # responsibility to the script itself. thereby requiring less effort from the user
-    chan_id = await bot_loop_manager.create_or_get_channel_id(
-        config.get_config_value("basic_config", "ENVIRONMENT"),
-        "log_channel"
-    )
     channel = discord.utils.get(
         bot.guilds[0].channels, id=chan_id
     )
-    logger.info(
+    print(
         "[log_channel.py write_to_bot_log_channel] bot_log channel "
         f"with id {chan_id} successfully retrieved."
     )
+    f = open(file_path, 'r')
+    f.seek(0)
     while not bot.is_closed():
         f.flush()
         line = f.readline()
@@ -49,12 +45,12 @@ async def write_to_bot_log_channel(bot, config, f, bot_loop_manager):
                         if len(output[first_index:last_index]) == 0:
                             finished = True
                 except RuntimeError:
-                    logger.info("[log_channel.py write_to_bot_log_channel] encountered RuntimeError, "
-                                " will assume that the user is attempting to exit")
+                    print("[log_channel.py write_to_bot_log_channel] encountered RuntimeError, "
+                          " will assume that the user is attempting to exit")
                     break
                 except Exception as exc:
                     exc_str = '{}: {}'.format(type(exc).__name__, exc)
-                    logger.error(
+                    raise Exception(
                         '[log_channel.py write_to_bot_log_channel] write to channel failed\n{}'.format(exc_str)
                     )
             line = f.readline()

@@ -3,7 +3,6 @@
 from __future__ import annotations
 from typing import List
 import datetime
-import logging
 import random
 import time
 import pytz
@@ -13,8 +12,6 @@ from django.db import models
 from django.forms import model_to_dict
 from .customFields import GeneratedIdentityField
 import django_db_orm_settings
-
-logger = logging.getLogger('wall_e')
 
 
 class BanRecords(models.Model):

@@ -1,13 +1,8 @@
-# from discord.ext import commands
-# import discord
 import asyncio
-import logging
 from resources.utilities.embed import embed as imported_embed
 
-logger = logging.getLogger('wall_e')
 
-
-async def paginate_embed(bot, config, description_to_embed, title=" ", ctx=None, interaction=None):
+async def paginate_embed(logger, bot, config, description_to_embed, title=" ", ctx=None, interaction=None):
     send_func = interaction.response.send_message if interaction is not None else None
     send_func = ctx.send if ctx is not None and send_func is None else send_func
     if send_func is None:
@@ -26,6 +21,7 @@ async def paginate_embed(bot, config, description_to_embed, title=" ", ctx=None,
         logger.info("[paginate.py paginate_embed()] loading page {}".format(current_page))
         logger.info("[paginate.py paginate_embed()] loading roles {}".format(description_to_embed[current_page]))
         embed_obj = await imported_embed(
+            logger,
             interaction=interaction,
             ctx=ctx,
             title=title,
@@ -112,7 +108,7 @@ async def paginate_embed(bot, config, description_to_embed, title=" ", ctx=None,
                 return
 
 
-async def paginate(bot, ctx, list_to_paginate, num_of_pages=0, num_of_page_entries=0, title=" "):
+async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_page_entries=0, title=" "):
     logger.info(
         "[paginate.py paginate()] called with following argument: list_to_paginate={}"
         "\n\tnum_of_pages={}, num_of_page_entries={} and title={}".format(

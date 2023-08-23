@@ -1,9 +1,6 @@
-import logging
 import random
 
 from discord.ext import commands
-
-logger = logging.getLogger('wall_e')
 
 
 class CustomCommands(commands.Cog):

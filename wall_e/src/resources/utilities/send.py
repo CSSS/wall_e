@@ -1,10 +1,8 @@
 import aiohttp
 import discord
-import logging
-logger = logging.getLogger('wall_e')
 
 
-def get_last_index(content, index, reserved_space):
+def get_last_index(logger, content, index, reserved_space):
     # this when the the size of contents is too big for a single discord message, this means
     # that the message has to be split. and in order to make the output most visually appealing
     # when splitting it is to see if there is a newline on which  the message can be split instead.
@@ -23,7 +21,7 @@ def get_last_index(content, index, reserved_space):
         return last_index
 
 
-async def send(ctx, content=None, tts=False, embed=None, file=None, files=None,
+async def send(logger, ctx, content=None, tts=False, embed=None, file=None, files=None,
                delete_after=None, nonce=None, prefix=None, suffix=None):
     # adds the requested prefix and suffic to the contents
     formatted_content = content
@@ -45,7 +43,7 @@ async def send(ctx, content=None, tts=False, embed=None, file=None, files=None,
         if suffix is not None:
             reserved_space += len(suffix)
         logger.info("[send.py send()] reserved_space = [{}]".format(reserved_space))
-        last_index = get_last_index(content, 0, reserved_space)
+        last_index = get_last_index(logger, content, 0, reserved_space)
         first = True  # this is only necessary because it wouldnt make sense to have any potential embeds or file[s]
         # with each message
         first_index = 0
@@ -79,7 +77,7 @@ async def send(ctx, content=None, tts=False, embed=None, file=None, files=None,
                 )
                 await ctx.send(formatted_content, tts=tts, delete_after=delete_after, nonce=nonce)
             first_index = last_index
-            last_index = get_last_index(content, first_index + 1, reserved_space)
+            last_index = get_last_index(logger, content, first_index + 1, reserved_space)
             logger.info("[send.py send()] last_index updated to {}".format(last_index))
             if len(content[first_index:last_index]) == 0:
                 finished = True

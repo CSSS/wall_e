@@ -6,9 +6,9 @@ from resources.utilities.config.config import WallEConfig
 from resources.utilities.list_of_perms import get_list_of_user_permissions_for_intentions
 
 
-async def slash_command_checks(config: WallEConfig, interaction: discord.Interaction, help_dict: OrderedDict):
+async def slash_command_checks(logger, config: WallEConfig, interaction: discord.Interaction, help_dict: OrderedDict):
     await command_in_correct_test_guild_channel(config, interaction)
-    await _check_privilege(help_dict, interaction)
+    await _check_privilege(logger, help_dict, interaction)
 
 
 async def command_in_correct_test_guild_channel(config: WallEConfig, interaction: discord.Interaction):
@@ -27,7 +27,7 @@ async def command_in_correct_test_guild_channel(config: WallEConfig, interaction
         raise Exception("command called from wrong channel")
 
 
-async def _check_privilege(help_dict: OrderedDict, interaction: discord.Interaction):
+async def _check_privilege(logger, help_dict: OrderedDict, interaction: discord.Interaction):
     command_used = f"{interaction.command.name}"
     if command_used == "exit":
         return True
@@ -52,7 +52,7 @@ async def _check_privilege(help_dict: OrderedDict, interaction: discord.Interact
             )
         return len(shared_roles) > 0
     if command_info['access'] == 'permissions':
-        user_perms = await get_list_of_user_permissions_for_intentions(interaction)
+        user_perms = await get_list_of_user_permissions_for_intentions(logger, interaction)
         shared_perms = set(user_perms).intersection(command_info['permissions'])
         if len(shared_perms) == 0:
             await interaction.response.send_message(

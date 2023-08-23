@@ -1,5 +1,4 @@
 import datetime
-import logging
 import re
 import sys
 import traceback
@@ -10,14 +9,16 @@ from discord.ext import commands
 from WalleModels.models import CommandStat
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.list_of_perms import get_list_of_user_permissions
-
-logger = logging.getLogger('wall_e')
+from resources.utilities.log_channel import write_to_bot_log_channel
+from resources.utilities.setup_logger import Loggers
 
 
 class ManageCog(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
-        logger.info("[ManageCog __init__()] initializing the TestCog")
+        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
+            = Loggers.get_logger(logger_name="ManageCog")
+        self.logger.info("[ManageCog __init__()] initializing the TestCog")
         bot.add_check(self.check_test_environment)
         bot.add_check(self.check_privilege)
         self.bot = bot
@@ -25,13 +26,33 @@ class ManageCog(commands.Cog):
         self.help_dict = self.config.get_help_json()
         self.bot_loop_manager = bot_loop_manager
 
+    @commands.Cog.listener(name="on_ready")
+    async def upload_debug_logs(self):
+        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
+            self.config,
+            "manage_cog_debug"
+        )
+        await write_to_bot_log_channel(
+            self.bot, self.debug_log_file_absolute_path, chan_id
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_error_logs(self):
+        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
+            self.config,
+            "manage_cog_error"
+        )
+        await write_to_bot_log_channel(
+            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        )
+
     # this command is used by the TEST guild to create the channel from which this TEST container will process
     # commands
     @commands.Cog.listener()
     async def on_ready(self):
-        logger.info(f"[ManageCog on_ready()] acquired {len(self.bot.guilds[0].channels)} channels")
+        self.logger.info(f"[ManageCog on_ready()] acquired {len(self.bot.guilds[0].channels)} channels")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
-            logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
+            self.logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             await self.bot_loop_manager.create_or_get_channel_id(
                 self.config.get_config_value('basic_config', 'ENVIRONMENT'),
                 "general_channel"
@@ -39,7 +60,7 @@ class ManageCog(commands.Cog):
 
     @commands.command(hidden=True)
     async def debuginfo(self, ctx):
-        logger.info(f"[ManageCog debuginfo()] debuginfo command detected from {ctx.message.author}")
+        self.logger.info(f"[ManageCog debuginfo()] debuginfo command detected from {ctx.message.author}")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             await ctx.send(
                 '```You are testing the latest commit of branch or pull request: '
@@ -80,7 +101,7 @@ class ManageCog(commands.Cog):
                 )
             return (len(shared_roles) > 0)
         if command_info['access'] == 'permissions':
-            user_perms = await get_list_of_user_permissions(ctx)
+            user_perms = await get_list_of_user_permissions(self.logger, ctx)
             shared_perms = set(user_perms).intersection(command_info['permissions'])
             if (len(shared_perms) == 0):
                 await ctx.send(
@@ -110,8 +131,9 @@ class ManageCog(commands.Cog):
     async def on_command_error(self, ctx, error):
         if self.check_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
-                logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
+                self.logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
                 e_obj = await imported_embed(
+                    self.logger,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -126,7 +148,7 @@ class ManageCog(commands.Cog):
                 pattern = r'[^\.]'
                 if re.search(pattern, f"{error}"[9:-14]):
                     if type(error) is discord.ext.commands.errors.CheckFailure:
-                        logger.warning(
+                        self.logger.warning(
                             f"[ManageCog on_command_error()] user {ctx.author} "
                             "probably tried to access a command they arent supposed to"
                         )

@@ -4,8 +4,9 @@
 
 from discord.ext import commands
 import discord
-import logging
-logger = logging.getLogger('wall_e')
+
+from resources.utilities.log_channel import write_to_bot_log_channel
+from resources.utilities.setup_logger import Loggers
 
 
 class Here(commands.Cog):
@@ -13,13 +14,36 @@ class Here(commands.Cog):
     def __init__(self, bot, config, bot_loop_manager):
         self.bot = bot
         self.config = config
+        self.bot_loop_manager = bot_loop_manager
+        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
+            = Loggers.get_logger(logger_name="Here")
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_debug_logs(self):
+        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
+            self.config,
+            "here_debug"
+        )
+        await write_to_bot_log_channel(
+            self.bot, self.debug_log_file_absolute_path, chan_id
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_error_logs(self):
+        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
+            self.config,
+            "here_error"
+        )
+        await write_to_bot_log_channel(
+            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        )
 
     def build_embed(self, members, channel):
         # build response
 
         title = "Users in **#{}**".format(channel.name)
 
-        logger.info("[Here Administration()] creating an embed with title \"{}\"".format(title))
+        self.logger.info("[Here Administration()] creating an embed with title \"{}\"".format(title))
         embed = discord.Embed(type="rich")
         embed.title = title
         embed.color = discord.Color.blurple()
@@ -52,8 +76,10 @@ class Here(commands.Cog):
 
     @commands.command()
     async def here(self, ctx, *search):
-        logger.info("[Here here()] {} called here with {} arguments: {}".format(ctx.message.author,
-                    len(search), ', '.join(search)))
+        self.logger.info(
+            "[Here here()] {} called here with {} arguments: {}".format(ctx.message.author,
+                                                                        len(search), ', '.join(search))
+        )
 
         # find people in the channel
         channel = ctx.channel
@@ -67,7 +93,7 @@ class Here(commands.Cog):
                                if query.lower() in m.display_name.lower() or query.lower() in str(m).lower()]) > 0]
             members = allowed
 
-        logger.info("[Here here()] found {} users in {}".format(len(members), channel.name))
+        self.logger.info("[Here here()] found {} users in {}".format(len(members), channel.name))
 
         embed = self.build_embed(members, channel)
 
