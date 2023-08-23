@@ -1,6 +1,7 @@
 # for type references to own class
 # https://stackoverflow.com/a/33533514
 from __future__ import annotations
+
 from typing import List
 import datetime
 import random
@@ -12,6 +13,7 @@ from django.db import models
 from django.forms import model_to_dict
 from .customFields import GeneratedIdentityField
 import django_db_orm_settings
+import requests
 
 
 class BanRecords(models.Model):
@@ -263,6 +265,19 @@ class UserPoint(models.Model):
             self.latest_time_xp_was_earned_epoch,
             pytz.timezone(django_db_orm_settings.TIME_ZONE)
         ) + datetime.timedelta(minutes=1) < datetime.datetime.now(tz=pytz.timezone(django_db_orm_settings.TIME_ZONE))
+
+    @property
+    def username(self):
+        discord_header = {
+            "Authorization": f"Bot {settings.DISCORD_BOT_TOKEN}",
+            'Content-Type': 'application/json'
+        }
+        response = requests.get(
+            f"https://discord.com/api/users/{self.user_id}",
+            headers=discord_header
+        )
+
+        return response.json()['username'] if 'username' in response.json() else 'NA'
 
     @staticmethod
     @sync_to_async

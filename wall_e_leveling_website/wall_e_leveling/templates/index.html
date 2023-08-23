@@ -1,0 +1,9 @@
+{% for point in points %}
+    <p>-------</p>
+    User ID: {{ point.user_id }} <br>
+    User Name: {{ point.username }} <br>
+    User Points: {{ point.points }} <br>
+    User Level Specific Points: {{ point.level_up_specific_points }} <br>
+    User Message Count: {{ point.message_count }} <br>
+    User Level Number: {{ point.level_number }} <br>
+{%  endfor %}

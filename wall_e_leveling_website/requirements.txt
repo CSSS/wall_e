@@ -1,0 +1,16 @@
+asgiref==3.7.2
+Django==4.2.4
+sqlparse==0.4.4
+typing_extensions==4.7.1
+
+
+# needed for the APIs
+djangorestframework~=3.14.0
+markdown
+django-filter
+
+# needed for interacting with db
+psycopg2-binary
+
+# for getting usernames from discord
+requests
