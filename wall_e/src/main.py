@@ -241,4 +241,4 @@ if __name__ == "__main__":
     print("[main.py] Wall-E is starting up")
 
     # final step, running the bot with the passed in environment TOKEN variable
-    bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"))
+    bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"), log_handler=logging.StreamHandler(sys.stdout))
