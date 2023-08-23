@@ -124,23 +124,15 @@ class Loggers:
         error_filehandler.setLevel(barrier_logging_level)
         logger.addHandler(error_filehandler)
 
-        if REDIRECT_STD_STREAMS:
-            sys.stdout = sys.__stdout__
         sys_stdout_stream_handler = WalleDebugStreamHandler(sys.stdout)
         sys_stdout_stream_handler.setFormatter(sys_stream_formatting)
         sys_stdout_stream_handler.setLevel(logging.DEBUG)
         logger.addHandler(sys_stdout_stream_handler)
-        if REDIRECT_STD_STREAMS:
-            sys.stdout = LoggerWriter(logger.info)
 
-        if REDIRECT_STD_STREAMS:
-            sys.stderr = sys.__stderr__
-        sys_sterr_stream_handler = logging.StreamHandler(sys.stderr)
+        sys_sterr_stream_handler = logging.StreamHandler()
         sys_sterr_stream_handler.setFormatter(sys_stream_formatting)
         sys_sterr_stream_handler.setLevel(barrier_logging_level)
         logger.addHandler(sys_sterr_stream_handler)
-        if REDIRECT_STD_STREAMS:
-            sys.stderr = LoggerWriter(logger.error)
 
         return logger, debug_log_file_absolute_path, error_log_file_absolute_path
 
