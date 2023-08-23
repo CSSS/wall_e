@@ -11,7 +11,7 @@ class Frosh(commands.Cog):
         self.config = config
         self.bot_loop_manager = bot_loop_manager
         self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
-            = Loggers.get_logger(logger_name="SFU")
+            = Loggers.get_logger(logger_name="Frosh")
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
@@ -27,7 +27,7 @@ class Frosh(commands.Cog):
     async def upload_error_logs(self):
         chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
             self.config,
-            "frosh_debug"
+            "frosh_error"
         )
         await write_to_bot_log_channel(
             self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
