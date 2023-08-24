@@ -70,9 +70,6 @@ export CONTAINER_HOME_DIR=/usr/src/app;
 export basic_config__ENVIRONMENT=TEST;
 export basic_config__BRANCH_NAME=${BRANCH_NAME};
 export basic_config__COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
-export ENVIRONMENT=TEST;
-export BRANCH_NAME=${BRANCH_NAME};
-export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
 
 export POSTGRES_DB_USER=postgres;
 export POSTGRES_DB_DBNAME=postgres;
@@ -84,12 +81,6 @@ export database_config__WALL_E_DB_PASSWORD=wallEPassword;
 export basic_config__WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
 export basic_config__MEE6_AUTHORIZATION=${MEE6_AUTHORIZATION};
 export basic_config__TOKEN=${WALL_E_STAGING_DISCORD_BOT_TOKEN};
-export WALL_E_DB_USER=wall_e;
-export WALL_E_DB_DBNAME=csss_discord_db;
-export WALL_E_DB_PASSWORD=wallEPassword;
-export WOLFRAM_API_TOKEN=${WOLFRAM_API_TOKEN};
-export MEE6_AUTHORIZATION=${MEE6_AUTHORIZATION};
-export TOKEN=${WALL_E_STAGING_DISCORD_BOT_TOKEN};
 export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
 ./CI/server_scripts/build_wall_e/deploy_to_staging_discord_guild.sh;

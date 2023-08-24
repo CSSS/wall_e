@@ -8,28 +8,19 @@ services:  #Services that are needed for the wall_e app
               - ORIGIN_IMAGE
         environment:
             - basic_config__TOKEN
-            - TOKEN
             - BOT_LOG_CHANNEL
             - BOT_GENERAL_CHANNEL
             - basic_config__BRANCH_NAME
             - basic_config__ENVIRONMENT
-            - BRANCH_NAME
-            - ENVIRONMENT
             - basic_config__COMPOSE_PROJECT_NAME
             - basic_config__WOLFRAM_API_TOKEN
-            - COMPOSE_PROJECT_NAME
-            - WOLFRAM_API_TOKEN
             - POSTGRES_DB_USER
             - POSTGRES_DB_DBNAME
             - POSTGRES_PASSWORD
             - database_config__WALL_E_DB_USER
             - database_config__WALL_E_DB_DBNAME
             - database_config__WALL_E_DB_PASSWORD
-            - WALL_E_DB_USER
-            - WALL_E_DB_DBNAME
-            - WALL_E_DB_PASSWORD
             - basic_config__MEE6_AUTHORIZATION
-            - MEE6_AUTHORIZATION
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
