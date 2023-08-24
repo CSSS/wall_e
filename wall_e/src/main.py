@@ -191,7 +191,7 @@ async def on_message(message):
 @bot.event
 async def on_app_command_completion(interaction: discord.Interaction, cmd: discord.app_commands.commands.Command):
 
-    database_enabled = wall_e_config.enabled("database_config", option="DB_ENABLED")
+    database_enabled = wall_e_config.enabled("database_config", option="ENABLED")
     correct_channel = await command_in_correct_test_guild_channel(wall_e_config, interaction)
     if correct_channel and database_enabled:
         from WalleModels.models import CommandStat

@@ -20,7 +20,7 @@ class Administration(commands.Cog):
         self.bot_loop_manager = bot_loop_manager
         self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
             = Loggers.get_logger(logger_name="Administration")
-        if self.config.enabled("database_config", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
             import matplotlib.pyplot as plt  # noqa
@@ -149,7 +149,7 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def frequency(self, ctx, *args):
-        if self.config.enabled("database_config", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="ENABLED"):
             self.logger.info("[Administration frequency()] frequency command "
                              f"detected from {ctx.message.author} with arguments [{args}]")
             column_headers = CommandStat.get_column_headers_from_database()

@@ -52,7 +52,7 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def load_points_into_dict(self):
-        if self.config.enabled("database_config", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="ENABLED"):
             if not await Level.level_points_have_been_imported():
                 self.logger.info("[Leveling load_points_into_dict()] loading levels into DB and dict")
                 with open('resources/mee6_levels/levels.json') as f:
@@ -210,7 +210,7 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
-        if self.config.enabled("database_config", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="ENABLED"):
             while not self.xp_system_ready or self.council_channel is None:
                 await asyncio.sleep(5)
             while True:
@@ -358,7 +358,7 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_member_join')
     async def re_assign_roles(self, member: discord.Member):
-        if self.config.enabled("database_config", option="DB_ENABLED"):
+        if self.config.enabled("database_config", option="ENABLED"):
             if member.id not in self.user_points:
                 return
             while not self.xp_system_ready:

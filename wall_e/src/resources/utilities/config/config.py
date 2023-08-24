@@ -76,7 +76,7 @@ class WallEConfig:
         cogs = self.config['wall_e']
         for cog in cogs['cogs_enabled']:
             if int(cogs['cogs_enabled'][cog]) == 1 and ((cog != 'reminders') or
-               (cog == 'reminders' and self.enabled("database_config", option="DB_ENABLED"))):
+               (cog == 'reminders' and self.enabled("database_config", option="ENABLED"))):
                 cogs_to_load.append({'name': cog, 'path': cog_location_python_path})
         return cogs_to_load
 
