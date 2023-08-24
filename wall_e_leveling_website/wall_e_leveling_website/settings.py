@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['walle.sfucsss.org']
 
 environment = "PRODUCTION"
-DISCORD_BOT_TOKEN = os.environ['TOKEN']
+DISCORD_BOT_TOKEN = os.environ['basic_config__TOKEN']
 # Application definition
 
 INSTALLED_APPS = [
@@ -80,9 +80,9 @@ WSGI_APPLICATION = 'wall_e_leveling_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ["WALL_E_DB_DBNAME"],
-        'USER': os.environ["WALL_E_DB_USER"],
-        'PASSWORD': os.environ["WALL_E_DB_PASSWORD"]
+        'NAME': os.environ["database_config__WALL_E_DB_DBNAME"],
+        'USER': os.environ["database_config__WALL_E_DB_USER"],
+        'PASSWORD': os.environ["database_config__WALL_E_DB_PASSWORD"]
     }
 }
 
@@ -91,7 +91,7 @@ if environment == "LOCALHOST":
     DATABASES['default']['HOST'] = os.environ["HOST"]
 else:
     DATABASES['default']['HOST'] = (
-        f'{os.environ["COMPOSE_PROJECT_NAME"]}_wall_e_db'
+        f'{os.environ["basic_config__COMPOSE_PROJECT_NAME"]}_wall_e_db'
     )
 
 
