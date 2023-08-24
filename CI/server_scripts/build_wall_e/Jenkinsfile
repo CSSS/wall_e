@@ -70,6 +70,7 @@ export CONTAINER_HOME_DIR=/usr/src/app;
 export basic_config__ENVIRONMENT=TEST;
 export basic_config__BRANCH_NAME=${BRANCH_NAME};
 export basic_config__COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
+export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
 
 export POSTGRES_DB_USER=postgres;
 export POSTGRES_DB_DBNAME=postgres;
