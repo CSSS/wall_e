@@ -21,11 +21,13 @@ fi
 export docker_registry="sfucsssorg"
 export wall_e_top_base_image="wall_e_base"
 export WALL_E_BASE_IMAGE="${docker_registry}/wall_e"
-
+export WALL_E_PYTHON_BASE_IMAGE="${docker_registry}/wall_e_python"
 
 export test_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export test_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 export test_image_name=$(echo "${COMPOSE_PROJECT_NAME}_wall_e" | awk '{print tolower($0)}')
+
+export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
 
 re_create_top_base_image () {
     docker stop "${test_container_db_name}" "${test_container_name}" || true
