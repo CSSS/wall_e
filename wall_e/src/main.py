@@ -27,7 +27,7 @@ from resources.utilities.slash_command_checks import command_in_correct_test_gui
 logger, debug_log_file_absolute_path, sys_stream_error_log_file_absolute_path \
     = Loggers.get_logger(logger_name="wall_e")
 
-wall_e_config = WallEConfig(os.environ['ENVIRONMENT'])
+wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_db_orm_settings")
 django.setup()
