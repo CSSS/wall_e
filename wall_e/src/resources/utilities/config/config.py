@@ -38,10 +38,11 @@ class WallEConfig:
 
         for each_section in self.config['wall_e'].sections():
             for (key, value) in self.config['wall_e'].items(each_section):
-                if key in os.environ:
-                    self.set_config_value(each_section, key, os.environ[key])
+                environment_var = f"{each_section}__{key}"
+                if environment_var in os.environ:
+                    self.set_config_value(each_section, key, os.environ[environment_var])
                     if os.environ['DJANGO_SETTINGS_SET'] == "True":
-                        os.environ[key] = ' '
+                        os.environ[environment_var] = ' '
 
     def get_config_value(self, section, option):
 
