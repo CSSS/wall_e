@@ -36,7 +36,7 @@ services:  #Services that are needed for the wall_e app
         depends_on:
             - 'db'
         container_name: "${COMPOSE_PROJECT_NAME}_leveling_website"
-        image: "${COMPOSE_PROJECT_NAME_lower}_leveling_website"
+        image: "${compose_project_name}_leveling_website"
         ports:
             - "8081:8000"
         environment:
