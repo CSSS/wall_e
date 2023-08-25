@@ -23,6 +23,7 @@ services:  #Services that are needed for the wall_e app
             - basic_config__MEE6_AUTHORIZATION
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
+        image: "${compose_project_name}_wall_e"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
     db: #declaration of the postgres container
         environment:
@@ -35,8 +36,8 @@ services:  #Services that are needed for the wall_e app
             dockerfile: CI/server_scripts/build_wall_e/Dockerfile.website
         depends_on:
             - 'db'
-        container_name: "${COMPOSE_PROJECT_NAME}_leveling_website"
         image: "${compose_project_name}_leveling_website"
+        container_name: "${COMPOSE_PROJECT_NAME}_leveling_website"
         ports:
             - "8081:8000"
         environment:
@@ -48,7 +49,3 @@ services:  #Services that are needed for the wall_e app
             - DB_PORT
             - HOST
         restart: unless-stopped
-volumes:
-    logs:
-        external:
-            name: "${COMPOSE_PROJECT_NAME}_logs"

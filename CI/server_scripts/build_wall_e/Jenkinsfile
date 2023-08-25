@@ -76,18 +76,16 @@ export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: 'WALL_E_DB_PASSWORD'),
                 usernamePassword(credentialsId: 'docker-hub-perms',passwordVariable: 'DOCKER_HUB_PASSWORD',usernameVariable: 'DOCKER_HUB_USER_NAME')]) {
                     sh('''
-
-export CONTAINER_HOME_DIR=/usr/src/app;
-export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
-export DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD};
-export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
-export BRANCH_NAME=${BRANCH_NAME};
-export COMPOSE_PROJECT_NAME=TEST_\${BRANCH_NAME};
-
 export basic_config__ENVIRONMENT=PRODUCTION;
 export basic_config__BRANCH_NAME=${BRANCH_NAME};
 export basic_config__COMPOSE_PROJECT_NAME=PRODUCTION_MASTER;
 export COMPOSE_PROJECT_NAME=PRODUCTION_MASTER;
+
+export CONTAINER_HOME_DIR=/usr/src/app;
+export LOCAL_PATH_TO_SRC_DIR=wall_e/src/;
+
+export DOCKER_HUB_PASSWORD=${DOCKER_HUB_PASSWORD};
+export DOCKER_HUB_USER_NAME=${DOCKER_HUB_USER_NAME};
 
 export POSTGRES_DB_USER=postgres;
 export POSTGRES_DB_DBNAME=postgres;

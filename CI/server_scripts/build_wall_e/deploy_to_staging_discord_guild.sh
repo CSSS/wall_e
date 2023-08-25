@@ -16,7 +16,7 @@ rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 # the names of the container and docker-compose file used for wall_e that is running under the current `COMPOSE_PROJECT_NAME`
 export test_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export test_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
-export COMPOSE_PROJECT_NAME_lower=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
+export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 export test_image_name=$(echo "${test_container_name}" | awk '{print tolower($0)}')
 export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
