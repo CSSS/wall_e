@@ -495,6 +495,23 @@
 			"In order to bring up specific examples of how to use each command, use \".man <command>\""
 		]
 	},
+	"tex": {
+		"class": "Misc",
+		"access": "roles",
+		"roles": [
+			"@everyone"
+		],
+		"aliases": [],
+		"example": [
+			"/tex e^{i \\theta} = \\cos x + i \\sin x",
+			"/tex x = 2*pi*n_{1} + Re(\\theta) + iIm(\\theta)"
+
+		],
+		"description": [
+			"Draws a mathematical formula using latex markdown",
+			"In order to bring up specific examples of how to use each command, use \".man <command>\""
+		]
+	},
 	"poll": {
 		"class": "Misc",
 		"access": "roles",

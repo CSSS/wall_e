@@ -1,5 +1,11 @@
+from io import BytesIO
+
+import discord
+from discord import app_commands
 from discord.ext import commands
 import aiohttp
+from matplotlib import pyplot as plt
+
 from resources.utilities.embed import embed
 from resources.utilities.log_channel import write_to_bot_log_channel
 from resources.utilities.paginate import paginate_embed
@@ -12,6 +18,19 @@ import re
 from resources.utilities.setup_logger import Loggers
 
 
+def render_latex(formula, fontsize=12, dpi=300, format_='svg'):
+    """Renders LaTeX formula into image.
+    """
+    fig = plt.figure(figsize=(0.01, 0.01))
+    fig.text(0, 0, u'${}$'.format(formula), fontsize=fontsize, color='white')
+    buffer_ = BytesIO()
+    fig.savefig(
+        buffer_, dpi=dpi, transparent=True, format=format_, bbox_inches='tight', pad_inches=0.0, facecolor='black'
+    )
+    plt.close(fig)
+    return buffer_.getvalue()
+
+
 class Misc(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
@@ -21,6 +40,7 @@ class Misc(commands.Cog):
         self.bot_loop_manager = bot_loop_manager
         self.wolframClient = wolframalpha.Client(self.config.get_config_value('basic_config', 'WOLFRAM_API_TOKEN'))
         self.help_dict = self.config.get_help_json()
+
         self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
             = Loggers.get_logger(logger_name="Misc")
 
@@ -421,6 +441,18 @@ class Misc(commands.Cog):
             await self.general_description(ctx)
         else:
             await self.specific_description(ctx, arg)
+
+    @app_commands.command(name="tex", description="draws a mathematical formula")
+    @app_commands.describe(formula="formula to draw out")
+    async def tex(self, interaction: discord.Interaction, formula: str):
+        # created using below links:
+        # https://stackoverflow.com/a/31371907
+        # https://stackoverflow.com/a/57472241
+        image_bytes = render_latex(formula, fontsize=10, dpi=200, format_='png')
+        with open('formula.png', 'wb') as image_file:
+            image_file.write(image_bytes)
+        await interaction.response.send_message(file=discord.File('formula.png'))
+        self.logger.info("[Administration frequency()] graph created and saved")
 
     async def __del__(self):
         await self.session.close()
