@@ -9,6 +9,7 @@ from discord.ext import commands
 from WalleModels.models import BanRecords
 from resources.utilities.embed import embed as em
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 
 BanAction = discord.AuditLogAction.ban
@@ -26,7 +27,7 @@ class Ban(commands.Cog):
         self.ban_list = []
         self.error_colour = 0xA6192E
         self.mod_channel = None
-        self.guild: discord.Guild = None
+        self.guild: discord.Guild = get_guild(self.bot, self.config)
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
@@ -48,10 +49,8 @@ class Ban(commands.Cog):
             "ban"
         )
         self.mod_channel = discord.utils.get(
-            self.bot.guilds[0].channels, id=mod_channel_id
+            self.guild.channels, id=mod_channel_id
         )
-        """Sets local ban list, mod channel, and guild object"""
-        self.guild = self.bot.guilds[0]
 
         # read in ban_list of banned users
         self.logger.info('[Ban load()] loading ban list from the database')

@@ -9,6 +9,7 @@ from discord.ext import commands
 from WalleModels.models import CommandStat
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.list_of_perms import get_list_of_user_permissions
 from resources.utilities.setup_logger import Loggers
 
@@ -25,6 +26,7 @@ class ManageCog(commands.Cog):
         bot.add_check(self.check_privilege)
         self.bot = bot
         self.config = config
+        self.guild = get_guild(self.bot, self.config)
         self.help_dict = self.config.get_help_json()
         self.bot_loop_manager = bot_loop_manager
 
@@ -44,7 +46,7 @@ class ManageCog(commands.Cog):
     # commands
     @commands.Cog.listener()
     async def on_ready(self):
-        self.logger.info(f"[ManageCog on_ready()] acquired {len(self.bot.guilds[0].channels)} channels")
+        self.logger.info(f"[ManageCog on_ready()] acquired {len(self.guild.channels)} channels")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             self.logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             await self.bot_loop_manager.create_or_get_channel_id(

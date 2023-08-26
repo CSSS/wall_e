@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.paginate import paginate_embed
 from resources.utilities.role_commands_autocomplete_functions import get_roles_with_members, get_assigned_roles, \
     get_assignable_roles, get_roles_that_can_be_deleted
@@ -21,6 +22,7 @@ class RoleCommands(commands.Cog):
         self.error_log_file_absolute_path = log_info[2]
         self.bot = bot
         self.config = config
+        self.guild = get_guild(self.bot, self.config)
         self.bot_channel = None
         self.exec_role_colour = [3447003, 6533347]
         self.bot_loop_manager = bot_loop_manager
@@ -44,7 +46,7 @@ class RoleCommands(commands.Cog):
             "role_commands"
         )
         self.bot_channel = discord.utils.get(
-            self.bot.guilds[0].channels, id=reminder_chan_id
+            self.guild.channels, id=reminder_chan_id
         )
         self.logger.info(f"[RoleCommands get_bot_general_channel()] bot channel {self.bot_channel} acquired.")
 

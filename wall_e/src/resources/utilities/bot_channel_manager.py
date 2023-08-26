@@ -2,10 +2,13 @@ import asyncio
 
 import discord
 
+from resources.utilities.get_guild import get_guild
+
 
 class BotChannelManager:
     def __init__(self, config, bot):
         self.bot = bot
+        self.guild = get_guild(self.bot, config)
         self.channel_names = {
             "general_channel": {
                 "TEST": config.get_config_value('basic_config', 'BRANCH_NAME').lower(),
@@ -54,7 +57,7 @@ class BotChannelManager:
               f"getting channel {service} for {environment}")
         print("[BotChannelManager get_bot_general_channel()] attempting to get "
               f" channel '{service}' for {environment} ")
-        bot_chan = discord.utils.get(self.bot.guilds[0].channels, name=service)
+        bot_chan = discord.utils.get(self.guild.channels, name=service)
         if bot_chan is None:
             print("[BotChannelManager create_or_get_channel_id()] "
                   f"channel \"{service}\" for {environment} does not exist "
@@ -62,7 +65,7 @@ class BotChannelManager:
         number_of_retries_to_attempt = 10
         number_of_retries = 0
         while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
-            bot_chan = await self.bot.guilds[0].create_text_channel(service)
+            bot_chan = await self.guild.create_text_channel(service)
             print("[BotChannelManager create_or_get_channel_id()] "
                   f"got channel \"{bot_chan}\" for {environment}")
             print("[BotChannelManager get_bot_general_channel()] attempt "
@@ -95,7 +98,7 @@ class BotChannelManager:
             self.channel_obtained[channel_name] = None
             print("[BotChannelManager get_bot_general_channel()] attempting to get "
                   f" channel '{channel_name}' for {environment} {channel_purpose} ")
-            bot_chan = discord.utils.get(self.bot.guilds[0].channels, name=channel_name)
+            bot_chan = discord.utils.get(self.guild.channels, name=channel_name)
             if bot_chan is None:
                 print("[BotChannelManager create_or_get_channel_id()] "
                       f"channel \"{channel_name}\" for {environment} {channel_purpose} does not exist "
@@ -103,7 +106,7 @@ class BotChannelManager:
             number_of_retries_to_attempt = 10
             number_of_retries = 0
             while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
-                bot_chan = await self.bot.guilds[0].create_text_channel(channel_name)
+                bot_chan = await self.guild.create_text_channel(channel_name)
                 print("[BotChannelManager create_or_get_channel_id()] "
                       f"got channel \"{bot_chan}\" for {environment} {channel_purpose}")
                 print("[BotChannelManager get_bot_general_channel()] attempt "
