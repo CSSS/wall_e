@@ -59,6 +59,7 @@ class ManageCog(commands.Cog):
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             self.logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             await self.bot_loop_manager.create_or_get_channel_id(
+                self.guild,
                 self.config.get_config_value('basic_config', 'ENVIRONMENT'),
                 "general_channel"
             )
