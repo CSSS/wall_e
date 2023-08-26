@@ -15,13 +15,13 @@ from resources.utilities.setup_logger import Loggers
 class Administration(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
-        self.config = config
-        self.bot = bot
-        self.bot_loop_manager = bot_loop_manager
         log_info = Loggers.get_logger(logger_name="Administration")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.config = config
+        self.bot = bot
+        self.bot_loop_manager = bot_loop_manager
         if self.config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
@@ -40,13 +40,13 @@ class Administration(commands.Cog):
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "administration_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "administration_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "administration_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "administration_error"
         )
 
     def valid_cog(self, name):
@@ -86,7 +86,7 @@ class Administration(commands.Cog):
         if not valid:
             await ctx.send(f"```{module_name} isn't a real cog```")
             self.logger.info(
-                f"[Administration load()] {ctx.message.author} tried loading "
+                f"[Administration unload()] {ctx.message.author} tried loading "
                 f"{module_name} which doesn't exist."
             )
             return

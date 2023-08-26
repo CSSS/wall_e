@@ -18,25 +18,25 @@ from resources.utilities.setup_logger import Loggers
 class Reminders(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
-        self.bot = bot
-        self.config = config
-        self.help_message = ''.join(self.config.get_help_json()['remindmein']['example'])
-        self.bot_loop_manager = bot_loop_manager
         log_info = Loggers.get_logger(logger_name="Reminders")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.bot = bot
+        self.config = config
+        self.help_message = ''.join(self.config.get_help_json()['remindmein']['example'])
+        self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "reminders_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "reminders_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "reminders_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "reminders_error"
         )
 
     #########################################
@@ -59,10 +59,10 @@ class Reminders(commands.Cog):
                 for reminder in reminders:
                     reminder_message = reminder.message
                     author_id = reminder.author_id
-                    self.logger.info(f'[Reminders get_message()] obtained the message of [{reminder_message}] for '
+                    self.logger.info(f'[Reminders get_messages()] obtained the message of [{reminder_message}] for '
                                      f'author with id [{author_id}] for '
                                      f'BOT_GENERAL_CHANNEL [{reminder_chan_id}]')
-                    self.logger.info('[Reminders get_message()] sent off '
+                    self.logger.info('[Reminders get_messages()] sent off '
                                      f'reminder to {author_id} about \"{reminder_message}\"')
                     e_obj = await embed(
                         self.logger,
@@ -76,7 +76,7 @@ class Reminders(commands.Cog):
                     if e_obj is not False:
                         await reminder_channel.send(f'<@{author_id}>', embed=e_obj)
             except Exception as error:
-                self.logger.error('[Reminders get_message()] Ignoring exception when generating reminder:')
+                self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
             await asyncio.sleep(2)
 
@@ -214,7 +214,7 @@ class Reminders(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
-                self.logger.error('[Reminders.py showreminders()] Ignoring exception when generating reminder:')
+                self.logger.error('[Reminders showreminders()] Ignoring exception when generating reminder:')
                 traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
     @commands.command()

@@ -60,12 +60,12 @@ class WalleBot(commands.Bot):
             raise Exception(f'[main.py] Failed to load test server code testenv\n{exception}')
 
         # removing default help command to allow for custom help command
-        print("[main.py] default help command being removed")
+        logger.info("[main.py] default help command being removed")
         self.remove_command("help")
 
         # tries to load any commands specified in the_commands into the bot
         await self.add_custom_cog()
-        print("commands cleared and synced")
+        logger.info("[main.py] commands cleared and synced")
         await super().setup_hook()
 
     async def remove_custom_cog(self, folder: str, module_name: str):
@@ -96,12 +96,12 @@ class WalleBot(commands.Bot):
                     for class_that_match in classes_that_match:
                         cog_class_to_load = getattr(cog_module, class_that_match[0])
                         if type(cog_class_to_load) is commands.cog.CogMeta:
-                            print(f"[main.py] attempting to load cog {cog['name']}")
+                            logger.info(f"[main.py] attempting to load cog {cog['name']}")
                             await self.add_cog(
                                 cog_class_to_load(self, wall_e_config, self.bot_loop_manager),
                                 guild=guild
                             )
-                            print(f"[main.py] {cog['name']} successfully loaded")
+                            logger.info(f"[main.py] {cog['name']} successfully loaded")
                             if not adding_all_cogs:
                                 cog_unloaded = True
                                 break
@@ -126,31 +126,35 @@ async def on_ready():
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False:
         try:
-            await start_file_uploading(bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug")
-            await start_file_uploading(bot, wall_e_config, sys_error_log_file_absolute_path, "sys_error")
-            await start_file_uploading(bot, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug")
-            await start_file_uploading(bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error")
+            await start_file_uploading(logger, bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug")
+            await start_file_uploading(logger, bot, wall_e_config, sys_error_log_file_absolute_path, "sys_error")
+            await start_file_uploading(
+                logger, bot, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug"
+            )
+            await start_file_uploading(
+                logger, bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error"
+            )
             bot.uploading = True
         except Exception as e:
             raise Exception(
                 "[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
                 f"following error {e}")
-    print('[main.py on_ready()] Logged in as')
-    print(f'[main.py on_ready()] {bot.user.name}')
-    print(f'[main.py on_ready()] {bot.user.id}')
-    print('[main.py on_ready()] ------')
+    logger.info('[main.py on_ready()] Logged in as')
+    logger.info(f'[main.py on_ready()] {bot.user.name}')
+    logger.info(f'[main.py on_ready()] {bot.user.id}')
+    logger.info('[main.py on_ready()] ------')
     wall_e_config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
     wall_e_config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar.url)
-    print(
+    logger.info(
         "[main.py on_ready()] BOT_NAME initialized to"
         f" {wall_e_config.get_config_value('bot_profile', 'BOT_NAME')}"
     )
-    print(
+    logger.info(
         "[main.py on_ready()] BOT_AVATAR initialized to "
         f"{wall_e_config.get_config_value('bot_profile', 'BOT_AVATAR')}"
 
     )
-    print(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
+    logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 
 ########################################################
@@ -196,7 +200,7 @@ async def on_app_command_completion(interaction: discord.Interaction, cmd: disco
 async def on_command_error(interaction: discord.Interaction, error):
     if command_in_correct_test_guild_channel(wall_e_config, interaction):
         if isinstance(error, commands.MissingRequiredArgument):
-            logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
+            logger.error(f'[main.py on_command_error()] Missing argument: {error.param}')
             e_obj = await imported_embed(
                 logger,
                 interaction=interaction,
@@ -226,7 +230,7 @@ async def on_command_error(interaction: discord.Interaction, error):
 # STARTING POINT ##
 ####################
 if __name__ == "__main__":
-    print("[main.py] Wall-E is starting up")
+    logger.info("[main.py] Wall-E is starting up")
 
     # final step, running the bot with the passed in environment TOKEN variable
     bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"), log_handler=logging.StreamHandler(sys.stdout))

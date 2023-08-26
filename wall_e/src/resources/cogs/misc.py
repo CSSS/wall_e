@@ -33,6 +33,10 @@ def render_latex(formula, fontsize=12, dpi=300, format_='svg'):
 class Misc(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
+        log_info = Loggers.get_logger(logger_name="Misc")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
@@ -40,21 +44,16 @@ class Misc(commands.Cog):
         self.wolframClient = wolframalpha.Client(self.config.get_config_value('basic_config', 'WOLFRAM_API_TOKEN'))
         self.help_dict = self.config.get_help_json()
 
-        log_info = Loggers.get_logger(logger_name="Misc")
-        self.logger = log_info[0]
-        self.debug_log_file_absolute_path = log_info[1]
-        self.error_log_file_absolute_path = log_info[2]
-
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "misc_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "misc_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "misc_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "misc_error"
         )
 
     @commands.command()
@@ -298,9 +297,9 @@ class Misc(commands.Cog):
         number_of_commands_per_page = 5
         self.logger.info(f"[Misc general_description()] help command detected from {ctx.message.author}")
         user_roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
-        self.logger.info(f"user_roles : {user_roles}")
+        self.logger.info(f"[Misc general_description()] user_roles : {user_roles}")
         user_perms = await get_list_of_user_permissions(self.logger, ctx)
-        self.logger.info(f"user_perms : {user_perms}")
+        self.logger.info(f"[Misc general_description()] user_perms : {user_perms}")
         description_to_embed = [""]
         number_of_command_added_in_current_page, current_page = 0, 0
         class_in_previous_command = ""
@@ -445,7 +444,7 @@ class Misc(commands.Cog):
         with open('formula.png', 'wb') as image_file:
             image_file.write(image_bytes)
         await interaction.response.send_message(file=discord.File('formula.png'))
-        self.logger.info("[Administration frequency()] graph created and saved")
+        self.logger.info(f"[Misc tex()] formula created and send for [{formula}]")
 
     async def cog_unload(self) -> None:
         await self.session.close()

@@ -17,6 +17,10 @@ BanAction = discord.AuditLogAction.ban
 class Ban(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
+        log_info = Loggers.get_logger(logger_name="Ban")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
         self.bot = bot
         self.config = config
         self.ban_list = []
@@ -25,21 +29,16 @@ class Ban(commands.Cog):
         self.guild: discord.Guild = None
         self.bot_loop_manager = bot_loop_manager
 
-        log_info = Loggers.get_logger(logger_name="Ban")
-        self.logger = log_info[0]
-        self.debug_log_file_absolute_path = log_info[1]
-        self.error_log_file_absolute_path = log_info[2]
-
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
         )
 
     @commands.Cog.listener(name='on_ready')
@@ -98,7 +97,7 @@ class Ban(commands.Cog):
                 return member.id == ban.target.id
             audit_ban = await discord.utils.find(pred, self.guild.audit_logs(action=BanAction, oldest_first=False))
         except Exception as e:
-            self.logger.info(f'error while fetching ban data: {e}')
+            self.logger.info(f'[Ban intercept()] error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
@@ -323,7 +322,7 @@ class Ban(commands.Cog):
         if timeframe <= 0 or timeframe > 14:
             await ctx.send('Window to purge message must be between 1 - 14 days. Using default of `1 day`')
             timeframe = 1
-        self.logger.info(f"[Ban purge_message()] timeframe: {timeframe}")
+        self.logger.info(f"[Ban purge_messages()] timeframe: {timeframe}")
 
         # begin purging messages
         # get list of all channels
@@ -333,7 +332,7 @@ class Ban(commands.Cog):
             return msg.author == user
 
         date = discord.utils.utcnow() - datetime.timedelta(timeframe)
-        self.logger.info(f"[Ban purge_message()] message from {user} will be purge starting from date {date}")
+        self.logger.info(f"[Ban purge_messages()] message from {user} will be purge starting from date {date}")
 
         for channel in channels:
             send_perm = channel.overwrites_for(ctx.guild.default_role).send_messages
@@ -352,7 +351,7 @@ class Ban(commands.Cog):
 
         self.logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
         if user_id not in self.ban_list:
-            self.logger.info(f"Provided id: {user_id}, does not belong to a banned member.")
+            self.logger.info(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
             e_obj = await em(self.logger, ctx=ctx, title="Error",
                              content=[("Problem",
                                        f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")],
@@ -381,7 +380,7 @@ class Ban(commands.Cog):
     async def unban_error(self, ctx, error):
         """Catches an error in unban when a non integer is passed in as an argument"""
 
-        self.logger.info("[Ban Unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
+        self.logger.info("[Ban unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
         if isinstance(error, commands.BadArgument):
             e_obj = await em(self.logger, ctx=ctx, title="Error",
                              content=[("Problem", "Please enter a numerical Discord ID.")],
@@ -447,7 +446,7 @@ class Ban(commands.Cog):
         await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
 
     def cog_unload(self):
-        self.logger.info('[Ban cog_load()] Removing listeners for ban cog: on_ready, on_member_join, on_member_ban')
+        self.logger.info('[Ban cog_unload()] Removing listeners for ban cog: on_ready, on_member_join, on_member_ban')
         self.bot.remove_listener(self.load, 'on_ready')
         self.bot.remove_listener(self.watchdog, 'on_member_join')
         self.bot.remove_listener(self.intercept, 'on_member_ban')

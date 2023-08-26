@@ -8,30 +8,30 @@ from resources.utilities.setup_logger import Loggers
 class Frosh(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
-        self.bot = bot
-        self.config = config
-        self.bot_loop_manager = bot_loop_manager
         log_info = Loggers.get_logger(logger_name="Frosh")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.bot = bot
+        self.config = config
+        self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "frosh_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "frosh_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "frosh_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "frosh_error"
         )
 
     @commands.command(aliases=["team"])
     async def froshteam(self, ctx, *info):
-        self.logger.info(f'[Frosh team()] team command detected from user {ctx.author}')
-        self.logger.info(f'[Frosh team()] arguments given: {info}')
+        self.logger.info(f'[Frosh froshteam()] team command detected from user {ctx.author}')
+        self.logger.info(f'[Frosh froshteam()] arguments given: {info}')
 
         if len(info) < 3:
             e_obj = await em(
@@ -45,7 +45,7 @@ class Frosh(commands.Cog):
                 footer='Team Error'
             )
             await ctx.send(embed=e_obj)
-            self.logger.info('[Frosh team()] Missing arguments, command ended')
+            self.logger.info('[Frosh froshteam()] Missing arguments, command ended')
             return
 
         # just gonna assume the provided stuff is all good
@@ -73,7 +73,7 @@ class Frosh(commands.Cog):
         except Exception:
             pass
 
-        self.logger.info(f'[Frosh team()] team embed created with the following fields: {e_obj.fields}')
+        self.logger.info(f'[Frosh froshteam()] team embed created with the following fields: {e_obj.fields}')
 
         await ctx.send(embed=e_obj)
 

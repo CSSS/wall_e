@@ -122,26 +122,26 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
 class RoleCommands(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
+        log_info = Loggers.get_logger(logger_name="RoleCommands")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
         self.bot = bot
         self.config = config
         self.bot_channel = None
         self.exec_role_colour = [3447003, 6533347]
         self.bot_loop_manager = bot_loop_manager
-        log_info = Loggers.get_logger(logger_name="RoleCommands")
-        self.logger = log_info[0]
-        self.debug_log_file_absolute_path = log_info[1]
-        self.error_log_file_absolute_path = log_info[2]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "role_commands_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "role_commands_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "role_commands_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "role_commands_error"
         )
 
     @commands.Cog.listener(name="on_ready")
@@ -153,12 +153,12 @@ class RoleCommands(commands.Cog):
         self.bot_channel = discord.utils.get(
             self.bot.guilds[0].channels, id=reminder_chan_id
         )
-        self.logger.info("[RoleCommands get_bot_general_channel()] bot_channel acquired.")
+        self.logger.info(f"[RoleCommands get_bot_general_channel()] bot channel {self.bot_channel} acquired.")
 
     @app_commands.command(name="newrole", description="create a new role")
     @app_commands.describe(new_role_name="name for new role")
     async def slash_newrole(self, interaction: discord.Interaction, new_role_name: str):
-        self.logger.info(f"[RoleCommands newrole()] {interaction.user} "
+        self.logger.info(f"[RoleCommands slash_newrole()] {interaction.user} "
                          f"called newrole with following argument: new_role_name={new_role_name}")
         new_role_name = new_role_name.lower()
         guild = interaction.guild
@@ -174,11 +174,11 @@ class RoleCommands(commands.Cog):
             )
             if e_obj is not False:
                 await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
-                self.logger.info(f"[RoleCommands newrole()] {new_role_name} already exists")
+                self.logger.info(f"[RoleCommands slash_newrole()] {new_role_name} already exists")
             return
         role = await guild.create_role(name=new_role_name)
         await role.edit(mentionable=True)
-        self.logger.info(f"[RoleCommands newrole()] {new_role_name} created and is set to mentionable")
+        self.logger.info(f"[RoleCommands slash_newrole()] {new_role_name} created and is set to mentionable")
 
         e_obj = await embed(
             self.logger,
@@ -232,12 +232,12 @@ class RoleCommands(commands.Cog):
     @app_commands.command(name="deleterole", description="delete a role")
     @app_commands.autocomplete(empty_role=get_roles_that_can_be_deleted)
     async def slash_deleterole(self, interaction: discord.Interaction, empty_role: str):
-        self.logger.info(f"[RoleCommands deleterole()] {interaction.user} "
+        self.logger.info(f"[RoleCommands slash_deleterole()] {interaction.user} "
                          f"called deleterole with role {empty_role}.")
         if empty_role == "-1":
             return
         if not empty_role.isdigit():
-            self.logger.info(f"[RoleCommands deleterole()] invalid empty_role id of {empty_role} exists")
+            self.logger.info(f"[RoleCommands slash_deleterole()] invalid empty_role id of {empty_role} exists")
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
@@ -249,7 +249,7 @@ class RoleCommands(commands.Cog):
             return
         role = discord.utils.get(interaction.guild.roles, id=int(empty_role))
         await role.delete()
-        self.logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
+        self.logger.info("[RoleCommands slash_deleterole()] no members were detected, role has been deleted.")
         e_obj = await embed(
             self.logger,
             interaction=interaction,
@@ -309,11 +309,11 @@ class RoleCommands(commands.Cog):
     @app_commands.command(name="iam", description="add yourself to an assignable role")
     @app_commands.autocomplete(role_to_assign_to_me=get_assignable_roles)
     async def slash_iam(self, interaction: discord.Interaction, role_to_assign_to_me: str):
-        self.logger.info(f"[RoleCommands iam()] {interaction.user} called iam with role {role_to_assign_to_me}")
+        self.logger.info(f"[RoleCommands slash_iam()] {interaction.user} called iam with role {role_to_assign_to_me}")
         if role_to_assign_to_me == "-1":
             return
         if not role_to_assign_to_me.isdigit():
-            self.logger.info(f"[RoleCommands deleterole()] invalid role id of {role_to_assign_to_me} detected")
+            self.logger.info(f"[RoleCommands slash_iam()] invalid role id of {role_to_assign_to_me} detected")
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
@@ -326,7 +326,7 @@ class RoleCommands(commands.Cog):
         role = discord.utils.get(interaction.guild.roles, id=int(role_to_assign_to_me))
         user = interaction.user
         await user.add_roles(role)
-        self.logger.info(f"[RoleCommands iam()] user {user} added to role {role}.")
+        self.logger.info(f"[RoleCommands slash_iam()] user {user} added to role {role}.")
         if (role == 'froshee'):
             e_obj = await embed(
                 self.logger,
@@ -413,11 +413,13 @@ class RoleCommands(commands.Cog):
     @app_commands.command(name="iamn", description="remove yourself from an assignable role")
     @app_commands.autocomplete(role_to_remove_from_me=get_assigned_roles)
     async def slash_iamn(self, interaction: discord.Interaction, role_to_remove_from_me: str):
-        self.logger.info(f"[RoleCommands iamn()] {interaction.user} called iamn with role {role_to_remove_from_me}")
+        self.logger.info(
+            f"[RoleCommands slash_iamn()] {interaction.user} called iamn with role {role_to_remove_from_me}"
+        )
         if role_to_remove_from_me == "-1":
             return
         if not role_to_remove_from_me.isdigit():
-            self.logger.info(f"[RoleCommands deleterole()] invalid role id of {role_to_remove_from_me} detected")
+            self.logger.info(f"[RoleCommands slash_iamn()] invalid role id of {role_to_remove_from_me} detected")
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
@@ -438,13 +440,13 @@ class RoleCommands(commands.Cog):
             description=f"You have successfully been removed from role **`{role}`**."
         )
         if e_obj is not False:
-            self.logger.info(f"[RoleCommands iamn()] {user} has been removed from role {role}")
+            self.logger.info(f"[RoleCommands slash_iamn()] {user} has been removed from role {role}")
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
         # delete role if last person
         members_of_role = role.members
         if not members_of_role:
             await role.delete()
-            self.logger.info("[RoleCommands iamn()] no members were detected, role has been deleted.")
+            self.logger.info("[RoleCommands slash_iamn()] no members were detected, role has been deleted.")
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
@@ -567,7 +569,7 @@ class RoleCommands(commands.Cog):
         if role == "-1":
             return
         if not role.isdigit():
-            self.logger.info(f"[RoleCommands deleterole()] invalid role id of {role} detected")
+            self.logger.info(f"[RoleCommands slash_whois()] invalid role id of {role} detected")
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
@@ -589,7 +591,7 @@ class RoleCommands(commands.Cog):
         else:
             number_of_users_per_page = 20
             self.logger.info(
-                f"[RoleCommands whois()] {interaction.user} called whois with role "
+                f"[RoleCommands slash_whois()] {interaction.user} called whois with role "
                 f"{role}"
             )
             member_string = [""]
@@ -613,7 +615,7 @@ class RoleCommands(commands.Cog):
                     current_index += 1
                     x = 0
                 log_string += f'{name}\t'
-            self.logger.info(f"[RoleCommands whois()] following members were found in the role: {log_string}")
+            self.logger.info(f"[RoleCommands slash_whois()] following members were found in the role: {log_string}")
 
             title = f"Members belonging to role: `{role}`"
             await paginate_embed(

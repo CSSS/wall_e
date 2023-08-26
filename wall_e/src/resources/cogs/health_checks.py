@@ -11,25 +11,25 @@ from resources.utilities.slash_command_checks import slash_command_checks
 class HealthChecks(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
-        self.bot = bot
-        self.config = config
-        self.bot_loop_manager = bot_loop_manager
         log_info = Loggers.get_logger(logger_name="HealthChecks")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.bot = bot
+        self.config = config
+        self.bot_loop_manager = bot_loop_manager
         self.help_dict = self.config.get_help_json()
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "health_checks_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "health_checks_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "health_checks_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "health_checks_error"
         )
 
     @app_commands.command(name="ping")

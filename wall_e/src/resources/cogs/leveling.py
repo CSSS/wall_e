@@ -14,11 +14,10 @@ from resources.utilities.setup_logger import Loggers
 class Leveling(commands.Cog):
 
     def __init__(self, bot, config, bot_loop_manager):
-        """
-
-        :param bot:
-        :param config:
-        """
+        log_info = Loggers.get_logger(logger_name="Leveling")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
         self.levels_have_been_changed = False
         self.bot = bot
         self.config = config
@@ -27,21 +26,17 @@ class Leveling(commands.Cog):
         self.xp_system_ready = False
         self.council_channel = None
         self.bot_loop_manager = bot_loop_manager
-        log_info = Loggers.get_logger(logger_name="Leveling")
-        self.logger = log_info[0]
-        self.debug_log_file_absolute_path = log_info[1]
-        self.error_log_file_absolute_path = log_info[2]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
+            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
+            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
         )
 
     @commands.Cog.listener(name="on_ready")
@@ -287,13 +282,13 @@ class Leveling(commands.Cog):
                                 number_of_retries = 0
                                 number_of_members_fixed += 1
                             except Exception as e:
-                                self.logger.info(
-                                    "[Leveling ensure_roles_exist_and_have_right_users()] alertJace encountered "
+                                self.logger.error(
+                                    "[Leveling ensure_roles_exist_and_have_right_users()] encountered "
                                     f"following error when fixing the roles for member {member_with_point}, \n{e}"
                                 )
                                 if number_of_retries == 5:
-                                    self.logger.info(
-                                        f"[Leveling ensure_roles_exist_and_have_right_users()] alertJace "
+                                    self.logger.error(
+                                        f"[Leveling ensure_roles_exist_and_have_right_users()] "
                                         f"tried to fix the"
                                         f" permissions for member {member_with_point} 5 times, moving onto "
                                         f"next member"
@@ -302,8 +297,8 @@ class Leveling(commands.Cog):
                                     number_of_retries = 0
                                     number_of_members_skipped += 1
                                 else:
-                                    self.logger.info(
-                                        "[Leveling ensure_roles_exist_and_have_right_users()] alertJace "
+                                    self.logger.error(
+                                        "[Leveling ensure_roles_exist_and_have_right_users()] "
                                         "will try again in one minute"
                                     )
                                     await asyncio.sleep(60)
@@ -334,8 +329,8 @@ class Leveling(commands.Cog):
                         try:
                             await member_without_points.remove_roles(*guild_roles)
                         except Exception as e:
-                            self.logger.info(
-                                "[Leveling ensure_roles_exist_and_have_right_users()] alertJace encountered "
+                            self.logger.error(
+                                "[Leveling ensure_roles_exist_and_have_right_users()] encountered "
                                 f"following error when fixing the roles for member {member_without_points}, \n{e}"
                             )
                         await asyncio.sleep(5)
@@ -398,8 +393,8 @@ class Leveling(commands.Cog):
             if success:
                 self.logger.info(f"[Leveling re_assign_roles()] XP roles fixed for user {member}")
             else:
-                self.logger.info(
-                    f"[Leveling re_assign_roles()] alertJace could not fix the XP roles for user {member}"
+                self.logger.error(
+                    f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
                 )
 
     @commands.command()
