@@ -3,7 +3,7 @@ import os
 from resources.utilities.config.config import WallEConfig
 
 environment = os.environ['basic_config__ENVIRONMENT']
-wall_e_config = WallEConfig(environment)
+wall_e_config = WallEConfig(environment, wall_e=False)
 
 DATABASES = {
     'default': {

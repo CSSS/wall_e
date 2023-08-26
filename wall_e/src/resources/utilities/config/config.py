@@ -16,7 +16,10 @@ help_json_file_name = "help.json"
 
 
 class WallEConfig:
-    def __init__(self, environment):
+    def __init__(self, environment, wall_e=True):
+        # wall_e flag is needed to ensure that the environment variables aren't wiped clean until after
+        # they have been used by the django-orm for the database migrations and connection
+
         config = configparser.ConfigParser(interpolation=None)
         config.optionxform = str
         if environment == "LOCALHOST":
@@ -29,19 +32,12 @@ class WallEConfig:
             raise Exception(f"[WallEConfig __init__()] incorrect environment specified {environment}")
         self.config = {'wall_e': config}
 
-        # needed to ensure that the environment variables aren't wiped clean until after they have been used
-        # by the django-orm for the database migrations and connection
-        if 'DJANGO_SETTINGS_SET' not in os.environ:
-            os.environ['DJANGO_SETTINGS_SET'] = "False"
-        else:
-            os.environ['DJANGO_SETTINGS_SET'] = "True"
-
         for each_section in self.config['wall_e'].sections():
             for (key, value) in self.config['wall_e'].items(each_section):
                 environment_var = f"{each_section}__{key}"
                 if environment_var in os.environ:
                     self.set_config_value(each_section, key, os.environ[environment_var])
-                    if os.environ['DJANGO_SETTINGS_SET'] == "True":
+                    if wall_e:
                         os.environ[environment_var] = ' '
 
     def get_config_value(self, section, option):
