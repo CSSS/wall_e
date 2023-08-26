@@ -1,12 +1,13 @@
-from discord.ext import commands
-import time
+import html
 import json  # dont need since requests has built in json encoding and decoding
 import re
-from resources.utilities.embed import embed
-import html
-import aiohttp
+import time
 
-from resources.utilities.log_channel import write_to_bot_log_channel
+import aiohttp
+from discord.ext import commands
+
+from resources.utilities.embed import embed
+from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.setup_logger import Loggers
 
 sfu_red = 0xA6192E
@@ -18,27 +19,21 @@ class SFU(commands.Cog):
         self.req = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
         self.bot_loop_manager = bot_loop_manager
-        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
-            = Loggers.get_logger(logger_name="SFU")
+        log_info = Loggers.get_logger(logger_name="SFU")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "sfu_debug"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.debug_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.debug_log_file_absolute_path, "sfu_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "sfu_error"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.error_log_file_absolute_path, "sfu_error"
         )
 
     @commands.command()

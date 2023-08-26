@@ -11,7 +11,7 @@ from discord.ext import commands
 import django_db_orm_settings
 from WalleModels.models import Reminder
 from resources.utilities.embed import embed
-from resources.utilities.log_channel import write_to_bot_log_channel
+from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.setup_logger import Loggers
 
 
@@ -22,27 +22,21 @@ class Reminders(commands.Cog):
         self.config = config
         self.help_message = ''.join(self.config.get_help_json()['remindmein']['example'])
         self.bot_loop_manager = bot_loop_manager
-        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
-            = Loggers.get_logger(logger_name="Reminders")
+        log_info = Loggers.get_logger(logger_name="Reminders")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "reminders_debug"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.debug_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.debug_log_file_absolute_path, "reminders_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "reminders_error"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.error_log_file_absolute_path, "reminders_error"
         )
 
     #########################################

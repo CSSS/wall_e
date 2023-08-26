@@ -1,13 +1,14 @@
-from discord.ext import commands
-import discord
-from resources.utilities.embed import embed as em
-from WalleModels.models import BanRecords
-import datetime
-import pytz
-from typing import Union
 import asyncio
+import datetime
+from typing import Union
 
-from resources.utilities.log_channel import write_to_bot_log_channel
+import discord
+import pytz
+from discord.ext import commands
+
+from WalleModels.models import BanRecords
+from resources.utilities.embed import embed as em
+from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.setup_logger import Loggers
 
 BanAction = discord.AuditLogAction.ban
@@ -23,27 +24,22 @@ class Ban(commands.Cog):
         self.mod_channel = None
         self.guild: discord.Guild = None
         self.bot_loop_manager = bot_loop_manager
-        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
-            = Loggers.get_logger(logger_name="Ban")
+
+        log_info = Loggers.get_logger(logger_name="Ban")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "ban_debug"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.debug_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "ban_error"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
         )
 
     @commands.Cog.listener(name='on_ready')

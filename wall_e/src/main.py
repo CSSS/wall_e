@@ -125,28 +125,10 @@ async def on_ready():
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False:
         try:
-            print(f"[main.py] trying to open {debug_log_file_absolute_path} to be able to send "
-                  "its output to #bot_log channel")
-            chan_id = await bot.bot_loop_manager.create_or_get_channel_id_for_service(
-                wall_e_config,
-                "wall_e_debug"
-            )
-            bot.loop.create_task(write_to_bot_log_channel(bot, debug_log_file_absolute_path, chan_id))
-            print(
-                "[main.py] log file successfully opened and connection to "
-                "bot_log channel has been made"
-            )
-            print(f"[main.py] trying to open {sys_stream_error_log_file_absolute_path} to be able to send "
-                  "its output to #bot_log channel")
-            chan_id = await bot.bot_loop_manager.create_or_get_channel_id_for_service(
-                wall_e_config,
-                "wall_e_error"
-            )
-            bot.loop.create_task(write_to_bot_log_channel(bot, sys_stream_error_log_file_absolute_path, chan_id))
-            print(
-                "[main.py] log file successfully opened and connection to "
-                "bot_log channel has been made"
-            )
+            await start_file_uploading(bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug")
+            await start_file_uploading(bot, wall_e_config, sys_error_log_file_absolute_path, "sys_error")
+            await start_file_uploading(bot, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug")
+            await start_file_uploading(bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error")
             bot.uploading = True
         except Exception as e:
             raise Exception(
@@ -194,7 +176,6 @@ async def on_message(message):
 ########################################################
 @bot.event
 async def on_app_command_completion(interaction: discord.Interaction, cmd: discord.app_commands.commands.Command):
-
     database_enabled = wall_e_config.enabled("database_config", option="ENABLED")
     correct_channel = await command_in_correct_test_guild_channel(wall_e_config, interaction)
     if correct_channel and database_enabled:
@@ -238,6 +219,7 @@ async def on_command_error(interaction: discord.Interaction, error):
                 else:
                     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
                     return
+
 
 ####################
 # STARTING POINT ##

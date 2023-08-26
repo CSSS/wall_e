@@ -1,20 +1,19 @@
+import asyncio
+import re
+import urllib
 from io import BytesIO
 
+import aiohttp
 import discord
+import wolframalpha
 from discord import app_commands
 from discord.ext import commands
-import aiohttp
 from matplotlib import pyplot as plt
 
 from resources.utilities.embed import embed
-from resources.utilities.log_channel import write_to_bot_log_channel
-from resources.utilities.paginate import paginate_embed
+from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.list_of_perms import get_list_of_user_permissions
-import wolframalpha
-import urllib
-import asyncio
-import re
-
+from resources.utilities.paginate import paginate_embed
 from resources.utilities.setup_logger import Loggers
 
 
@@ -41,27 +40,21 @@ class Misc(commands.Cog):
         self.wolframClient = wolframalpha.Client(self.config.get_config_value('basic_config', 'WOLFRAM_API_TOKEN'))
         self.help_dict = self.config.get_help_json()
 
-        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
-            = Loggers.get_logger(logger_name="Misc")
+        log_info = Loggers.get_logger(logger_name="Misc")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "misc_debug"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.debug_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.debug_log_file_absolute_path, "misc_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "misc_error"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.error_log_file_absolute_path, "misc_error"
         )
 
     @commands.command()

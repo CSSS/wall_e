@@ -4,7 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 import discord
 
-from resources.utilities.log_channel import write_to_bot_log_channel
+from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.paginate import paginate_embed
 from resources.utilities.embed import embed
 from operator import itemgetter
@@ -127,8 +127,22 @@ class RoleCommands(commands.Cog):
         self.bot_channel = None
         self.exec_role_colour = [3447003, 6533347]
         self.bot_loop_manager = bot_loop_manager
-        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path = \
-            Loggers.get_logger(logger_name="RoleCommands")
+        log_info = Loggers.get_logger(logger_name="RoleCommands")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_debug_logs(self):
+        await start_file_uploading(
+            self.bot, self.config, self.debug_log_file_absolute_path, "role_commands_debug"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_error_logs(self):
+        await start_file_uploading(
+            self.bot, self.config, self.error_log_file_absolute_path, "role_commands_error"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def get_bot_general_channel(self):
@@ -140,26 +154,6 @@ class RoleCommands(commands.Cog):
             self.bot.guilds[0].channels, id=reminder_chan_id
         )
         self.logger.info("[RoleCommands get_bot_general_channel()] bot_channel acquired.")
-
-    @commands.Cog.listener(name="on_ready")
-    async def upload_debug_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "role_commands_debug"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.debug_log_file_absolute_path, chan_id
-        )
-
-    @commands.Cog.listener(name="on_ready")
-    async def upload_error_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "role_commands_error"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
-        )
 
     @app_commands.command(name="newrole", description="create a new role")
     @app_commands.describe(new_role_name="name for new role")

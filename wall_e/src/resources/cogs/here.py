@@ -2,10 +2,10 @@
 # Useful since the server size does not allow offline users to be listed
 #     in the sidebar
 
-from discord.ext import commands
 import discord
+from discord.ext import commands
 
-from resources.utilities.log_channel import write_to_bot_log_channel
+from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.setup_logger import Loggers
 
 
@@ -15,27 +15,21 @@ class Here(commands.Cog):
         self.bot = bot
         self.config = config
         self.bot_loop_manager = bot_loop_manager
-        self.logger, self.debug_log_file_absolute_path, self.sys_stream_error_log_file_absolute_path \
-            = Loggers.get_logger(logger_name="Here")
+        log_info = Loggers.get_logger(logger_name="Here")
+        self.logger = log_info[0]
+        self.debug_log_file_absolute_path = log_info[1]
+        self.error_log_file_absolute_path = log_info[2]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "here_debug"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.debug_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.debug_log_file_absolute_path, "here_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        chan_id = await self.bot_loop_manager.create_or_get_channel_id_for_service(
-            self.config,
-            "here_error"
-        )
-        await write_to_bot_log_channel(
-            self.bot, self.sys_stream_error_log_file_absolute_path, chan_id
+        await start_file_uploading(
+            self.bot, self.config, self.error_log_file_absolute_path, "here_error"
         )
 
     def build_embed(self, members, channel):
