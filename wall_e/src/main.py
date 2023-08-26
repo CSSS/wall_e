@@ -18,6 +18,7 @@ from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 from resources.utilities.slash_command_checks import command_in_correct_test_guild_channel
 
@@ -89,7 +90,7 @@ class WalleBot(commands.Bot):
             if cog_unloaded:
                 break
             try:
-                guild = discord.Object(id=wall_e_config.get_config_value('basic_config', 'DISCORD_ID'))
+                guild = get_guild(self, wall_e_config)
                 if adding_all_cogs or module_path_and_name == f"{cog['path']}{cog['name']}":
                     cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
                     classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)

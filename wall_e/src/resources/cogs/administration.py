@@ -145,9 +145,8 @@ class Administration(commands.Cog):
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
         )
-        guild = discord.Object(id=self.config.get_config_value('basic_config', 'DISCORD_ID'))
         if self.config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
-            await self.bot.tree.sync(guild=guild)
+            await self.bot.tree.sync(guild=self.guild)
         if e_obj is not False:
             await ctx.send(embed=e_obj)
 
