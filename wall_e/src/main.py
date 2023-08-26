@@ -65,7 +65,8 @@ class WalleBot(commands.Bot):
         self.remove_command("help")
 
         # tries to load any commands specified in the_commands into the bot
-        await self.add_custom_cog()
+        if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
+            await self.add_custom_cog()
         logger.info("[main.py] commands cleared and synced")
         await super().setup_hook()
 
@@ -157,6 +158,7 @@ async def on_ready():
             await test_guild_channel.send(invite_link)
     else:
         bot_guild = bot.guilds[0]
+    await bot.add_custom_cog()
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False:
         try:
