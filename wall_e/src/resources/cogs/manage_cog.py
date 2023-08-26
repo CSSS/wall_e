@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import re
 import sys
@@ -26,18 +27,26 @@ class ManageCog(commands.Cog):
         bot.add_check(self.check_privilege)
         self.bot = bot
         self.config = config
-        self.guild = get_guild(self.bot, self.config)
+        self.guild = None
         self.help_dict = self.config.get_help_json()
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
             self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "manage_cog_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
             self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "manage_cog_error"
         )

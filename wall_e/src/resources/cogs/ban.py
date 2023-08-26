@@ -27,17 +27,25 @@ class Ban(commands.Cog):
         self.ban_list = []
         self.error_colour = 0xA6192E
         self.mod_channel = None
-        self.guild: discord.Guild = get_guild(self.bot, self.config)
+        self.guild: discord.Guild = None
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
             self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
             self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
         )

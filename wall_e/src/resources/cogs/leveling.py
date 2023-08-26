@@ -22,7 +22,7 @@ class Leveling(commands.Cog):
         self.levels_have_been_changed = False
         self.bot = bot
         self.config = config
-        self.guild = get_guild(self.bot, self.config)
+        self.guild = None
         self.user_points = {}
         self.levels = {}
         self.xp_system_ready = False
@@ -30,15 +30,23 @@ class Leveling(commands.Cog):
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
         )
 
     @commands.Cog.listener(name="on_ready")
