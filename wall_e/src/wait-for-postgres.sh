@@ -1,5 +1,5 @@
 #!/bin/sh
-# wait-for-postgres.sh
+# needed for CI/user_scripts/setup-dev-env.sh
 
 # aquired from https://docs.docker.com/compose/startup-order/
 set -e
