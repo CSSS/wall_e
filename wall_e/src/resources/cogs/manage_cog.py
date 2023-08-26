@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import re
 import sys
@@ -9,6 +10,7 @@ from discord.ext import commands
 from WalleModels.models import CommandStat
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.list_of_perms import get_list_of_user_permissions
 from resources.utilities.setup_logger import Loggers
 
@@ -25,29 +27,39 @@ class ManageCog(commands.Cog):
         bot.add_check(self.check_privilege)
         self.bot = bot
         self.config = config
+        self.guild = None
         self.help_dict = self.config.get_help_json()
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "manage_cog_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "manage_cog_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "manage_cog_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "manage_cog_error"
         )
 
     # this command is used by the TEST guild to create the channel from which this TEST container will process
     # commands
     @commands.Cog.listener()
     async def on_ready(self):
-        self.logger.info(f"[ManageCog on_ready()] acquired {len(self.bot.guilds[0].channels)} channels")
+        self.logger.info(f"[ManageCog on_ready()] acquired {len(self.guild.channels)} channels")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             self.logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             await self.bot_loop_manager.create_or_get_channel_id(
+                self.guild,
                 self.config.get_config_value('basic_config', 'ENVIRONMENT'),
                 "general_channel"
             )

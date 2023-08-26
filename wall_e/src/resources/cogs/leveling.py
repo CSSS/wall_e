@@ -7,6 +7,7 @@ from discord.ext import commands
 from WalleModels.models import UserPoint, Level
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.paginate import paginate_embed
 from resources.utilities.setup_logger import Loggers
 
@@ -21,6 +22,7 @@ class Leveling(commands.Cog):
         self.levels_have_been_changed = False
         self.bot = bot
         self.config = config
+        self.guild = None
         self.user_points = {}
         self.levels = {}
         self.xp_system_ready = False
@@ -28,15 +30,23 @@ class Leveling(commands.Cog):
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
         )
 
     @commands.Cog.listener(name="on_ready")
@@ -149,7 +159,7 @@ class Leveling(commands.Cog):
             "leveling"
         )
         self.council_channel = discord.utils.get(
-            self.bot.guilds[0].channels, id=council_channel_id
+            self.guild.channels, id=council_channel_id
         )
 
     @commands.Cog.listener(name='on_message')
@@ -218,7 +228,7 @@ class Leveling(commands.Cog):
                     )
                     xp_roles_that_are_missing = {}
                     for level_with_role in levels_with_a_role:
-                        role = discord.utils.get(self.bot.guilds[0].roles, name=level_with_role.role_name)
+                        role = discord.utils.get(self.guild.roles, name=level_with_role.role_name)
                         if role is not None:
                             guild_roles.append(role)
                             level_with_role.role_id = role.id
@@ -247,7 +257,7 @@ class Leveling(commands.Cog):
                             f" Moderators have been informed that {len(xp_roles_that_are_missing)}"
                             f" XP roles do not exist "
                         )
-                    members = await self.bot.guilds[0].fetch_members().flatten()
+                    members = await self.guild.fetch_members().flatten()
 
                     # sorts the members in ascending order by their total cls
                     members_with_points = [member for member in members if member.id in self.user_points]
@@ -439,7 +449,7 @@ class Leveling(commands.Cog):
         if self.levels[level_number].role_id is None:
             self.logger.info(f"[Leveling set_level_name()] no role_id detected for level {level_number}")
             # level does not yet have a role associated with it
-            role = discord.utils.get(self.bot.guilds[0].roles, name=new_role_name)
+            role = discord.utils.get(self.guild.roles, name=new_role_name)
             if role is None:
                 self.logger.info(
                     f"[Leveling set_level_name()] could not find the role {new_role_name}"
@@ -466,7 +476,7 @@ class Leveling(commands.Cog):
                     f"[Leveling set_level_name()] detected role_id detected for level {level_number} is invalid"
                 )
                 # the XP level is getting a new role since the role it was associated with was an error
-                role = discord.utils.get(self.bot.guilds[0].roles, name=new_role_name)
+                role = discord.utils.get(self.guild.roles, name=new_role_name)
                 if role is None:
                     await ctx.send(f"could not find role {new_role_name}. ")
                 else:
@@ -574,7 +584,7 @@ class Leveling(commands.Cog):
         levels_with_a_valid_role = []
         levels_with_an_invalid_role = []
         for level_with_role in levels_with_a_role:
-            role = discord.utils.get(self.bot.guilds[0].roles, name=level_with_role.role_name)
+            role = discord.utils.get(self.guild.roles, name=level_with_role.role_name)
             if role is not None:
                 levels_with_a_valid_role.append(level_with_role)
             else:

@@ -8,6 +8,7 @@ from discord.ext import commands
 from WalleModels.models import CommandStat
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.send import send as helper_send
 from resources.utilities.setup_logger import Loggers
 
@@ -22,6 +23,7 @@ class Administration(commands.Cog):
         self.config = config
         self.bot = bot
         self.bot_loop_manager = bot_loop_manager
+        self.guild = None
         if self.config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
@@ -38,15 +40,23 @@ class Administration(commands.Cog):
                     self.image_parent_directory = image_parent_directory
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "administration_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "administration_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "administration_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "administration_error"
         )
 
     def valid_cog(self, name):
@@ -135,9 +145,8 @@ class Administration(commands.Cog):
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
         )
-        guild = discord.Object(id=self.config.get_config_value('basic_config', 'DISCORD_ID'))
         if self.config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
-            await self.bot.tree.sync(guild=guild)
+            await self.bot.tree.sync(guild=self.guild)
         if e_obj is not False:
             await ctx.send(embed=e_obj)
 

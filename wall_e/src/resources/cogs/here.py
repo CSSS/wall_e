@@ -1,11 +1,13 @@
 # Commands for finding who has access to certain channels.
 # Useful since the server size does not allow offline users to be listed
 #     in the sidebar
+import asyncio
 
 import discord
 from discord.ext import commands
 
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 
 
@@ -18,18 +20,27 @@ class Here(commands.Cog):
         self.error_log_file_absolute_path = log_info[2]
         self.bot = bot
         self.config = config
+        self.guild = None
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "here_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "here_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "here_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "here_error"
         )
 
     def build_embed(self, members, channel):

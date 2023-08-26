@@ -1,3 +1,4 @@
+import asyncio
 import html
 import json  # dont need since requests has built in json encoding and decoding
 import re
@@ -8,6 +9,7 @@ from discord.ext import commands
 
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 
 sfu_red = 0xA6192E
@@ -22,18 +24,27 @@ class SFU(commands.Cog):
         self.bot = bot
         self.req = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
+        self.guild = None
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "sfu_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "sfu_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "sfu_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "sfu_error"
         )
 
     @commands.command()

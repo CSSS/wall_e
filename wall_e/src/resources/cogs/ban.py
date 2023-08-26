@@ -9,6 +9,7 @@ from discord.ext import commands
 from WalleModels.models import BanRecords
 from resources.utilities.embed import embed as em
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 
 BanAction = discord.AuditLogAction.ban
@@ -30,15 +31,23 @@ class Ban(commands.Cog):
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
+    async def get_guild(self):
+        self.guild = get_guild(self.bot, self.config)
+
+    @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(5)
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
         )
 
     @commands.Cog.listener(name='on_ready')
@@ -48,10 +57,8 @@ class Ban(commands.Cog):
             "ban"
         )
         self.mod_channel = discord.utils.get(
-            self.bot.guilds[0].channels, id=mod_channel_id
+            self.guild.channels, id=mod_channel_id
         )
-        """Sets local ban list, mod channel, and guild object"""
-        self.guild = self.bot.guilds[0]
 
         # read in ban_list of banned users
         self.logger.info('[Ban load()] loading ban list from the database')

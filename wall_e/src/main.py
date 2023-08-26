@@ -18,6 +18,7 @@ from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 from resources.utilities.slash_command_checks import command_in_correct_test_guild_channel
 
@@ -64,7 +65,8 @@ class WalleBot(commands.Bot):
         self.remove_command("help")
 
         # tries to load any commands specified in the_commands into the bot
-        await self.add_custom_cog()
+        if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
+            await self.add_custom_cog()
         logger.info("[main.py] commands cleared and synced")
         await super().setup_hook()
 
@@ -89,7 +91,7 @@ class WalleBot(commands.Bot):
             if cog_unloaded:
                 break
             try:
-                guild = discord.Object(id=wall_e_config.get_config_value('basic_config', 'DISCORD_ID'))
+                guild = get_guild(self, wall_e_config)
                 if adding_all_cogs or module_path_and_name == f"{cog['path']}{cog['name']}":
                     cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
                     classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
@@ -123,16 +125,54 @@ bot = WalleBot()
 ##################################################
 @bot.event
 async def on_ready():
+    if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
+        guild_name = wall_e_config.get_config_value("basic_config", "BRANCH_NAME")
+        pr_guild = None
+        new_guild = False
+        invite_link = None
+        for guild in bot.guilds:
+            if guild.name == guild_name:
+                pr_guild = guild
+        if pr_guild is None:
+            pr_guild = await bot.create_guild(name=guild_name)
+            new_guild = True
+        bot_guild = pr_guild
+        channel = [
+            channel for channel in list(pr_guild.channels)
+            if type(channel) == discord.channel.TextChannel
+        ][0]
+        channel_invites = await channel.invites()
+        new_link = False
+        for invite in channel_invites:
+            invite_link = invite
+        if invite_link is None:
+            invite_link = await channel.create_invite()
+            new_link = True
+        test_guild = bot.get_guild(
+            int(wall_e_config.get_config_value("pr_discord_config", "TEST_GUILD"))
+        )
+        test_guild_channel = test_guild.get_channel(
+            int(wall_e_config.get_config_value("pr_discord_config", "PR_TEST_GUILD_CHANNEL_ID"))
+        )
+        if new_guild or new_link:
+            await test_guild_channel.send(invite_link)
+    else:
+        bot_guild = bot.guilds[0]
+    await bot.add_custom_cog()
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False:
         try:
-            await start_file_uploading(logger, bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug")
-            await start_file_uploading(logger, bot, wall_e_config, sys_error_log_file_absolute_path, "sys_error")
             await start_file_uploading(
-                logger, bot, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug"
+                logger, bot_guild, bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug"
             )
             await start_file_uploading(
-                logger, bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error"
+                logger, bot_guild, bot, wall_e_config, sys_error_log_file_absolute_path, "sys_error"
+            )
+            await start_file_uploading(
+                logger, bot_guild, bot, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug"
+            )
+            await start_file_uploading(
+                logger, bot_guild, bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error"
             )
             bot.uploading = True
         except Exception as e:
