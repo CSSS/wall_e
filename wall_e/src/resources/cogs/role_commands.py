@@ -361,7 +361,7 @@ class RoleCommands(commands.Cog):
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=(
-                    f"Role **`{role_to_add}**` doesn't exist.\nCalling .newrole {role_to_add}"
+                    f"Role **`{role_to_add}`** doesn't exist.\nCalling .newrole {role_to_add}"
                     f"\n\nPSST: try out the new `/iam` command"
                 )
             )
