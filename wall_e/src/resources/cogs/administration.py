@@ -8,6 +8,7 @@ from discord.ext import commands
 from WalleModels.models import CommandStat
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.send import send as helper_send
 from resources.utilities.setup_logger import Loggers
 
@@ -22,6 +23,7 @@ class Administration(commands.Cog):
         self.config = config
         self.bot = bot
         self.bot_loop_manager = bot_loop_manager
+        self.guild = get_guild(self.bot, self.config)
         if self.config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
@@ -40,13 +42,13 @@ class Administration(commands.Cog):
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "administration_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "administration_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "administration_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "administration_error"
         )
 
     def valid_cog(self, name):

@@ -33,13 +33,13 @@ class ManageCog(commands.Cog):
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "manage_cog_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "manage_cog_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "manage_cog_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "manage_cog_error"
         )
 
     # this command is used by the TEST guild to create the channel from which this TEST container will process

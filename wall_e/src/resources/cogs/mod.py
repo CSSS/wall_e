@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from resources.utilities.embed import embed as em
 from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 
 
@@ -17,18 +18,19 @@ class Mod(commands.Cog):
         self.error_log_file_absolute_path = log_info[2]
         self.bot = bot
         self.config = config
+        self.guild = get_guild(self.bot, self.config)
         self.bot_loop_manager = bot_loop_manager
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "mod_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "mod_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "mod_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "mod_error"
         )
 
     @commands.command(aliases=['em'])

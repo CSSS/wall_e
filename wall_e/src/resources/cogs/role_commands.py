@@ -30,13 +30,13 @@ class RoleCommands(commands.Cog):
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.debug_log_file_absolute_path, "role_commands_debug"
+            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "role_commands_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         await start_file_uploading(
-            self.logger, self.bot, self.config, self.error_log_file_absolute_path, "role_commands_error"
+            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "role_commands_error"
         )
 
     @commands.Cog.listener(name="on_ready")

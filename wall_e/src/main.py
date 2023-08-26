@@ -123,6 +123,7 @@ bot = WalleBot()
 ##################################################
 @bot.event
 async def on_ready():
+    bot_guild = None
     if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
         guild_name = wall_e_config.get_config_value("basic_config", "BRANCH_NAME")
         pr_guild = None
@@ -134,6 +135,7 @@ async def on_ready():
         if pr_guild is None:
             pr_guild = await bot.create_guild(name=guild_name)
             new_guild = True
+        bot_guild = pr_guild
         channel = [
             channel for channel in list(pr_guild.channels)
             if type(channel) == discord.channel.TextChannel
@@ -153,17 +155,18 @@ async def on_ready():
         )
         if new_guild or new_link:
             await test_guild_channel.send(invite_link)
-
+    else:
+        bot_guild = bot.guilds[0]
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False:
         try:
-            await start_file_uploading(logger, bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug")
-            await start_file_uploading(logger, bot, wall_e_config, sys_error_log_file_absolute_path, "sys_error")
+            await start_file_uploading(logger, bot_guild, bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug")
+            await start_file_uploading(logger, bot_guild, bot, wall_e_config, sys_error_log_file_absolute_path, "sys_error")
             await start_file_uploading(
-                logger, bot, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug"
+                logger, bot_guild, bot, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug"
             )
             await start_file_uploading(
-                logger, bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error"
+                logger, bot_guild, bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error"
             )
             bot.uploading = True
         except Exception as e:
