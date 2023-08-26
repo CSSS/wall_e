@@ -5,27 +5,31 @@ import logging
 import os
 import re
 import sys
-
+import time
 import traceback
 
 import discord
 import django
-import time
-
 from discord import Intents
 from discord.ext import commands
 from django.core.wsgi import get_wsgi_application
 
-from resources.utilities.setup_logger import Loggers
-
 from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.config.config import WallEConfig
-from resources.utilities.log_channel import write_to_bot_log_channel
 from resources.utilities.embed import embed as imported_embed
+from resources.utilities.file_uploading import start_file_uploading
+from resources.utilities.setup_logger import Loggers
 from resources.utilities.slash_command_checks import command_in_correct_test_guild_channel
 
-logger, debug_log_file_absolute_path, sys_stream_error_log_file_absolute_path \
-    = Loggers.get_logger(logger_name="wall_e")
+log_info = Loggers.get_logger(logger_name="sys")
+sys_debug_log_file_absolute_path = log_info[1]
+sys_error_log_file_absolute_path = log_info[2]
+
+log_info = Loggers.get_logger(logger_name="wall_e")
+
+logger = log_info[0]
+wall_e_debug_log_file_absolute_path = log_info[1]
+wall_e_error_log_file_absolute_path = log_info[2]
 
 wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
 

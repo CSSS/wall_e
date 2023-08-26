@@ -6,6 +6,7 @@ import sys
 import pytz
 
 WALL_E_LOG_HANDLER_NAME = "wall_e"
+SYS_LOG_HANDLER_NAME = "sys"
 
 date_timezone = pytz.timezone('US/Pacific')
 
@@ -34,7 +35,6 @@ class PSTFormatter(logging.Formatter):
 REDIRECT_STD_STREAMS = True
 date_formatting_in_log = '%Y-%m-%d %H:%M:%S'
 date_formatting_in_filename = "%Y_%m_%d_%H_%M_%S"
-modular_log_prefix = "cmd_"
 sys_stream_formatting = PSTFormatter(
     '%(asctime)s = %(levelname)s = %(name)s = %(message)s', date_formatting_in_log, tz=date_timezone
 )
@@ -46,46 +46,43 @@ class Loggers:
 
     @classmethod
     def get_logger(cls, logger_name):
-        if logger_name == WALL_E_LOG_HANDLER_NAME:
-            return cls._setup_wall_e_logger()
+        if logger_name == SYS_LOG_HANDLER_NAME:
+            return cls._setup_sys_logger()
         else:
             return cls._setup_logger(logger_name)
 
     @classmethod
-    def _setup_wall_e_logger(cls):
+    def _setup_sys_logger(cls):
         date = datetime.datetime.now(date_timezone).strftime(date_formatting_in_filename)
-        if not os.path.exists(f"logs/{WALL_E_LOG_HANDLER_NAME}"):
-            os.makedirs(f"logs/{WALL_E_LOG_HANDLER_NAME}")
-        if not os.path.exists(f"logs/{WALL_E_LOG_HANDLER_NAME}"):
-            os.makedirs(f"logs/{WALL_E_LOG_HANDLER_NAME}")
+        if not os.path.exists(f"logs/{SYS_LOG_HANDLER_NAME}"):
+            os.makedirs(f"logs/{SYS_LOG_HANDLER_NAME}")
+        if not os.path.exists(f"logs/{SYS_LOG_HANDLER_NAME}"):
+            os.makedirs(f"logs/{SYS_LOG_HANDLER_NAME}")
 
-        sys_logger = logging.getLogger(WALL_E_LOG_HANDLER_NAME)
+        sys_logger = logging.getLogger(SYS_LOG_HANDLER_NAME)
         sys_logger.setLevel(logging.DEBUG)
 
         debug_log_file_absolute_path = (
-            f"logs/{WALL_E_LOG_HANDLER_NAME}/{date}_debug.log"
+            f"logs/{SYS_LOG_HANDLER_NAME}/{date}_debug.log"
         )
         sys_stream_error_log_file_absolute_path = (
-            f"logs/{WALL_E_LOG_HANDLER_NAME}/{date}_error.log"
+            f"logs/{SYS_LOG_HANDLER_NAME}/{date}_error.log"
         )
 
         # ensures that anything printed to this logger at level DEBUG or above goes to the specified file
         debug_filehandler = logging.FileHandler(debug_log_file_absolute_path)
         debug_filehandler.setLevel(logging.DEBUG)
-        debug_filehandler.setFormatter(sys_stream_formatting)
         sys_logger.addHandler(debug_filehandler)
 
         # ensures that anything printed to this logger at level ERROR or above goes to the specified file
         error_filehandler = logging.FileHandler(sys_stream_error_log_file_absolute_path)
         error_filehandler.setLevel(barrier_logging_level)
-        error_filehandler.setFormatter(sys_stream_formatting)
         sys_logger.addHandler(error_filehandler)
 
         # ensures that anything from the log goes to the stdout
         if REDIRECT_STD_STREAMS:
             sys.stdout = sys.__stdout__
         sys_stdout_stream_handler = WalleDebugStreamHandler(sys.stdout)
-        sys_stdout_stream_handler.setFormatter(sys_stream_formatting)
         sys_stdout_stream_handler.setLevel(logging.DEBUG)
         sys_logger.addHandler(sys_stdout_stream_handler)
         if REDIRECT_STD_STREAMS:
@@ -94,7 +91,6 @@ class Loggers:
         if REDIRECT_STD_STREAMS:
             sys.stderr = sys.__stderr__
         sys_stderr_stream_handler = logging.StreamHandler(sys.stderr)
-        sys_stderr_stream_handler.setFormatter(sys_stream_formatting)
         sys_stderr_stream_handler.setLevel(barrier_logging_level)
         sys_logger.addHandler(sys_stderr_stream_handler)
         if REDIRECT_STD_STREAMS:
@@ -103,15 +99,15 @@ class Loggers:
         return sys_logger, debug_log_file_absolute_path, sys_stream_error_log_file_absolute_path
 
     @classmethod
-    def _setup_logger(cls, logger_name):
+    def _setup_logger(cls, service_name):
 
         date = datetime.datetime.now(date_timezone).strftime(date_formatting_in_filename)
-        if not os.path.exists(f"logs/{logger_name}"):
-            os.makedirs(f"logs/{logger_name}")
-        debug_log_file_absolute_path = f"logs/{logger_name}/{date}_debug.log"
-        error_log_file_absolute_path = f"logs/{logger_name}/{date}_error.log"
+        if not os.path.exists(f"logs/{service_name}"):
+            os.makedirs(f"logs/{service_name}")
+        debug_log_file_absolute_path = f"logs/{service_name}/{date}_debug.log"
+        error_log_file_absolute_path = f"logs/{service_name}/{date}_error.log"
 
-        logger = logging.getLogger(logger_name)
+        logger = logging.getLogger(service_name)
         logger.setLevel(logging.DEBUG)
 
         debug_filehandler = logging.FileHandler(debug_log_file_absolute_path)
@@ -138,7 +134,7 @@ class Loggers:
 
     @classmethod
     def setup_sys_stream_logger(cls):
-        cls._setup_wall_e_logger()
+        cls._setup_sys_logger()
 
 
 class LoggerWriter:
