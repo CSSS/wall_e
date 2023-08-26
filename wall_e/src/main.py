@@ -65,8 +65,6 @@ class WalleBot(commands.Bot):
         self.remove_command("help")
 
         # tries to load any commands specified in the_commands into the bot
-        if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
-            await self.add_custom_cog()
         logger.info("[main.py] commands cleared and synced")
         await super().setup_hook()
 
