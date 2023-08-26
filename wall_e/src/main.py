@@ -31,10 +31,11 @@ logger = log_info[0]
 wall_e_debug_log_file_absolute_path = log_info[1]
 wall_e_error_log_file_absolute_path = log_info[2]
 
-wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_db_orm_settings")
 django.setup()
+
+wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
+
 
 from resources.cogs.manage_cog import ManageCog  # noqa: E402
 
