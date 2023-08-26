@@ -48,7 +48,7 @@ docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
 re_create_top_base_image () {
     docker image rm -f "${prod_image_name_lower_case}" "${wall_e_top_base_image}" "${ORIGIN_IMAGE}"
-    docker system prune -f
+    docker system prune -f --all
     docker build --no-cache -t ${wall_e_top_base_image} -f ${wall_e_top_base_image_dockerfile} \
     --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} \
     --build-arg WALL_E_BASE_ORIGIN_NAME=${WALL_E_PYTHON_BASE_IMAGE} .
@@ -56,7 +56,7 @@ re_create_top_base_image () {
     echo "${DOCKER_HUB_PASSWORD}" | docker login --username=${DOCKER_HUB_USER_NAME} --password-stdin
     docker push ${ORIGIN_IMAGE}
     docker image rm -f "${prod_image_name_lower_case}" "${wall_e_top_base_image}" "${ORIGIN_IMAGE}"
-    docker system prune -f
+    docker system prune -f --all
 }
 
 re_create_top_base_image
