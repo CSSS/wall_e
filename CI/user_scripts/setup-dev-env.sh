@@ -4,6 +4,11 @@
 # PURPOSE: TO BE USED BY THE USER WHEN THEY WANT TO DEPLOY WALL_E TO THEIR OWN DISCORD GUILD
 # WITH THE USE OF A DATABASE
 
+docker_compose=$(which docker-compose)
+if [ -z "${docker_compose}" ]; then
+	docker_compose="$(which docker) compose"
+fi
+
 
 set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
@@ -28,7 +33,7 @@ pushd ../../
 ./CI/destroy-dev-env.sh
 
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
-docker-compose -f CI/user_scripts/docker-compose-mount.yml up --force-recreate -d
+${docker_compose} -f CI/user_scripts/docker-compose-mount.yml up --force-recreate -d
 popd
 
 wall_e_container_name="${COMPOSE_PROJECT_NAME}_wall_e"

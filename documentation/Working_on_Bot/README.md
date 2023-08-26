@@ -62,20 +62,21 @@ You will need to recreate the base docker image if you made changes to any of th
 
 ### With dockerized Wall-E
 ```shell
-echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
+echo 'basic_config__ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
 echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'basic_config__COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
 echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'DOCKERIZED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'basic_config__DOCKERIZED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
-echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'database_config__WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'database_config__WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'database_config__WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/wall_e.env
+echo 'database_config__ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
 
 . ../../CI/user_scripts/set_env.sh
 
-echo 'HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/wall_e.env
+echo 'database_config__HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/wall_e.env
 . ../../CI/user_scripts/set_env.sh
 
 if (you made changes to any of the files listed above){
@@ -122,17 +123,20 @@ if (you are using a database){
 }
 . ../../CI/user_scripts/set_env.sh
 
+wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-2-requirements.txt
+python -m pip install -r layer-2-requirements.txt
 python3 -m pip install -r requirements.txt
 
 if (you are using the dockerized database){
-  docker run -d --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p "${DB_PORT}":5432 --name \
-  "${COMPOSE_PROJECT_NAME}_wall_e_db" postgres:alpine
-  PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${WALL_E_DB_USER}" \
-  --set=WALL_E_DB_PASSWORD="${WALL_E_DB_PASSWORD}"  --set=WALL_E_DB_DBNAME="${WALL_E_DB_DBNAME}" \
-  -h "${HOST}" -p "${DB_PORT}"  -U "postgres" -f WalleModels/create-database.ddl
+  docker run -d --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p "${database_config__DB_PORT}":5432 --name \
+  "${basic_config__COMPOSE_PROJECT_NAME}_wall_e_db" postgres:alpine
+  PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${database_config__WALL_E_DB_USER}" \
+  --set=WALL_E_DB_PASSWORD="${database_config__WALL_E_DB_PASSWORD}"  \
+  --set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
+  -h "${database_config__HOST}" -p "${database_config__DB_PORT}"  -U "postgres" -f WalleModels/create-database.ddl
   python3 django_db_orm_manage.py migrate
   rm wall_e.json*
-  wget https://dev.sfucsss.org/dev_csss_wall_e/fixtures/wall_e.json
+  wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
   python3 django_db_orm_manage.py loaddata wall_e.json
   python3 django_db_orm_manage.py makemigrations
   python3 django_db_orm_manage.py migrate
