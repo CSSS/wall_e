@@ -106,7 +106,7 @@ class WalleBot(commands.Bot):
                                 break
             except Exception as err:
                 exception = f'{type(err).__name__}: {err}'
-                raise Exception(f'[main.py] Failed to load command {cog}\n{exception}')
+                logger.error(f'[main.py] Failed to load command {cog}\n{exception}')
                 if adding_all_cogs:
                     time.sleep(20)
                     exit(1)
