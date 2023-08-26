@@ -9,7 +9,7 @@ async def start_file_uploading(logger, bot, config, file_path, channel_name):
     )
     bot.loop.create_task(
         write_to_bot_log_channel(
-            logger, bot, file_path, chan_id
+            logger, bot, config, file_path, chan_id
         )
     )
     logger.info(
