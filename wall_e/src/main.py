@@ -18,7 +18,6 @@ from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 from resources.utilities.slash_command_checks import command_in_correct_test_guild_channel
 
@@ -49,6 +48,7 @@ class WalleBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix='.', intents=intents)
         self.bot_loop_manager = BotChannelManager(wall_e_config, self)
+        self.guild = discord.Object(id=wall_e_config.get_config_value("basic_config", "GUILD_ID"))
         self.uploading = False
 
     async def setup_hook(self) -> None:
@@ -64,6 +64,8 @@ class WalleBot(commands.Bot):
         logger.info("[main.py] default help command being removed")
         self.remove_command("help")
 
+        if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
+            await bot.add_custom_cog()
         # tries to load any commands specified in the_commands into the bot
         logger.info("[main.py] commands cleared and synced")
         await super().setup_hook()
@@ -89,7 +91,6 @@ class WalleBot(commands.Bot):
             if cog_unloaded:
                 break
             try:
-                guild = get_guild(self, wall_e_config)
                 if adding_all_cogs or module_path_and_name == f"{cog['path']}{cog['name']}":
                     cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
                     classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
@@ -99,7 +100,7 @@ class WalleBot(commands.Bot):
                             logger.info(f"[main.py] attempting to load cog {cog['name']}")
                             await self.add_cog(
                                 cog_class_to_load(self, wall_e_config, self.bot_loop_manager),
-                                guild=guild
+                                guild=self.guild
                             )
                             logger.info(f"[main.py] {cog['name']} successfully loaded")
                             if not adding_all_cogs:
@@ -156,7 +157,6 @@ async def on_ready():
             await test_guild_channel.send(invite_link)
     else:
         bot_guild = bot.guilds[0]
-    await bot.add_custom_cog()
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False:
         try:
