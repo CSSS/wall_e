@@ -447,5 +447,6 @@ class Misc(commands.Cog):
         await interaction.response.send_message(file=discord.File('formula.png'))
         self.logger.info("[Administration frequency()] graph created and saved")
 
-    async def __del__(self):
+    async def cog_unload(self) -> None:
         await self.session.close()
+        await super().cog_unload()

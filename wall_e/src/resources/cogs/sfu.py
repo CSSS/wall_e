@@ -480,9 +480,6 @@ class SFU(commands.Cog):
         if e_obj is not False:
             await ctx.send(embed=e_obj)
 
-    async def __del__(self):
+    async def cog_unload(self) -> None:
         await self.req.close()
-
-
-def setup(bot):
-    bot.add_cog(SFU(bot))
+        await super().cog_unload()
