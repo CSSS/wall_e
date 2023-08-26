@@ -19,7 +19,7 @@ async def write_to_bot_log_channel(logger, bot, config, file_path, chan_id):
         guild.channels, id=chan_id
     )
     logger.info(
-        "[log_channel.py write_to_bot_log_channel()] bot_log channel "
+        f"[log_channel.py write_to_bot_log_channel()] {channel} channel "
         f"with id {chan_id} successfully retrieved."
     )
     f = open(file_path, 'r')
