@@ -55,7 +55,7 @@ class WalleBot(commands.Bot):
         try:
             await self.add_cog(ManageCog(self, wall_e_config, self.bot_loop_manager))
         except Exception as err:
-            exception = f'{type(err).__name_}: {err}'
+            exception = f'{type(err).__name__}: {err}'
             raise Exception(f'[main.py] Failed to load test server code testenv\n{exception}')
 
         # removing default help command to allow for custom help command
