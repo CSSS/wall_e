@@ -10,23 +10,6 @@ from resources.utilities.setup_logger import Loggers
 
 class Mod(commands.Cog):
 
-    async def rekt(self, ctx):
-        self.logger.info('[Mod rekt()] sending troll to unauthorized user')
-        lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-        e_obj = await em(
-            self.logger,
-            ctx=ctx,
-            title='Minion Things',
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-            description=lol
-        )
-        if e_obj is not False:
-            msg = await ctx.send(embed=e_obj)
-            await asyncio.sleep(5)
-            await msg.delete()
-            self.logger.info('[Mod rekt()] troll message deleted')
-
     def __init__(self, bot, config, bot_loop_manager):
         log_info = Loggers.get_logger(logger_name="Mod")
         self.logger = log_info[0]
@@ -86,6 +69,23 @@ class Mod(commands.Cog):
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)
+
+    async def rekt(self, ctx):
+        self.logger.info('[Mod rekt()] sending troll to unauthorized user')
+        lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
+        e_obj = await em(
+            self.logger,
+            ctx=ctx,
+            title='Minion Things',
+            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            description=lol
+        )
+        if e_obj is not False:
+            msg = await ctx.send(embed=e_obj)
+            await asyncio.sleep(5)
+            await msg.delete()
+            self.logger.info('[Mod rekt()] troll message deleted')
 
     @commands.command(aliases=['warn'])
     async def modspeak(self, ctx, *arg):
