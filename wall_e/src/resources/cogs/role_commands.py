@@ -470,7 +470,10 @@ class RoleCommands(commands.Cog):
                 if e_obj is not False:
                     self.logger.info(
                         "[RoleCommands send_message_to_user_or_bot_channel()] DMing the result to the user")
-                    await author.send(embed=e_obj)
+                    try:
+                        await author.send(embed=e_obj)
+                    except discord.errors.Forbidden:
+                        await self.bot_channel.send(f'<@{author.id}>', embed=e_obj)
 
     @app_commands.command(name="whois", description="list folks in a role")
     @app_commands.autocomplete(role=get_roles_with_members)
