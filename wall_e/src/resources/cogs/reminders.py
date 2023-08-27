@@ -85,12 +85,12 @@ class Reminders(commands.Cog):
                         description=f"This is your reminder to {reminder_message}",
                         footer='Reminder'
                     )
-                    await Reminder.delete_reminder(reminder)
                     if e_obj is not False:
                         await reminder_channel.send(f'<@{author_id}>', embed=e_obj)
+                    await Reminder.delete_reminder(reminder)
             except Exception as error:
                 self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')
-                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
             await asyncio.sleep(2)
 
     @commands.command(aliases=['remindmeon', 'remindmeat'])
