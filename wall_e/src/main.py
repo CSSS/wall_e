@@ -108,6 +108,7 @@ class WalleBot(commands.Bot):
                     time.sleep(20)
                     exit(1)
 
+
 bot = WalleBot()
 
 
@@ -198,7 +199,8 @@ async def on_app_command_completion(interaction: discord.Interaction, cmd: disco
 ####################################################
 @bot.tree.error
 async def on_command_error(interaction: discord.Interaction, error):
-    if command_in_correct_test_guild_channel(wall_e_config, interaction):
+    correct_channel = await command_in_correct_test_guild_channel(wall_e_config, interaction)
+    if correct_channel:
         if isinstance(error, commands.MissingRequiredArgument):
             logger.error(f'[main.py on_command_error()] Missing argument: {error.param}')
             e_obj = await imported_embed(
