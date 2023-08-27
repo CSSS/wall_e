@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import re
-import sys
 import traceback
 
 import discord
@@ -162,5 +161,5 @@ class ManageCog(commands.Cog):
                             "probably tried to access a command they arent supposed to"
                         )
                     else:
-                        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                        traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
                         return

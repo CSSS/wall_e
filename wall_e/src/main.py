@@ -224,7 +224,7 @@ async def on_command_error(interaction: discord.Interaction, error):
                         "probably tried to access a command they arent supposed to"
                     )
                 else:
-                    traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                    traceback.print_exception(type(error), error, error.__traceback__, file=logger.error)
                     return
 
 

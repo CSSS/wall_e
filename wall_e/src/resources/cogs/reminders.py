@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import sys
 import traceback
 
 import discord
@@ -228,7 +227,7 @@ class Reminders(commands.Cog):
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
                 self.logger.error('[Reminders showreminders()] Ignoring exception when generating reminder:')
-                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
 
     @commands.command()
     async def deletereminder(self, ctx, reminder_id):
@@ -280,4 +279,4 @@ class Reminders(commands.Cog):
                                          f"was trying to delete {member}'s reminder.")
         except Exception as error:
             self.logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
