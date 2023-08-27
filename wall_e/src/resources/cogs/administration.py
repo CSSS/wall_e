@@ -79,22 +79,23 @@ class Administration(commands.Cog):
 
     @app_commands.command(name="delete_log_channels")
     async def delete_log_channels(self, interaction: discord.Interaction):
-        while self.guild is None:
-            await asyncio.sleep(2)
-        self.logger.info("[Administration delete_log_channels()] delete_log_channels command "
-                         "detected from {}".format(interaction.user))
-        await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
-        await interaction.response.defer()
-        await BotChannelManager.delete_log_channels(interaction)
-        e_obj = await embed(
-            self.logger,
-            interaction=interaction,
-            description='Log Channels Deleted!',
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
-        )
-        if e_obj is not False:
-            await interaction.followup.send(embed=e_obj)
+        if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.logger.info("[Administration delete_log_channels()] delete_log_channels command "
+                             "detected from {}".format(interaction.user))
+            await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
+            await interaction.response.defer()
+            await BotChannelManager.delete_log_channels(interaction)
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                description='Log Channels Deleted!',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+            )
+            if e_obj is not False:
+                await interaction.followup.send(embed=e_obj)
 
     @commands.command()
     async def load(self, ctx, module_name):
