@@ -36,9 +36,6 @@ django.setup()
 
 wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
 
-
-from resources.cogs.manage_cog import ManageCog  # noqa: E402
-
 application = get_wsgi_application()
 
 intents = Intents.all()
@@ -51,14 +48,6 @@ class WalleBot(commands.Bot):
         self.uploading = False
 
     async def setup_hook(self) -> None:
-
-        # load the code dealing with test server interaction
-        try:
-            await self.add_cog(ManageCog(self, wall_e_config, self.bot_loop_manager))
-        except Exception as err:
-            exception = f'{type(err).__name__}: {err}'
-            raise Exception(f'[main.py] Failed to load test server code testenv\n{exception}')
-
         # removing default help command to allow for custom help command
         logger.info("[main.py] default help command being removed")
         self.remove_command("help")
