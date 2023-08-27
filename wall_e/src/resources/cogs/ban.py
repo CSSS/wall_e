@@ -9,7 +9,6 @@ from discord.ext import commands
 from WalleModels.models import BanRecords
 from resources.utilities.embed import embed as em
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 
 BanAction = discord.AuditLogAction.ban
@@ -32,28 +31,32 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = get_guild(self.bot, self.config)
+        self.guild = self.bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
+            )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
+            )
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
         mod_channel_id = await self.bot_loop_manager.create_or_get_channel_id(
-            self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "ban"
         )
         self.mod_channel = discord.utils.get(
@@ -68,6 +71,8 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
+        while self.guild is None:
+            await asyncio.sleep(2)
         """Watches for users joining the guild and kicks and bans a user if they are banned"""
 
         if member.id in self.ban_list:
@@ -91,6 +96,8 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_member_ban')
     async def intercept(self, guild: discord.Guild, member: Union[discord.User, discord.Member]):
+        while self.guild is None:
+            await asyncio.sleep(2)
         """Watches for a guild ban. The guild ban is undone and the user is banned via this ban system"""
 
         # need to read the audit log to grab mod, date, and reason

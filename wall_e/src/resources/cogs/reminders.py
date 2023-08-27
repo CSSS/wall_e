@@ -12,7 +12,6 @@ import django_db_orm_settings
 from WalleModels.models import Reminder
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 
 
@@ -31,23 +30,25 @@ class Reminders(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = get_guild(self.bot, self.config)
+        self.guild = self.bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "reminders_debug"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "reminders_debug"
+            )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "reminders_error"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "reminders_error"
+            )
 
     #########################################
     # Background function that determines ##
@@ -56,8 +57,10 @@ class Reminders(commands.Cog):
     #########################################
     @commands.Cog.listener(name="on_ready")
     async def get_messages(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
         reminder_chan_id = await self.bot_loop_manager.create_or_get_channel_id(
-            self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "reminders"
         )
         reminder_channel = discord.utils.get(
