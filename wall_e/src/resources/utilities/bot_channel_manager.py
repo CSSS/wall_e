@@ -34,6 +34,7 @@ log_positioning = {
 }
 wall_e_category_name = "WALL-E Logs"
 
+
 class BotChannelManager:
 
     def __init__(self, config, bot):
@@ -78,11 +79,11 @@ class BotChannelManager:
 
     async def create_or_get_channel_id_for_service(self, guild, config, service):
         await self.bot.wait_until_ready()
+        service = service.lower()
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
         text_channel_position = log_positioning[service]
         if environment == 'TEST':
-            service = f"{config.get_config_value('basic_config', 'BRANCH_NAME')}_{service}"
-        service = service.lower()
+            service = f"{service}_{config.get_config_value('basic_config', 'BRANCH_NAME')}"
         print("[BotChannelManager get_bot_general_channel()] "
               f"getting channel {service} for {environment}")
         print("[BotChannelManager get_bot_general_channel()] attempting to get "
@@ -109,7 +110,9 @@ class BotChannelManager:
         number_of_retries_to_attempt = 10
         number_of_retries = 0
         while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
-            bot_chan = await guild.create_text_channel(service, category=logs_category, position=text_channel_position)
+            bot_chan = await guild.create_text_channel(
+                service, category=logs_category, position=text_channel_position
+            )
             print("[BotChannelManager create_or_get_channel_id()] "
                   f"got channel \"{bot_chan}\" for {environment}")
             print("[BotChannelManager get_bot_general_channel()] attempt "
