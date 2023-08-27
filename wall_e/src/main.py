@@ -36,9 +36,6 @@ django.setup()
 
 wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
 
-
-from resources.cogs.manage_cog import ManageCog  # noqa: E402
-
 application = get_wsgi_application()
 
 intents = Intents.all()
@@ -48,24 +45,14 @@ class WalleBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix='.', intents=intents)
         self.bot_loop_manager = BotChannelManager(wall_e_config, self)
-        self.guild = discord.Object(id=wall_e_config.get_config_value("basic_config", "GUILD_ID"))
         self.uploading = False
 
     async def setup_hook(self) -> None:
-
-        # load the code dealing with test server interaction
-        try:
-            await self.add_cog(ManageCog(self, wall_e_config, self.bot_loop_manager))
-        except Exception as err:
-            exception = f'{type(err).__name__}: {err}'
-            raise Exception(f'[main.py] Failed to load test server code testenv\n{exception}')
-
         # removing default help command to allow for custom help command
         logger.info("[main.py] default help command being removed")
         self.remove_command("help")
 
-        if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
-            await bot.add_custom_cog()
+        await bot.add_custom_cog()
         # tries to load any commands specified in the_commands into the bot
         logger.info("[main.py] commands cleared and synced")
         await super().setup_hook()
@@ -85,6 +72,7 @@ class WalleBot(commands.Bot):
                     await self.remove_cog(class_name[0])
 
     async def add_custom_cog(self, module_path_and_name: str = None):
+        guild = discord.Object(id=int(wall_e_config.get_config_value("basic_config", "GUILD_ID")))
         adding_all_cogs = module_path_and_name is None
         cog_unloaded = False
         for cog in wall_e_config.get_cogs():
@@ -98,9 +86,16 @@ class WalleBot(commands.Bot):
                         cog_class_to_load = getattr(cog_module, class_that_match[0])
                         if type(cog_class_to_load) is commands.cog.CogMeta:
                             logger.info(f"[main.py] attempting to load cog {cog['name']}")
+                            # the below piece of logic will not work well in the test guild if there
+                            # are multiple PRs being worked on at the same time that have different
+                            # slash command as there is no way to avoid a conflict. I tried to fix this
+                            # by having the bot in multiple guilds, one for each PR, but there is no way to
+                            # know till too late [when the bot is already logged in] the GUILD ID of the TEST
+                            # guild the bot is being deployed to, which it needs to know what guild to add the
+                            # cogs to.
                             await self.add_cog(
                                 cog_class_to_load(self, wall_e_config, self.bot_loop_manager),
-                                guild=self.guild
+                                guild=guild
                             )
                             logger.info(f"[main.py] {cog['name']} successfully loaded")
                             if not adding_all_cogs:
@@ -124,39 +119,7 @@ bot = WalleBot()
 ##################################################
 @bot.event
 async def on_ready():
-    if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
-        guild_name = wall_e_config.get_config_value("basic_config", "BRANCH_NAME")
-        pr_guild = None
-        new_guild = False
-        invite_link = None
-        for guild in bot.guilds:
-            if guild.name == guild_name:
-                pr_guild = guild
-        if pr_guild is None:
-            pr_guild = await bot.create_guild(name=guild_name)
-            new_guild = True
-        bot_guild = pr_guild
-        channel = [
-            channel for channel in list(pr_guild.channels)
-            if type(channel) == discord.channel.TextChannel
-        ][0]
-        channel_invites = await channel.invites()
-        new_link = False
-        for invite in channel_invites:
-            invite_link = invite
-        if invite_link is None:
-            invite_link = await channel.create_invite()
-            new_link = True
-        test_guild = bot.get_guild(
-            int(wall_e_config.get_config_value("pr_discord_config", "TEST_GUILD"))
-        )
-        test_guild_channel = test_guild.get_channel(
-            int(wall_e_config.get_config_value("pr_discord_config", "PR_TEST_GUILD_CHANNEL_ID"))
-        )
-        if new_guild or new_link:
-            await test_guild_channel.send(invite_link)
-    else:
-        bot_guild = bot.guilds[0]
+    bot_guild = bot.guilds[0]
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False:
         try:
@@ -236,7 +199,8 @@ async def on_app_command_completion(interaction: discord.Interaction, cmd: disco
 ####################################################
 @bot.tree.error
 async def on_command_error(interaction: discord.Interaction, error):
-    if command_in_correct_test_guild_channel(wall_e_config, interaction):
+    correct_channel = await command_in_correct_test_guild_channel(wall_e_config, interaction)
+    if correct_channel:
         if isinstance(error, commands.MissingRequiredArgument):
             logger.error(f'[main.py on_command_error()] Missing argument: {error.param}')
             e_obj = await imported_embed(

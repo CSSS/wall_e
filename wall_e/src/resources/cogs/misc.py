@@ -12,7 +12,6 @@ from matplotlib import pyplot as plt
 
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.get_guild import get_guild
 from resources.utilities.list_of_perms import get_list_of_user_permissions
 from resources.utilities.paginate import paginate_embed
 from resources.utilities.setup_logger import Loggers
@@ -48,23 +47,25 @@ class Misc(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = get_guild(self.bot, self.config)
+        self.guild = self.bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "misc_debug"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "misc_debug"
+            )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "misc_error"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "misc_error"
+            )
 
     @commands.command()
     async def poll(self, ctx, *questions):

@@ -11,6 +11,8 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db import models
 from django.forms import model_to_dict
+from django.utils import timezone
+
 from .customFields import GeneratedIdentityField
 import django_db_orm_settings
 import requests
@@ -86,16 +88,16 @@ class CommandStat(models.Model):
         primary_key=True
     )
     year = models.IntegerField(
-        default=datetime.datetime.now().year
+        default=timezone.now
     )
     month = models.IntegerField(
-        default=datetime.datetime.now().month
+        default=timezone.now
     )
     day = models.IntegerField(
-        default=datetime.datetime.now().day
+        default=timezone.now
     )
     hour = models.IntegerField(
-        default=datetime.datetime.now().hour
+        default=timezone.now
     )
     channel_name = models.CharField(
         max_length=2000,
@@ -155,6 +157,17 @@ class CommandStat(models.Model):
             f"{self.epoch_time} - {self.command} as invoked with {self.invoked_with} with " \
             f"subcommand {self.invoked_subcommand} and year {self.year}, " \
             f"month {self.month} and hour {self.hour}"
+
+    def save(self, *args, **kwargs):
+        if type(self.year) == datetime.datetime:
+            self.year = self.year.year
+        if type(self.month) == datetime.datetime:
+            self.month = self.month.month
+        if type(self.day) == datetime.datetime:
+            self.day = self.day.day
+        if type(self.hour) == datetime.datetime:
+            self.hour = self.hour.hour
+        super(CommandStat, self).save(*args, **kwargs)
 
 
 class UserPoint(models.Model):

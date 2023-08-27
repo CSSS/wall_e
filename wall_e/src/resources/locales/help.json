@@ -1,4 +1,18 @@
 {
+		"delete_log_channels": {
+		"class": "Administration",
+		"access": "roles",
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			"/delete_log_channels"
+		],
+		"description": [
+			"Deletes the log channel and category"
+		]
+	},
 	"load": {
 		"class": "Administration",
 		"access": "roles",

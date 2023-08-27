@@ -6,7 +6,6 @@ from discord.ext import commands
 
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.get_guild import get_guild
 from resources.utilities.setup_logger import Loggers
 from resources.utilities.slash_command_checks import slash_command_checks
 
@@ -26,23 +25,27 @@ class HealthChecks(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = get_guild(self.bot, self.config)
+        self.guild = self.bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "health_checks_debug"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path,
+                "health_checks_debug"
+            )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(5)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "health_checks_error"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path,
+                "health_checks_error"
+            )
 
     @app_commands.command(name="ping")
     async def ping(self, interaction: discord.Interaction):

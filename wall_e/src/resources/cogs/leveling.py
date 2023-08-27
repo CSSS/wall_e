@@ -7,7 +7,6 @@ from discord.ext import commands
 from WalleModels.models import UserPoint, Level
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.get_guild import get_guild
 from resources.utilities.paginate import paginate_embed
 from resources.utilities.setup_logger import Loggers
 
@@ -31,12 +30,12 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = get_guild(self.bot, self.config)
+        self.guild = self.bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
         while self.guild is None:
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
         await start_file_uploading(
             self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
         )
@@ -44,7 +43,7 @@ class Leveling(commands.Cog):
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
         while self.guild is None:
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
         await start_file_uploading(
             self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
         )
@@ -154,8 +153,10 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def create_council_channel(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
         council_channel_id = await self.bot_loop_manager.create_or_get_channel_id(
-            self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "leveling"
         )
         self.council_channel = discord.utils.get(
@@ -164,6 +165,8 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
+        while self.guild is None:
+            await asyncio.sleep(2)
         if not message.author.bot:
             if not self.xp_system_ready:
                 return
@@ -209,9 +212,11 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
         if self.config.enabled("database_config", option="ENABLED"):
             while not self.xp_system_ready or self.council_channel is None:
-                await asyncio.sleep(5)
+                await asyncio.sleep(2)
             while True:
                 if self.levels_have_been_changed:
                     self.logger.info(
@@ -361,7 +366,7 @@ class Leveling(commands.Cog):
             if member.id not in self.user_points:
                 return
             while not self.xp_system_ready:
-                await asyncio.sleep(5)
+                await asyncio.sleep(2)
             self.logger.info(
                 f"[Leveling re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} "
                 f"points wil get their roles back if they leave and re-join the guild"
