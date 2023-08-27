@@ -32,7 +32,7 @@ log_positioning = {
     "sfu_debug": 27,
     "sfu_error": 28
 }
-wall_e_category_name = "WALL-E Logs"
+wall_e_category_name = "WALL-E LOGS"
 
 
 class BotChannelManager:
