@@ -2,7 +2,36 @@ import asyncio
 
 import discord
 
-
+log_positioning = {
+    "sys_debug": 0,
+    "sys_error": 1,
+    "wall_e_debug": 2,
+    "wall_e_error": 3,
+    "administration_debug": 4,
+    "administration_error": 5,
+    "ban_debug": 6,
+    "ban_error": 7,
+    "frosh_debug": 8,
+    "frosh_error": 9,
+    "health_checks_debug": 10,
+    "health_checks_error": 11,
+    "here_debug": 12,
+    "here_error": 13,
+    "leveling_debug": 14,
+    "leveling_error": 15,
+    "manage_cog_debug": 16,
+    "manage_cog_error": 17,
+    "misc_debug": 18,
+    "misc_error": 19,
+    "mod_debug": 20,
+    "mod_error": 21,
+    "reminders_debug": 22,
+    "reminders_error": 23,
+    "role_commands_debug": 25,
+    "role_commands_error": 26,
+    "sfu_debug": 27,
+    "sfu_error": 28
+}
 wall_e_category_name = "WALL-E Logs"
 
 class BotChannelManager:
@@ -50,6 +79,7 @@ class BotChannelManager:
     async def create_or_get_channel_id_for_service(self, guild, config, service):
         await self.bot.wait_until_ready()
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
+        text_channel_position = log_positioning[service]
         if environment == 'TEST':
             service = f"{config.get_config_value('basic_config', 'BRANCH_NAME')}_{service}"
         service = service.lower()
@@ -79,7 +109,7 @@ class BotChannelManager:
         number_of_retries_to_attempt = 10
         number_of_retries = 0
         while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
-            bot_chan = await guild.create_text_channel(service, category=logs_category)
+            bot_chan = await guild.create_text_channel(service, category=logs_category, position=text_channel_position)
             print("[BotChannelManager create_or_get_channel_id()] "
                   f"got channel \"{bot_chan}\" for {environment}")
             print("[BotChannelManager get_bot_general_channel()] attempt "
