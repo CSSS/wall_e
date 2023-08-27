@@ -15,8 +15,9 @@ done
 
 >&2 echo "Postgres is up - executing command"
 
-HOME_DIR=`pwd`
 if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
+  # setup database
+  HOME_DIR=`pwd`
   rm -r /wall_e || true
   git clone https://github.com/CSSS/wall_e.git /wall_e
   cd /wall_e/wall_e/src/
@@ -24,18 +25,14 @@ if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
     --set=WALL_E_DB_PASSWORD="${database_config__WALL_E_DB_PASSWORD}" \
      --set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
     -h "$host" -U "postgres" -f WalleModels/create-database.ddl
-fi
-
-python3 django_db_orm_manage.py migrate
-
-if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
+  python3 django_db_orm_manage.py migrate
   wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
   python3 django_db_orm_manage.py loaddata wall_e.json
   cd "${HOME_DIR}"
-  python3 django_db_orm_manage.py migrate
   rm -r /wall_e || true
 fi
-## making a separate script for prod that is what this originally was
+
+python3 django_db_orm_manage.py migrate
 
 exec $cmd
 
