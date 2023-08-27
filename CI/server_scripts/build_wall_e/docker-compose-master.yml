@@ -1,4 +1,6 @@
 version: '3' #docker-compose version
+# this exists primarily because I don't yet know how to make dynamic port binding for the wall_e_leveling_website
+# service so right now, master can't have a working website at the same time as any branch or PR being worked on
 services:  #Services that are needed for the wall_e app
     wall_e: #the wall_e app, the name will of the image will be ${COMPOSE_PROJECT_NAME}_wall_e
         build:
@@ -30,3 +32,22 @@ services:  #Services that are needed for the wall_e app
             - POSTGRES_PASSWORD
         image: postgres:alpine #using postgres image
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
+    wall_e_leveling_website:
+        build:
+            context: ../../../
+            dockerfile: CI/server_scripts/build_wall_e/Dockerfile.website
+        depends_on:
+            - 'db'
+        image: "${compose_project_name}_leveling_website"
+        container_name: "${COMPOSE_PROJECT_NAME}_leveling_website"
+        ports:
+            - "8081:8000"
+        environment:
+            - basic_config__TOKEN
+            - database_config__WALL_E_DB_DBNAME
+            - database_config__WALL_E_DB_USER
+            - database_config__WALL_E_DB_PASSWORD
+            - basic_config__COMPOSE_PROJECT_NAME
+            - DB_PORT
+            - HOST
+        restart: unless-stopped
