@@ -3,13 +3,16 @@ import os
 import subprocess
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from WalleModels.models import CommandStat
+from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.send import send as helper_send
 from resources.utilities.setup_logger import Loggers
+from resources.utilities.slash_command_checks import slash_command_checks
 
 
 class Administration(commands.Cog):
@@ -20,6 +23,7 @@ class Administration(commands.Cog):
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.config = config
+        self.help_dict = self.config.get_help_json()
         self.bot = bot
         self.bot_loop_manager = bot_loop_manager
         self.guild = None
@@ -72,6 +76,25 @@ class Administration(commands.Cog):
     async def exit(self, ctx):
         if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
             await self.bot.close()
+
+    @app_commands.command(name="delete_log_channels")
+    async def delete_log_channels(self, interaction: discord.Interaction):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.logger.info("[Administration delete_log_channels()] delete_log_channels command "
+                         "detected from {}".format(interaction.user))
+        await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
+        await interaction.response.defer()
+        await BotChannelManager.delete_log_channels(interaction)
+        e_obj = await embed(
+            self.logger,
+            interaction=interaction,
+            description='Log Channels Deleted!',
+            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+        )
+        if e_obj is not False:
+            await interaction.followup.send(embed=e_obj)
 
     @commands.command()
     async def load(self, ctx, module_name):
