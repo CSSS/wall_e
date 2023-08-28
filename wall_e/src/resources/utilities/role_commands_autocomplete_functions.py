@@ -5,6 +5,12 @@ from discord import app_commands
 
 
 def get_lowercase_roles(interaction: discord.Interaction, current: str):
+    """
+    Gets the latest assign-able roles that contain the substring "current"
+    :param interaction: the interaction object that contains the roles
+    :param current: the substring that the user has entered into the search box on discord
+    :return: the list of assign-able roles that match the substring "current"
+    """
     return [
         role
         for role in list(interaction.guild.roles)
@@ -16,6 +22,22 @@ def get_lowercase_roles(interaction: discord.Interaction, current: str):
 async def get_assigned_or_unassigned_roles(
     interaction: discord.Interaction, current: str, error_message: List[str],
         assigned_roles=True) -> List[app_commands.Choice[str]]:
+    """
+    Get the assigned or unassigned roles for the user that is using /iam or /iamn
+    :param interaction: the interaction object that contains the roles and the user using the command
+    :param current: the substring that the user has entered into the search box on discord
+    :param error_message: the list of error message to use
+    0 -> If no assignable roles could be found that contain the "current" substring
+    1 -> No assignable roles could be found
+    2 -> If no assignable roles could be found that contain the "current" substring that the user does or does not have [dependent on assigned_roles Flag]
+    3 -> If no assignable roles could be found that the user does or does not have [dependent on assigned_roles Flag]
+    4-> string to place for the last element if there are more than 25 results
+    :param assigned_roles: flag to indicate if the roles to get should be
+    True -> roles that the user already has
+    False -> roles that the user does not have
+    :return: an array of the app_commands.Choices to return where the name is the name of the role and the value is the role's ID in string format
+    cause an int version of the role ID was too big a number for discord to be able to handle
+    """
     current = current.strip()
     roles = get_lowercase_roles(interaction, current)
     if len(roles) == 0:
@@ -44,6 +66,14 @@ async def get_assigned_or_unassigned_roles(
 
 
 async def get_assignable_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    """
+    Gets the roles that the user can assign to themselves. Involved if the user uses /iam command
+    :param interaction: the interaction object that contains the roles and the user using the command
+    :param current: the substring that the user has entered into the search box on discord
+    :return: an array of the app_commands.Choices to return where the name is the name of the role and the
+     value is the role's ID in string format cause an int version of the role ID was too big a number for
+     discord to be able to handle
+    """
     error_message = [
         f'No assignable roles could be found that contain "{current}"',
         "No assignable roles could be found",
@@ -55,6 +85,14 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
 
 
 async def get_assigned_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    """
+    Gets the roles that the user can remove from themselves. Involved if the user uses /iamn command
+    :param interaction: the interaction object that contains the roles and the user using the command
+    :param current: the substring that the user has entered into the search box on discord
+    :return: an array of the app_commands.Choices to return where the name is the name of the role and the
+     value is the role's ID in string format cause an int version of the role ID was too big a number for
+     discord to be able to handle
+    """
     error_message = [
         f'No assigned roles could be found that contain "{current}"',
         "No assigned roles could be found",
@@ -67,6 +105,14 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
 
 async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
                                         current: str) -> List[app_commands.Choice[str]]:
+    """
+    Gets a list of assign-able roles that a user can delete with /delete_role command
+    :param interaction: the interaction object that contains the roles
+    :param current: the substring that the user has entered into the search box on discord
+    :return: an array of the app_commands.Choices to return where the name is the name of the role and the
+     value is the role's ID in string format cause an int version of the role ID was too big a number for
+     discord to be able to handle
+    """
     current = current.strip()
     roles = get_lowercase_roles(interaction, current)
     roles = [
@@ -90,6 +136,14 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
 
 
 async def get_roles_with_members(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    """
+    Get a list of all the roles that have members where the user can use with the /whois command
+    :param interaction: the interaction object that contains the roles
+    :param current: the substring that the user has entered into the search box on discord
+    :return:an array of the app_commands.Choices to return where the name is the name of the role and the
+     value is the role's ID in string format cause an int version of the role ID was too big a number for
+     discord to be able to handle
+    """
     current = current.strip()
     roles = [
         app_commands.Choice(name=role.name, value=f"{role.id}")

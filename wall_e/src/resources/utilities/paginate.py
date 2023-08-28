@@ -3,10 +3,24 @@ from resources.utilities.embed import embed as imported_embed
 
 
 async def paginate_embed(logger, bot, config, description_to_embed, title=" ", ctx=None, interaction=None):
+    """
+    Creates an interactive paginated embed message
+    :param logger: the calling serivce's logger object
+    :param bot: the bot which is needed to detect emoji reactions
+    :param config: needed to get the bot_name and avatar for the embed
+    :param description_to_embed: a list of string descriptions that will be used in the embed
+    :param title: the title of the embed [Optional]
+    :param ctx: the ctx object that is in the command's arguments if it was a dot command
+     [need to be specified if no interaction is detected]
+    :param interaction: the interaction object that is in the command's arguments if it was a slash command
+     [need to be specified if no ctx is detected]
+    :return:
+    """
     send_func = interaction.response.send_message if interaction is not None else None
     send_func = ctx.send if ctx is not None and send_func is None else send_func
     if send_func is None:
-        raise Exception("did not detect a ctx or interaction method")
+        logger.error("did not detect a ctx or interaction method")
+        return
     num_of_pages = len(description_to_embed)
     logger.info(
         "[paginate.py paginate_embed()] called with following argument: "
@@ -109,6 +123,17 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
 
 
 async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_page_entries=0, title=" "):
+    """
+    Apparently not being used anywhere to not gonna bother adding function header comments
+    :param logger:
+    :param bot:
+    :param ctx:
+    :param list_to_paginate:
+    :param num_of_pages:
+    :param num_of_page_entries:
+    :param title:
+    :return:
+    """
     logger.info(
         f"[paginate.py paginate()] called with following argument: list_to_paginate={list_to_paginate}"
         f"\n\tnum_of_pages={num_of_pages}, num_of_page_entries={num_of_page_entries} and title={title}"

@@ -48,17 +48,16 @@ class Reminders(commands.Cog):
                 self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "reminders_error"
             )
 
-    #########################################
-    # Background function that determines ##
-    # if a reminder's time has come       ##
-    # to be sent to its channel           ##
-    #########################################
     @commands.Cog.listener(name="on_ready")
     async def get_messages(self):
+        """
+        Background function that determines if a reminder's time has come to be sent to its channel
+        :return:
+        """
         while self.guild is None:
             await asyncio.sleep(2)
         reminder_chan_id = await self.bot_loop_manager.create_or_get_channel_id(
-            self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "reminders"
         )
         reminder_channel = discord.utils.get(

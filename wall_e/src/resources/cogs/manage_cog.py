@@ -50,18 +50,20 @@ class ManageCog(commands.Cog):
                 self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "manage_cog_error"
             )
 
-    # this command is used by the TEST guild to create the channel from which this TEST container will process
-    # commands
     @commands.Cog.listener(name="on_ready")
     async def create_main_channel(self):
+        """
+        this command is used by the TEST guild to create the channel from which this TEST container
+         will process commands
+        :return:
+        """
         while self.guild is None:
             await asyncio.sleep(2)
         self.logger.info(f"[ManageCog on_ready()] acquired {len(self.guild.channels)} channels")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             self.logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
             await self.bot_loop_manager.create_or_get_channel_id(
-                self.guild,
-                self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+                self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
                 "general_channel"
             )
 
@@ -75,9 +77,13 @@ class ManageCog(commands.Cog):
             )
         return
 
-    # this check is used by the TEST guild to ensur that each TEST container will only process incoming commands
-    # that originate from channels that match the name of their branch
     def check_test_environment(self, ctx):
+        """
+        this check is used by the TEST guild to ensur that each TEST container will only process incoming
+         commands that originate from channels that match the name of their branch
+        :param ctx: the ctx object that is part of command parameters that are not slash commands
+        :return:
+        """
         test_guild = self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST'
         correct_test_guild_text_channel = (
             ctx.message.guild is not None and
@@ -89,8 +95,12 @@ class ManageCog(commands.Cog):
             return True
         return correct_test_guild_text_channel
 
-    # this check is used to ensure that users can only access commands that they have the rights to
     async def check_privilege(self, ctx):
+        """
+        this check is used to ensure that users can only access commands that they have the rights to
+        :param ctx: the ctx object that is part of command parameters that are not slash commands
+        :return:
+        """
         command_used = f"{ctx.command}"
         if command_used == "exit":
             return True
@@ -117,12 +127,13 @@ class ManageCog(commands.Cog):
             return (len(shared_perms) > 0)
         return False
 
-    ########################################################
-    # Function that gets called whenever a commmand      ##
-    # gets called, being use for data gathering purposes ##
-    ########################################################
     @commands.Cog.listener()
     async def on_command(self, ctx):
+        """
+        Function that gets called whenever a commmand gets called, being use for data gathering purposes
+        :param ctx: the ctx object that is part of command parameters that are not slash commands
+        :return:
+        """
         if self.check_test_environment(ctx) and self.config.enabled("database_config", option="ENABLED"):
             await CommandStat.save_command_async(CommandStat(
                 epoch_time=datetime.datetime.now().timestamp(), channel_name=ctx.channel,
@@ -130,12 +141,14 @@ class ManageCog(commands.Cog):
                 invoked_subcommand=ctx.invoked_subcommand
             ))
 
-    ####################################################
-    # Function that gets called when the script cant ##
-    # understand the command that the user invoked   ##
-    ####################################################
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+        """
+        Function that gets called when the script cant understand the command that the user invoked
+        :param ctx: the ctx object that is part of command parameters that are not slash commands
+        :param error: the error that was encountered
+        :return:
+        """
         if self.check_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
                 self.logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')

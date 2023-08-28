@@ -3,10 +3,19 @@ import discord
 
 
 def get_last_index(logger, content, index, reserved_space):
-    # this when the the size of contents is too big for a single discord message, this means
-    # that the message has to be split. and in order to make the output most visually appealing
-    # when splitting it is to see if there is a newline on which  the message can be split instead.
-    # if there is no suitable newline, it will instead just cut down an existing line
+    """
+    This when the the size of contents is too big for a single discord message, this means
+     that the message has to be split. and in order to make the output most visually appealing
+      when splitting it is to see if there is a newline on which  the message can be split instead.
+       if there is no suitable newline, it will instead just cut down an existing line
+    :param logger: the calling service's logger object
+    :param content: the string that need to be cut down on
+    :param index: the index to start of on when determining what is the max string that can be sent
+    :param reserved_space: any prefixes that may need to be sent in all the messages that contain
+     the split up string
+    :return: the latest index that may need to be used in the next call to this function
+    """
+
     logger.info(f"[send.py get_last_index()] index =[{index}] reserved_space =[{reserved_space}]")
     if len(content) - index < 2000 - reserved_space:
         logger.info(f"[send.py  get_last_index()] returning length of content =[{len(content)}]")
@@ -23,6 +32,25 @@ def get_last_index(logger, content, index, reserved_space):
 
 async def send(logger, ctx, content=None, tts=False, embed=None, file=None, files=None,
                delete_after=None, nonce=None, prefix=None, suffix=None):
+    """
+    send helper function that helps when dealing with a message that has too many characters
+    :param logger: the calling service's logger object
+    :param ctx: the ctx object that is in a command's parameter if it is a dot command
+    :param content: the message that may need to be cut down
+    :param tts: the tts flag to send to the discord send message
+    :param embed: the embed that will need to be included in all the messages sent that contain
+     the cut down content
+    :param file: the file that will need to be included in all the messages sent that contain
+     the cut down content
+    :param files: the files that will need to be included in all the messages sent that contain
+     the cut down content
+    :param delete_after: how long to wait before deleting all the messages that were sent that contain
+     the cut down content
+    :param nonce: the nonce flag to send to the discord send message
+    :param prefix: the prefix to surround all the messages that contain the cut down content
+    :param suffix: the suffix to surround all the messages that contain the cut down content
+    :return:
+    """
     # adds the requested prefix and suffic to the contents
     formatted_content = content
     if prefix is not None:

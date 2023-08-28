@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import sys
+import traceback
 from traceback import TracebackException
 
 import pytz
@@ -26,6 +27,12 @@ class PSTFormatter(logging.Formatter):
         self.tz = tz
 
     def formatTime(self, record, datefmt=None):  # noqa: N802
+        """
+
+        :param record:
+        :param datefmt:
+        :return:
+        """
         dt = datetime.datetime.fromtimestamp(record.created, self.tz)
         if datefmt:
             return dt.strftime(datefmt)
@@ -47,6 +54,11 @@ class Loggers:
 
     @classmethod
     def get_logger(cls, logger_name):
+        """
+        Initiates and returns a logger for the specific logger_name
+        :param logger_name: the name to assign to the returned logic
+        :return:the logger
+        """
         if logger_name == SYS_LOG_HANDLER_NAME:
             return cls._setup_sys_logger()
         else:
@@ -54,6 +66,11 @@ class Loggers:
 
     @classmethod
     def _setup_sys_logger(cls):
+        """
+        Creates a sys logger that directs anything going to sys.stdout/err to a log file
+        and the stream as well
+        :return: the sys logger
+        """
         date = datetime.datetime.now(date_timezone).strftime(date_formatting_in_filename)
         if not os.path.exists(f"logs/{SYS_LOG_HANDLER_NAME}"):
             os.makedirs(f"logs/{SYS_LOG_HANDLER_NAME}")
@@ -101,7 +118,12 @@ class Loggers:
 
     @classmethod
     def _setup_logger(cls, service_name):
-
+        """
+        Creates a logger for the specified service that prints to a file and the sys.stdout
+        and sys.stderr
+        :param service_name: the name of the service that is initializing the logger
+        :return: the logger
+        """
         date = datetime.datetime.now(date_timezone).strftime(date_formatting_in_filename)
         if not os.path.exists(f"logs/{service_name}"):
             os.makedirs(f"logs/{service_name}")
@@ -133,16 +155,21 @@ class Loggers:
 
         return logger, debug_log_file_absolute_path, error_log_file_absolute_path
 
-    @classmethod
-    def setup_sys_stream_logger(cls):
-        cls._setup_sys_logger()
-
 
 class LoggerWriter:
     def __init__(self, level):
+        """
+        User to direct the sys.stdout/err to the specified log level
+        :param level:
+        """
         self.level = level
 
     def write(self, message):
+        """
+        writes from the sys.stdout/err to the logger object for sys_logger
+        :param message: the message to write to the log
+        :return:
+        """
         if message != '\n':
             self.level(message)
 
@@ -151,5 +178,15 @@ class LoggerWriter:
 
 
 def print_wall_e_exception(value, tb, error_logger, limit=None, chain=True):
+    """
+    Used to print the stack trace to a specific logger if there is an error
+    duplicates traceback.print_exception() for a logger object instead
+    :param value: the error that was encountered
+    :param tb: the traceback
+    :param error_logger: the logger to direct the error to
+    :param limit: if there is a limit the user wants to specify for prnting
+    :param chain: i dont actually know and dont care to look into
+    :return:
+    """
     for line in TracebackException(type(value), value, tb, limit=limit).format(chain=chain):
         error_logger(line)

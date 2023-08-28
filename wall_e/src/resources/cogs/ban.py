@@ -56,7 +56,7 @@ class Ban(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
         mod_channel_id = await self.bot_loop_manager.create_or_get_channel_id(
-            self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "ban"
         )
         self.mod_channel = discord.utils.get(

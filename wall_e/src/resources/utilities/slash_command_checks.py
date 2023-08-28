@@ -7,11 +7,30 @@ from resources.utilities.list_of_perms import get_list_of_user_permissions_for_i
 
 
 async def slash_command_checks(logger, config: WallEConfig, interaction: discord.Interaction, help_dict: OrderedDict):
+    """
+    ensures that the slash commands are only run by users with access to the command and
+     if its run in the TEST guild, that it's called in a correct channel
+    :param logger: the calling service's logger object
+    :param config: the WallEConfig object necessary to determine the correct channel names
+     for processing slash command in the TEST guild
+    :param interaction: the interaction object that is in the command's parameter for a slash command
+    :param help_dict: needed to check the privilege level assigned to a slash command
+    :return:
+    """
     await command_in_correct_test_guild_channel(config, interaction)
     await _check_privilege(logger, help_dict, interaction)
 
 
 async def command_in_correct_test_guild_channel(config: WallEConfig, interaction: discord.Interaction):
+    """
+    Ensures that the slash command is only processed if its in the correct channel in the TEST
+     guild
+    :param config: the WallEConfig object necessary to determine the correct channel names
+     for processing slash command in the TEST guild
+    :param interaction: the interaction object that is in the command's parameter
+     for a slash command
+    :return:
+    """
     test_guild = config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST'
     correct_test_guild_text_channel = (
         interaction.guild is not None and
@@ -28,6 +47,13 @@ async def command_in_correct_test_guild_channel(config: WallEConfig, interaction
 
 
 async def _check_privilege(logger, help_dict: OrderedDict, interaction: discord.Interaction):
+    """
+    Ensures that the slash command is called by someone whith access to it
+    :param logger: the calling service's logger object
+    :param help_dict: needed to check the privilege level assigned to a slash command
+    :param interaction: the interaction object that is in the command's parameter for a slash command
+    :return: True of user has access to the command and False otherwise
+    """
     command_used = f"{interaction.command.name}"
     if command_used == "exit":
         return True

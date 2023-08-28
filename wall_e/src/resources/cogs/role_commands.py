@@ -56,7 +56,7 @@ class RoleCommands(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
         reminder_chan_id = await self.bot_loop_manager.create_or_get_channel_id(
-            self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "role_commands"
         )
         self.bot_channel = discord.utils.get(

@@ -52,6 +52,11 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def load_points_into_dict(self):
+        """
+        Loads the current level info and user points into the self.level and self.user_points dict respectively
+        to quicker read access
+        :return:
+        """
         if self.config.enabled("database_config", option="ENABLED"):
             if not await Level.level_points_have_been_imported():
                 self.logger.info("[Leveling load_points_into_dict()] loading levels into DB and dict")
@@ -155,10 +160,14 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def create_council_channel(self):
+        """
+        Gets the council_channel that will be used or any mod-relevant messages for Leveling cog class
+        :return:
+        """
         while self.guild is None:
             await asyncio.sleep(2)
         council_channel_id = await self.bot_loop_manager.create_or_get_channel_id(
-            self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "leveling"
         )
         self.council_channel = discord.utils.get(
@@ -167,6 +176,12 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
+        """
+        called whenever a new message is sent on the guild to potentially increase the user points for
+         the message's author
+        :param message: the message that was sent that tripped the function call
+        :return:
+        """
         while self.guild is None:
             await asyncio.sleep(2)
         if not message.author.bot:
@@ -214,6 +229,11 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
+        """
+        Runs once a day to detect if the levels have been changed and therefore the user's level for their points
+        need to be updated
+        :return:
+        """
         while self.guild is None:
             await asyncio.sleep(2)
         if self.config.enabled("database_config", option="ENABLED"):
@@ -364,6 +384,11 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name='on_member_join')
     async def re_assign_roles(self, member: discord.Member):
+        """
+        Set the necessary XP levels to the member that was joined in case they previously were in the guild
+        :param member: the member whose join triggered the function call and may need their XP levels re-assigned
+        :return:
+        """
         if self.config.enabled("database_config", option="ENABLED"):
             if member.id not in self.user_points:
                 return

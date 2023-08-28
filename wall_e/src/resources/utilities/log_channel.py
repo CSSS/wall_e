@@ -4,14 +4,17 @@ import aiohttp
 import discord
 
 
-##################################################################################################
-# HANDLES BACKGROUND TASK OF WRITING CONTENTS OF LOG FILE TO BOT_LOG CHANNEL ON DISCORD SERVER ##
-##################################################################################################
 async def write_to_bot_log_channel(logger, bot, file_path, chan_id):
-    # only environment that doesn't do automatic creation of the bot_log channel is the PRODUCTION guild.
-    # Production is a permanent channel so that it can be persistent. As for localhost,
-    # the idea was that this removes a dependence on the user to make the channel and shifts that
-    # responsibility to the script itself. thereby requiring less effort from the user
+    """
+    Takes care of opening a file and keeping it opening while reading from it and uploading it's contents
+     to the specified channel
+    :param logger: the service's logger instance
+    :param bot: needed to get the channel ID for the channel that the logs will be sent to and ensure the
+     while loop only runs while bot.is_closed() is False
+    :param file_path: the path of the log file to upload to the text channel
+    :param chan_id: the ID of the channel that the log file lines will be uploaded to
+    :return:
+    """
     channel = discord.utils.get(
         bot.guilds[0].channels, id=chan_id
     )
@@ -27,6 +30,7 @@ async def write_to_bot_log_channel(logger, bot, file_path, chan_id):
         while line:
             if line.strip() != "":
                 # this was done so that no one gets accidentally pinged from the bot log channel
+                line = line.replace("@", "[at]")
                 if line[0] == ' ':
                     line = f".{line}"
                 output = line
