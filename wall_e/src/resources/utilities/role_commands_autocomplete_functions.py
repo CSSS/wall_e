@@ -29,13 +29,15 @@ async def get_assigned_or_unassigned_roles(
     :param error_message: the list of error message to use
     0 -> If no assignable roles could be found that contain the "current" substring
     1 -> No assignable roles could be found
-    2 -> If no assignable roles could be found that contain the "current" substring that the user does or does not have [dependent on assigned_roles Flag]
+    2 -> If no assignable roles could be found that contain the "current" substring that the user does or
+     does not have [dependent on assigned_roles Flag]
     3 -> If no assignable roles could be found that the user does or does not have [dependent on assigned_roles Flag]
     4-> string to place for the last element if there are more than 25 results
     :param assigned_roles: flag to indicate if the roles to get should be
     True -> roles that the user already has
     False -> roles that the user does not have
-    :return: an array of the app_commands.Choices to return where the name is the name of the role and the value is the role's ID in string format
+    :return: an array of the app_commands.Choices to return where the name is the name of the role and the value
+     is the role's ID in string format
     cause an int version of the role ID was too big a number for discord to be able to handle
     """
     current = current.strip()

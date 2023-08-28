@@ -6,8 +6,10 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
-    :param ctx: the ctx object that is in the command's arguments if it was a dot command [need to be specified if no interaction is detected]
-    :param interaction: the interaction object that is in the command's arguments if it was a slash command [need to be specified if no ctx is detected]
+    :param ctx: the ctx object that is in the command's arguments if it was a dot command [need to be specified if
+     no interaction is detected]
+    :param interaction: the interaction object that is in the command's arguments if it was a slash command [need to
+     be specified if no ctx is detected]
     :param title: the title to assign to the embed [Optional]
      99% of the time it'll be the command name, exceptions when it makes sense like
      with the sfu command.

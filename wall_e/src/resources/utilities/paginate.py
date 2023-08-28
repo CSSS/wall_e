@@ -185,7 +185,9 @@ async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_pa
             if x != '':
                 output += f'\t\"{x}\"\n'
         output += f'```{current_page + 1}/{num_of_pages}'
-        logger.info(f"[paginate.py paginate()] created and filled Embed with roles of the current page {current_page}")
+        logger.info(
+            f"[paginate.py paginate()] created and filled Embed with roles of the current page {current_page}"
+        )
 
         # determining which reactions are needed
         if num_of_pages == 1:

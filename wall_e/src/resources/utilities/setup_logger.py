@@ -2,7 +2,6 @@ import datetime
 import logging
 import os
 import sys
-import traceback
 from traceback import TracebackException
 
 import pytz

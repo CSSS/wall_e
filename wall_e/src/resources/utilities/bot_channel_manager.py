@@ -100,10 +100,13 @@ class BotChannelManager:
         text_channel_position = log_positioning[service]
         if environment == 'TEST':
             service = f"{service}_{config.get_config_value('basic_config', 'BRANCH_NAME')}"
-        logger.info("[BotChannelManager create_or_get_channel_id_for_service()] "
-              f"getting channel {service} for {environment}")
-        logger.info("[BotChannelManager create_or_get_channel_id_for_service()] attempting to get "
-              f" channel '{service}' for {environment} ")
+        logger.info(
+            f"[BotChannelManager create_or_get_channel_id_for_service()] getting channel {service} for {environment}"
+        )
+        logger.info(
+            f"[BotChannelManager create_or_get_channel_id_for_service()] attempting to get  channel '{service}' for "
+            f"{environment} "
+        )
         bot_chan = discord.utils.get(guild.channels, name=service)
         if wall_e_category_name not in self.channel_obtained:
             self.channel_obtained[wall_e_category_name] = None
@@ -120,19 +123,24 @@ class BotChannelManager:
                 await asyncio.sleep(8)
         logs_category = discord.utils.get(guild.channels, id=int(self.channel_obtained[wall_e_category_name]))
         if bot_chan is None:
-            logger.info("[BotChannelManager create_or_get_channel_id_for_service()] "
-                  f"channel \"{service}\" for {environment} does not exist "
-                  f"will attempt to create it now.")
+            logger.info(
+                f"[BotChannelManager create_or_get_channel_id_for_service()] channel \"{service}\" for "
+                f"{environment} does not exist will attempt to create it now."
+            )
         number_of_retries_to_attempt = 10
         number_of_retries = 0
         while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
             bot_chan = await guild.create_text_channel(
                 service, category=logs_category, position=text_channel_position
             )
-            logger.info("[BotChannelManager create_or_get_channel_id_for_service()] "
-                  f"got channel \"{bot_chan}\" for {environment}")
-            logger.info("[BotChannelManager create_or_get_channel_id_for_service()] attempt "
-                  f"({number_of_retries}/{number_of_retries_to_attempt}) for getting {service} ")
+            logger.info(
+                f"[BotChannelManager create_or_get_channel_id_for_service()] got channel \"{bot_chan}\" for "
+                f"{environment}"
+            )
+            logger.info(
+                f"[BotChannelManager create_or_get_channel_id_for_service()] attempt ({number_of_retries}/"
+                f"{number_of_retries_to_attempt}) for getting {service}"
+            )
             await asyncio.sleep(10)
             number_of_retries += 1
         if bot_chan is None:
@@ -147,9 +155,10 @@ class BotChannelManager:
             f"[BotChannelManager create_or_get_channel_id_for_service()] the channel {service} for "
             f"in {environment} acquired."
         )
-        logger.info("[BotChannelManager create_or_get_channel_id_for_service()] "
-              f"returning channel id for {service} "
-              f"for {environment}")
+        logger.info(
+            f"[BotChannelManager create_or_get_channel_id_for_service()] returning channel id for {service} for "
+            f"{environment}"
+        )
         return bot_chan.id
 
     async def create_or_get_channel_id(self, logger, guild, environment, channel_purpose):
@@ -165,25 +174,34 @@ class BotChannelManager:
         """
         await self.bot.wait_until_ready()
         channel_name = self.channel_names[channel_purpose][environment]
-        logger.info("[BotChannelManager create_or_get_channel_id()] "
-              f"getting channel {channel_name} for {environment} {channel_purpose}")
+        logger.info(
+            f"[BotChannelManager create_or_get_channel_id()] getting channel {channel_name} for {environment} "
+            f"{channel_purpose}"
+        )
         if channel_name not in self.channel_obtained:
             self.channel_obtained[channel_name] = None
-            logger.info("[BotChannelManager create_or_get_channel_id()] attempting to get "
-                  f" channel '{channel_name}' for {environment} {channel_purpose} ")
+            logger.info(
+                f"[BotChannelManager create_or_get_channel_id()] attempting to get  channel '{channel_name}' "
+                f"for {environment} {channel_purpose} "
+            )
             bot_chan = discord.utils.get(guild.channels, name=channel_name)
             if bot_chan is None:
-                logger.info("[BotChannelManager create_or_get_channel_id()] "
-                      f"channel \"{channel_name}\" for {environment} {channel_purpose} does not exist "
-                      f"will attempt to create it now.")
+                logger.info(
+                    f"[BotChannelManager create_or_get_channel_id()] channel \"{channel_name}\" for {environment} "
+                    f"{channel_purpose} does not exist will attempt to create it now."
+                )
             number_of_retries_to_attempt = 10
             number_of_retries = 0
             while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
                 bot_chan = await guild.create_text_channel(channel_name)
-                logger.info("[BotChannelManager create_or_get_channel_id()] "
-                      f"got channel \"{bot_chan}\" for {environment} {channel_purpose}")
-                logger.info("[BotChannelManager get_bot_general_channel()] attempt "
-                      f"({number_of_retries}/{number_of_retries_to_attempt}) for getting {channel_name} ")
+                logger.info(
+                    f"[BotChannelManager create_or_get_channel_id()] got channel \"{bot_chan}\" for {environment}"
+                    f" {channel_purpose}"
+                )
+                logger.info(
+                    f"[BotChannelManager get_bot_general_channel()] attempt ({number_of_retries}/"
+                    f"{number_of_retries_to_attempt}) for getting {channel_name} "
+                )
                 await asyncio.sleep(10)
                 number_of_retries += 1
             if bot_chan is None:
@@ -208,9 +226,10 @@ class BotChannelManager:
                     f"in {environment}."
                 )
                 await asyncio.sleep(8)
-        logger.info("[BotChannelManager get_bot_general_channel()] "
-              f"returning channel id for {channel_name} "
-              f"for {environment} {channel_purpose}")
+        logger.info(
+            f"[BotChannelManager get_bot_general_channel()] returning channel id for {channel_name} for "
+            f"{environment} {channel_purpose}"
+        )
         return self.channel_obtained[channel_name]
 
     @classmethod
