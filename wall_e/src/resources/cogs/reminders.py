@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import traceback
 
 import discord
 import parsedatetime
@@ -11,7 +10,7 @@ import django_db_orm_settings
 from WalleModels.models import Reminder
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.setup_logger import Loggers
+from resources.utilities.setup_logger import Loggers, print_wall_e_exception
 
 
 class Reminders(commands.Cog):
@@ -89,7 +88,7 @@ class Reminders(commands.Cog):
                     await Reminder.delete_reminder(reminder)
             except Exception as error:
                 self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')
-                traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
+                print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
             await asyncio.sleep(2)
 
     @commands.command(aliases=['remindmeon', 'remindmeat'])
@@ -227,7 +226,7 @@ class Reminders(commands.Cog):
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
                 self.logger.error('[Reminders showreminders()] Ignoring exception when generating reminder:')
-                traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
+                print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
 
     @commands.command()
     async def deletereminder(self, ctx, reminder_id):
@@ -279,4 +278,4 @@ class Reminders(commands.Cog):
                                          f"was trying to delete {member}'s reminder.")
         except Exception as error:
             self.logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
-            traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
+            print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)

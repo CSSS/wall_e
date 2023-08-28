@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import re
-import traceback
 
 import discord
 from discord.ext import commands
@@ -10,7 +9,7 @@ from WalleModels.models import CommandStat
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.list_of_perms import get_list_of_user_permissions
-from resources.utilities.setup_logger import Loggers
+from resources.utilities.setup_logger import Loggers, print_wall_e_exception
 
 
 class ManageCog(commands.Cog):
@@ -161,5 +160,5 @@ class ManageCog(commands.Cog):
                             "probably tried to access a command they arent supposed to"
                         )
                     else:
-                        traceback.print_exception(type(error), error, error.__traceback__, file=self.logger.error)
+                        print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
                         return

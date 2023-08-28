@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import sys
+from traceback import TracebackException
 
 import pytz
 
@@ -147,3 +148,8 @@ class LoggerWriter:
 
     def flush(self):
         pass
+
+
+def print_wall_e_exception(value, tb, error_logger, limit=None, chain=True):
+    for line in TracebackException(type(value), value, tb, limit=limit).format(chain=chain):
+        error_logger(line)

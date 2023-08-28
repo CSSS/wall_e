@@ -6,7 +6,6 @@ import os
 import re
 import sys
 import time
-import traceback
 
 import discord
 import django
@@ -18,7 +17,7 @@ from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.config.config import WallEConfig
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.setup_logger import Loggers
+from resources.utilities.setup_logger import Loggers, print_wall_e_exception
 from resources.utilities.slash_command_checks import command_in_correct_test_guild_channel
 
 log_info = Loggers.get_logger(logger_name="sys")
@@ -224,7 +223,7 @@ async def on_command_error(interaction: discord.Interaction, error):
                         "probably tried to access a command they arent supposed to"
                     )
                 else:
-                    traceback.print_exception(type(error), error, error.__traceback__, file=logger.error)
+                    print_wall_e_exception(error, error.__traceback__, error_logger=logger.error)
                     return
 
 
