@@ -17,8 +17,9 @@ then
 	if [ "${1}" == "--default" ];
 	then
 		use_defaults="true";
-		dockerized_database="n";
+		sqlite3_database="y";
 		launch_wall_e="y";
+		dockerized_database="n";
 	fi
 
 	echo "Do you want to use a dockerized wall_e? [y/N] a dockerized wall_e is harder to debug but you might run into OS compatibility issues with some of the python modules"
@@ -64,6 +65,12 @@ then
 	echo 'basic_config__GUILD_ID='"'"${DISCORD_GUILD_ID}"'" >> CI/user_scripts/wall_e.env
 	if [[ "${dockerized_wall_e}" == "y" ]];
 	then
+		if [[ "${supported_os}" == "false" ]];
+		then
+			echo "sorry, script is not currently setup to use anything other than a dockerized posgtres database on non-linux system :-("
+			echo "Please feel free to add that feature in"
+		exit 1
+		fi
 		echo -e 'basic_config__DOCKERIZED='"'1'\n\n" >> CI/user_scripts/wall_e.env
 	else
 		echo -e 'basic_config__DOCKERIZED='"'0'\n\n" >> CI/user_scripts/wall_e.env
@@ -83,7 +90,7 @@ then
 	then
 		export COMPOSE_PROJECT_NAME="discord_bot"
 
-		echo 'database_config__DOCKERIZED='"'"'1'"'" >> CI/user_scripts/wall_e.env
+		echo 'database_config__postgresSQL='"'"'1'"'" >> CI/user_scripts/wall_e.env
 		echo -e 'database_config__HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'\n\n" >> CI/user_scripts/wall_e.env
 		echo 'ORIGIN_IMAGE='"'"'sfucsssorg/wall_e'"'" >>  CI/user_scripts/wall_e.env
 		echo 'POSTGRES_PASSWORD='"'"${POSTGRES_PASSWORD}"'" >> CI/user_scripts/wall_e.env
@@ -94,24 +101,31 @@ then
 	else
 		if [ "${use_defaults}" != "true" ];
 		then
-			echo "Do you want to use docker for the database? [y/N]"
+			echo "Do you want to use db.sqlite3 for the database? [alternative is a separate service, dockerized or not] [Y/n]"
+			read sqlite3_database
+		fi
+
+
+		if [ "${sqlite3_database}" != "y" ];
+		then
+			echo "Do you intended to use dockerized postgres? [Y/n]"
 			read dockerized_database
 		fi
 
 		if [[ "${dockerized_database}" == "y" && "${supported_os}" == "false" ]];
 		then
-			echo "sorry, script is not currently setup to use docker for database on non-linux system :-("
+			echo "sorry, script is not currently setup to use anything other than a dockerized posgtres database on non-linux system :-("
 			echo "Please feel free to add that feature in"
 		exit 1
 		fi
 
-		if [ "${dockerized_database}" == "y" ];
+		if [ "${sqlite3_database}" != "y" ];
 		then
-			echo 'database_config__DOCKERIZED='"'"'1'"'" >> CI/user_scripts/wall_e.env
+			echo 'database_config__postgresSQL='"'"'1'"'" >> CI/user_scripts/wall_e.env
 			echo 'database_config__HOST='"'"'127.0.0.1'"'" >> CI/user_scripts/wall_e.env
 			echo 'database_config__DB_PORT='"'"'5432'"'" >> CI/user_scripts/wall_e.env
 		else
-			echo 'database_config__DOCKERIZED='"'"'0'"'" >> CI/user_scripts/wall_e.env
+			echo 'database_config__postgresSQL='"'"'0'"'" >> CI/user_scripts/wall_e.env
 			echo 'database_config__HOST='"'"'discord_bot_wall_e_db'"'" >> CI/user_scripts/wall_e.env
 		fi
 
@@ -127,8 +141,16 @@ then
 
 		. ../../CI/user_scripts/set_env.sh
 
-		if [[ "${dockerized_database}" == "y" ]];
+		if [[ "${sqlite3_database}" == "y" ]];
 		then
+			cd ../
+			rm db.sqlite3 || true
+			cd -
+			python3 django_db_orm_manage.py migrate
+			rm wall_e.json* | true
+			wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
+			python3 django_db_orm_manage.py loaddata wall_e.json
+		else
 			sudo apt-get install postgresql-contrib
 			docker rm -f "${basic_config__COMPOSE_PROJECT_NAME}_wall_e_db"
 			sleep 4
@@ -143,14 +165,6 @@ then
 			-f WalleModels/create-database.ddl
 			python3 django_db_orm_manage.py migrate
 			rm wall_e.json*
-			wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
-			python3 django_db_orm_manage.py loaddata wall_e.json
-		else
-			cd ../
-			rm db.sqlite3 || true
-			cd -
-			python3 django_db_orm_manage.py migrate
-			rm wall_e.json* | true
 			wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
 			python3 django_db_orm_manage.py loaddata wall_e.json
 		fi
