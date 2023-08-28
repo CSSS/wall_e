@@ -17,7 +17,7 @@ from resources.utilities.slash_command_checks import slash_command_checks
 
 class Administration(commands.Cog):
 
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         log_info = Loggers.get_logger(logger_name="Administration")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
@@ -25,7 +25,7 @@ class Administration(commands.Cog):
         self.config = config
         self.help_dict = self.config.get_help_json()
         self.bot = bot
-        self.bot_loop_manager = bot_loop_manager
+        self.bot_channel_manager = bot_channel_manager
         self.guild = None
         if self.config.enabled("database_config", option="ENABLED"):
             import matplotlib

@@ -15,7 +15,7 @@ sfu_red = 0xA6192E
 
 
 class SFU(commands.Cog):
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         log_info = Loggers.get_logger(logger_name="SFU")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
@@ -24,7 +24,7 @@ class SFU(commands.Cog):
         self.req = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
         self.guild = None
-        self.bot_loop_manager = bot_loop_manager
+        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):

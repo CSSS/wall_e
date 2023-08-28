@@ -16,7 +16,7 @@ BanAction = discord.AuditLogAction.ban
 
 class Ban(commands.Cog):
 
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         log_info = Loggers.get_logger(logger_name="Ban")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
@@ -27,7 +27,7 @@ class Ban(commands.Cog):
         self.error_colour = 0xA6192E
         self.mod_channel = None
         self.guild: discord.Guild = None
-        self.bot_loop_manager = bot_loop_manager
+        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -55,7 +55,7 @@ class Ban(commands.Cog):
     async def load(self):
         while self.guild is None:
             await asyncio.sleep(2)
-        mod_channel_id = await self.bot_loop_manager.create_or_get_channel_id(
+        mod_channel_id = await self.bot_channel_manager.create_or_get_channel_id(
             self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
             "ban"
         )

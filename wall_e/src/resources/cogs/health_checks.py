@@ -12,7 +12,7 @@ from resources.utilities.slash_command_checks import slash_command_checks
 
 class HealthChecks(commands.Cog):
 
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         log_info = Loggers.get_logger(logger_name="HealthChecks")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
@@ -20,7 +20,7 @@ class HealthChecks(commands.Cog):
         self.bot = bot
         self.config = config
         self.guild = None
-        self.bot_loop_manager = bot_loop_manager
+        self.bot_channel_manager = bot_channel_manager
         self.help_dict = self.config.get_help_json()
 
     @commands.Cog.listener(name="on_ready")

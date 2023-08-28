@@ -43,7 +43,7 @@ intents = Intents.all()
 class WalleBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix='.', intents=intents)
-        self.bot_loop_manager = BotChannelManager(wall_e_config, self)
+        self.bot_channel_manager = BotChannelManager(wall_e_config, self)
         self.uploading = False
 
     async def setup_hook(self) -> None:
@@ -93,7 +93,7 @@ class WalleBot(commands.Bot):
                             # guild the bot is being deployed to, which it needs to know what guild to add the
                             # cogs to.
                             await self.add_cog(
-                                cog_class_to_load(self, wall_e_config, self.bot_loop_manager),
+                                cog_class_to_load(self, wall_e_config, self.bot_channel_manager),
                                 guild=guild
                             )
                             logger.info(f"[main.py] {cog['name']} successfully loaded")

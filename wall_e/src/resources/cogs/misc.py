@@ -32,7 +32,7 @@ def render_latex(formula, fontsize=12, dpi=300, format_='svg'):
 
 class Misc(commands.Cog):
 
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         log_info = Loggers.get_logger(logger_name="Misc")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
@@ -41,7 +41,7 @@ class Misc(commands.Cog):
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
         self.guild = None
-        self.bot_loop_manager = bot_loop_manager
+        self.bot_channel_manager = bot_channel_manager
         self.wolframClient = wolframalpha.Client(self.config.get_config_value('basic_config', 'WOLFRAM_API_TOKEN'))
         self.help_dict = self.config.get_help_json()
 

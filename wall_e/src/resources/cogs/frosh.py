@@ -9,7 +9,7 @@ from resources.utilities.setup_logger import Loggers
 
 class Frosh(commands.Cog):
 
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         log_info = Loggers.get_logger(logger_name="Frosh")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
@@ -17,7 +17,7 @@ class Frosh(commands.Cog):
         self.bot = bot
         self.config = config
         self.guild = None
-        self.bot_loop_manager = bot_loop_manager
+        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):

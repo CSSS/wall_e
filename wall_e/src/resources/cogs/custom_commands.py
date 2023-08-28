@@ -5,7 +5,7 @@ from discord.ext import commands
 
 class CustomCommands(commands.Cog):
 
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         pass
 
     @commands.command()

@@ -14,7 +14,7 @@ from resources.utilities.setup_logger import Loggers, print_wall_e_exception
 
 class ManageCog(commands.Cog):
 
-    def __init__(self, bot, config, bot_loop_manager):
+    def __init__(self, bot, config, bot_channel_manager):
         log_info = Loggers.get_logger(logger_name="ManageCog")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
@@ -26,7 +26,7 @@ class ManageCog(commands.Cog):
         self.config = config
         self.guild = None
         self.help_dict = self.config.get_help_json()
-        self.bot_loop_manager = bot_loop_manager
+        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -62,7 +62,7 @@ class ManageCog(commands.Cog):
         self.logger.info(f"[ManageCog on_ready()] acquired {len(self.guild.channels)} channels")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
             self.logger.info("[ManageCog on_ready()] ENVIRONMENT detected to be 'TEST' ENVIRONMENT")
-            await self.bot_loop_manager.create_or_get_channel_id(
+            await self.bot_channel_manager.create_or_get_channel_id(
                 self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
                 "general_channel"
             )
