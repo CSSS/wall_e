@@ -6,23 +6,32 @@ environment = os.environ['basic_config__ENVIRONMENT']
 wall_e_config = WallEConfig(environment, wall_e=False)
 postgres_sql = wall_e_config.enabled("database_config", "DOCKERIZED")
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': wall_e_config.get_config_value("database_config", "WALL_E_DB_DBNAME"),
-        'USER': wall_e_config.get_config_value("database_config", "WALL_E_DB_USER"),
-        'PASSWORD': wall_e_config.get_config_value("database_config", "WALL_E_DB_PASSWORD")
+if postgres_sql:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': wall_e_config.get_config_value("database_config", "WALL_E_DB_DBNAME"),
+            'USER': wall_e_config.get_config_value("database_config", "WALL_E_DB_USER"),
+            'PASSWORD': wall_e_config.get_config_value("database_config", "WALL_E_DB_PASSWORD")
+        }
     }
-}
 
-if environment == "LOCALHOST":
-    if not wall_e_config.enabled('basic_config', 'DOCKERIZED'):
+    if wall_e_config.enabled("basic_config", "DOCKERIZED"):
+        DATABASES['default']['HOST'] = (
+            f'{wall_e_config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME")}_wall_e_db'
+        )
+    else:
         DATABASES['default']['PORT'] = wall_e_config.get_config_value("database_config", "DB_PORT")
-    DATABASES['default']['HOST'] = wall_e_config.get_config_value("database_config", "HOST")
+        DATABASES['default']['HOST'] = wall_e_config.get_config_value("database_config", "HOST")
+
 else:
-    DATABASES['default']['HOST'] = (
-        f'{wall_e_config.get_config_value("basic_config", "COMPOSE_PROJECT_NAME")}_wall_e_db'
-    )
+    BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 INSTALLED_APPS = (
     'WalleModels',

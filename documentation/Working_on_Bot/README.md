@@ -1,36 +1,46 @@
 # Working on the Bot
 
-- [Wiki: Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
-- [Running the Bot](#running-the-bot)  
-  - [With dockerized Wall-E](#with-dockerized-wall-e)
-    - [view logs in active time](#view-logs-in-active-time)
-    - [Re-launching dockerized Wall-E after making changes](#re-launching-dockerized-wall-e-after-making-changes)
-  - [Running wall_e outside a docker container [to be able to Debug from Pycharm]](#running-wall_e-outside-a-docker-container-to-be-able-to-debug-from-pycharm)
-    - [Re-launching Wall-E after making changes](#re-launching-wall-e-after-making-changes)
-- [Testing the bot](#testing-the-bot)
-  - [Step 1. Run through the linter](#step-1-run-through-the-linter)
-    - [With Docker](#with-docker)
-    - [Without Docker](#without-docker)
-  - [Step 2. Testing on CSSS Bot Test Server](#step-2-testing-on-csss-bot-test-server)
+- [1. Setup Python Environment](#1-setup-python-environment)
+- [2. Setup and run Wall-E](#2-setup-and-run-wall-e)
+- [3. Before opening a PR](#2-setup-and-run-wall-e)
+- [4. Testing on CSSS Bot Test Server](#2-setup-and-run-wall-e)
 - [Wiki: Making a PR to master](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master)  
 - [Test Cases](Test_Cases.md)  
 - [Wiki: Reporting Issues](https://github.com/CSSS/wall_e/wiki/4.-Reporting-Issues)  
 - [FAQs](#faqs)  
 
 
-## Running the Bot
+## 1. Setup Python Environment
+
+### for Debian based OS
+```shell
+sudo apt-get install -y python3.9
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python3.7 get-pip.py --user
+python3.7 -m pip install virtualenv --user
+python3.7 -m virtualenv envCSSS
+. envCSSS/bin/activate
+```
+
+### for MacOS
+open to anyone to make a PR adding this section
+
+### for Windows
+open to anyone to make a PR adding this section
+
+## 2. Setup and run Wall-E
 >If you encounter any errors doing the following commands, feel free to add it to the [FAQs section](#faqs) for future reference :)
 
-> Due to some compatibility issue that occurs with some of the modules on some OSs, walL_e has been dockerized for both server-side running and local development. In order to work with wall_e, you need only `docker` and `docker-compose` working. If you are using Windows Home or do not want to deal with docker, feel free look to [run wall_e on the localhost](#running-wall_e-outside-a-docker-container-to-be-able-to-debug-from-pycharm)
+Pre-requisites: `git`
+```shell
+If you hve not cloned your forked version yet
+wget https://raw.githubusercontent.com/CSSS/wall_e/master/download_repo.sh
+./download_repo.sh
 
-Pre-requisites: `git`, [`docker`](https://docs.docker.com/install/linux/docker-ce/debian/#set-up-the-repository) and [`docker-compose`](https://docs.docker.com/compose/install/#install-compose)
+If you have forked your version
+./run_site.sh
+```
 
-1. Fork the [Wall-e Repo](https://github.com/CSSS/wall_e.git)  
-2. Clone the repo
-3. Wall_E Setting Specification.
-   1. Wall_e needs parameter specifications. We use the `wall_e/src/resources/utilities/config/local.ini` file to declare any variables and the `CI/user_scripts/wall_e.env` can be optionally used to initialize.
-      [Refer to the wiki page on the ini file](https://github.com/CSSS/wall_e/wiki/5.-contents-of-local.ini) for all the settings that wall_e reads from when doing local dev work.  
-  
 How the Variable needs to be initialized [only relevant to you if you like granularized variable initializations]
 | Variable             |   Dockerized |            |           | Non-Dockerized |           |
 |----------------------|--------------|------------|-----------|----------------|-----------|
@@ -53,127 +63,18 @@ How the Variable needs to be initialized [only relevant to you if you like granu
 > X indicates that its necessary to be declared in that way  
 > '-' indicates that the user can choose to declare it only that way
 
+## 3. Before opening a PR
 
-*Keep in mind that unless otherwise indicated, all commands have to be run from `/path/to/repo/wall_e/src`*
+Please submit PRs one week before they need to be merged.
 
-You will need to recreate the base docker image if you made changes to any of the following files
- * wall_e/src/requirements.txt
- * CI/server_scripts/build_wall_e/Dockerfile.wall_e_base
+### 3.1. Validating the code
 
-### With dockerized Wall-E
-```shell
-echo 'basic_config__ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
-echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'basic_config__COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
-
-echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'basic_config__DOCKERIZED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
-
-echo 'database_config__WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'database_config__WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'database_config__WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'database_config__ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
-
-. ../../CI/user_scripts/set_env.sh
-
-echo 'database_config__HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'"'' >> ../../CI/user_scripts/wall_e.env
-. ../../CI/user_scripts/set_env.sh
-
-if (you made changes to any of the files listed above){
-    ../../CI/user_scripts/create-dev-docker-image.sh
-    echo 'ORIGIN_IMAGE='"'"${COMPOSE_PROJECT_NAME}_wall_e_base"'"'' >>  ../../CI/user_scripts/wall_e.env
-}else{
-    echo 'ORIGIN_IMAGE='"'"'sfucsssorg/wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
-
-}
-. ../../CI/user_scripts/set_env.sh
- 
-../../CI/user_scripts/setup-dev-env.sh
-````
-
-#### view logs in active time
-```shell
- docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
-```
-
-#### Re-launching dockerized Wall-E after making changes
-
-To re-launch the bot after making some changes, enter the command `.exit` on your discord guild and then run `../../CI/user_scripts/setup-dev-env.sh` again.
-You will need to run `../../CI/user_scripts/create-dev-docker-image.sh` again if you made further changes to `wall_e/src/requirements.txt` or `CI/server_scripts/build_wall_e/Dockerfile.wall_e_base`
-
-### Running wall_e outside a docker container [to be able to Debug from Pycharm]
-
-> If launching from inside of PyCharm, I recommend using [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin so that the variables in `wall_e.env` get automatically exported by PyCharm
-```shell
-echo 'ENVIRONMENT='"'"'LOCALHOST'"'"'' >  ../../CI/user_scripts/wall_e.env
-echo 'COMPOSE_PROJECT_NAME='"'"'discord_bot'"'"'' >>  ../../CI/user_scripts/wall_e.env
-echo 'DOCKERIZED='"'"'0'"'"'' >>  ../../CI/user_scripts/wall_e.env
-. ../../CI/user_scripts/set_env.sh
-
-if (you are using a database){
-    echo 'POSTGRES_PASSWORD='"'"'postgres_passwd'"'"'' >>  ../../CI/user_scripts/wall_e.env
-    echo 'DB_PORT='"'"'5432'"'"'' >>  ../../CI/user_scripts/wall_e.env
-    echo 'HOST='"'"'127.0.0.1'"'"'' >>  ../../CI/user_scripts/wall_e.env
-    echo 'WALL_E_DB_USER='"'"'wall_e'"'"'' >>  ../../CI/user_scripts/wall_e.env
-    echo 'WALL_E_DB_PASSWORD='"'"'wallEPassword'"'"'' >>  ../../CI/user_scripts/wall_e.env
-    echo 'WALL_E_DB_DBNAME='"'"'csss_discord_db'"'"'' >>  ../../CI/user_scripts/wall_e.env
-    echo 'DB_ENABLED='"'"'1'"'"'' >>  ../../CI/user_scripts/wall_e.env
-}else{
-    echo 'DB_ENABLED='"'"'0'"'"'' >>  ../../CI/user_scripts/wall_e.env
-}
-. ../../CI/user_scripts/set_env.sh
-
-wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-2-requirements.txt
-python -m pip install -r layer-2-requirements.txt
-python3 -m pip install -r requirements.txt
-
-if (you are using the dockerized database){
-  docker run -d --env POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -p "${database_config__DB_PORT}":5432 --name \
-  "${basic_config__COMPOSE_PROJECT_NAME}_wall_e_db" postgres:alpine
-  PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${database_config__WALL_E_DB_USER}" \
-  --set=WALL_E_DB_PASSWORD="${database_config__WALL_E_DB_PASSWORD}"  \
-  --set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
-  -h "${database_config__HOST}" -p "${database_config__DB_PORT}"  -U "postgres" -f WalleModels/create-database.ddl
-  python3 django_db_orm_manage.py migrate
-  rm wall_e.json*
-  wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
-  python3 django_db_orm_manage.py loaddata wall_e.json
-  python3 django_db_orm_manage.py makemigrations
-  python3 django_db_orm_manage.py migrate
-}
-
-python3 main.py
-```
-
-#### Re-launching Wall-E after making changes
-If you need to re-launch the bot after making some changes, enter the command `.exit` on your discord guild and then run `python3 main.py` again.
-
-## Testing the bot
-
-### Step 1. Run through the [linter](https://en.wikipedia.org/wiki/Lint_%28software%29)
-
-Before you can push your changes to the wall_e repo, you will first need to make sure it passes the unit tests. that can be done like so:
-
-#### With Docker
 ```shell
 ../../CI/user_scripts/test_walle.sh
 ```
 
-#### Without Docker
-```shell
-python3.8 -m virtualenv testENV
-. testENV/bin/activate
-python3.8 -m pip install -r wall_e/test/test-requirements.txt
-cp wall_e/test/pytest.ini wall_e/src/.
-cp wall_e/test/validate_line_endings.sh wall_e/src/.
-cp wall_e/test/setup.cfg wall_e/src/.
-py.test --junitxml=test_results.xml wall_e/src
-./wall_e/src/validate-line-endings.sh
-```
-
-
-### Step 2. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
-After you have tested on your own Discord Test Server, create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [rules](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master) for PRs before pushing your changes to Wall-E. Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
+## 4. Testing on [CSSS Bot Test Server](https://discord.gg/85bWteC)
+After you have tested on your own Discord Test Guild, create a PR to the [Wall-E Repo](https://github.com/CSSS/wall_e/pulls) that follows the [rules](https://github.com/CSSS/wall_e/wiki/3.-Making-a-PR-to-master) for PRs before pushing your changes to Wall-E. Creating the PR will automatically load it into the CSSS Bot Test Server. the name of the channel will be `pr-<PR number>`.  
 
 ## FAQs  
 
