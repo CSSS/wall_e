@@ -121,7 +121,7 @@ bot = WalleBot()
 async def on_ready():
     bot_guild = bot.guilds[0]
     # tries to open log file in prep for write_to_bot_log_channel function
-    if bot.uploading is False:
+    if bot.uploading is False and wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
         try:
             await start_file_uploading(
                 logger, bot_guild, bot, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug"

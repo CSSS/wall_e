@@ -34,19 +34,21 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(2)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
+            )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(2)
-        await start_file_uploading(
-            self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
-        )
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
+            )
 
     @commands.Cog.listener(name="on_ready")
     async def load_points_into_dict(self):
