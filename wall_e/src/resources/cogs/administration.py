@@ -27,6 +27,7 @@ class Administration(commands.Cog):
         self.bot = bot
         self.bot_channel_manager = bot_channel_manager
         self.guild = None
+        self.announcement_channel = None
         if self.config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
@@ -45,6 +46,21 @@ class Administration(commands.Cog):
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
         self.guild = self.bot.guilds[0]
+
+    @commands.Cog.listener(name="on_ready")
+    async def get_announcement_channel(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        reminder_chan_id = await self.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+            "announcements"
+        )
+        self.announcement_channel = discord.utils.get(
+            self.guild.channels, id=reminder_chan_id
+        )
+        self.logger.info(
+            f"[Administration get_announcement_channel()] bot channel {self.announcement_channel} acquired."
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
@@ -161,7 +177,7 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def sync(self, ctx):
-        self.logger.info(f"[HealthChecks sync()] sync command detected from {ctx.message.author}")
+        self.logger.info(f"[AdministrationAdministration sync()] sync command detected from {ctx.message.author}")
         message = "Testing guild does not provide support for Slash Commands" \
             if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
             else 'Commands Synced!'
@@ -176,6 +192,12 @@ class Administration(commands.Cog):
             await self.bot.tree.sync(guild=self.guild)
         if e_obj is not False:
             await ctx.send(embed=e_obj)
+
+    @commands.command()
+    async def announce(self, ctx, *args):
+        self.logger.info(f"[Administration announce()] announce command detected from {ctx.message.author}")
+        await self.announcement_channel.send("\n".join(args))
+        await ctx.message.delete()
 
     @commands.command()
     async def frequency(self, ctx, *args):

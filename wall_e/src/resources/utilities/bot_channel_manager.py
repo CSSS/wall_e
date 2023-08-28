@@ -80,6 +80,11 @@ class BotChannelManager:
                 "PRODUCTION": config.get_config_value('channel_names', 'LEVELLING_CHANNEL'),
                 "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_council",
                 "LOCALHOST": config.get_config_value('channel_names', 'LEVELLING_CHANNEL')
+            },
+            "announcements": {
+                "PRODUCTION": config.get_config_value('channel_names', 'ANNOUNCEMENTS_CHANNEL'),
+                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_announcements",
+                "LOCALHOST": config.get_config_value('channel_names', 'ANNOUNCEMENTS_CHANNEL')
             }
         }
         self.channel_obtained = {

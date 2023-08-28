@@ -1,5 +1,5 @@
 {
-		"delete_log_channels": {
+	"delete_log_channels": {
 		"class": "Administration",
 		"access": "roles",
 		"roles": [
@@ -70,6 +70,20 @@
 		],
 		"description": [
 			"resyncs the commands in wall_e to discord"
+		]
+	},
+	"announce": {
+		"class": "Administration",
+		"access": "roles",
+		"roles": [
+			"Bot_manager"
+		],
+		"aliases": [],
+		"example": [
+			".announce \"announcement\""
+		],
+		"description": [
+			"sends an announcement to the announcement channel"
 		]
 	},
 	"frequency": {
@@ -519,7 +533,6 @@
 		"example": [
 			"/tex e^{i \\theta} = \\cos x + i \\sin x",
 			"/tex x = 2*pi*n_{1} + Re(\\theta) + iIm(\\theta)"
-
 		],
 		"description": [
 			"Draws a mathematical formula using latex markdown",

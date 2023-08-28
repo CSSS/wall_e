@@ -53,6 +53,13 @@ then
 		LEVELLING_CHANNEL="council"
 	fi
 
+	echo "What name do you want to set for the channel that announcements are sent on? [enter nothing to revert to default]"
+	read ANNOUNCEMENTS_CHANNEL
+	if [ -z "${ANNOUNCEMENTS_CHANNEL}" ];
+	then
+		ANNOUNCEMENTS_CHANNEL="announcements"
+	fi
+
 	if [ "${use_defaults}" != "true" ];
 	then
 		echo "Do you you want this script to launch wall_e? [Yn] [the alternative is to use PyCharm]"
@@ -78,7 +85,8 @@ then
 
 	echo 'channel_names__BOT_GENERAL_CHANNEL='"'"${BOT_GENERAL_CHANNEL}"'" >> CI/user_scripts/wall_e.env
 	echo 'channel_names__MOD_CHANNEL='"'"${MOD_CHANNEL}"'" >> CI/user_scripts/wall_e.env
-	echo -e 'channel_names__LEVELLING_CHANNEL='"'"${LEVELLING_CHANNEL}"'\n\n" >> CI/user_scripts/wall_e.env
+	echo 'channel_names__LEVELLING_CHANNEL='"'"${LEVELLING_CHANNEL}"'" >> CI/user_scripts/wall_e.env
+	echo -e 'channel_names__ANNOUNCEMENTS_CHANNEL='"'"${ANNOUNCEMENTS_CHANNEL}"'\n\n" >> CI/user_scripts/wall_e.env
 
 	export POSTGRES_PASSWORD='postgres_passwd'
 	echo 'database_config__WALL_E_DB_DBNAME='"'"'csss_discord_db'"'" >> CI/user_scripts/wall_e.env
