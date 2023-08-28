@@ -25,4 +25,15 @@ class GeneratedIdentityField(models.AutoField):
         return name, path, args, kwargs
 
     def db_type(self, connection):
-        return f"INTEGER GENERATED {'ALWAYS' if self.always else 'BY DEFAULT'} AS IDENTITY"
+        if django_db_orm_settings.postgres_sql:
+            return f"INTEGER GENERATED {'ALWAYS' if self.always else 'BY DEFAULT'} AS IDENTITY"
+        else:
+            # migration 4 gives this error unless the db_type is just INTEGER
+            #   File "python3.9/site-packages/django/db/backends/utils.py", line 82, in _execute
+            #     return self.cursor.execute(sql)
+            #   File "python3.9/site-packages/django/db/backends/sqlite3/base.py", line 421, in execute
+            #     return Database.Cursor.execute(self, query)
+            # sqlite3.OperationalError: near "AS": syntax error
+            return "INTEGER"
+            # apparently, sqlite3 automatically set the definition of the field to
+            # INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
