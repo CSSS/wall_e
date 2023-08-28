@@ -3,7 +3,7 @@
 import inspect
 
 
-async def get_list_of_user_permissions(logger, ctx, user_id=False):
+async def get_list_of_user_permissions(logger, ctx, user_id=None):
     """
     Geting a list of a user's permissions
     :param logger: the calling service's logger object
@@ -11,17 +11,12 @@ async def get_list_of_user_permissions(logger, ctx, user_id=False):
     :param user_id: the ID of the user whose permission to get if its not just contaiend in ctx.author
     :return: the list of user's perms
     """
-    if user_id is not False:
-        perms = [perm[0] for perm in inspect.getmembers(ctx.guild.get_member(user_id).guild_permissions)
-                 if not perm[0].startswith('_') and not inspect.ismethod(perm[1]) and perm[1]]
-        logger.info(f"[list_of_perms.py get_list_of_user_permissions()] permissions for "
-                    f"{ctx.guild.get_member(user_id)} is {perms}"
-        )
-    else:
-        perms = [perm[0] for perm in inspect.getmembers(ctx.author.guild_permissions)
-                 if not perm[0].startswith('_') and not inspect.ismethod(perm[1]) and perm[1]]
-        logger.info(f"[list_of_perms.py get_list_of_user_permissions()] permissions for {ctx.author} "
-                    f"is {perms}")
+    author = ctx.author if user_id is None else ctx.guild.get_member(user_id)
+    perms = [perm[0] for perm in inspect.getmembers(author.guild_permissions)
+             if not perm[0].startswith('_') and not inspect.ismethod(perm[1]) and perm[1]]
+    logger.info(f"[list_of_perms.py get_list_of_user_permissions()] permissions for "
+                f"{ctx.guild.get_member(user_id)} is {perms}"
+                )
     return perms
 
 
