@@ -7,9 +7,9 @@ def get_last_index(logger, content, index, reserved_space):
     # that the message has to be split. and in order to make the output most visually appealing
     # when splitting it is to see if there is a newline on which  the message can be split instead.
     # if there is no suitable newline, it will instead just cut down an existing line
-    logger.info("[send.py get_last_index()] index =[{}] reserved_space =[{}]".format(index, reserved_space))
+    logger.info(f"[send.py get_last_index()] index =[{index}] reserved_space =[{reserved_space}]")
     if len(content) - index < 2000 - reserved_space:
-        logger.info("[send.py  get_last_index()] returning length of content =[{}]".format(len(content)))
+        logger.info(f"[send.py  get_last_index()] returning length of content =[{len(content)}]")
         return len(content)
     else:
         index_of_new_line = content.rfind('\n', index, index + (2000 - reserved_space))
@@ -17,7 +17,7 @@ def get_last_index(logger, content, index, reserved_space):
             last_index = index_of_new_line
         else:
             last_index = 2000 - reserved_space
-        logger.info("[send.py get_last_index()] index_of_new_line =[{}]".format(index_of_new_line))
+        logger.info(f"[send.py get_last_index()] index_of_new_line =[{index_of_new_line}]")
         return last_index
 
 
@@ -42,7 +42,7 @@ async def send(logger, ctx, content=None, tts=False, embed=None, file=None, file
             reserved_space += len(prefix)
         if suffix is not None:
             reserved_space += len(suffix)
-        logger.info("[send.py send()] reserved_space = [{}]".format(reserved_space))
+        logger.info(f"[send.py send()] reserved_space = [{reserved_space}]")
         last_index = get_last_index(logger, content, 0, reserved_space)
         first = True  # this is only necessary because it wouldnt make sense to have any potential embeds or file[s]
         # with each message
@@ -57,9 +57,8 @@ async def send(logger, ctx, content=None, tts=False, embed=None, file=None, file
                 if suffix is not None:
                     formatted_content = formatted_content + suffix
                 logger.info(
-                    "[send.py send()] messaage sent off with first_index = [{}] and last_index = [{}]".format(
-                        first_index, last_index
-                    )
+                    f"[send.py send()] messaage sent off with first_index = [{first_index}] and last_index ="
+                    f" [{last_index}]"
                 )
                 await ctx.send(formatted_content, tts=tts, embed=embed, file=file, files=files,
                                delete_after=delete_after, nonce=nonce)
@@ -70,17 +69,15 @@ async def send(logger, ctx, content=None, tts=False, embed=None, file=None, file
                 if suffix is not None:
                     formatted_content = formatted_content + suffix
                 logger.info(
-                    "[send.py send()] messaage sent off with first_index = [{}] and last_index = [{}]".format(
-                        first_index,
-                        last_index
-                    )
+                    f"[send.py send()] messaage sent off with first_index = [{first_index}] and last_index = "
+                    f"[{last_index}]"
                 )
                 await ctx.send(formatted_content, tts=tts, delete_after=delete_after, nonce=nonce)
             first_index = last_index
             last_index = get_last_index(logger, content, first_index + 1, reserved_space)
-            logger.info("[send.py send()] last_index updated to {}".format(last_index))
+            logger.info(f"[send.py send()] last_index updated to {last_index}")
             if len(content[first_index:last_index]) == 0:
                 finished = True
     except Exception as exc:
-        exc_str = '{}: {}'.format(type(exc).__name__, exc)
-        logger.error('[send.py send()] write to channel failed\n{}'.format(exc_str))
+        exc_str = f'{type(exc).__name__}: {exc}'
+        logger.error(f'[send.py send()] write to channel failed\n{exc_str}')

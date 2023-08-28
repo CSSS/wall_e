@@ -50,7 +50,7 @@ class HealthChecks(commands.Cog):
     @app_commands.command(name="ping")
     async def ping(self, interaction: discord.Interaction):
         await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
-        self.logger.info("[HealthChecks ping()] ping command detected from {}".format(interaction.user))
+        self.logger.info(f"[HealthChecks ping()] ping command detected from {interaction.user}")
         e_obj = await embed(
             self.logger,
             interaction=interaction,
@@ -66,9 +66,9 @@ class HealthChecks(commands.Cog):
     async def echo(self, interaction: discord.Interaction, string: str):
         await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
         user = interaction.user.display_name
-        self.logger.info("[HealthChecks echo()] echo command "
-                         "detected from {} with argument {}".format(interaction.user, string)
-                         )
+        self.logger.info(
+            f"[HealthChecks echo()] echo command detected from {interaction.user} with argument {string}"
+        )
         avatar = interaction.user.avatar.url
         e_obj = await embed(
             self.logger, interaction=interaction, author=user, avatar=avatar, description=string

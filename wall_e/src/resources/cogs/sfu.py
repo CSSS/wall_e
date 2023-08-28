@@ -50,8 +50,8 @@ class SFU(commands.Cog):
 
     @commands.command()
     async def sfu(self, ctx, *course):
-        self.logger.info('[SFU sfu()] sfu command detected from user {}'.format(ctx.message.author))
-        self.logger.info('[SFU sfu()] arguments given: {}'.format(course))
+        self.logger.info(f'[SFU sfu()] sfu command detected from user {ctx.message.author}')
+        self.logger.info(f'[SFU sfu()] arguments given: {course}')
 
         if(not course):
             e_obj = await embed(
@@ -109,9 +109,8 @@ class SFU(commands.Cog):
             course_code = course[0].lower()
             course_num = course[1].lower()
 
-        url = 'http://www.sfu.ca/bin/wcm/academic-calendar?{0}/{1}/courses/{2}/{3}'.format(year, term, course_code,
-                                                                                           course_num)
-        self.logger.info('[SFU sfu()] url for get request constructed: {}'.format(url))
+        url = f'http://www.sfu.ca/bin/wcm/academic-calendar?{year}/{term}/courses/{course_code}/{course_num}'
+        self.logger.info(f'[SFU sfu()] url for get request constructed: {url}')
 
         async with aiohttp.ClientSession() as req:
             res = await req.get(url)
@@ -126,7 +125,7 @@ class SFU(commands.Cog):
                     data += str(chunk.decode())
                 data = json.loads(data)
             else:
-                self.logger.info('[SFU sfu()] get resulted in {}'.format(res.status))
+                self.logger.info(f'[SFU sfu()] get resulted in {res.status}')
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
@@ -135,13 +134,10 @@ class SFU(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     colour=sfu_red,
                     description=(
-                        'Couldn\'t find anything for:\n{0}/{1}/{2}/{3}/\nMake sure you entered all the arguments '
-                        'correctly').format(
-                            year,
-                            term.upper(),
-                            course_code.upper(),
-                            course_num
-                        ),
+                        f'Couldn\'t find anything for:\n{year}/{term.upper()}/{course_code.upper()}'
+                        f'/{course_num}/\nMake sure you entered all the arguments '
+                        'correctly'
+                    ),
                     footer='SFU Error'
                 )
                 if e_obj is not False:
@@ -150,9 +146,8 @@ class SFU(commands.Cog):
 
         self.logger.info('[SFU sfu()] parsing json data returned from get request')
 
-        sfu_url = 'http://www.sfu.ca/students/calendar/{0}/{1}/courses/{2}/{3}.html'.format(year, term, course_code,
-                                                                                            course_num)
-        link = '[here]({})'.format(sfu_url)
+        sfu_url = f'http://www.sfu.ca/students/calendar/{year}/{term}/courses/{course_code}/{course_num}.html'
+        link = f'[here]({sfu_url})'
         footer = 'Written by VJ'
 
         fields = [
@@ -176,8 +171,8 @@ class SFU(commands.Cog):
 
     @commands.command()
     async def outline(self, ctx, *course):
-        self.logger.info('[SFU outline()] outline command detected from user {}'.format(ctx.message.author))
-        self.logger.info('[SFU outline()] arguments given: {}'.format(course))
+        self.logger.info(f'[SFU outline()] outline command detected from user {ctx.message.author}')
+        self.logger.info(f'[SFU outline()] arguments given: {course}')
 
         usage = [
                 ['Usage', '`.outline <course> [<term> <section> next]`\n*<term>, <section>, and next are optional ar'
@@ -298,9 +293,9 @@ class SFU(commands.Cog):
         if section == '':
             # get req the section
             self.logger.info('[SFU outline()] getting section')
-            res = await self.req.get('http://www.sfu.ca/bin/wcm/course-outlines?{0}/{1}/{2}/{3}'.format(year, term,
-                                                                                                        course_code,
-                                                                                                        course_num))
+            res = await self.req.get(
+                f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{course_code}/{course_num}'
+            )
             if(res.status == 200):
                 data = ''
                 while not res.content.at_eof():
@@ -313,7 +308,7 @@ class SFU(commands.Cog):
                         section = x['value']
                         break
             else:
-                self.logger.info('[SFU outline()] section get resulted in {}'.format(res.status))
+                self.logger.info(f'[SFU outline()] section get resulted in {res.status}')
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
@@ -322,11 +317,8 @@ class SFU(commands.Cog):
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     colour=sfu_red,
                     description=(
-                        'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? '
-                        'Or isn\'t offered right now.'.format(
-                            course_code.upper(),
-                            str(course_num).upper()
-                            )
+                        f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
+                        'Maybe the course doesn\'t exist? Or isn\'t offered right now.'
                     ),
                     footer='SFU Outline Error'
                 )
@@ -334,9 +326,8 @@ class SFU(commands.Cog):
                     await ctx.send(embed=e_obj)
                 return
 
-        url = 'http://www.sfu.ca/bin/wcm/course-outlines?{0}/{1}/{2}/{3}/{4}'.format(year, term, course_code,
-                                                                                     course_num, section)
-        self.logger.info('[SFU outline()] url for get constructed: {}'.format(url))
+        url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{course_code}/{course_num}/{section}'
+        self.logger.info(f'[SFU outline()] url for get constructed: {url}')
 
         res = await self.req.get(url)
 
@@ -349,7 +340,7 @@ class SFU(commands.Cog):
 
             data = json.loads(data)
         else:
-            self.logger.info('[SFU outline()] full outline get resulted in {}'.format(res.status))
+            self.logger.info(f'[SFU outline()] full outline get resulted in {res.status}')
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -358,8 +349,8 @@ class SFU(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 colour=sfu_red,
                 description=(
-                    'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? Or isn\'t '
-                    'offered right now.'.format(course_code.upper(), str(course_num).upper())
+                    f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`'
+                    f'\n Maybe the course doesn\'t exist? Or isn\'t offered right now.'
                 ),
                 footer='SFU Outline Error'
             )
@@ -384,8 +375,8 @@ class SFU(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 colour=sfu_red,
                 description=(
-                    'Couldn\'t find anything for `{} {}`\n Maybe the course doesn\'t exist? Or isn\'t offered '
-                    'right now.'.format(course_code.upper(), str(course_num).upper())),
+                    f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
+                    f'Maybe the course doesn\'t exist? Or isn\'t offered right now.'),
                 footer='SFU Outline Error')
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
@@ -399,7 +390,7 @@ class SFU(commands.Cog):
             instructors = data['instructor']
             for prof in instructors:
                 instructor += prof['name']
-                instructor += ' [{}]\n'.format(prof['email'])
+                instructor += f' [{prof["email"]}]\n'
         except Exception:
             instructor = 'TBA'
 
@@ -407,12 +398,12 @@ class SFU(commands.Cog):
         crs = ''
         for x in schedule:
             # [LEC] days time, room, campus
-            sec_code = '[{}]'.format(x['sectionCode'])
+            sec_code = f'[{x["sectionCode"]}]'
             days = x['days']
-            tme = '{}-{}'.format(x['startTime'], x['endTime'])
-            room = '{} {}'.format(x['buildingCode'], x['roomNumber'])
+            tme = f'{x["startTime"]}-{x["endTime"]}'
+            room = f'{x["buildingCode"]} {x["roomNumber"]}'
             campus = x['campus']
-            crs = '{}{} {} {}, {}, {}\n'.format(crs, sec_code, days, tme, room, campus)
+            crs = f'{crs}{sec_code} {days} {tme}, {room}, {campus}\n'
 
         class_times = crs
 
@@ -423,21 +414,18 @@ class SFU(commands.Cog):
         date = ''
         try:
             # Course might not have an exam
-            tim = '{}-{}'.format(data['examSchedule'][0]['startTime'], data['examSchedule'][0]['endTime'])
+            tim = f"{data['examSchedule'][0]['startTime']}-{data['examSchedule'][0]['endTime']}"
             date = data['examSchedule'][0]['startDate'].split()
-            date = '{} {} {}'.format(date[0], date[1], date[2])
+            date = f'{date[0]} {date[1]} {date[2]}'
 
-            exam_times = '{} {}'.format(tim, date)
+            exam_times = f'{tim} {date}'
 
             # Room info much later
             room_info = (
-                '{} {}, {}'.format(
-                    data['examSchedule'][0]['buildingCode'],
-                    data['schedule']['roomNumber'],
-                    data['examSchedule'][0]['campus']
-                )
+                f"{data['examSchedule'][0]['buildingCode']} {data['schedule']['roomNumber']}, "
+                f"{data['examSchedule'][0]['campus']}"
             )
-            exam_times += '\n{}'.format(room_info)
+            exam_times += f'\n{room_info}'
         except Exception:
             pass
         # Other details
@@ -447,7 +435,7 @@ class SFU(commands.Cog):
             details = html.unescape(data['info']['courseDetails'])
             details = re.sub('<[^<]+?>', '', details)
             if(len(details) > 200):
-                details = '{}\n(...)'.format(details[:200])
+                details = f'{details[:200]}\n(...)'
         except Exception:
             details = 'None'
         try:
@@ -460,8 +448,8 @@ class SFU(commands.Cog):
         except Exception:
             corequisites = ''
 
-        url = 'http://www.sfu.ca/outlines.html?{}'.format(data['info']['outlinePath'])
-        self.logger.info('[SFU outline()] finished parsing data for: {}'.format(data['info']['outlinePath']))
+        url = f"http://www.sfu.ca/outlines.html?{data['info']['outlinePath']}"
+        self.logger.info(f"[SFU outline()] finished parsing data for: {data['info']['outlinePath']}")
         # Make tuple of the data for the fields
         fields = [
             ['Outline', outline],
@@ -476,7 +464,7 @@ class SFU(commands.Cog):
 
         if corequisites:
             fields.append(['Corequisites', corequisites])
-        fields.append(['URL', '[here]({})'.format(url)])
+        fields.append(['URL', f'[here]({url})'])
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
         e_obj = await embed(
             self.logger,

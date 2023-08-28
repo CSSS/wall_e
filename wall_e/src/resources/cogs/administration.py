@@ -83,7 +83,7 @@ class Administration(commands.Cog):
             while self.guild is None:
                 await asyncio.sleep(2)
             self.logger.info("[Administration delete_log_channels()] delete_log_channels command "
-                             "detected from {}".format(interaction.user))
+                             f"detected from {interaction.user}")
             await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
             await interaction.response.defer()
             await BotChannelManager.delete_log_channels(interaction)
@@ -161,7 +161,7 @@ class Administration(commands.Cog):
 
     @commands.command()
     async def sync(self, ctx):
-        self.logger.info("[HealthChecks sync()] sync command detected from {}".format(ctx.message.author))
+        self.logger.info(f"[HealthChecks sync()] sync command detected from {ctx.message.author}")
         message = "Testing guild does not provide support for Slash Commands" \
             if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
             else 'Commands Synced!'

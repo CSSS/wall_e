@@ -28,7 +28,7 @@ async def write_to_bot_log_channel(logger, bot, file_path, chan_id):
             if line.strip() != "":
                 # this was done so that no one gets accidentally pinged from the bot log channel
                 if line[0] == ' ':
-                    line = ".{}".format(line)
+                    line = f".{line}"
                 output = line
                 # done because discord has a character limit of 2000 for each message
                 # so what basically happens is it first tries to send the full message, then if it cant, it
@@ -51,9 +51,9 @@ async def write_to_bot_log_channel(logger, bot, file_path, chan_id):
                     )
                     break
                 except Exception as exc:
-                    exc_str = '{}: {}'.format(type(exc).__name__, exc)
+                    exc_str = f'{type(exc).__name__}: {exc}'
                     raise Exception(
-                        '[log_channel.py write_to_bot_log_channel()] write to channel failed\n{}'.format(exc_str)
+                        f'[log_channel.py write_to_bot_log_channel()] write to channel failed\n{exc_str}'
                     )
             line = f.readline()
         await asyncio.sleep(1)

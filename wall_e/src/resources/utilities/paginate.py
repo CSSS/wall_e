@@ -10,7 +10,7 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
     num_of_pages = len(description_to_embed)
     logger.info(
         "[paginate.py paginate_embed()] called with following argument: "
-        "title={}\n\ndescription_to_embed={}\n\n".format(title, description_to_embed)
+        f"title={title}\n\ndescription_to_embed={description_to_embed}\n\n"
     )
 
     current_page = 0
@@ -18,8 +18,8 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
     msg = None
 
     while True:
-        logger.info("[paginate.py paginate_embed()] loading page {}".format(current_page))
-        logger.info("[paginate.py paginate_embed()] loading roles {}".format(description_to_embed[current_page]))
+        logger.info(f"[paginate.py paginate_embed()] loading page {current_page}")
+        logger.info(f"[paginate.py paginate_embed()] loading roles {description_to_embed[current_page]}")
         embed_obj = await imported_embed(
             logger,
             interaction=interaction,
@@ -28,7 +28,7 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
             author=config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=description_to_embed[current_page],
-            footer="{}/{}".format(current_page + 1, num_of_pages)
+            footer=f"{current_page + 1}/{num_of_pages}"
         )
         if embed_obj is not None:
             logger.info("[paginate.py paginate_embed()] embed succesfully created and populated for page "
@@ -64,7 +64,7 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
             if not user.bot:  # just making sure the bot doesnt take its own reactions
                 # into consideration
                 e = str(reaction.emoji)
-                logger.info("[paginate.py paginate_embed()] reaction {} detected from {}".format(e, user))
+                logger.info(f"[paginate.py paginate_embed()] reaction {e} detected from {user}")
                 return e.startswith(('⏪', '⏩', '✅'))
 
         user_reacted = False
@@ -82,7 +82,7 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
                         current_page = num_of_pages - 1
                     logger.info(
                         "[paginate.py paginate_embed()] user indicates they want to go back "
-                        "a page from {} to {}".format(prev_page, current_page)
+                        f"a page from {prev_page} to {current_page}"
                     )
 
                 elif '⏩' == user_reacted[0].emoji:
@@ -92,7 +92,7 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
                         current_page = 0
                     logger.info(
                         "[paginate.py paginate_embed()] user indicates they want to go forward "
-                        "a page from {} to {}".format(prev_page, current_page)
+                        f"a page from {prev_page} to {current_page}"
                     )
 
                 elif '✅' == user_reacted[0].emoji:
@@ -110,13 +110,8 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
 
 async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_page_entries=0, title=" "):
     logger.info(
-        "[paginate.py paginate()] called with following argument: list_to_paginate={}"
-        "\n\tnum_of_pages={}, num_of_page_entries={} and title={}".format(
-            list_to_paginate,
-            num_of_pages,
-            num_of_page_entries,
-            title
-        )
+        f"[paginate.py paginate()] called with following argument: list_to_paginate={list_to_paginate}"
+        f"\n\tnum_of_pages={num_of_pages}, num_of_page_entries={num_of_page_entries} and title={title}"
     )
     if num_of_pages == 0:
         if num_of_page_entries == 0:
@@ -142,8 +137,8 @@ async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_pa
                 num_of_page_entries = int(len(list_to_paginate) / num_of_pages) + 1
 
     logger.info(
-        "[paginate.py paginate()] num_of_page_entries set to {} and "
-        "num_of_pages set to {}".format(num_of_page_entries, num_of_pages)
+        f"[paginate.py paginate()] num_of_page_entries set to {num_of_page_entries} and "
+        f"num_of_pages set to {num_of_pages}"
     )
     list_of_roles = [["" for x in range(num_of_page_entries)] for y in range(num_of_pages)]
     x, y = 0, 0
@@ -158,15 +153,14 @@ async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_pa
     first_run = True
     msg = None
     while True:
-        logger.info("[paginate.py paginate()] loading page {}".format(current_page))
-        logger.info("[paginate.py paginate()] loading roles {}".format(list_of_roles[current_page]))
-        output = "{}\n\n```".format(title)
+        logger.info(f"[paginate.py paginate()] loading page {current_page}")
+        logger.info(f"[paginate.py paginate()] loading roles {list_of_roles[current_page]}")
+        output = f"{title}\n\n```"
         for x in list_of_roles[current_page]:
             if x != '':
-                output += '\t\"{}\"\n'.format(x)
-        output += '```{}/{}'.format(str(current_page + 1), str(num_of_pages))
-        logger.info("[paginate.py paginate()] created and filled Embed with roles of the current page "
-                    + str(current_page))
+                output += f'\t\"{x}\"\n'
+        output += f'```{current_page + 1}/{num_of_pages}'
+        logger.info(f"[paginate.py paginate()] created and filled Embed with roles of the current page {current_page}")
 
         # determining which reactions are needed
         if num_of_pages == 1:
@@ -191,7 +185,7 @@ async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_pa
         def check_reaction(reaction, user):
             if not user.bot:
                 e = str(reaction.emoji)
-                logger.info("[paginate.py paginate()] reaction {} detected from {}".format(e, user))
+                logger.info(f"[paginate.py paginate()] reaction {e} detected from {user}")
                 return e.startswith(('⏪', '⏩', '✅'))
 
         user_reacted = False
@@ -209,7 +203,7 @@ async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_pa
                         current_page = num_of_pages - 1
                     logger.info(
                         "[paginate.py paginate()] user indicates "
-                        "they want to go back a page from {} to {}".format(prev_page, current_page)
+                        f"they want to go back a page from {prev_page} to {current_page}"
                     )
                 elif '⏩' == user_reacted[0].emoji:
                     prev_page = current_page
@@ -218,7 +212,7 @@ async def paginate(logger, bot, ctx, list_to_paginate, num_of_pages=0, num_of_pa
                         current_page = 0
                     logger.info(
                         "[paginate.py paginate()] user indicates they want"
-                        " to go forward a page from {} to {}".format(prev_page, current_page)
+                        f" to go forward a page from {prev_page} to {current_page}"
                     )
                 elif '✅' == user_reacted[0].emoji:
                     logger.info(
