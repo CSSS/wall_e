@@ -2,3 +2,4 @@ flake8==3.9.2
 pytest
 pytest-flake8
 pep8-naming
+flake8-sfs
