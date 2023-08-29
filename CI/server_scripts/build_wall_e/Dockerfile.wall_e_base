@@ -8,6 +8,6 @@ ENV CONTAINER_HOME_DIR=$CONTAINER_HOME_DIR
 
 WORKDIR $CONTAINER_HOME_DIR
 
-COPY wall_e/src/requirements.txt .
+COPY wall_e/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
