@@ -30,7 +30,7 @@ logger = log_info[0]
 wall_e_debug_log_file_absolute_path = log_info[1]
 wall_e_error_log_file_absolute_path = log_info[2]
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_db_orm_settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
 django.setup()
 
 wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
@@ -184,8 +184,8 @@ async def on_app_command_completion(interaction: discord.Interaction, cmd: disco
     database_enabled = wall_e_config.enabled("database_config", option="ENABLED")
     correct_channel = await command_in_correct_test_guild_channel(wall_e_config, interaction)
     if correct_channel and database_enabled:
-        from WalleModels.models import CommandStat
-        await CommandStat.save_command_async(CommandStat(
+        from wall_e_models.models import CommandStat
+        await CommandStat._save_command_stat(CommandStat(
             epoch_time=datetime.datetime.now().timestamp(), channel_name=interaction.channel.name,
             command=interaction.command.name, invoked_with=cmd.qualified_name,
             invoked_subcommand=None

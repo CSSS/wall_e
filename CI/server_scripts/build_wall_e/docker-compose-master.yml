@@ -27,27 +27,16 @@ services:  #Services that are needed for the wall_e app
             - "db"
         image: "${compose_project_name}_wall_e"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
+        networks:
+            - wall_e_network
     db: #declaration of the postgres container
         environment:
             - POSTGRES_PASSWORD
         image: postgres:alpine #using postgres image
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
-    wall_e_leveling_website:
-        build:
-            context: ../../../
-            dockerfile: CI/server_scripts/build_wall_e/Dockerfile.website
-        depends_on:
-            - 'db'
-        image: "${compose_project_name}_leveling_website"
-        container_name: "${COMPOSE_PROJECT_NAME}_leveling_website"
-        ports:
-            - "8081:8000"
-        environment:
-            - basic_config__TOKEN
-            - database_config__WALL_E_DB_DBNAME
-            - database_config__WALL_E_DB_USER
-            - database_config__WALL_E_DB_PASSWORD
-            - basic_config__COMPOSE_PROJECT_NAME
-            - DB_PORT
-            - HOST
-        restart: unless-stopped
+        networks:
+            - wall_e_network
+
+networks:
+  wall_e_network:
+      external: true

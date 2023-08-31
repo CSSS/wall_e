@@ -4,8 +4,8 @@ import re
 
 import discord
 from discord.ext import commands
+from wall_e_models.models import CommandStat
 
-from WalleModels.models import CommandStat
 from resources.utilities.embed import embed as imported_embed
 from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.list_of_perms import get_list_of_user_permissions
@@ -135,7 +135,7 @@ class ManageCog(commands.Cog):
         :return:
         """
         if self.check_test_environment(ctx) and self.config.enabled("database_config", option="ENABLED"):
-            await CommandStat.save_command_async(CommandStat(
+            await CommandStat._save_command_stat(CommandStat(
                 epoch_time=datetime.datetime.now().timestamp(), channel_name=ctx.channel,
                 command=ctx.command, invoked_with=ctx.invoked_with,
                 invoked_subcommand=ctx.invoked_subcommand
