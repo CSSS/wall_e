@@ -2,11 +2,11 @@ import os
 
 from resources.utilities.config.config import WallEConfig
 
-environment = os.environ['basic_config__ENVIRONMENT']
-wall_e_config = WallEConfig(environment, wall_e=False)
-postgres_sql = wall_e_config.enabled("database_config", "postgresSQL")
+ENVIRONMENT = os.environ['basic_config__ENVIRONMENT']
+wall_e_config = WallEConfig(ENVIRONMENT, wall_e=False)
+POSTGRES_SQL = wall_e_config.enabled("database_config", "postgresSQL")
 
-if postgres_sql:
+if POSTGRES_SQL:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -34,7 +34,7 @@ else:
     }
 
 INSTALLED_APPS = (
-    'WalleModels',
+    'wall_e_models',
 )
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

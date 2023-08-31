@@ -5,8 +5,8 @@ from typing import Union
 import discord
 import pytz
 from discord.ext import commands
+from wall_e_models.models import BanRecord
 
-from WalleModels.models import BanRecords
 from resources.utilities.embed import embed as em
 from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.setup_logger import Loggers
@@ -65,8 +65,8 @@ class Ban(commands.Cog):
 
         # read in ban_list of banned users
         self.logger.info('[Ban load()] loading ban list from the database')
-        self.ban_list = await BanRecords.get_all_active_ban_user_ids()
-        count = await BanRecords.get_active_bans_count()
+        self.ban_list = await BanRecord.get_all_active_ban_user_ids()
+        count = await BanRecord.get_active_bans_count()
         self.logger.info(f"[Ban load()] loaded {count} banned users from database")
 
     @commands.Cog.listener(name='on_member_join')
@@ -127,7 +127,7 @@ class Ban(commands.Cog):
         self.logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
 
         # name, id, mod, mod id, date, reason
-        ban = BanRecords(
+        ban = BanRecord(
                          username=member.name + '#' + member.discriminator,
                          user_id=member.id,
                          mod=audit_ban.user.name + '#' + audit_ban.user.discriminator,
@@ -138,7 +138,7 @@ class Ban(commands.Cog):
 
         # update ban_list and db
         self.ban_list.append(member.id)
-        await BanRecords.insert_record(ban)
+        await BanRecord.insert_record(ban)
 
         # unban
         await guild.unban(member)
@@ -214,7 +214,7 @@ class Ban(commands.Cog):
                     username = ban.user.name + '#' + ban.user.discriminator
                     user_id = ban.user.id
 
-                ban_records.append(BanRecords(
+                ban_records.append(BanRecord(
                     username=username,
                     user_id=user_id,
                     mod=mod,
@@ -223,7 +223,7 @@ class Ban(commands.Cog):
                     reason=reason
                 ))
 
-        await BanRecords.insert_records(ban_records)
+        await BanRecord.insert_records(ban_records)
 
         await ctx.send(f"Moved `{len(ban_records)}` active bans from guild bans to walle bans.")
         self.logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
@@ -268,7 +268,7 @@ class Ban(commands.Cog):
         # ban
         dm = True
 
-        ban = BanRecords(
+        ban = BanRecord(
                          username=user.name + '#' + user.discriminator,
                          user_id=user.id,
                          mod=ctx.author.name+'#'+ctx.author.discriminator,
@@ -329,7 +329,7 @@ class Ban(commands.Cog):
         )
 
         # update database
-        await BanRecords.insert_record(ban)
+        await BanRecord.insert_record(ban)
 
     async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
@@ -378,7 +378,7 @@ class Ban(commands.Cog):
         # "unban"
         self.ban_list.remove(user_id)
 
-        name = await BanRecords.unban_by_id(user_id)
+        name = await BanRecord.unban_by_id(user_id)
         if not name:
             self.logger.info(f"[Ban unban()] No user with id: {user_id} found.")
             await self.mod_channel.send(f"*No user with id: **{user_id}** found.*")
@@ -409,8 +409,8 @@ class Ban(commands.Cog):
 
         self.logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
 
-        bans = await BanRecords.get_all_active_bans()
-        count = await BanRecords.get_active_bans_count()
+        bans = await BanRecord.get_all_active_bans()
+        count = await BanRecord.get_active_bans_count()
         self.logger.info(f"[Ban bans()] retrieved all banned users: {bans}")
 
         emb = discord.Embed(title="Banned members", color=discord.Color.red())

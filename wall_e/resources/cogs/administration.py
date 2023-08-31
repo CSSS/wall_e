@@ -5,8 +5,8 @@ import subprocess
 import discord
 from discord import app_commands
 from discord.ext import commands
+from wall_e_models.models import CommandStat
 
-from WalleModels.models import CommandStat
 from resources.utilities.bot_channel_manager import BotChannelManager
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
