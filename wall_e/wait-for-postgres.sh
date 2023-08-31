@@ -20,8 +20,8 @@ PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${database_config__WALL
   --set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
   -h "$host" -U "postgres" -f WalleModels/create-database.ddl
 
-python3 django_db_orm_manage.py makemigrations
-python3 django_db_orm_manage.py migrate
+python3 django_manage.py makemigrations
+python3 django_manage.py migrate
 
 exec $cmd
 
