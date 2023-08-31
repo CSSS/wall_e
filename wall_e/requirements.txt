@@ -8,3 +8,5 @@ asgiref==3.4.1
 
 # needed temporarily for importing data from mee6
 requests==2.31.0
+
+wall-e-models==0.1
