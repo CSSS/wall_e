@@ -5,9 +5,9 @@ import discord
 import parsedatetime
 import pytz
 from discord.ext import commands
+from wall_e_models.models import Reminder
 
-import django_db_orm_settings
-from WalleModels.models import Reminder
+import django_settings
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.setup_logger import Loggers, print_wall_e_exception
@@ -95,7 +95,7 @@ class Reminders(commands.Cog):
         self.logger.info(f"[Reminders remindmein()] remindmein command detected from user {ctx.message.author}")
         parsed_time = ''
         message = ''
-        user_specified_timezone = pytz.timezone(django_db_orm_settings.TIME_ZONE)
+        user_specified_timezone = pytz.timezone(django_settings.TIME_ZONE)
         parse_time = True
         for index, value in enumerate(args):
             if parse_time:
@@ -183,7 +183,7 @@ class Reminders(commands.Cog):
                 self.logger.info(f"[Reminders showreminders()] dealing with reminder {reminder_obj}")
                 time_str = datetime.datetime.fromtimestamp(
                     reminder_obj.reminder_date_epoch,
-                    pytz.timezone(django_db_orm_settings.TIME_ZONE)
+                    pytz.timezone(django_settings.TIME_ZONE)
                 ).strftime("%Y %b %-d %-I:%-M:%-S %p %Z")
                 reminders += f"{reminder_obj.id}\n - {time_str}\n - {reminder_obj.message}\n"
             author = ctx.author.nick or ctx.author.name

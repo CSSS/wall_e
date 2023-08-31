@@ -3,8 +3,8 @@ import json
 
 import discord
 from discord.ext import commands
+from wall_e_models.models import Level, UserPoint
 
-from WalleModels.models import UserPoint, Level
 from resources.utilities.embed import embed
 from resources.utilities.file_uploading import start_file_uploading
 from resources.utilities.paginate import paginate_embed
