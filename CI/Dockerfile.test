@@ -18,7 +18,7 @@ WORKDIR $CONTAINER_HOME_DIR
 
 COPY CI/test_config_files/test-requirements.txt ./
 
-COPY wall_e/src ./
+COPY wall_e ./
 
 COPY CI/test_config_files/pytest.ini ./
 
