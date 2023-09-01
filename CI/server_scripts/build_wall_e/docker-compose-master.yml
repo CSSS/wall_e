@@ -39,3 +39,4 @@ services:  #Services that are needed for the wall_e app
 
 networks:
   wall_e_network:
+      name: "${COMPOSE_PROJECT_NAME}_wall_e_network"
