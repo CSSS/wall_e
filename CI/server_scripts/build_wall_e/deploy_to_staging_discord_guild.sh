@@ -18,7 +18,7 @@ export test_container_db_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
 export test_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 export test_image_name=$(echo "${test_container_name}" | awk '{print tolower($0)}')
-export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
+export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose-master.yml"
 
 
 # the name of the docker image that will get assigned to the foundational images that are created or used if one of the tracked
