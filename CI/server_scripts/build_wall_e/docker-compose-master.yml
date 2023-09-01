@@ -39,4 +39,3 @@ services:  #Services that are needed for the wall_e app
 
 networks:
   wall_e_network:
-      external: true

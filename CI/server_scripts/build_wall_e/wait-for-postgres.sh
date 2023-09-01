@@ -24,10 +24,10 @@ if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
 	PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${database_config__WALL_E_DB_USER}" \
 	--set=WALL_E_DB_PASSWORD="${database_config__WALL_E_DB_PASSWORD}" \
 	--set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
-	-h "$host" -U "postgres" -f WalleModels/create-database.ddl
-	python3 django_db_orm_manage.py migrate
+	-h "$host" -U "postgres" -f create-database.ddl
+	python3 django_manage.py migrate
 	wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
-	python3 django_db_orm_manage.py loaddata wall_e.json
+	python3 django_manage.py loaddata wall_e.json
 	cd "${HOME_DIR}"
 	rm -r /wall_e || true
 fi
