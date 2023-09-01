@@ -45,7 +45,7 @@ If you have forked your version
 ```shell
 python -m pip uninstall wall_e_models
 
-https://github.com/CSSS/wall_e_models.git
+git clone https://github.com/CSSS/wall_e_models.git
 cd wall_e_models
 # make any necessary changes
 
