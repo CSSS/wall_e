@@ -4,33 +4,34 @@ set -e
 
 echo -e "\n[y/N] indicates a yes/no question. the default is the letter in CAPS. If answer is not understood, will revert to default\n"
 
-echo "Do you need to run through the setup? [y/N]"
-read run_through_setup
+if [ "${1}" == "--env_file" ];
+then
+	export run_through_setup="y";
+	read_from_env_file="true";
+	cd wall_e
+	. ../CI/user_scripts/set_env.sh
+	cd -
+	if [[ "${basic_config__DOCKERIZED}" == "y" ]];
+	then
+		export basic_config__DOCKERIZED='1'
+	else
+		export basic_config__DOCKERIZED='0'
+	fi
+	if [[ "${database_config__postgresSQL}" == "1" ]];
+	then
+		export dockerized_database='y'
+		export sqlite3_database='n'
+	else
+		export dockerized_database='n'
+		export sqlite3_database='y'
+	fi
+else
+	echo "Do you need to run through the setup? [y/N]"
+	read run_through_setup
+fi
 
 if [ "${run_through_setup}" == "y" ];
 then
-	if [ "${1}" == "--env_file" ];
-	then
-		read_from_env_file="true";
-		cd wall_e
-		. ../CI/user_scripts/set_env.sh
-		cd -
-		if [[ "${basic_config__DOCKERIZED}" == "y" ]];
-		then
-			export basic_config__DOCKERIZED='1'
-		else
-			export basic_config__DOCKERIZED='0'
-		fi
-		if [[ "${database_config__postgresSQL}" == "1" ]];
-		then
-			export dockerized_database='y'
-			export sqlite3_database='n'
-		else
-			export dockerized_database='n'
-			export sqlite3_database='y'
-		fi
-	fi
-
 	if [ -z "${basic_config__TOKEN}" ];
 	then
 		echo "What is your discord bot's token? [see https://discord.com/developers/docs/getting-started if you are not sure how to get it]"
