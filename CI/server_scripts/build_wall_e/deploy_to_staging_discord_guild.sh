@@ -50,7 +50,6 @@ export ORIGIN_IMAGE="${wall_e_top_base_image}"
 
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
-docker rm -f PRODUCTION_MASTER_leveling_website || true
 docker-compose -f "${docker_compose_file}" up --force-recreate  -d
 sleep 60
 
