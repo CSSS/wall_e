@@ -21,7 +21,7 @@ rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
 export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 
-export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose-master.yml"
+export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
 
 export prod_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 export prod_image_name_lower_case=$(echo "$prod_container_name" | awk '{print tolower($0)}')
