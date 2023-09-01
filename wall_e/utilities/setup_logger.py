@@ -170,6 +170,9 @@ class LoggerWriter:
         :return:
         """
         if message != '\n':
+            # removing newline that is created [I believe] when stdout automatically adds a newline to the string
+            # before passing it to this method, and self.level itself also adds a newline
+            message = message[:-1] if message[-1:] == "\n" else message
             self.level(message)
 
     def flush(self):
