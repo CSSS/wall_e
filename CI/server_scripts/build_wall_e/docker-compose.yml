@@ -25,8 +25,15 @@ services:  #Services that are needed for the wall_e app
             - "db"
         image: "${compose_project_name}_wall_e"
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e"
+        networks:
+            - wall_e_network
     db: #declaration of the postgres container
         environment:
             - POSTGRES_PASSWORD
         image: postgres:alpine #using postgres image
         container_name: "${COMPOSE_PROJECT_NAME}_wall_e_db"
+        networks:
+            - wall_e_network
+
+networks:
+  wall_e_network:
