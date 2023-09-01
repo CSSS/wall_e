@@ -13,12 +13,12 @@ from discord import Intents
 from discord.ext import commands
 from django.core.wsgi import get_wsgi_application
 
-from resources.utilities.bot_channel_manager import BotChannelManager
-from resources.utilities.config.config import WallEConfig
-from resources.utilities.embed import embed as imported_embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.setup_logger import Loggers, print_wall_e_exception
-from resources.utilities.slash_command_checks import command_in_correct_test_guild_channel
+from utilities.bot_channel_manager import BotChannelManager
+from utilities.config.config import WallEConfig
+from utilities.embed import embed as imported_embed
+from utilities.file_uploading import start_file_uploading
+from utilities.setup_logger import Loggers, print_wall_e_exception
+from utilities.slash_command_checks import command_in_correct_test_guild_channel
 
 log_info = Loggers.get_logger(logger_name="sys")
 sys_debug_log_file_absolute_path = log_info[1]

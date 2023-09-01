@@ -7,9 +7,9 @@ import time
 import aiohttp
 from discord.ext import commands
 
-from resources.utilities.embed import embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.setup_logger import Loggers
+from utilities.embed import embed
+from utilities.file_uploading import start_file_uploading
+from utilities.setup_logger import Loggers
 
 sfu_red = 0xA6192E
 

@@ -1,5 +1,5 @@
 import asyncio
-from resources.utilities.embed import embed as imported_embed
+from utilities.embed import embed as imported_embed
 
 
 async def paginate_embed(logger, bot, config, description_to_embed, title=" ", ctx=None, interaction=None):

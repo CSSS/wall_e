@@ -4,10 +4,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from resources.utilities.embed import embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.setup_logger import Loggers
-from resources.utilities.slash_command_checks import slash_command_checks
+from utilities.embed import embed
+from utilities.file_uploading import start_file_uploading
+from utilities.setup_logger import Loggers
+from utilities.slash_command_checks import slash_command_checks
 
 
 class HealthChecks(commands.Cog):

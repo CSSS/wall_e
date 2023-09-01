@@ -10,11 +10,11 @@ from discord import app_commands
 from discord.ext import commands
 from matplotlib import pyplot as plt
 
-from resources.utilities.embed import embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.list_of_perms import get_list_of_user_permissions
-from resources.utilities.paginate import paginate_embed
-from resources.utilities.setup_logger import Loggers
+from utilities.embed import embed
+from utilities.file_uploading import start_file_uploading
+from utilities.list_of_perms import get_list_of_user_permissions
+from utilities.paginate import paginate_embed
+from utilities.setup_logger import Loggers
 
 
 def render_latex(formula, fontsize=12, dpi=300, format_='svg'):

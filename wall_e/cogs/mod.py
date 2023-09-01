@@ -3,9 +3,9 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from resources.utilities.embed import embed as em
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.setup_logger import Loggers
+from utilities.embed import embed as em
+from utilities.file_uploading import start_file_uploading
+from utilities.setup_logger import Loggers
 
 
 class Mod(commands.Cog):

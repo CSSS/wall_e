@@ -1,4 +1,4 @@
-from resources.utilities.log_channel import write_to_bot_log_channel
+from utilities.log_channel import write_to_bot_log_channel
 
 
 async def start_file_uploading(logger, guild, bot, config, file_path, channel_name):

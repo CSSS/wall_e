@@ -6,10 +6,10 @@ import discord
 from discord.ext import commands
 from wall_e_models.models import CommandStat
 
-from resources.utilities.embed import embed as imported_embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.list_of_perms import get_list_of_user_permissions
-from resources.utilities.setup_logger import Loggers, print_wall_e_exception
+from utilities.embed import embed as imported_embed
+from utilities.file_uploading import start_file_uploading
+from utilities.list_of_perms import get_list_of_user_permissions
+from utilities.setup_logger import Loggers, print_wall_e_exception
 
 
 class ManageCog(commands.Cog):

@@ -5,10 +5,10 @@ import discord
 from discord.ext import commands
 from wall_e_models.models import Level, UserPoint
 
-from resources.utilities.embed import embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.paginate import paginate_embed
-from resources.utilities.setup_logger import Loggers
+from utilities.embed import embed
+from utilities.file_uploading import start_file_uploading
+from utilities.paginate import paginate_embed
+from utilities.setup_logger import Loggers
 
 
 class Leveling(commands.Cog):

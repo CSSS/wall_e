@@ -5,12 +5,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from resources.utilities.embed import embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.paginate import paginate_embed
-from resources.utilities.role_commands_autocomplete_functions import get_roles_with_members, get_assigned_roles, \
+from utilities.embed import embed
+from utilities.file_uploading import start_file_uploading
+from utilities.paginate import paginate_embed
+from utilities.role_commands_autocomplete_functions import get_roles_with_members, get_assigned_roles, \
     get_assignable_roles, get_roles_that_can_be_deleted
-from resources.utilities.setup_logger import Loggers
+from utilities.setup_logger import Loggers
 
 
 class RoleCommands(commands.Cog):

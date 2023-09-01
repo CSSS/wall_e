@@ -5,13 +5,13 @@ import configparser
 from collections import OrderedDict
 
 
-config_file_dockerized_location_local = "resources/utilities/config/local.ini"
-config_file_location_prouction = "resources/utilities/config/production.ini"
-config_file_location_dev = "resources/utilities/config/dev.ini"
+config_file_dockerized_location_local = "utilities/config/local.ini"
+config_file_location_production = "utilities/config/production.ini"
+config_file_location_dev = "utilities/config/dev.ini"
 
-cog_location_python_path = "resources.cogs."
+cog_location_python_path = "cogs."
 
-help_json_location = "resources/locales/"
+help_json_location = "locales/"
 help_json_file_name = "help.json"
 
 
@@ -27,7 +27,7 @@ class WallEConfig:
         elif environment == 'TEST':
             config.read(config_file_location_dev)
         elif environment == "PRODUCTION":
-            config.read(config_file_location_prouction)
+            config.read(config_file_location_production)
         else:
             raise Exception(f"[WallEConfig __init__()] incorrect environment specified {environment}")
         self.config = {'wall_e': config}

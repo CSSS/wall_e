@@ -2,8 +2,8 @@ from collections import OrderedDict
 
 import discord
 
-from resources.utilities.config.config import WallEConfig
-from resources.utilities.list_of_perms import get_list_of_user_permissions_for_intentions
+from utilities.config.config import WallEConfig
+from utilities.list_of_perms import get_list_of_user_permissions_for_intentions
 
 
 async def slash_command_checks(logger, config: WallEConfig, interaction: discord.Interaction, help_dict: OrderedDict):

@@ -1,6 +1,6 @@
 import os
 
-from resources.utilities.config.config import WallEConfig
+from utilities.config.config import WallEConfig
 
 ENVIRONMENT = os.environ['basic_config__ENVIRONMENT']
 wall_e_config = WallEConfig(ENVIRONMENT, wall_e=False)

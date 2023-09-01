@@ -8,9 +8,9 @@ from discord.ext import commands
 from wall_e_models.models import Reminder
 
 import django_settings
-from resources.utilities.embed import embed
-from resources.utilities.file_uploading import start_file_uploading
-from resources.utilities.setup_logger import Loggers, print_wall_e_exception
+from utilities.embed import embed
+from utilities.file_uploading import start_file_uploading
+from utilities.setup_logger import Loggers, print_wall_e_exception
 
 
 class Reminders(commands.Cog):
