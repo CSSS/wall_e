@@ -222,10 +222,10 @@ then
 		fi
 
 		python3 django_manage.py migrate
-		rm wall_e.json* | true
-#		wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
-#		python3 django_manage.py loaddata wall_e.json
-		python3 django_manage.py convert_models
+		rm wall_e.json* || true
+		wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
+		python3 django_manage.py loaddata wall_e.json
+		rm wall_e.json* || true
 
 		if [ "${launch_wall_e}" == "n" ];
 		then
