@@ -17,7 +17,7 @@ from utilities.bot_channel_manager import BotChannelManager
 from utilities.config.config import WallEConfig
 from utilities.embed import embed as imported_embed
 from utilities.file_uploading import start_file_uploading
-from utilities.setup_logger import Loggers, print_wall_e_exception
+from utilities.setup_logger import Loggers, print_wall_e_exception, barrier_logging_level, WalleDebugStreamHandler
 from utilities.slash_command_checks import command_in_correct_test_guild_channel
 
 log_info = Loggers.get_logger(logger_name="sys")
@@ -227,6 +227,23 @@ async def on_command_error(interaction: discord.Interaction, error):
                     return
 
 
+class DiscordPyDebugStreamHandler(logging.StreamHandler):
+    def __init__(self):
+        self.debug_handler = [
+            handler for handler in logger.handlers if type(handler) == WalleDebugStreamHandler
+        ][0]
+        self.error_handler = [
+            handler for handler in logger.handlers if type(handler) == logging.StreamHandler
+        ][0]
+        super(DiscordPyDebugStreamHandler, self).__init__()
+
+    def emit(self, record):
+        if record.levelno < barrier_logging_level:
+            self.debug_handler.emit(record)
+        else:
+            self.error_handler.emit(record)
+
+
 ####################
 # STARTING POINT ##
 ####################
@@ -234,4 +251,4 @@ if __name__ == "__main__":
     logger.info("[main.py] Wall-E is starting up")
 
     # final step, running the bot with the passed in environment TOKEN variable
-    bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"), log_handler=logging.StreamHandler(sys.stdout))
+    bot.run(wall_e_config.get_config_value("basic_config", "TOKEN"), log_handler=DiscordPyDebugStreamHandler())
