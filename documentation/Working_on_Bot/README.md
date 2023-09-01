@@ -41,6 +41,21 @@ If you have forked your version
 ./run_site.sh
 ```
 
+### 2.1 To make any needed changes to the models
+```shell
+python -m pip uninstall wall_e_models
+
+https://github.com/CSSS/wall_e_models.git
+cd wall_e_models
+# make any necessary changes
+
+# package model
+python3 setup.py sdist
+
+# install package for wall_e
+python -m pip install ../wall_e_models/dist/wall_e_models-0.X.tar.gz
+```
+
 How the Variable needs to be initialized [only relevant to you if you like granularized variable initializations]
 | Variable             |   Dockerized |            |           | Non-Dockerized |           |
 |----------------------|--------------|------------|-----------|----------------|-----------|

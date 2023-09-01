@@ -12,4 +12,4 @@ done
 
 git clone "${forked_repo_https_clone_url}"
 cd wall_e/
-./run_site.sh
+./run_walle.sh
