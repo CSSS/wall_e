@@ -23,7 +23,13 @@ python3.9 -m virtualenv walle
 ```
 
 ### for MacOS
-open to anyone to make a PR adding this section
+https://www.python.org/downloads/release/python-3913/
+```shell
+python3.9 -m pip install --upgrade pip
+python3.9 -m pip install virtualenv
+python3.9 -m virtualenv walle
+. walle/bin/activate
+```
 
 ### for Windows
 open to anyone to make a PR adding this section
