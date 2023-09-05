@@ -219,7 +219,7 @@ async def on_command_error(interaction: discord.Interaction, error):
             if re.search(pattern, f"{error}"[9:-14]):
                 if type(error) is discord.ext.commands.errors.CheckFailure:
                     raise Exception(
-                        f"[ManageCog on_command_error()] user {interaction.user} "
+                        f"[main.py on_command_error()] user {interaction.user} "
                         "probably tried to access a command they arent supposed to"
                     )
                 else:
