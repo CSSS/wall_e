@@ -111,11 +111,13 @@ class RoleCommands(commands.Cog):
             if role.name == role_to_add:
                 e_obj = await embed(
                     self.logger,
+                    colour=0xA6192E,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=f"Role '{role_to_add}' exists. Calling "
                                 f".iam {role_to_add} will add you to it.\n\nPSST: try out the new `/newrole` command"
+                                "\n`.newrole` will be deprecated soon."
                 )
                 await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
                 if e_obj is not False:
@@ -127,13 +129,15 @@ class RoleCommands(commands.Cog):
 
         e_obj = await embed(
             self.logger,
+            colour=0xA6192E,
             ctx=ctx,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=(
                 "You have successfully created role "
-                f"**`{role_to_add}`**.\nCalling `.iam {role_to_add}` will add it to you.\n\n"
-                f"PSST: try out the new `/newrole` command"
+                f"**`{role_to_add}`**.\nCalling `.iam {role_to_add}` will add it to you."
+                "\n\nPSST: try out the new `/newrole` command"
+                "\n`.newrole` will be deprecated soon."
             )
         )
         await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
@@ -178,12 +182,14 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands deleterole()] role that user wants to delete doesnt seem to exist.")
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=(
                     f"Role **`{role_to_delete}`** does not exist."
-                    f"\n\nPSST: try out the new `/deleterole` command"
+                    "\n\nPSST: try out the new `/deleterole` command"
+                    "\n`.deleterole` will be deprecated soon."
                 )
             )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
@@ -195,22 +201,29 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"Role **`{role_to_delete}`** deleted.\n\nPSST: try out the new `/deleterole` command"
+                description=(
+                    f"Role **`{role_to_delete}`** deleted."
+                    "\n\nPSST: try out the new `/deleterole` command"
+                    "\n`.deleterole` will be deprecated soon."
+                )
             )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
         else:
             self.logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=(
                     f"Role **`{role_to_delete}`** has members. Cannot delete."
-                    f"\n\nPSST: try out the new `/deleterole` command"
+                    "\n\nPSST: try out the new `/deleterole` command"
+                    "\n`.deleterole` will be deprecated soon."
                 )
             )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
@@ -266,12 +279,14 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands iam()] role doesnt exist.")
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=(
                     f"Role **`{role_to_add}`** doesn't exist.\nCalling .newrole {role_to_add}"
-                    f"\n\nPSST: try out the new `/iam` command"
+                    "\n\nPSST: try out the new `/iam` command"
+                    "\n`.iam` will be deprecated soon."
                 )
             )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
@@ -282,12 +297,14 @@ class RoleCommands(commands.Cog):
             self.logger.info(f"[RoleCommands iam()] {user} was already in the role {role_to_add}.")
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=(
                     "Beep Boop\n You've already got the role dude STAAAHP!!"
                     "\n\nPSST: try out the new `/iam` command"
+                    "\n`.iam` will be deprecated soon."
                 )
             )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
@@ -298,23 +315,28 @@ class RoleCommands(commands.Cog):
             if (role_to_add == 'froshee'):
                 e_obj = await embed(
                     self.logger,
+                    colour=0xA6192E,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=(
                         "**WELCOME TO SFU!!!!**\nYou have successfully "
-                        f"been added to role **`{role_to_add}`**.\n\nPSST: try out the new `/iam` command"
+                        f"been added to role **`{role_to_add}`**."
+                        "\n\nPSST: try out the new `/iam` command"
+                        "\n`.iam` will be deprecated soon."
                     )
                 )
             else:
                 e_obj = await embed(
                     self.logger,
+                    colour=0xA6192E,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=(
                         f"You have successfully been added to role **`{role_to_add}`**."
-                        f"\n\nPSST: try out the new `/iam` command"
+                        "\n\nPSST: try out the new `/iam` command"
+                        "\n`.iam` will be deprecated soon."
                     )
                 )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
@@ -376,10 +398,15 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands iamn()] role doesnt exist.")
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"Role **`{role_to_remove}`** doesn't exist.\n\nPSST: try out the new `/iamn` command"
+                description=(
+                    f"Role **`{role_to_remove}`** doesn't exist."
+                    "\n\nPSST: try out the new `/iamn` command"
+                    "\n`.iamn` will be deprecated soon."
+                )
             )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
             return
@@ -389,12 +416,14 @@ class RoleCommands(commands.Cog):
             await user.remove_roles(role)
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=(
                     f"You have successfully been removed from role **`{role_to_remove}`**."
-                    f"\n\nPSST: try out the new `/iamn` command"
+                    "\n\nPSST: try out the new `/iamn` command"
+                    "\n`.iamn` will be deprecated soon."
                 )
             )
             if e_obj is not False:
@@ -408,22 +437,29 @@ class RoleCommands(commands.Cog):
                 self.logger.info("[RoleCommands iamn()] no members were detected, role has been deleted.")
                 e_obj = await embed(
                     self.logger,
+                    colour=0xA6192E,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description=f"Role **`{role.name}`** deleted.\n\nPSST: try out the new `/iamn` command"
+                    description=(
+                        f"Role **`{role.name}`** deleted."
+                        "\n\nPSST: try out the new `/iamn` command"
+                        "\n`.iamn` will be deprecated soon."
+                    )
                 )
                 await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
         else:
             self.logger.info(f"[RoleCommands iamn()] {user} wasnt in the role {role_to_remove}")
             e_obj = await embed(
                 self.logger,
+                colour=0xA6192E,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=(
                     "Boop Beep??\n You don't have the role, so how am I gonna remove it????"
                     "\n\nPSST: try out the new `/iamn` command"
+                    "\n`.iamn` will be deprecated soon."
                 )
             )
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
@@ -538,7 +574,11 @@ class RoleCommands(commands.Cog):
     async def whois(self, ctx, role_to_check):
         author_is_minion = ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members
         if f"{role_to_check}" == "Muted" and not author_is_minion:
-            await ctx.send("no peaking at the muted folks!\n\nPSST: try out the new `/whois` command")
+            await ctx.send(
+                "no peaking at the muted folks!"
+                "\n\nPSST: try out the new `/whois` command"
+                "\n`.whois` will be deprecated soon."
+            )
             return
         if ctx.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(ctx)
@@ -554,10 +594,15 @@ class RoleCommands(commands.Cog):
             if role is None:
                 e_obj = await embed(
                     self.logger,
+                    colour=0xA6192E,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description=f"**`{role_to_check}`** does not exist.\n\nPSST: try out the new `/whois` command"
+                    description=(
+                        f"**`{role_to_check}`** does not exist."
+                        "\n\nPSST: try out the new `/whois` command"
+                        "\n`.whois` will be deprecated soon."
+                    )
                 )
                 await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
                 self.logger.info(f"[RoleCommands whois()] role {role_to_check} doesnt exist")
@@ -567,10 +612,15 @@ class RoleCommands(commands.Cog):
                 self.logger.info(f"[RoleCommands whois()] there are no members in the role {role_to_check}")
                 e_obj = await embed(
                     self.logger,
+                    colour=0xA6192E,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description=f"No members in role **`{role_to_check}`**.\n\nPSST: try out the new `/whois` command"
+                    description=(
+                        f"No members in role **`{role_to_check}`**."
+                        "\n\nPSST: try out the new `/whois` command"
+                        "\n`.whois` will be deprecated soon."
+                    )
                 )
                 await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
                 return
@@ -588,7 +638,10 @@ class RoleCommands(commands.Cog):
                 member_string[current_index] += "\n"
                 x += 1
                 if x == number_of_users_per_page:
-                    member_string[current_index] += "\n\nPSST: try out the new `/whois` command"
+                    member_string[current_index] += (
+                        "\n\nPSST: try out the new `/whois` command"
+                        "\n`.whois` will be deprecated soon."
+                    )
                     member_string.append("")
                     current_index += 1
                     x = 0
