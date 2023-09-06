@@ -151,7 +151,6 @@ class ManageCog(commands.Cog):
         """
         if self.check_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
-                self.logger.error(f'[ManageCog on_command_error()] Missing argument: {error.param}')
                 e_obj = await imported_embed(
                     self.logger,
                     ctx=ctx,
