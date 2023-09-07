@@ -161,6 +161,17 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
             return
         role = discord.utils.get(interaction.guild.roles, id=int(empty_role))
+        if role is None:
+            self.logger.info(f"[RoleCommands slash_deleterole()] invalid role id of {empty_role} detected")
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description=f"Invalid role **`{empty_role}`** specified. Please select from the list."
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            return
         await role.delete()
         self.logger.info("[RoleCommands slash_deleterole()] no members were detected, role has been deleted.")
         e_obj = await embed(
@@ -246,6 +257,17 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
         role = discord.utils.get(interaction.guild.roles, id=int(role_to_assign_to_me))
+        if role is None:
+            self.logger.info(f"[RoleCommands slash_iam()] invalid role id of {role_to_assign_to_me} detected")
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            return
         user = interaction.user
         await user.add_roles(role)
         self.logger.info(f"[RoleCommands slash_iam()] user {user} added to role {role}.")
@@ -361,6 +383,17 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
         role = discord.utils.get(interaction.guild.roles, id=int(role_to_remove_from_me))
+        if role is None:
+            self.logger.info(f"[RoleCommands slash_iamn()] invalid role id of {role_to_remove_from_me} detected")
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            return
         user = interaction.user
         await user.remove_roles(role)
         e_obj = await embed(
@@ -528,6 +561,17 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
             return
         role = discord.utils.get(interaction.guild.roles, id=int(role))
+        if role is None:
+            self.logger.info(f"[RoleCommands slash_whois()] invalid role id of {role} detected")
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                description=f"Invalid role **`{role}`** specified. Please select from the list."
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            return
         author_roles = [
             role.name for role in interaction.user.roles
         ]
