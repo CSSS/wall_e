@@ -223,7 +223,12 @@ async def on_command_error(interaction: discord.Interaction, error):
                         "probably tried to access a command they arent supposed to"
                     )
                 else:
-                    print_wall_e_exception(error, error.__traceback__, error_logger=logger.error)
+                    try:
+                        print_wall_e_exception(
+                            error, error.__traceback__, error_logger=error.command.binding.logger.error
+                        )
+                    except Exception:
+                        print_wall_e_exception(error, error.__traceback__, error_logger=logger.error)
                     return
 
 
