@@ -550,6 +550,7 @@ class RoleCommands(commands.Cog):
         if role == "-1":
             return
         if not role.isdigit():
+            await interaction.response.defer()
             self.logger.info(f"[RoleCommands slash_whois()] invalid role id of {role} detected")
             e_obj = await embed(
                 self.logger,
@@ -558,7 +559,9 @@ class RoleCommands(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                 description=f"Invalid role **`{role}`** specified. Please select from the list."
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         role = discord.utils.get(interaction.guild.roles, id=int(role))
         if role is None:
