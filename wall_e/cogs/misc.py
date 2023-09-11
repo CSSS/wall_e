@@ -10,7 +10,7 @@ from discord import app_commands
 from discord.ext import commands
 from matplotlib import pyplot as plt
 
-from utilities.embed import embed
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.list_of_perms import get_list_of_user_permissions
 from utilities.paginate import paginate_embed
@@ -174,7 +174,7 @@ class Misc(commands.Cog):
                     title="Urban Results",
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    colour=0xfd6a02,
+                    colour=WallEColour.ERROR,
                     description=":thonk:404:thonk:You searched something dumb didn't you?"
                 )
                 if e_obj is not False:
@@ -198,7 +198,7 @@ class Misc(commands.Cog):
                     title='Results from Urban Dictionary',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    colour=0xfd6a02,
+                    colour=WallEColour.INFO,
                     content=content
                 )
                 if e_obj is not False:
@@ -227,7 +227,7 @@ class Misc(commands.Cog):
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=0xdd1100,
+                colour=WallEColour.INFO,
                 content=content
             )
             if e_obj is not False:
@@ -242,7 +242,7 @@ class Misc(commands.Cog):
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=0xdd1100,
+                colour=WallEColour.ERROR,
                 content=content
             )
             if e_obj is not False:

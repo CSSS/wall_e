@@ -2,7 +2,7 @@ import asyncio
 
 from discord.ext import commands
 
-from utilities.embed import embed as em
+from utilities.embed import embed as em, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
@@ -53,7 +53,7 @@ class Frosh(commands.Cog):
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help team` for how to use the command')],
                 footer='Team Error'
             )
@@ -102,7 +102,7 @@ class Frosh(commands.Cog):
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help reportwin` for how to use the command')],
                 footer='ReportWin Error'
             )
@@ -116,7 +116,7 @@ class Frosh(commands.Cog):
             title='CSSS Frosh 2020 Gaming Arena Winner',
             author=ctx.author.display_name,
             avatar=ctx.author.avatar.url,
-            colour=0x00FF61,
+            colour=WallEColour.FROSH_2020_THEME,
             content=[
                 ('Team Name', info[0]),
                 ('Team Members', '\n'.join(list(map(lambda str: str.strip(), info[1].split(',')))))

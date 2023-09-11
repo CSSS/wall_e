@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utilities.embed import embed
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.paginate import paginate_embed
 from utilities.role_commands_autocomplete_functions import get_roles_with_members, get_assigned_roles, \
@@ -111,7 +111,7 @@ class RoleCommands(commands.Cog):
             if role.name == role_to_add:
                 e_obj = await embed(
                     self.logger,
-                    colour=0xA6192E,
+                    colour=WallEColour.ERROR,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -129,7 +129,7 @@ class RoleCommands(commands.Cog):
 
         e_obj = await embed(
             self.logger,
-            colour=0xA6192E,
+            colour=WallEColour.ERROR,
             ctx=ctx,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -193,7 +193,7 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands deleterole()] role that user wants to delete doesnt seem to exist.")
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -212,7 +212,7 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -227,7 +227,7 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands deleterole()] members were detected, role can't be deleted.")
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -301,7 +301,7 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands iam()] role doesnt exist.")
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -319,7 +319,7 @@ class RoleCommands(commands.Cog):
             self.logger.info(f"[RoleCommands iam()] {user} was already in the role {role_to_add}.")
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -337,7 +337,7 @@ class RoleCommands(commands.Cog):
             if (role_to_add == 'froshee'):
                 e_obj = await embed(
                     self.logger,
-                    colour=0xA6192E,
+                    colour=WallEColour.ERROR,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -351,7 +351,7 @@ class RoleCommands(commands.Cog):
             else:
                 e_obj = await embed(
                     self.logger,
-                    colour=0xA6192E,
+                    colour=WallEColour.ERROR,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -431,7 +431,7 @@ class RoleCommands(commands.Cog):
             self.logger.info("[RoleCommands iamn()] role doesnt exist.")
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -449,7 +449,7 @@ class RoleCommands(commands.Cog):
             await user.remove_roles(role)
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -470,7 +470,7 @@ class RoleCommands(commands.Cog):
                 self.logger.info("[RoleCommands iamn()] no members were detected, role has been deleted.")
                 e_obj = await embed(
                     self.logger,
-                    colour=0xA6192E,
+                    colour=WallEColour.ERROR,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -485,7 +485,7 @@ class RoleCommands(commands.Cog):
             self.logger.info(f"[RoleCommands iamn()] {user} wasnt in the role {role_to_remove}")
             e_obj = await embed(
                 self.logger,
-                colour=0xA6192E,
+                colour=WallEColour.ERROR,
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -531,7 +531,7 @@ class RoleCommands(commands.Cog):
                     ctx=ctx,
                     interaction=interaction,
                     title='ATTENTION:',
-                    colour=0xff0000,
+                    colour=WallEColour.ERROR,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
                     description=description
@@ -641,7 +641,7 @@ class RoleCommands(commands.Cog):
             if role is None:
                 e_obj = await embed(
                     self.logger,
-                    colour=0xA6192E,
+                    colour=WallEColour.ERROR,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -659,7 +659,7 @@ class RoleCommands(commands.Cog):
                 self.logger.info(f"[RoleCommands whois()] there are no members in the role {role_to_check}")
                 e_obj = await embed(
                     self.logger,
-                    colour=0xA6192E,
+                    colour=WallEColour.ERROR,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
@@ -865,7 +865,7 @@ class RoleCommands(commands.Cog):
             self.logger,
             ctx=ctx,
             title='ATTENTION:',
-            colour=0xff0000,
+            colour=WallEColour.ERROR,
             description=description,
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')

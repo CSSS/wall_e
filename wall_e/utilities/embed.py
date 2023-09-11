@@ -1,8 +1,25 @@
+from enum import Enum
+
 import discord
 
 
+class WallEColour(Enum):
+    INFO = 1,
+    WARNING = 2,
+    ERROR = 3,
+    FROSH_2020_THEME = 4
+
+
+COLOUR_MAPPING = {
+    WallEColour.INFO: 0x00bfbd,
+    WallEColour.WARNING: 0xffc61d,
+    WallEColour.ERROR: 0xA6192E,
+    WallEColour.FROSH_2020_THEME: 0x00FF61
+}
+
+
 async def embed(logger, ctx=None, interaction=None, title='', content=None, description='', author='',
-                colour=0x00bfbd, link='', thumbnail='', avatar='', footer=''):
+                colour: WallEColour = WallEColour.INFO, link='', thumbnail='', avatar='', footer=''):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -21,7 +38,7 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
     :param author: the author to assign to the name aprt of the embed's author [Optional]
      Used to indicate user who invoked the command or the bot itself when it makes sense like with the
      echo command.
-    :param colour: <0x......> the colour to assign to the embed [Optional]
+    :param colour: <INFO|WARNING|ERROR> the message level to assign to the embed [Optional]
      Used to set the coloured strip on the left side of the embed, by default set to a nice blue colour.
     :param link: deprecated -  the link to assign to the embe
     :param thumbnail: the thumbnail to assign to the embed [Optional]
@@ -97,7 +114,7 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
     emb_obj = discord.Embed(title=title, type='rich')
     emb_obj.description = description
     emb_obj.set_author(name=author, icon_url=avatar)
-    emb_obj.colour = colour
+    emb_obj.colour = COLOUR_MAPPING[colour]
     emb_obj.set_thumbnail(url=thumbnail)
     emb_obj.set_footer(text=footer)
     # emb_obj.url = link

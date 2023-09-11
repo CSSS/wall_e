@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 from wall_e_models.models import CommandStat
 
-from utilities.embed import embed as imported_embed
+from utilities.embed import embed as imported_embed, embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.list_of_perms import get_list_of_user_permissions
 from utilities.setup_logger import Loggers, print_wall_e_exception
@@ -162,6 +162,33 @@ class ManageCog(commands.Cog):
                     await ctx.send(embed=e_obj)
             elif isinstance(error, commands.errors.CommandNotFound):
                 return
+            elif isinstance(error, commands.errors.ArgumentParsingError):
+                description = (
+                    f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"
+                    f"\n'{error.args[0]}'\n\n[Technical Details link if you care to look]"
+                    f"(https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?"
+                    f"highlight=argumentparsingerror#exceptions)\n\n"
+                    f"**You have 20 seconds to copy your input to do a retry before "
+                    f"I ensure it is wiped from the channel**"
+                )
+                error_type = f"{type(error)}"[8:-2]
+                embed_obj = await embed(
+                    logger=ctx.cog.logger, ctx=ctx, title=f"Error {error_type} encountered",
+                    description=description, colour=WallEColour.ERROR
+                )
+                if embed_obj is not False:
+                    message = await ctx.channel.send(
+                        embed=embed_obj
+                    )
+                    await asyncio.sleep(20)
+                    try:
+                        await ctx.message.delete()
+                    except discord.errors.NotFound:
+                        pass
+                    try:
+                        await message.delete()
+                    except discord.errors.NotFound:
+                        pass
             else:
                 # only prints out an error to the log if the string that was entered doesnt contain just "."
                 pattern = r'[^\.]'
@@ -173,4 +200,3 @@ class ManageCog(commands.Cog):
                         )
                     else:
                         print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
-                        return
