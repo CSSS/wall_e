@@ -7,11 +7,9 @@ import time
 import aiohttp
 from discord.ext import commands
 
-from utilities.embed import embed
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
-
-sfu_red = 0xA6192E
 
 
 class SFU(commands.Cog):
@@ -60,7 +58,7 @@ class SFU(commands.Cog):
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=sfu_red,
+                colour=WallEColour.ERROR,
                 content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
                 footer='SFU Error'
             )
@@ -94,7 +92,7 @@ class SFU(commands.Cog):
                     title='Bad Arguments',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    colour=sfu_red,
+                    colour=WallEColour.ERROR,
                     content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
                     footer='SFU Error'
                 )
@@ -132,7 +130,7 @@ class SFU(commands.Cog):
                     title='Results from SFU',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    colour=sfu_red,
+                    colour=WallEColour.ERROR,
                     description=(
                         f'Couldn\'t find anything for:\n{year}/{term.upper()}/{course_code.upper()}'
                         f'/{course_num}/\nMake sure you entered all the arguments '
@@ -162,7 +160,7 @@ class SFU(commands.Cog):
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             content=fields,
-            colour=sfu_red,
+            colour=WallEColour.ERROR,
             footer=footer
         )
         if embed_obj is not False:
@@ -189,7 +187,7 @@ class SFU(commands.Cog):
                 title='Missing Arguments',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=sfu_red,
+                colour=WallEColour.ERROR,
                 content=usage,
                 footer='SFU Outline Error'
             )
@@ -234,7 +232,7 @@ class SFU(commands.Cog):
                     title='Bad Arguments',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    colour=sfu_red,
+                    colour=WallEColour.ERROR,
                     content=usage,
                     footer='SFU Outline Error'
                 )
@@ -277,7 +275,7 @@ class SFU(commands.Cog):
                         title='Bad Arguments',
                         author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                         avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                        colour=sfu_red,
+                        colour=WallEColour.ERROR,
                         description=(
                             'Make sure your arguments are in the following order:\n<course> '
                             '<term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section'
@@ -315,7 +313,7 @@ class SFU(commands.Cog):
                     title='SFU Course Outlines',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    colour=sfu_red,
+                    colour=WallEColour.ERROR,
                     description=(
                         f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
                         'Maybe the course doesn\'t exist? Or isn\'t offered right now.'
@@ -347,7 +345,7 @@ class SFU(commands.Cog):
                 title='SFU Course Outlines',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=sfu_red,
+                colour=WallEColour.ERROR,
                 description=(
                     f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`'
                     f'\n Maybe the course doesn\'t exist? Or isn\'t offered right now.'
@@ -373,7 +371,7 @@ class SFU(commands.Cog):
                 title='SFU Course Outlines',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=sfu_red,
+                colour=WallEColour.ERROR,
                 description=(
                     f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
                     f'Maybe the course doesn\'t exist? Or isn\'t offered right now.'),
@@ -472,7 +470,7 @@ class SFU(commands.Cog):
             title='SFU Outline Results',
             author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-            colour=sfu_red,
+            colour=WallEColour.ERROR,
             thumbnail=img,
             content=fields,
             footer='Written by VJ'

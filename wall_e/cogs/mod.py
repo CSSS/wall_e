@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from utilities.embed import embed as em
+from utilities.embed import embed as em, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
@@ -75,8 +75,8 @@ class Mod(commands.Cog):
 
         name = ctx.author.nick or ctx.author.name
         e_obj = await em(
-            self.logger, ctx=ctx, description=desc, author=name, avatar=ctx.author.avatar.url, colour=0xffc61d,
-            content=fields
+            self.logger, ctx=ctx, description=desc, author=name, avatar=ctx.author.avatar.url,
+            colour=WallEColour.INFO, content=fields
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)
@@ -117,7 +117,9 @@ class Mod(commands.Cog):
         for wrd in arg:
             msg += f'{wrd} '
 
-        e_obj = await em(self.logger, ctx=ctx, title='ATTENTION:', colour=0xff0000, author=ctx.author.display_name,
-                         avatar=ctx.author.avatar.url, description=msg, footer='Moderator Warning')
+        e_obj = await em(self.logger, ctx=ctx, title='ATTENTION:', colour=WallEColour.INFO,
+                         author=ctx.author.display_name, avatar=ctx.author.avatar.url, description=msg,
+                         footer='Moderator Warning'
+                         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)

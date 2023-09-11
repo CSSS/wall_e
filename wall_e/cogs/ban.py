@@ -7,7 +7,7 @@ import pytz
 from discord.ext import commands
 from wall_e_models.models import BanRecord
 
-from utilities.embed import embed as em
+from utilities.embed import embed as em, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
@@ -24,7 +24,6 @@ class Ban(commands.Cog):
         self.bot = bot
         self.config = config
         self.ban_list = []
-        self.error_colour = 0xA6192E
         self.mod_channel = None
         self.guild: discord.Guild = None
         self.bot_channel_manager = bot_channel_manager
@@ -241,7 +240,7 @@ class Ban(commands.Cog):
                              content=[("Error", "Please @ mention the user to ban"),
                                       ("Command Usage", "`.ban @user [<# of days to purge messages>] [<reason>]`"),
                                       ("Example Usage", "`.ban @user1 2 they're being weird`")],
-                             colour=self.error_colour,
+                             colour=WallEColour.ERROR,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
@@ -369,7 +368,7 @@ class Ban(commands.Cog):
             e_obj = await em(self.logger, ctx=ctx, title="Error",
                              content=[("Problem",
                                        f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")],
-                             colour=self.error_colour,
+                             colour=WallEColour.ERROR,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
@@ -385,7 +384,7 @@ class Ban(commands.Cog):
 
         self.logger.info(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
         e_obj = await em(
-            self.logger, ctx=ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=discord.Color.red()
+            self.logger, ctx=ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=WallEColour.ERROR
         )
         if e_obj:
             await self.mod_channel.send(embed=e_obj)
@@ -398,7 +397,7 @@ class Ban(commands.Cog):
         if isinstance(error, commands.BadArgument):
             e_obj = await em(self.logger, ctx=ctx, title="Error",
                              content=[("Problem", "Please enter a numerical Discord ID.")],
-                             colour=self.error_colour,
+                             colour=WallEColour.ERROR,
                              footer="Command Error")
             if e_obj:
                 await ctx.send(embed=e_obj)
