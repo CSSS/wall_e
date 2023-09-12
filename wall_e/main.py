@@ -24,6 +24,11 @@ log_info = Loggers.get_logger(logger_name="sys")
 sys_debug_log_file_absolute_path = log_info[1]
 sys_error_log_file_absolute_path = log_info[2]
 
+discordpy_log_info = Loggers.get_logger(logger_name="discord.py")
+discordpy_logger = discordpy_log_info[0]
+discordpy_debug_log_file_absolute_path = discordpy_log_info[1]
+discordpy_error_log_file_absolute_path = discordpy_log_info[2]
+
 log_info = Loggers.get_logger(logger_name="wall_e")
 
 logger = log_info[0]
@@ -134,6 +139,12 @@ async def on_ready():
             await start_file_uploading(
                 logger, bot_guild, bot, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error"
             )
+            await start_file_uploading(
+                logger, bot_guild, bot, wall_e_config, discordpy_debug_log_file_absolute_path, "discordpy_debug"
+            )
+            await start_file_uploading(
+                logger, bot_guild, bot, wall_e_config, discordpy_error_log_file_absolute_path, "discordpy_error"
+            )
             bot.uploading = True
         except Exception as e:
             raise Exception(
@@ -235,10 +246,10 @@ async def on_command_error(interaction: discord.Interaction, error):
 class DiscordPyDebugStreamHandler(logging.StreamHandler):
     def __init__(self):
         self.debug_handler = [
-            handler for handler in logger.handlers if type(handler) == WalleDebugStreamHandler
+            handler for handler in discordpy_logger.handlers if type(handler) == WalleDebugStreamHandler
         ][0]
         self.error_handler = [
-            handler for handler in logger.handlers if type(handler) == logging.StreamHandler
+            handler for handler in discordpy_logger.handlers if type(handler) == logging.StreamHandler
         ][0]
         super(DiscordPyDebugStreamHandler, self).__init__()
 
