@@ -198,7 +198,6 @@ class Misc(commands.Cog):
                     title='Results from Urban Dictionary',
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    colour=WallEColour.INFO,
                     content=content
                 )
                 if e_obj is not False:
@@ -227,7 +226,6 @@ class Misc(commands.Cog):
                 ctx=ctx,
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                colour=WallEColour.INFO,
                 content=content
             )
             if e_obj is not False:

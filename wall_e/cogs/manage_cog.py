@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 from wall_e_models.models import CommandStat
 
-from utilities.embed import embed as imported_embed, embed, WallEColour
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.list_of_perms import get_list_of_user_permissions
 from utilities.setup_logger import Loggers, print_wall_e_exception
@@ -151,7 +151,7 @@ class ManageCog(commands.Cog):
         """
         if self.check_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
-                e_obj = await imported_embed(
+                e_obj = await embed(
                     self.logger,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),

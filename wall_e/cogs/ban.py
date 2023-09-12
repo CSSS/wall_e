@@ -7,7 +7,7 @@ import pytz
 from discord.ext import commands
 from wall_e_models.models import BanRecord
 
-from utilities.embed import embed as em, WallEColour
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
@@ -236,12 +236,15 @@ class Ban(commands.Cog):
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
             self.logger.info("[Ban ban()] No user were @ mentioned in the args")
-            e_obj = await em(self.logger, ctx=ctx, title="Invalid Arguments",
-                             content=[("Error", "Please @ mention the user to ban"),
-                                      ("Command Usage", "`.ban @user [<# of days to purge messages>] [<reason>]`"),
-                                      ("Example Usage", "`.ban @user1 2 they're being weird`")],
-                             colour=WallEColour.ERROR,
-                             footer="Command Error")
+            e_obj = await embed(
+                self.logger, ctx=ctx, title="Invalid Arguments",
+                content=[
+                    ("Error", "Please @ mention the user to ban"),
+                    ("Command Usage", "`.ban @user [<# of days to purge messages>] [<reason>]`"),
+                    ("Example Usage", "`.ban @user1 2 they're being weird`")],
+                colour=WallEColour.ERROR,
+                footer="Command Error"
+            )
             if e_obj:
                 await ctx.send(embed=e_obj)
             return
@@ -365,11 +368,15 @@ class Ban(commands.Cog):
         self.logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
         if user_id not in self.ban_list:
             self.logger.info(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
-            e_obj = await em(self.logger, ctx=ctx, title="Error",
-                             content=[("Problem",
-                                       f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")],
-                             colour=WallEColour.ERROR,
-                             footer="Command Error")
+            e_obj = await embed(
+                self.logger, ctx=ctx, title="Error",
+                content=[
+                    ("Problem",
+                     f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")
+                ],
+                colour=WallEColour.ERROR,
+                footer="Command Error"
+            )
             if e_obj:
                 await ctx.send(embed=e_obj)
             return
@@ -383,8 +390,9 @@ class Ban(commands.Cog):
             await self.mod_channel.send(f"*No user with id: **{user_id}** found.*")
 
         self.logger.info(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
-        e_obj = await em(
-            self.logger, ctx=ctx, title="Unban", description=f"**`{name}`** was unbanned.", colour=WallEColour.ERROR
+        e_obj = await embed(
+            self.logger, ctx=ctx, title="Unban", description=f"**`{name}`** was unbanned.",
+            colour=WallEColour.ERROR
         )
         if e_obj:
             await self.mod_channel.send(embed=e_obj)
@@ -395,10 +403,12 @@ class Ban(commands.Cog):
 
         self.logger.info("[Ban unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
         if isinstance(error, commands.BadArgument):
-            e_obj = await em(self.logger, ctx=ctx, title="Error",
-                             content=[("Problem", "Please enter a numerical Discord ID.")],
-                             colour=WallEColour.ERROR,
-                             footer="Command Error")
+            e_obj = await embed(
+                self.logger, ctx=ctx, title="Error",
+                content=[("Problem", "Please enter a numerical Discord ID.")],
+                colour=WallEColour.ERROR,
+                footer="Command Error"
+            )
             if e_obj:
                 await ctx.send(embed=e_obj)
 

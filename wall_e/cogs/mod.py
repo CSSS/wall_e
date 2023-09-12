@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from utilities.embed import embed as em, WallEColour
+from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
@@ -74,9 +74,9 @@ class Mod(commands.Cog):
             i += 2
 
         name = ctx.author.nick or ctx.author.name
-        e_obj = await em(
+        e_obj = await embed(
             self.logger, ctx=ctx, description=desc, author=name, avatar=ctx.author.avatar.url,
-            colour=WallEColour.INFO, content=fields
+            content=fields
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)
@@ -84,7 +84,7 @@ class Mod(commands.Cog):
     async def rekt(self, ctx):
         self.logger.info('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
-        e_obj = await em(
+        e_obj = await embed(
             self.logger,
             ctx=ctx,
             title='Minion Things',
@@ -117,9 +117,9 @@ class Mod(commands.Cog):
         for wrd in arg:
             msg += f'{wrd} '
 
-        e_obj = await em(self.logger, ctx=ctx, title='ATTENTION:', colour=WallEColour.INFO,
-                         author=ctx.author.display_name, avatar=ctx.author.avatar.url, description=msg,
-                         footer='Moderator Warning'
-                         )
+        e_obj = await embed(
+            self.logger, ctx=ctx, title='ATTENTION:', author=ctx.author.display_name,
+            avatar=ctx.author.avatar.url, description=msg, footer='Moderator Warning'
+        )
         if e_obj is not False:
             await ctx.send(embed=e_obj)
