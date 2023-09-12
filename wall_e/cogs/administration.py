@@ -113,6 +113,15 @@ class Administration(commands.Cog):
             if e_obj is not False:
                 await interaction.followup.send(embed=e_obj)
 
+    @staticmethod
+    def user_has_permission_to_load_or_unload_cog(ctx, module_name):
+        roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
+        user_is_bot_manager = 'Bot_manager' in roles
+        user_is_moderator = 'Minions' in roles or 'Moderators' in roles
+        valid_load_call = user_is_bot_manager or user_is_moderator \
+            if module_name in ['ban', 'mod'] else user_is_bot_manager
+        return valid_load_call
+
     @commands.command()
     async def load(self, ctx, module_name):
         self.logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
@@ -124,13 +133,14 @@ class Administration(commands.Cog):
                 f"{module_name} which doesn't exist."
             )
             return
-        try:
-            await self.bot.add_custom_cog(folder+module_name)
-            await ctx.send(f"{module_name} command loaded.")
-            self.logger.info(f"[Administration load()] {module_name} has been successfully loaded")
-        except(AttributeError, ImportError) as e:
-            await ctx.send(f"command load failed: {type(e)}, {e}")
-            self.logger.info(f"[Administration load()] loading {module_name} failed :{type(e)}, {e}")
+        if self.user_has_permission_to_load_or_unload_cog(ctx, module_name):
+            try:
+                await self.bot.add_custom_cog(folder+module_name)
+                await ctx.send(f"{module_name} command loaded.")
+                self.logger.info(f"[Administration load()] {module_name} has been successfully loaded")
+            except(AttributeError, ImportError) as e:
+                await ctx.send(f"command load failed: {type(e)}, {e}")
+                self.logger.info(f"[Administration load()] loading {module_name} failed :{type(e)}, {e}")
 
     @commands.command()
     async def unload(self, ctx, module_name):
@@ -143,9 +153,10 @@ class Administration(commands.Cog):
                 f"{module_name} which doesn't exist."
             )
             return
-        await self.bot.remove_custom_cog(folder, module_name)
-        await ctx.send(f"{module_name} command unloaded")
-        self.logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
+        if self.user_has_permission_to_load_or_unload_cog(ctx, module_name):
+            await self.bot.remove_custom_cog(folder, module_name)
+            await ctx.send(f"{module_name} command unloaded")
+            self.logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
 
     @commands.command()
     async def reload(self, ctx, name):
@@ -156,14 +167,15 @@ class Administration(commands.Cog):
             self.logger.info(f"[Administration reload()] {ctx.message.author} tried "
                              f"loading {name} which doesn't exist.")
             return
-        await self.bot.remove_custom_cog(folder, name)
-        try:
-            await self.bot.add_custom_cog(folder + name)
-            await ctx.send(f"`{folder + name} command reloaded`")
-            self.logger.info(f"[Administration reload()] {name} has been successfully reloaded")
-        except(AttributeError, ImportError) as e:
-            await ctx.send(f"Command load failed: {type(e)}, {e}")
-            self.logger.info(f"[Administration reload()] loading {name} failed :{type(e)}, {e}")
+        if self.user_has_permission_to_load_or_unload_cog(ctx, name):
+            await self.bot.remove_custom_cog(folder, name)
+            try:
+                await self.bot.add_custom_cog(folder + name)
+                await ctx.send(f"`{folder + name} command reloaded`")
+                self.logger.info(f"[Administration reload()] {name} has been successfully reloaded")
+            except(AttributeError, ImportError) as e:
+                await ctx.send(f"Command load failed: {type(e)}, {e}")
+                self.logger.info(f"[Administration reload()] loading {name} failed :{type(e)}, {e}")
 
     @commands.command()
     async def exc(self, ctx, *args):

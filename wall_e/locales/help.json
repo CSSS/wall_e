@@ -17,7 +17,7 @@
 		"class": "Administration",
 		"access": "roles",
 		"roles": [
-			"Bot_manager"
+			"Bot_manager", "Minions", "Moderator"
 		],
 		"aliases": [],
 		"example": [
@@ -32,7 +32,7 @@
 		"class": "Administration",
 		"access": "roles",
 		"roles": [
-			"Bot_manager"
+			"Bot_manager", "Minions", "Moderator"
 		],
 		"aliases": [],
 		"example": [
@@ -47,7 +47,7 @@
 		"class": "Administration",
 		"access": "roles",
 		"roles": [
-			"Bot_manager"
+			"Bot_manager", "Minions", "Moderator"
 		],
 		"aliases": [],
 		"example": [
