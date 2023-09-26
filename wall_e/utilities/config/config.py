@@ -68,7 +68,7 @@ class WallEConfig:
 
         cogs = [
             {'name': cog, 'path': cog_location_python_path}
-            for cog in self.config['cogs_enabled']
-            if self.enabled("cogs_enabled", cog) == 1 and cog_can_be_loaded(cog)
+            for cog in self.config['cogs']
+            if self.enabled("cogs", cog) == 1 and cog_can_be_loaded(cog)
         ]
         return cogs

@@ -4,9 +4,9 @@ from utilities.config.config import WallEConfig
 
 ENVIRONMENT = os.environ['basic_config__ENVIRONMENT']
 wall_e_config = WallEConfig(ENVIRONMENT, wall_e=False)
-POSTGRES_SQL = wall_e_config.enabled("database_config", "postgresSQL")
+database_type = wall_e_config.get_config_value("database_config", "TYPE")
 
-if POSTGRES_SQL:
+if database_type == "postgresSQL":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
