@@ -70,7 +70,7 @@ class Gmail:
                 try:
                     msg = MIMEMultipart()
                     msg['From'] = from_name + " <" + self.from_email + ">"
-                    msg['To'] = to_name + " <" + to_email + ">"
+                    msg['To'] = f"{to_name} <{to_email}>"
                     msg['Subject'] = subject
                     msg.attach(MIMEText(body))
 

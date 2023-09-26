@@ -76,7 +76,8 @@ export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
                 string(credentialsId: 'WALL_E_DB_PASSWORD', variable: 'WALL_E_DB_PASSWORD'),
                 usernamePassword(credentialsId: 'docker-hub-perms',passwordVariable: 'DOCKER_HUB_PASSWORD',usernameVariable: 'DOCKER_HUB_USER_NAME'),
                 string(credentialsId: 'SFU_CSSS_GMAIL_USERNAME', variable: 'SFU_CSSS_GMAIL_USERNAME'),
-                string(credentialsId: 'SFU_CSSS_GMAIL_PASSWORD', variable: 'SFU_CSSS_GMAIL_PASSWORD')]) {
+                string(credentialsId: 'SFU_CSSS_GMAIL_PASSWORD', variable: 'SFU_CSSS_GMAIL_PASSWORD'),
+                string(credentialsId: 'BOT_MANAGER_EMAIL', variable: 'BOT_MANAGER_EMAIL')]) {
                     sh('''
 export basic_config__ENVIRONMENT=PRODUCTION;
 export basic_config__BRANCH_NAME=${BRANCH_NAME};
@@ -103,6 +104,7 @@ export basic_config__TOKEN=${WALL_E_PROD_DISCORD_BOT_TOKEN};
 
 export gmail__username=${SFU_CSSS_GMAIL_USERNAME};
 export gmail__password=${SFU_CSSS_GMAIL_PASSWORD};
+export gmail__BOT_MANAGER_EMAIL=${BOT_MANAGER_EMAIL};
 
 export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
