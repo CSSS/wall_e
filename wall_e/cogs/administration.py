@@ -109,6 +109,70 @@ class Administration(commands.Cog):
             )
             if e_obj is not False:
                 await interaction.followup.send(embed=e_obj)
+        else:
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                description='This command only work when doing dev work',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+            )
+            if e_obj is not False:
+                await interaction.followup.send(embed=e_obj)
+
+    @app_commands.command(description="Deletes last X messages from channel")
+    async def purge_messages(self, interaction: discord.Interaction, last_x_messages_to_delete: int):
+        if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.logger.info("[Administration purge_messages()] purge_messages command "
+                             f"detected from {interaction.user}")
+            await interaction.response.defer()
+            messages = [message async for message in interaction.channel.history(
+                limit=last_x_messages_to_delete+2  # adding 2,
+                # one is to account for the invoking slash command's message
+                # and the other is to ensure that the message that will be used as the after parameter is retrieved
+            )]
+            messages.reverse()
+            if len(messages) < last_x_messages_to_delete+1:  # adding 1 to account for the
+                # invoking slash command's message
+                e_obj = await embed(
+                    self.logger,
+                    interaction=interaction,
+                    description=f'There are not {last_x_messages_to_delete} messages to delete',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+                )
+                send_func = interaction.followup.send
+            else:
+                if len(messages) == last_x_messages_to_delete+1:
+                    after_message = None
+                else:
+                    after_message = messages[0]
+                self.logger.info(f"deleting {last_x_messages_to_delete} messages")
+                await interaction.channel.purge(after=after_message, bulk=True)
+                e_obj = await embed(
+                    self.logger,
+                    interaction=interaction,
+                    description=f'Last {last_x_messages_to_delete} message[s] deleted',
+                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+                )
+                send_func = interaction.channel.send
+            if e_obj is not None:
+                msg = await send_func(embed=e_obj)
+                await asyncio.sleep(5)
+                await msg.delete()
+        else:
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                description='This command only work when running wall_e on your local machine',
+                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
+                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+            )
+            if e_obj is not False:
+                await interaction.followup.send(embed=e_obj)
 
     @staticmethod
     def user_has_permission_to_load_or_unload_cog(ctx, module_name):
