@@ -343,6 +343,11 @@ class Misc(commands.Cog):
     @app_commands.command(name="tex", description="Draws a mathematical formula using latex markdown")
     @app_commands.describe(formula="formula to draw out")
     async def tex(self, interaction: discord.Interaction, formula: str):
+        r"""
+        /tex examples:
+        * `/tex e^{i\theta} = \cos x + i \sin x`
+        * `/tex x = 2*\pi*n_{1} + Re(\theta) + iIm(\theta)`
+        """
         # created using below links:
         # https://stackoverflow.com/a/31371907
         # https://stackoverflow.com/a/57472241
