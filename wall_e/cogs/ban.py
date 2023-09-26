@@ -443,7 +443,7 @@ class Ban(commands.Cog):
         brief="Gets all banned users",
         help="Lists the `username` and `user_id` of all banned users from the guild."
     )
-    @commands.has_any_role("Minions", "Moderator")
+    @commands.has_any_role("Minions", "Moderator", "Bot_manager")
     async def bans(self, ctx):
         self.logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
 
