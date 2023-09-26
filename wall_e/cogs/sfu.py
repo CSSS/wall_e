@@ -207,7 +207,7 @@ class SFU(commands.Cog):
                 ['Example', '`.outline cmpt300\n .outline cmpt300 fall\n .outline cmpt300 d200\n .outline cmpt300'
                  ' spring d200\n .outline cmpt300 next`']]
 
-        if(not course):
+        if not course:
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
