@@ -42,9 +42,9 @@ class WallEConfig:
         print(
             f"[WallEConfig get_config_value()] no key found for option {option} under section {section}"
         )
-        return "NONE"
+        return None
 
-    def enabled(self, section, option="enabled"):
+    def enabled(self, section, option="ENABLED"):
 
         return self.config.get(section, option) == "1"
 

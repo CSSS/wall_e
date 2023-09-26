@@ -19,14 +19,15 @@ class Gmail:
          to the smptlib server as well as sending the email
         """
         self.logger = logger
-        self._connection_successful = False
+        self.connection_successful = False
+        self.error_message = None
         number_of_retries = 0
-        self.from_email = config.get_config_value("gmail", "username")
-        self.password = config.get_config_value("gmail", "password")
-        self.max_number_of_retries = max_number_of_retries
-        self._enabled = self.from_email != "NONE" and self.password != "NONE"
-        if self._enabled:
-            while not self._connection_successful and number_of_retries < max_number_of_retries:
+        self.enabled = config.enabled("gmail", "ENABLED")
+        if self.enabled:
+            self.from_email = config.get_config_value("gmail", "USERNAME")
+            self.password = config.get_config_value("gmail", "PASSWORD")
+            self.max_number_of_retries = max_number_of_retries
+            while not self.connection_successful and number_of_retries < max_number_of_retries:
                 try:
                     self.server = smtplib.SMTP(f'{smtp}:{port}')
                     self.logger.info(f"[Gmail __init__()] setup smptlib server connection to {smtp}:{port}")
@@ -39,8 +40,7 @@ class Gmail:
                     self.logger.info(f"[Gmail __init__()] Logging into account {self.from_email}")
                     self.server.login(self.from_email, self.password)
                     self.logger.info(f"[Gmail __init__()] login to email {self.from_email} successful")
-                    self._connection_successful = True
-                    self.error_message = None
+                    self.connection_successful = True
                 except Exception as e:
                     number_of_retries += 1
                     self.logger.error(f"[Gmail __init__()] experienced following error when initializing.\n{e}")
@@ -62,15 +62,15 @@ class Gmail:
         Bool -- true or false to indicate if email was sent successfully
         error_message -- None if success, otherwise, returns the error experienced
         """
-        if not self._enabled:
+        if not self.enabled:
             return True, None
-        if self._connection_successful:
+        if self.connection_successful:
             number_of_retries = 0
             while number_of_retries < self.max_number_of_retries:
                 try:
                     msg = MIMEMultipart()
                     msg['From'] = from_name + " <" + self.from_email + ">"
-                    msg['To'] = to_name + " <" + to_email + ">"
+                    msg['To'] = f"{to_name} <{to_email}>"
                     msg['Subject'] = subject
                     msg.attach(MIMEText(body))
 
@@ -95,11 +95,6 @@ class Gmail:
                     self.error_message = f"{e}"
         return False, self.error_message
 
-    def successful_connection(self):
-        if self._enabled:
-            return True, None
-        return self._connection_successful, self.error_message
-
     def close_connection(self):
         """
         Closes connection to smptlib server
@@ -108,9 +103,9 @@ class Gmail:
         Bool -- true or false to indicate if email was sent successfully
         error_message -- None if success, otherwise, returns the error experienced
         """
-        if not self._enabled:
+        if not self.enabled:
             return True, None
-        if self._connection_successful:
+        if self.connection_successful:
             number_of_retries = 0
             while number_of_retries < self.max_number_of_retries:
                 try:
