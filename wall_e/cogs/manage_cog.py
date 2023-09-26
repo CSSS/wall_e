@@ -20,7 +20,7 @@ class ManageCog(commands.Cog):
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[ManageCog __init__()] initializing the TestCog")
         if config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
-            bot.add_check(self.check_test_environment)
+            bot.add_check(self.check_text_command_test_environment)
         self.bot = bot
         self.config = config
         self.guild = None
@@ -76,22 +76,21 @@ class ManageCog(commands.Cog):
             )
         return
 
-    def check_test_environment(self, ctx):
+    def check_text_command_test_environment(self, ctx):
         """
-        this check is used by the TEST guild to ensur that each TEST container will only process incoming
-         commands that originate from channels that match the name of their branch
+        this check is used by the TEST guild to ensure that each TEST container will only process incoming
+         text commands that originate from channels that match the name of their branch
         :param ctx: the ctx object that is part of command parameters that are not slash commands
         :return:
         """
-        test_guild = self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST'
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            return True
         correct_test_guild_text_channel = (
             ctx.message.guild is not None and
             (ctx.channel.name == f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
              or
              ctx.channel.name == self.config.get_config_value('basic_config', 'BRANCH_NAME').lower())
         )
-        if not test_guild:
-            return True
         return correct_test_guild_text_channel
 
     @commands.Cog.listener()
@@ -101,7 +100,7 @@ class ManageCog(commands.Cog):
         :param ctx: the ctx object that is part of command parameters that are not slash commands
         :return:
         """
-        if self.check_test_environment(ctx) and self.config.enabled("database_config", option="ENABLED"):
+        if self.check_text_command_test_environment(ctx) and self.config.enabled("database_config", option="ENABLED"):
             await CommandStat.save_command_stat(CommandStat(
                 epoch_time=datetime.datetime.now().timestamp(), channel_name=ctx.channel,
                 command=ctx.command, invoked_with=ctx.invoked_with,
@@ -116,7 +115,7 @@ class ManageCog(commands.Cog):
         :param error: the error that was encountered
         :return:
         """
-        if self.check_test_environment(ctx):
+        if self.check_text_command_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
                 e_obj = await embed(
                     self.logger,
