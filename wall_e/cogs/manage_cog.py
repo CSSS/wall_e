@@ -8,7 +8,6 @@ from wall_e_models.models import CommandStat
 
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
-from utilities.list_of_perms import get_list_of_user_permissions
 from utilities.setup_logger import Loggers, print_wall_e_exception
 
 
@@ -20,8 +19,8 @@ class ManageCog(commands.Cog):
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[ManageCog __init__()] initializing the TestCog")
-        bot.add_check(self.check_test_environment)
-        bot.add_check(self.check_privilege)
+        if config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+            bot.add_check(self.check_test_environment)
         self.bot = bot
         self.config = config
         self.guild = None
@@ -95,38 +94,6 @@ class ManageCog(commands.Cog):
             return True
         return correct_test_guild_text_channel
 
-    async def check_privilege(self, ctx):
-        """
-        this check is used to ensure that users can only access commands that they have the rights to
-        :param ctx: the ctx object that is part of command parameters that are not slash commands
-        :return:
-        """
-        command_used = f"{ctx.command}"
-        if command_used == "exit":
-            return True
-        if command_used not in self.help_dict:
-            return False
-        command_info = self.help_dict[command_used]
-        if command_info['access'] == 'roles':
-            user_roles = [
-                role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
-            ]
-            shared_roles = set(user_roles).intersection(command_info['roles'])
-            if len(shared_roles) == 0:
-                await ctx.send(
-                    "You do not have adequate permission to execute this command, incident will be reported"
-                )
-            return (len(shared_roles) > 0)
-        if command_info['access'] == 'permissions':
-            user_perms = await get_list_of_user_permissions(self.logger, ctx)
-            shared_perms = set(user_perms).intersection(command_info['permissions'])
-            if (len(shared_perms) == 0):
-                await ctx.send(
-                    "You do not have adequate permission to execute this command, incident will be reported"
-                )
-            return (len(shared_perms) > 0)
-        return False
-
     @commands.Cog.listener()
     async def on_command(self, ctx):
         """
@@ -162,6 +129,11 @@ class ManageCog(commands.Cog):
                     await ctx.send(embed=e_obj)
             elif isinstance(error, commands.errors.CommandNotFound):
                 return
+            elif isinstance(error, discord.ext.commands.errors.MissingAnyRole):
+                self.logger.error(f"{ctx.author} tried to run command {ctx.command}")
+                await ctx.channel.send(
+                    "You do not have adequate permission to run this command, incident will be reported"
+                )
             elif isinstance(error, commands.errors.ArgumentParsingError):
                 description = (
                     f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"

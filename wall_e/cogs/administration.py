@@ -12,7 +12,6 @@ from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.send import send as helper_send
 from utilities.setup_logger import Loggers
-from utilities.slash_command_checks import slash_command_checks
 
 
 class Administration(commands.Cog):
@@ -99,7 +98,6 @@ class Administration(commands.Cog):
                 await asyncio.sleep(2)
             self.logger.info("[Administration delete_log_channels()] delete_log_channels command "
                              f"detected from {interaction.user}")
-            await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
             await interaction.response.defer()
             await BotChannelManager.delete_log_channels(interaction)
             e_obj = await embed(

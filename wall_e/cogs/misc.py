@@ -12,8 +12,6 @@ from matplotlib import pyplot as plt
 
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
-from utilities.list_of_perms import get_list_of_user_permissions
-from utilities.paginate import paginate_embed
 from utilities.setup_logger import Loggers
 
 
