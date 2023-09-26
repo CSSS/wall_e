@@ -19,30 +19,32 @@ class Gmail:
          to the smptlib server as well as sending the email
         """
         self.logger = logger
-        self.connection_successful = False
+        self._connection_successful = False
         number_of_retries = 0
         self.from_email = config.get_config_value("gmail", "username")
         self.password = config.get_config_value("gmail", "password")
         self.max_number_of_retries = max_number_of_retries
-        while not self.connection_successful and number_of_retries < max_number_of_retries:
-            try:
-                self.server = smtplib.SMTP(f'{smtp}:{port}')
-                self.logger.info(f"[Gmail __init__()] setup smptlib server connection to {smtp}:{port}")
-                self.server.connect(f'{smtp}:{port}')
-                self.logger.info("[Gmail __init__()] smptlib server connected")
-                self.server.ehlo()
-                self.logger.info("[Gmail __init__()] smptlib server ehlo() successful")
-                self.server.starttls()
-                self.logger.info("[Gmail __init__()] smptlib server ttls started")
-                self.logger.info(f"[Gmail __init__()] Logging into account {self.from_email}")
-                self.server.login(self.from_email, self.password)
-                self.logger.info(f"[Gmail __init__()] login to email {self.from_email} successful")
-                self.connection_successful = True
-                self.error_message = None
-            except Exception as e:
-                number_of_retries += 1
-                self.logger.error(f"[Gmail __init__()] experienced following error when initializing.\n{e}")
-                self.error_message = f"{e}"
+        self._enabled = self.from_email != "NONE" and self.password != "NONE"
+        if self._enabled:
+            while not self._connection_successful and number_of_retries < max_number_of_retries:
+                try:
+                    self.server = smtplib.SMTP(f'{smtp}:{port}')
+                    self.logger.info(f"[Gmail __init__()] setup smptlib server connection to {smtp}:{port}")
+                    self.server.connect(f'{smtp}:{port}')
+                    self.logger.info("[Gmail __init__()] smptlib server connected")
+                    self.server.ehlo()
+                    self.logger.info("[Gmail __init__()] smptlib server ehlo() successful")
+                    self.server.starttls()
+                    self.logger.info("[Gmail __init__()] smptlib server ttls started")
+                    self.logger.info(f"[Gmail __init__()] Logging into account {self.from_email}")
+                    self.server.login(self.from_email, self.password)
+                    self.logger.info(f"[Gmail __init__()] login to email {self.from_email} successful")
+                    self._connection_successful = True
+                    self.error_message = None
+                except Exception as e:
+                    number_of_retries += 1
+                    self.logger.error(f"[Gmail __init__()] experienced following error when initializing.\n{e}")
+                    self.error_message = f"{e}"
 
     def send_email(self, subject, body, to_email, to_name, from_name="WALL-E", attachment=None):
         """
@@ -60,7 +62,9 @@ class Gmail:
         Bool -- true or false to indicate if email was sent successfully
         error_message -- None if success, otherwise, returns the error experienced
         """
-        if self.connection_successful:
+        if not self._enabled:
+            return True, None
+        if self._connection_successful:
             number_of_retries = 0
             while number_of_retries < self.max_number_of_retries:
                 try:
@@ -91,6 +95,11 @@ class Gmail:
                     self.error_message = f"{e}"
         return False, self.error_message
 
+    def successful_connection(self):
+        if self._enabled:
+            return True, None
+        return self._connection_successful, self.error_message
+
     def close_connection(self):
         """
         Closes connection to smptlib server
@@ -99,7 +108,9 @@ class Gmail:
         Bool -- true or false to indicate if email was sent successfully
         error_message -- None if success, otherwise, returns the error experienced
         """
-        if self.connection_successful:
+        if not self._enabled:
+            return True, None
+        if self._connection_successful:
             number_of_retries = 0
             while number_of_retries < self.max_number_of_retries:
                 try:
