@@ -96,7 +96,7 @@ class ManageCog(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         """
-        Function that gets called whenever a commmand gets called, being use for data gathering purposes
+        Function that gets called whenever a text commmand gets called, being use for data gathering purposes
         :param ctx: the ctx object that is part of command parameters that are not slash commands
         :return:
         """

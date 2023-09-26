@@ -147,6 +147,10 @@ async def check_slash_command_test_environment(interaction: Interaction) -> bool
 
 @bot.event
 async def on_ready():
+    """
+    indicator that all functions that use "wait_until_ready" will start running soon
+    :return:
+    """
     bot_guild = bot.guilds[0]
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False and wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
@@ -238,6 +242,11 @@ async def delete_help_command_messages():
 
 @bot.event
 async def on_message(message):
+    """
+    Function that gets called any input or output from the script
+    :param message:
+    :return:
+    """
     if message.guild is None and message.author != bot.user:
         em = await imported_embed(
             logger,
@@ -250,12 +259,14 @@ async def on_message(message):
         await bot.process_commands(message)
 
 
-########################################################
-# Function that gets called whenever a commmand      ##
-# gets called, being use for data gathering purposes ##
-########################################################
 @bot.event
 async def on_app_command_completion(interaction: discord.Interaction, cmd: discord.app_commands.commands.Command):
+    """
+    Function that gets called whenever a slash command gets called, being use for data gathering purposes
+    :param interaction:
+    :param cmd:
+    :return:
+    """
     database_enabled = wall_e_config.enabled("database_config", option="ENABLED")
     if database_enabled:
         from wall_e_models.models import CommandStat
