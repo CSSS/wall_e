@@ -38,8 +38,9 @@ class Administration(commands.Cog):
                 image_parent_directory = self.config.get_config_value(
                     "basic_config", option="FOLDER_FOR_FREQUENCY_IMAGES"
                 )
-                if os.path.isdir(image_parent_directory):
-                    self.image_parent_directory = image_parent_directory
+                if image_parent_directory is not None:
+                    if os.path.isdir(image_parent_directory):
+                        self.image_parent_directory = image_parent_directory
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
