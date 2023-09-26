@@ -17,12 +17,12 @@ then
 	else
 		export basic_config__DOCKERIZED='0'
 	fi
-	if [[ "${database_config__postgresSQL}" == "1" ]];
+	if [[ "${database_config__TYPE}" == "postgresSQL" ]];
 	then
-		export dockerized_database='y'
+		export postgres_database='y'
 		export sqlite3_database='n'
 	else
-		export dockerized_database='n'
+		export postgres_database='n'
 		export sqlite3_database='y'
 	fi
 else
@@ -51,7 +51,7 @@ then
 		use_defaults="true";
 		sqlite3_database="y";
 		launch_wall_e="y";
-		dockerized_database="n";
+		postgres_database="n";
 	fi
 
 	if [ -z "${basic_config__DOCKERIZED}" ];
@@ -62,7 +62,7 @@ then
 		then
 			export basic_config__DOCKERIZED='1'
 		else
-			expport basic_config__DOCKERIZED='0'
+			export basic_config__DOCKERIZED='0'
 		fi
 	fi
 
@@ -153,7 +153,7 @@ then
 	then
 		export COMPOSE_PROJECT_NAME="discord_bot"
 
-		echo 'database_config__postgresSQL='"'"'1'"'" >> CI/user_scripts/wall_e.env
+		echo 'database_config__TYPE='"'"'postgresSQL'"'" >> CI/user_scripts/wall_e.env
 		echo -e 'database_config__HOST='"'"${COMPOSE_PROJECT_NAME}_wall_e_db"'\n\n" >> CI/user_scripts/wall_e.env
 		echo 'ORIGIN_IMAGE='"'"'sfucsssorg/wall_e'"'" >>  CI/user_scripts/wall_e.env
 		echo 'POSTGRES_PASSWORD='"'"${POSTGRES_PASSWORD}"'" >> CI/user_scripts/wall_e.env
@@ -169,13 +169,13 @@ then
 		fi
 
 
-		if [[ "${sqlite3_database}" != "y" && -z "${dockerized_database}" ]];
+		if [[ "${sqlite3_database}" != "y" && -z "${postgres_database}" ]];
 		then
 			echo "Do you intended to use dockerized postgres? [Y/n]"
-			read dockerized_database
+			read postgres_database
 		fi
 
-		if [[ "${dockerized_database}" == "y" && "${supported_os}" == "false" ]];
+		if [[ "${postgres_database}" == "y" && "${supported_os}" == "false" ]];
 		then
 			echo "sorry, script is not currently setup to use anything other than a dockerized posgtres database on non-linux system :-("
 			echo "Please feel free to add that feature in"
@@ -184,11 +184,11 @@ then
 
 		if [ "${sqlite3_database}" != "y" ];
 		then
-			echo 'database_config__postgresSQL='"'"'1'"'" >> CI/user_scripts/wall_e.env
+			echo 'database_config__TYPE='"'"'postgresSQL'"'" >> CI/user_scripts/wall_e.env
 			echo 'database_config__HOST='"'"'127.0.0.1'"'" >> CI/user_scripts/wall_e.env
 			echo 'database_config__DB_PORT='"'"'5432'"'" >> CI/user_scripts/wall_e.env
 		else
-			echo 'database_config__postgresSQL='"'"'0'"'" >> CI/user_scripts/wall_e.env
+			echo 'database_config__TYPE='"'"'sqlite3'"'" >> CI/user_scripts/wall_e.env
 			echo 'database_config__HOST='"'"'discord_bot_wall_e_db'"'" >> CI/user_scripts/wall_e.env
 		fi
 
