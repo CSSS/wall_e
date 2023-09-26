@@ -56,9 +56,6 @@ class WalleBot(commands.Bot):
         self.uploading = False
 
     async def setup_hook(self) -> None:
-        # removing default help command to allow for custom help command
-        logger.info("[main.py] default help command being removed")
-
         if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
             bot.tree.interaction_check = check_slash_command_test_environment
 
