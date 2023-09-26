@@ -11,13 +11,16 @@ def send_email_alert_about_error(logger, config, message, file_path):
     :return:
     """
     gmail = Gmail(logger, config)
-    successful_connection = gmail.successful_connection()
-    if not successful_connection[0]:
-        return False, successful_connection[1]
+    if not gmail.enabled:
+        return
+    if not gmail.connection_successful:
+        logger.error(gmail.error_message)
+    to_email = config.get_config_value("gmail", "BOT_MANAGER_EMAIL")
     success, error_message = gmail.send_email(
-        "WALL_E error", message, "csss-bot-manager@sfu.ca", "CSSS Bot Manager", from_name="WALL-E",
+        "WALL_E error", message, to_email, "CSSS Bot Manager", from_name="WALL-E",
         attachment=file_path
     )
     if not success:
-        return False, error_message
-    return gmail.close_connection()
+        logger.error(error_message)
+    if gmail.enabled and gmail.connection_successful:
+        gmail.close_connection()
