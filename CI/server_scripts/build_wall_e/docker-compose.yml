@@ -21,6 +21,8 @@ services:  #Services that are needed for the wall_e app
             - database_config__WALL_E_DB_DBNAME
             - database_config__WALL_E_DB_PASSWORD
             - basic_config__MEE6_AUTHORIZATION
+            - gmail__username
+            - gmail__password
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
         image: "${compose_project_name}_wall_e"
