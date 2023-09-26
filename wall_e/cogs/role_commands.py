@@ -296,7 +296,7 @@ class RoleCommands(commands.Cog):
         user = interaction.user
         await user.add_roles(role)
         self.logger.info(f"[RoleCommands slash_iam()] user {user} added to role {role}.")
-        if (role == 'froshee'):
+        if role == 'froshee':
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
