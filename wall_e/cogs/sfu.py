@@ -46,7 +46,14 @@ class SFU(commands.Cog):
                 self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "sfu_error"
             )
 
-    @commands.command()
+    @commands.command(
+        brief="Show calendar description from the specified course's current semester",
+        help=(
+            "Arguments:\n"
+            "---course: semester to get the calendar description for"
+        ),
+        usage='course'
+    )
     async def sfu(self, ctx, *course):
         self.logger.info(f'[SFU sfu()] sfu command detected from user {ctx.message.author}')
         self.logger.info(f'[SFU sfu()] arguments given: {course}')
@@ -167,7 +174,27 @@ class SFU(commands.Cog):
             await ctx.send(embed=embed_obj)
         self.logger.info('[SFU sfu()] out sent to server')
 
-    @commands.command()
+    @commands.command(
+        brief="Returns outline details of the specified course",
+        help=(
+            "Optionally, you may specify term in with the first parameter and/or section with second parameter.\n"
+            "Added keyword [next] will look at next semesters outline for [course]; Note [next] will return error if "
+            "it is not registration time.\n\n"
+            "Arguments:\n"
+            "---course: the course to get the outline for\n"
+            "---[term|section]\n"
+            "------term: the course's term to get the outline for\n"
+            "------section: a way to specify a course's specific section\n"
+            "---next: will look at the next semester's outline. This will return error if it is not registration time"
+            "\n\n"
+            "Example:\n"
+            "---.outline cmpt300\n"
+            "---.outline cmpt300 spring d200\n"
+            "---.outline cmpt300 next\n"
+            "---.outline cmpt300 summer d200 next\n\n"
+        ),
+        usage='course [spring|summer|fall] [section] [next]'
+    )
     async def outline(self, ctx, *course):
         self.logger.info(f'[SFU outline()] outline command detected from user {ctx.message.author}')
         self.logger.info(f'[SFU outline()] arguments given: {course}')
@@ -180,7 +207,7 @@ class SFU(commands.Cog):
                 ['Example', '`.outline cmpt300\n .outline cmpt300 fall\n .outline cmpt300 d200\n .outline cmpt300'
                  ' spring d200\n .outline cmpt300 next`']]
 
-        if(not course):
+        if not course:
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,

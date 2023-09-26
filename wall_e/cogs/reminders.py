@@ -23,7 +23,6 @@ class Reminders(commands.Cog):
         self.bot = bot
         self.config = config
         self.guild = None
-        self.help_message = ''.join(self.config.get_help_json()['remindmein']['example'])
         self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
@@ -90,7 +89,29 @@ class Reminders(commands.Cog):
                 print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
             await asyncio.sleep(2)
 
-    @commands.command(aliases=['remindmeon', 'remindmeat'])
+    @commands.command(
+        brief="create a reminder",
+        help=(
+            "Timezone assumed to be Canada/Pacific unless otherwise specified\n"
+            "A list of valid timezones can be found at\n"
+            "https://en.wikipedia.org/wiki/List_of_tz_database_time_zones\n\n"
+            "Arguments:\n"
+            "---date specifier: when the reminder should be set for\n"
+            "---reminder: what the reminder is actually about\n\n"
+            "Example Time Formats:\n"
+            ".remindmein <n> <seconds|minutes|hours|days> to <reminder>\n"
+            ".remindmein <n> <day(s) after <date|tomorrow|today>> to <reminder>\n"
+            ".remindmeat <time> [timezone] to [reminder>\n"
+            ".remindmeon <date> [at] [time] [timezone] to <reminder>\n\n"
+            "Example:\n"
+            "---.remindmein 10 minutes to turn in my assignment\n"
+            "---.remindmein two days after tomorrow to go to the bank\n"
+            "---.remindmeat 1:15pm Canada/Eastern to video call\n"
+            "---.remindmeon October 5th at 12:30pm to eat lunch\n\n"
+        ),
+        usage='[date specifier] to [reminder]',
+        aliases=['remindmeon', 'remindmeat']
+    )
     async def remindmein(self, ctx, *args):
         self.logger.info(f"[Reminders remindmein()] remindmein command detected from user {ctx.message.author}")
         parsed_time = ''
@@ -115,7 +136,7 @@ class Reminders(commands.Cog):
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"unable to extract a time {self.help_message}"
+                description="unable to extract a time"
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
@@ -128,7 +149,7 @@ class Reminders(commands.Cog):
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"unable to extract a string {self.help_message}"
+                description="unable to extract a string"
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
@@ -149,7 +170,7 @@ class Reminders(commands.Cog):
                 title='RemindMeIn Error',
                 author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=f"Could not parse time! {self.help_message}"
+                description="Could not parse time!"
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
@@ -170,7 +191,7 @@ class Reminders(commands.Cog):
             await ctx.send(embed=e_obj)
             self.logger.info("[Reminders remindmein()] reminder has been constructed and sent.")
 
-    @commands.command()
+    @commands.command(brief="Show all your active reminders and their corresponding IDs")
     async def showreminders(self, ctx):
         self.logger.info(f"[Reminders showreminders()] showreminders command detected from user {ctx.message.author}")
         try:
@@ -227,7 +248,17 @@ class Reminders(commands.Cog):
                 self.logger.error('[Reminders showreminders()] Ignoring exception when generating reminder:')
                 print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
 
-    @commands.command()
+    @commands.command(
+        brief="deletes a reminder that has the specified ID",
+        help=(
+            'the reminder ID can be obtained by using the ".showreminders" command\n\n'
+            'Arguments:\n'
+            '---reminder ID: the ID of the reminder to to delete\n\n'
+            'Example:\n'
+            '---.deletereminder reminder ID\n\n'
+        ),
+        usage="reminder ID"
+    )
     async def deletereminder(self, ctx, reminder_id):
         self.logger.info(
             f"[Reminders deletereminder()] deletereminder command detected from user {ctx.message.author}"

@@ -12,8 +12,6 @@ from matplotlib import pyplot as plt
 
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
-from utilities.list_of_perms import get_list_of_user_permissions
-from utilities.paginate import paginate_embed
 from utilities.setup_logger import Loggers
 
 
@@ -43,7 +41,6 @@ class Misc(commands.Cog):
         self.guild = None
         self.bot_channel_manager = bot_channel_manager
         self.wolframClient = wolframalpha.Client(self.config.get_config_value('basic_config', 'WOLFRAM_API_TOKEN'))
-        self.help_dict = self.config.get_help_json()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -67,7 +64,21 @@ class Misc(commands.Cog):
                 self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "misc_error"
             )
 
-    @commands.command()
+    @commands.command(
+        brief="creates a poll in the channel",
+        help=(
+            'Doing .poll "question" starts a yes/no poll with the specified question\n'
+            'A poll can also be created with multiple options. When choosing multiple options, you can specify up to '
+            '12 arguments\n'
+            'Arguments:\n'
+            '---question: the question to use in the poll\n'
+            '---[answer]: an optional answer that the user can vote in favor of via emoji reactions\n\n'
+            'Example:\n'
+            '.poll "question"\n'
+            '.poll "question" "answer1" "answer2" "answer3"\n\n'
+        ),
+        usage='question [answer] [answer]...'
+    )
     async def poll(self, ctx, *questions):
         self.logger.info(f"[Misc poll()] poll command detected from user {ctx.message.author}")
         name = ctx.author.display_name
@@ -151,7 +162,16 @@ class Misc(commands.Cog):
                 self.logger.info("[Misc poll()] reactions added to multi-option poll message.")
             await ctx.message.delete()
 
-    @commands.command()
+    @commands.command(
+        brief="returns definition of the search from urban dictionary",
+        help=(
+            'Arguments:\n'
+            '---search query: the string to query urban dictionary with\n\n'
+            'Example:\n'
+            '---.urban search query\n\n'
+        ),
+        usage='search query'
+    )
     async def urban(self, ctx, *arg):
         self.logger.info("[Misc urban()] urban command detected "
                          f"from user {ctx.message.author} with argument =\"{arg}\"")
@@ -203,7 +223,16 @@ class Misc(commands.Cog):
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
 
-    @commands.command()
+    @commands.command(
+        brief="returns the result searching Wolfram Alpha with given query",
+        help=(
+            'Arguments:\n'
+            '---search query: the string to query Wolfram Alpha with\n\n'
+            'Example:\n'
+            '---.wolfram search query'
+        ),
+        usage='search query'
+    )
     async def wolfram(self, ctx, *arg):
         arg = " ".join(arg)
         self.logger.info("[Misc wolfram()] wolfram command detected "
@@ -247,7 +276,16 @@ class Misc(commands.Cog):
                 await ctx.send(embed=e_obj)
                 self.logger.error(f"[Misc wolfram()] result NOT found for {arg}")
 
-    @commands.command()
+    @commands.command(
+        brief="returns the user's input in emoji format",
+        help=(
+            'Arguments:\n'
+            '---the message: the message to convert to emoji format\n\n'
+            'Example:\n'
+            '---.emojispeak wall_e is best'
+        ),
+        usage='the message'
+    )
     async def emojispeak(self, ctx, *args):
         self.logger.info("[Misc emojispeak()] emojispeak command "
                          f"detected from user {ctx.message.author} with argument =\"{args}\"")
@@ -302,150 +340,14 @@ class Misc(commands.Cog):
         self.logger.info(f"[Misc emojispeak()] sending {ctx.author.mention} says {output}")
         await ctx.send(f"{ctx.author.mention} says {output}")
 
-    async def general_description(self, ctx):
-        number_of_commands_per_page = 5
-        self.logger.info(f"[Misc general_description()] help command detected from {ctx.message.author}")
-        user_roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
-        self.logger.info(f"[Misc general_description()] user_roles : {user_roles}")
-        user_perms = await get_list_of_user_permissions(self.logger, ctx)
-        self.logger.info(f"[Misc general_description()] user_perms : {user_perms}")
-        description_to_embed = [""]
-        number_of_command_added_in_current_page, current_page = 0, 0
-        class_in_previous_command = ""
-        for command, command_info in self.help_dict.items():
-            if command_info['access'] == "roles":
-                shared_roles = set(user_roles).intersection(command_info[command_info['access']])
-                if len(shared_roles) > 0:
-                    self.logger.info("[Misc general_description()] "
-                                     f"adding {command} to page {current_page} of the description_to_embed")
-                    if class_in_previous_command != command_info['class'] and 'Bot_manager' in user_roles:
-                        description_to_embed[current_page] += f"**Class: {command_info['class']}**:\n"
-                    if class_in_previous_command == command_info['class'] and \
-                            number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
-                        description_to_embed[current_page] += (
-                            f"**Class: {command_info['class']}** [Cont'd]:\n"
-                            )
-                    class_in_previous_command = command_info['class']
-                    aliases = command_info['aliases'].copy()
-                    aliases.append(command)
-                    description_to_embed[current_page] += (
-                        f"{'/'.join(aliases)} - {command_info['description'][0]}\n\n"
-                    )
-                    number_of_command_added_in_current_page += 1
-                    if number_of_command_added_in_current_page == number_of_commands_per_page:
-                        description_to_embed.append("")
-                        current_page += 1
-                        number_of_command_added_in_current_page = 0
-            elif command_info['access'] == "permissions":
-                shared_perms = set(user_perms).intersection(command_info[command_info['access']])
-                if len(shared_perms) > 0:
-                    self.logger.info("[Misc general_description()] "
-                                     f"adding {command} to page {current_page} of the description_to_embed")
-                    if class_in_previous_command != command_info['class'] and 'Bot_manager' in user_roles:
-                        description_to_embed[current_page] += f"**Class: {command_info['class']}**:\n"
-                    if class_in_previous_command == command_info['class'] and \
-                            number_of_command_added_in_current_page == 0 and 'Bot_manager' in user_roles:
-                        description_to_embed[current_page] += (
-                            f"**Class: {command_info['class']}** [Cont'd]:\n"
-                        )
-                    aliases = command_info['aliases'].copy()
-                    aliases.append(command)
-                    description_to_embed[current_page] += (
-                        f"{'/'.join(aliases)} - {command_info['description'][0]}\n\n"
-                    )
-                    number_of_command_added_in_current_page += 1
-                    if number_of_command_added_in_current_page == number_of_commands_per_page:
-                        description_to_embed.append("")
-                        current_page += 1
-                        number_of_command_added_in_current_page = 0
-            else:
-                self.logger.info(f"[Misc general_description()] {command} has a wierd "
-                                 f"access level of {command_info['access']}....not sure how to handle "
-                                 "it so not adding it to the description_to_embed")
-        self.logger.info("[Misc general_description()] transfer successful")
-        await paginate_embed(self.logger, self.bot, self.config, description_to_embed, title="Help Page", ctx=ctx)
-
-    async def specific_description(self, ctx, command):
-        self.logger.info(f"[Misc specific_description()] invoked by user {command} for "
-                         "command ")
-        command_being_searched_for = f"{command[0]}"
-        command_info_for_searched_command = ""
-        if command_being_searched_for in self.help_dict:
-            command_info_for_searched_command = self.help_dict[command_being_searched_for]
-        for command, command_info in self.help_dict.items():
-            if command_being_searched_for in command_info['aliases']:
-                command_being_searched_for = command
-                command_info_for_searched_command = command_info
-                break
-        if command_info_for_searched_command != "":
-            self.logger.info(
-                "[Misc specific_description()] loading the "
-                f"entry for command {command_being_searched_for} "
-                f":\n\n{command_info_for_searched_command}"
-            )
-            descriptions = ""
-            for description in command_info_for_searched_command['description']:
-                descriptions += f"{description}\n\n"
-            descriptions += "\n\nExample:\n"
-            descriptions += "\n".join(command_info_for_searched_command['example'])
-            e_obj = await embed(
-                self.logger,
-                ctx=ctx,
-                title=f"Man Entry for {command_being_searched_for}",
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                description=descriptions
-            )
-            if e_obj is not False:
-                msg = await ctx.send(content=None, embed=e_obj)
-                self.logger.info("[Misc specific_description()] embed created and sent for "
-                                 f"command {command}")
-                await msg.add_reaction('✅')
-                self.logger.info("[Misc specific_description()] reaction added to message")
-
-                def check_reaction(reaction, user):
-                    if not user.bot:  # just making sure the bot doesnt take its own reactions
-                        # into consideration
-                        e = f"{reaction.emoji}"
-                        self.logger.info("[Misc specific_description()] "
-                                         f"reaction {e} detected from {user}")
-                        return e.startswith(('✅'))
-
-                user_reacted = False
-                while user_reacted is False:
-                    try:
-                        user_reacted = await self.bot.wait_for(
-                            'reaction_add',
-                            timeout=20,
-                            check=check_reaction
-                        )
-                    except asyncio.TimeoutError:
-                        self.logger.info("[Misc specific_description()] "
-                                         "timed out waiting for the user's reaction.")
-                    if user_reacted:
-                        if '✅' == user_reacted[0].emoji:
-                            self.logger.info("[Misc specific_description()] user indicates they are done with the "
-                                             "roles command, deleting roles message")
-                            await msg.delete()
-                            return
-                    else:
-                        self.logger.info("[Misc specific_description()] deleting message")
-                        await msg.delete()
-                        return
-
-    @commands.command(aliases=['man'])
-    async def help(self, ctx, *arg):
-        await ctx.send("     help me.....")
-        self.logger.info("[Misc help()] help command detected "
-                         f"from {ctx.message.author} with the argument {arg}")
-        if len(arg) == 0:
-            await self.general_description(ctx)
-        else:
-            await self.specific_description(ctx, arg)
-
-    @app_commands.command(name="tex", description="draws a mathematical formula")
+    @app_commands.command(name="tex", description="Draws a mathematical formula using latex markdown")
     @app_commands.describe(formula="formula to draw out")
     async def tex(self, interaction: discord.Interaction, formula: str):
+        r"""
+        /tex examples:
+        * `/tex e^{i\theta} = \cos x + i \sin x`
+        * `/tex x = 2*\pi*n_{1} + Re(\theta) + iIm(\theta)`
+        """
         # created using below links:
         # https://stackoverflow.com/a/31371907
         # https://stackoverflow.com/a/57472241

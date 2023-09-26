@@ -10,7 +10,7 @@ import time
 
 import discord
 import django
-from discord import Intents
+from discord import Intents, Interaction
 from discord.ext import commands
 from django.core.wsgi import get_wsgi_application
 
@@ -19,7 +19,6 @@ from utilities.config.config import WallEConfig
 from utilities.embed import embed as imported_embed
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers, print_wall_e_exception
-from utilities.slash_command_checks import command_in_correct_test_guild_channel
 
 log_info = Loggers.get_logger(logger_name="sys")
 sys_debug_log_file_absolute_path = log_info[1]
@@ -43,19 +42,25 @@ wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
 
 application = get_wsgi_application()
 
+# needs to be after django.setup()
+from cogs.help_commands import EmbedHelpCommand # noqa E402
+from wall_e_models.models import HelpMessage # noqa E402
+
 intents = Intents.all()
 
 
 class WalleBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix='.', intents=intents)
         self.bot_channel_manager = BotChannelManager(wall_e_config, self)
+        super().__init__(command_prefix='.', intents=intents, help_command=EmbedHelpCommand())
         self.uploading = False
 
     async def setup_hook(self) -> None:
         # removing default help command to allow for custom help command
         logger.info("[main.py] default help command being removed")
-        self.remove_command("help")
+
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+            bot.tree.interaction_check = check_slash_command_test_environment
 
         await bot.add_custom_cog()
         # tries to load any commands specified in the_commands into the bot
@@ -117,13 +122,35 @@ class WalleBot(commands.Bot):
 bot = WalleBot()
 
 
-##################################################
-# signals to all functions that use            ##
-# "wait_until_ready" that the bot is now ready ##
-# to start performing background tasks         ##
-##################################################
+async def check_slash_command_test_environment(interaction: Interaction) -> bool:
+    """
+    Ensures that the slash command is only processed if its in the correct channel in the TEST
+     guild
+    :param config: the WallEConfig object necessary to determine the correct channel names
+     for processing slash command in the TEST guild
+    :param interaction: the interaction object that is in the command's parameter
+     for a slash command
+    :return:
+    """
+    text_bot_channel_name = f"{wall_e_config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
+    correct_test_guild_text_channel = (
+        interaction.guild is not None and
+        (
+            interaction.channel.name == text_bot_channel_name or
+            interaction.channel.name == wall_e_config.get_config_value('basic_config', 'BRANCH_NAME').lower())
+    )
+    if interaction.guild is None:
+        return True
+    if not correct_test_guild_text_channel:
+        raise Exception("command called from wrong channel")
+
+
 @bot.event
 async def on_ready():
+    """
+    indicator that all functions that use "wait_until_ready" will start running soon
+    :return:
+    """
     bot_guild = bot.guilds[0]
     # tries to open log file in prep for write_to_bot_log_channel function
     if bot.uploading is False and wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
@@ -169,12 +196,57 @@ async def on_ready():
     logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 
-########################################################
-# Function that gets called any input or output from ##
-# the script					     ##
-########################################################
+@bot.listen(name="on_ready")
+async def delete_help_command_messages():
+    while True:
+        try:
+            help_messages = await HelpMessage.get_messages_to_delete()
+            for help_message in help_messages:
+                channel = bot.get_channel(int(help_message.channel_id))
+                if channel is not None:
+                    successful = False
+                    try:
+                        message = await channel.fetch_message(int(help_message.message_id))
+                        await message.delete()
+                        successful = True
+                    except discord.NotFound:
+                        logger.error(
+                            "[main.py delete_help_command_messages()] "
+                            f"could not find the message that contains the help command with obj "
+                            f"{help_message}"
+                        )
+                        # setting successful True since the message seems to already be deleted
+                        successful = True
+                    except discord.Forbidden:
+                        logger.error(
+                            "[main.py delete_help_command_messages()] "
+                            f"wall_e does not seem to have permissions to view/delete the message that "
+                            f"contains the help command with obj {help_message}"
+                        )
+                        # if wall_e does not have the permission to delete the message,
+                        # a retry would not fix that anyways
+                        successful = True
+                    except discord.HTTPException:
+                        logger.error(
+                            "[main.py delete_help_command_messages()] "
+                            f"some sort of HTTP prevented wall_e from deleting the message that "
+                            f"contains the help command with obj {help_message}"
+                        )
+                        # there might be a momentary network glitch, best to try again
+                    if successful:
+                        await HelpMessage.delete_message(help_message)
+        except Exception as error:
+            print_wall_e_exception(error, error.__traceback__, error_logger=logger.error)
+        await asyncio.sleep(60)
+
+
 @bot.event
 async def on_message(message):
+    """
+    Function that gets called any input or output from the script
+    :param message:
+    :return:
+    """
     if message.guild is None and message.author != bot.user:
         em = await imported_embed(
             logger,
@@ -187,15 +259,16 @@ async def on_message(message):
         await bot.process_commands(message)
 
 
-########################################################
-# Function that gets called whenever a commmand      ##
-# gets called, being use for data gathering purposes ##
-########################################################
 @bot.event
 async def on_app_command_completion(interaction: discord.Interaction, cmd: discord.app_commands.commands.Command):
+    """
+    Function that gets called whenever a slash command gets called, being use for data gathering purposes
+    :param interaction:
+    :param cmd:
+    :return:
+    """
     database_enabled = wall_e_config.enabled("database_config", option="ENABLED")
-    correct_channel = await command_in_correct_test_guild_channel(wall_e_config, interaction)
-    if correct_channel and database_enabled:
+    if database_enabled:
         from wall_e_models.models import CommandStat
         await CommandStat.save_command_stat(CommandStat(
             epoch_time=datetime.datetime.now().timestamp(), channel_name=interaction.channel.name,
@@ -303,13 +376,15 @@ async def on_raw_reaction_add(reaction):
         await message.delete()
 
 
-####################################################
-# Function that gets called when the script cant ##
-# understand the command that the user invoked   ##
-####################################################
 @bot.tree.error
 async def on_command_error(interaction: discord.Interaction, error):
-    correct_channel = await command_in_correct_test_guild_channel(wall_e_config, interaction)
+    """
+    Function that gets called when the script cant understand the slash command that the user invoked
+    :param interaction:
+    :param error:
+    :return:
+    """
+    correct_channel = await bot.tree.interaction_check(interaction)
     if correct_channel:
         if isinstance(error, commands.MissingRequiredArgument):
             logger.error(f'[main.py on_command_error()] Missing argument: {error.param}')

@@ -8,7 +8,6 @@ from wall_e_models.models import CommandStat
 
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
-from utilities.list_of_perms import get_list_of_user_permissions
 from utilities.setup_logger import Loggers, print_wall_e_exception
 
 
@@ -20,12 +19,11 @@ class ManageCog(commands.Cog):
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[ManageCog __init__()] initializing the TestCog")
-        bot.add_check(self.check_test_environment)
-        bot.add_check(self.check_privilege)
+        if config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST':
+            bot.add_check(self.check_text_command_test_environment)
         self.bot = bot
         self.config = config
         self.guild = None
-        self.help_dict = self.config.get_help_json()
         self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
@@ -67,7 +65,8 @@ class ManageCog(commands.Cog):
                 "general_channel"
             )
 
-    @commands.command(hidden=True)
+    @commands.command(brief="returns which branch the user is testing")
+    @commands.has_role("Bot_manager")
     async def debuginfo(self, ctx):
         self.logger.info(f"[ManageCog debuginfo()] debuginfo command detected from {ctx.message.author}")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':
@@ -77,64 +76,31 @@ class ManageCog(commands.Cog):
             )
         return
 
-    def check_test_environment(self, ctx):
+    def check_text_command_test_environment(self, ctx):
         """
-        this check is used by the TEST guild to ensur that each TEST container will only process incoming
-         commands that originate from channels that match the name of their branch
+        this check is used by the TEST guild to ensure that each TEST container will only process incoming
+         text commands that originate from channels that match the name of their branch
         :param ctx: the ctx object that is part of command parameters that are not slash commands
         :return:
         """
-        test_guild = self.config.get_config_value('basic_config', 'ENVIRONMENT') == 'TEST'
+        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            return True
         correct_test_guild_text_channel = (
             ctx.message.guild is not None and
             (ctx.channel.name == f"{self.config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel"
              or
              ctx.channel.name == self.config.get_config_value('basic_config', 'BRANCH_NAME').lower())
         )
-        if not test_guild:
-            return True
         return correct_test_guild_text_channel
-
-    async def check_privilege(self, ctx):
-        """
-        this check is used to ensure that users can only access commands that they have the rights to
-        :param ctx: the ctx object that is part of command parameters that are not slash commands
-        :return:
-        """
-        command_used = f"{ctx.command}"
-        if command_used == "exit":
-            return True
-        if command_used not in self.help_dict:
-            return False
-        command_info = self.help_dict[command_used]
-        if command_info['access'] == 'roles':
-            user_roles = [
-                role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
-            ]
-            shared_roles = set(user_roles).intersection(command_info['roles'])
-            if len(shared_roles) == 0:
-                await ctx.send(
-                    "You do not have adequate permission to execute this command, incident will be reported"
-                )
-            return (len(shared_roles) > 0)
-        if command_info['access'] == 'permissions':
-            user_perms = await get_list_of_user_permissions(self.logger, ctx)
-            shared_perms = set(user_perms).intersection(command_info['permissions'])
-            if (len(shared_perms) == 0):
-                await ctx.send(
-                    "You do not have adequate permission to execute this command, incident will be reported"
-                )
-            return (len(shared_perms) > 0)
-        return False
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
         """
-        Function that gets called whenever a commmand gets called, being use for data gathering purposes
+        Function that gets called whenever a text commmand gets called, being use for data gathering purposes
         :param ctx: the ctx object that is part of command parameters that are not slash commands
         :return:
         """
-        if self.check_test_environment(ctx) and self.config.enabled("database_config", option="ENABLED"):
+        if self.check_text_command_test_environment(ctx) and self.config.enabled("database_config", option="ENABLED"):
             await CommandStat.save_command_stat(CommandStat(
                 epoch_time=datetime.datetime.now().timestamp(), channel_name=ctx.channel,
                 command=ctx.command, invoked_with=ctx.invoked_with,
@@ -149,7 +115,7 @@ class ManageCog(commands.Cog):
         :param error: the error that was encountered
         :return:
         """
-        if self.check_test_environment(ctx):
+        if self.check_text_command_test_environment(ctx):
             if isinstance(error, commands.MissingRequiredArgument):
                 e_obj = await embed(
                     self.logger,
@@ -162,6 +128,11 @@ class ManageCog(commands.Cog):
                     await ctx.send(embed=e_obj)
             elif isinstance(error, commands.errors.CommandNotFound):
                 return
+            elif isinstance(error, discord.ext.commands.errors.MissingAnyRole):
+                self.logger.error(f"{ctx.author} tried to run command {ctx.command}")
+                await ctx.channel.send(
+                    "You do not have adequate permission to run this command, incident will be reported"
+                )
             elif isinstance(error, commands.errors.ArgumentParsingError):
                 description = (
                     f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"

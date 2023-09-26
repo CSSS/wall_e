@@ -7,7 +7,6 @@ from discord.ext import commands
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
-from utilities.slash_command_checks import slash_command_checks
 
 
 class HealthChecks(commands.Cog):
@@ -21,7 +20,6 @@ class HealthChecks(commands.Cog):
         self.config = config
         self.guild = None
         self.bot_channel_manager = bot_channel_manager
-        self.help_dict = self.config.get_help_json()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -47,9 +45,8 @@ class HealthChecks(commands.Cog):
                 "health_checks_error"
             )
 
-    @app_commands.command(name="ping")
+    @app_commands.command(name="ping", description="return pong!")
     async def ping(self, interaction: discord.Interaction):
-        await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
         self.logger.info(f"[HealthChecks ping()] ping command detected from {interaction.user}")
         e_obj = await embed(
             self.logger,
@@ -64,7 +61,6 @@ class HealthChecks(commands.Cog):
     @app_commands.command(name="echo", description="repeats what the user said back at them")
     @app_commands.describe(string="string to echo")
     async def echo(self, interaction: discord.Interaction, string: str):
-        await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
         user = interaction.user.display_name
         self.logger.info(
             f"[HealthChecks echo()] echo command detected from {interaction.user} with argument {string}"
