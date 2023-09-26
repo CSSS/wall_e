@@ -61,7 +61,6 @@ class WallEConfig:
     def get_cogs(self):
 
         def cog_can_be_loaded(cog):
-            print(cog)
             return (
                 (cog != 'reminders') or
                 (cog == 'reminders' and self.enabled("database_config", option="ENABLED"))
