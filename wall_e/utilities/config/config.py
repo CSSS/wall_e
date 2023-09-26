@@ -58,19 +58,18 @@ class WallEConfig:
         else:
             raise KeyError(f"Section '{section}' or Option '{option}' does not exist")
 
-    def cog_enabled(self, name_of_cog):
-        return self.config['cogs_enabled'][name_of_cog] == 1
-
     def get_cogs(self):
 
         def cog_can_be_loaded(cog):
+            print(cog)
             return (
                 (cog != 'reminders') or
                 (cog == 'reminders' and self.enabled("database_config", option="ENABLED"))
             )
 
-        return [
+        cogs = [
             {'name': cog, 'path': cog_location_python_path}
             for cog in self.config['cogs_enabled']
-            if self.cog_enabled(cog) == 1 and cog_can_be_loaded(cog)
+            if self.enabled("cogs_enabled", cog) == 1 and cog_can_be_loaded(cog)
         ]
+        return cogs
