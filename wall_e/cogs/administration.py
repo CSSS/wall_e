@@ -23,7 +23,6 @@ class Administration(commands.Cog):
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.config = config
-        self.help_dict = self.config.get_help_json()
         self.bot = bot
         self.bot_channel_manager = bot_channel_manager
         self.guild = None
@@ -93,7 +92,7 @@ class Administration(commands.Cog):
         if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
             await self.bot.close()
 
-    @app_commands.command(name="delete_log_channels")
+    @app_commands.command(description="Deletes the log channel and category")
     async def delete_log_channels(self, interaction: discord.Interaction):
         if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
             while self.guild is None:
@@ -122,8 +121,20 @@ class Administration(commands.Cog):
             if module_name in ['ban', 'mod'] else user_is_bot_manager
         return valid_load_call
 
-    @commands.command()
-    async def load(self, ctx, module_name):
+    @commands.command(
+        brief="loads the commands in the class in the specified module",
+        help=(
+            'Arguments:\n'
+            '---module name: the module with the cog class and commands to load\n\n'
+            'Example:\n'
+            '---.load health_checks\n\n'
+            'The classes and their corresponding commands can be determined using the ".help" command\n\n'
+        ),
+        usage='module name'
+    )
+    @commands.has_any_role("Bot_manager", "Minions", "Moderator")
+    async def load(self, ctx, *module_name):
+
         self.logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(module_name)
         if not valid:
@@ -142,7 +153,18 @@ class Administration(commands.Cog):
                 await ctx.send(f"command load failed: {type(e)}, {e}")
                 self.logger.info(f"[Administration load()] loading {module_name} failed :{type(e)}, {e}")
 
-    @commands.command()
+    @commands.command(
+        brief="unloads the commands in the class in the specified module",
+        help=(
+            'The classes and their corresponding commands can be determined using the ".help" command\n\n'
+            'Arguments:\n'
+            '---module name: the module with the cog class and commands to unload\n'
+            'Example:\n'
+            '---.unload health_checks\n\n'
+        ),
+        usage='module name'
+    )
+    @commands.has_any_role("Bot_manager", "Minions", "Moderator")
     async def unload(self, ctx, module_name):
         self.logger.info(f"[Administration unload()] unload command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(module_name)
@@ -158,7 +180,18 @@ class Administration(commands.Cog):
             await ctx.send(f"{module_name} command unloaded")
             self.logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
 
-    @commands.command()
+    @commands.command(
+        brief="reloads the commands in the class in the specified module",
+        help=(
+            'The classes and their corresponding commands can be determined using the ".help" command\n\n'
+            'Arguments:\n'
+            '---module name: the module with the cog class and commands to reload\n'
+            'Example:\n'
+            '---.reload health_checks\n\n'
+        ),
+        usage='module name'
+    )
+    @commands.has_any_role("Bot_manager", "Minions", "Moderator")
     async def reload(self, ctx, name):
         self.logger.info(f"[Administration reload()] reload command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(name)
@@ -177,17 +210,28 @@ class Administration(commands.Cog):
                 await ctx.send(f"Command load failed: {type(e)}, {e}")
                 self.logger.info(f"[Administration reload()] loading {name} failed :{type(e)}, {e}")
 
-    @commands.command()
-    async def exc(self, ctx, *args):
+    @commands.command(
+        brief="executes the command on the bot host OS",
+        help=(
+            'Arguments:\n'
+            '---command to run: the command to run on the host OS\n\n'
+            'Example:\n'
+            '---.exc ls -l\n\n'
+        ),
+        usage='command to run'
+    )
+    @commands.has_role("Bot_manager")
+    async def exc(self, ctx, *command):
         self.logger.info("[Administration exc()] exc command detected "
-                         f"from {ctx.message.author} with arguments {' '.join(args)}")
-        query = " ".join(args)
+                         f"from {ctx.message.author} with arguments {' '.join(command)}")
+        command = " ".join(command)
         # this got implemented for cases when the output of the command is too big to send to the channel
-        exit_code, output = subprocess.getstatusoutput(query)
+        exit_code, output = subprocess.getstatusoutput(command)
         await helper_send(self.logger, ctx, f"Exit Code: {exit_code}")
         await helper_send(self.logger, ctx, output, prefix="```", suffix="```")
 
-    @commands.command()
+    @commands.command(brief="resyncs the slash commands in wall_e to this discord guild")
+    @commands.has_role("Bot_manager")
     async def sync(self, ctx):
         self.logger.info(f"[AdministrationAdministration sync()] sync command detected from {ctx.message.author}")
         message = "Testing guild does not provide support for Slash Commands" \
@@ -205,13 +249,40 @@ class Administration(commands.Cog):
         if e_obj is not False:
             await ctx.send(embed=e_obj)
 
-    @commands.command()
-    async def announce(self, ctx, *args):
+    @commands.command(
+        brief="sends an announcement to the announcement channel",
+        help=(
+            'Arguments:\n'
+            '---the announcement: the announcement to post to the announcement channel\n\n'
+            'Example:\n'
+            '---.announce the example\n\n'
+        ),
+        usage='the announcement',
+    )
+    @commands.has_role("Bot_manager")
+    async def announce(self, ctx, *message):
         self.logger.info(f"[Administration announce()] announce command detected from {ctx.message.author}")
-        await self.announcement_channel.send("\n".join(args))
+        await self.announcement_channel.send("\n".join(message))
         await ctx.message.delete()
 
-    @commands.command()
+    @commands.command(
+        brief="creates a graph to show some command usage statistics.",
+        help=(
+            'the different way to count up the command usage are: command, year, month, day, hour, channel_aliases, '
+            'invoked_with, invoked_subcommand.\n'
+            'You may optionally choose to group the entries such that all the times that a certain command was '
+            'executed on a certain day are counted together.'
+            'You can do this with the command ".frequency command day"\n\n'
+            'Arguments:\n'
+            '---the stat [the stat]: the grouping to use when calculating the stats and graph\n\n'
+            'Example:\n'
+            '---.frequency command -> creates a graph that shows the usage breakdown by command\n'
+            '---.frequency day -> creates a graph that shows the usage breakdown by day\n'
+            '---.frequency command hour -> creates a graph that shows the usage breakdown by command and hour\n\n'
+        ),
+        usage='the stat',
+    )
+    @commands.has_role("Bot_manager")
     async def frequency(self, ctx, *args):
         if self.config.enabled("database_config", option="ENABLED"):
             self.logger.info("[Administration frequency()] frequency command "

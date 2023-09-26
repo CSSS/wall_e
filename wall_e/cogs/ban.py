@@ -70,9 +70,9 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
+        """Watches for users joining the guild and kicks and bans a user if they are banned"""
         while self.guild is None:
             await asyncio.sleep(2)
-        """Watches for users joining the guild and kicks and bans a user if they are banned"""
 
         if member.id in self.ban_list:
             self.logger.info(
@@ -95,9 +95,9 @@ class Ban(commands.Cog):
 
     @commands.Cog.listener(name='on_member_ban')
     async def intercept(self, guild: discord.Guild, member: Union[discord.User, discord.Member]):
+        """Watches for a guild ban. The guild ban is undone and the user is banned via this ban system"""
         while self.guild is None:
             await asyncio.sleep(2)
-        """Watches for a guild ban. The guild ban is undone and the user is banned via this ban system"""
 
         # need to read the audit log to grab mod, date, and reason
         self.logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
@@ -158,10 +158,15 @@ class Ban(commands.Cog):
             f"[Ban intercept()] Message sent to mod channel,{self.mod_channel}, for ban of {ban.username}."
         )
 
-    @commands.command()
+    @commands.command(
+        brief="Reads in all guild bans into this ban system",
+        help=(
+            "Command will read in all the guild bans into wall_e database to use custom ban system.\n"
+            "**Can only be used ONCE.**"
+        )
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def convertbans(self, ctx):
-        """Reads in all guild bans into this ban system"""
-
         self.logger.info(f"[Ban convertbans()] convertbans command detected from {ctx.author}")
 
         try:
@@ -227,10 +232,24 @@ class Ban(commands.Cog):
         await ctx.send(f"Moved `{len(ban_records)}` active bans from guild bans to walle bans.")
         self.logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
 
-    @commands.command()
+    @commands.command(
+        brief="Bans a user from the guild",
+        help=(
+            'Bans a user and purges their messages from the last X days. By default will purge messages in the '
+            'last 1 day. Max days is 14. Message purging is skipped in private and read-only channels. Put 0 if '
+            'you don\'t want to purge any messages.\n'
+            'Arguments:\n'
+            '---user: user to ban\n'
+            '---[purge_windows]: int = of days to purge messages\n'
+            '---reason for ban: reason user is being banned\n\n'
+            'Examples:\n'
+            '---.ban @user they broke rules\n'
+            '---.ban @user 5 "they broke rules"\n\n'
+        ),
+        usage='@user [purge_windows] reason to ban user'
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def ban(self, ctx, user: discord.Member, *args):
-
-        """Bans a user from the guild"""
         self.logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, args={args}")
 
         # confirm at least 1 @ mention of user to ban
@@ -361,10 +380,18 @@ class Ban(commands.Cog):
             else:
                 await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
 
-    @commands.command()
+    @commands.command(
+        brief="Unbans a user with the provided user id",
+        help=(
+            "Arguments:\n"
+            "---user id: the ID of the user to ban\n\n"
+            "Examples:\n"
+            "---.ban 2938483920203949594949"
+        ),
+        usage="user id"
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def unban(self, ctx, user_id: int):
-        """Unbans a user"""
-
         self.logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
         if user_id not in self.ban_list:
             self.logger.info(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
@@ -412,10 +439,12 @@ class Ban(commands.Cog):
             if e_obj:
                 await ctx.send(embed=e_obj)
 
-    @commands.command()
+    @commands.command(
+        brief="Gets all banned users",
+        help="Lists the `username` and `user_id` of all banned users from the guild."
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def bans(self, ctx):
-        """Gets all banned users"""
-
         self.logger.info(f"[Ban bans()] bans command detected from {ctx.author}")
 
         bans = await BanRecord.get_all_active_bans()
@@ -448,10 +477,9 @@ class Ban(commands.Cog):
         await ctx.send(f"Total number of banned users: {count}")
         self.logger.info("[Ban bans()] done sending embeds with banned user lists and total ban count")
 
-    @commands.command()
+    @commands.command(brief="Clears the ban list on the guild.")
+    @commands.has_any_role("Minions", "Moderator")
     async def purgebans(self, ctx):
-        """Clears the ban list on the guild."""
-
         self.logger.info(f"[Ban purgebans()] purgebans command detected from {ctx.author}")
 
         bans = [ban async for ban in self.guild.bans()]

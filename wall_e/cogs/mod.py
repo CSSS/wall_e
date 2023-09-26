@@ -42,7 +42,27 @@ class Mod(commands.Cog):
                 self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "mod_error"
             )
 
-    @commands.command(aliases=['em'])
+    @commands.command(
+        brief="Allows Minions to post embed messages.",
+        help=(
+            'For odd number of arguments the first arg will be used as description in the embed and the rest as '
+            'field title and content.\n'
+            'For even number there will be no description.\n\n'
+            'Arguments:\n'
+            '---[description]: the description of the embed\n'
+            '---title: a title in the embed\n'
+            '---content; the content that correspond to the above title in the embed\n\n'
+            'Example: \n'
+            '---.embed "title1" "content1"'
+            '---.embed "title1" "content1"\n'
+            '---.embed "the description" "title1" "content1"\n'
+            '---.embed "title1" "content1" "title2" "content2"\n'
+            '---.embed "the description" "title1" "content1" "title2" "content2"\n'
+        ),
+        usage='["the description"] ["title"] ["corresponding content"]',
+        aliases=['em']
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def embed(self, ctx, *arg):
         self.logger.info(f'[Mod embed()] embed function detected by user {ctx.message.author}')
         await ctx.message.delete()
@@ -98,7 +118,18 @@ class Mod(commands.Cog):
             await msg.delete()
             self.logger.info('[Mod rekt()] troll message deleted')
 
-    @commands.command(aliases=['warn'])
+    @commands.command(
+        brief="Posts the warning message in embed format.",
+        help=(
+            'Arguments:\n'
+            '---warning message: message that will be posted in the warning embed in the channel\n\n'
+            'Example: \n'
+            '---.modspeak warning message\n\n'
+        ),
+        usage="warning message",
+        aliases=['warn'],
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def modspeak(self, ctx, *arg):
         self.logger.info(f'[Mod modspeak()] modspeack function detected by minion {ctx.message.author}')
         await ctx.message.delete()

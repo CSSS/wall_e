@@ -43,19 +43,22 @@ wall_e_config = WallEConfig(os.environ['basic_config__ENVIRONMENT'])
 
 application = get_wsgi_application()
 
+# needs to be after django.setup()
+from cogs.help_commands import EmbedHelpCommand # noqa E402
+from wall_e_models.models import HelpMessage # noqa E402
+
 intents = Intents.all()
 
 
 class WalleBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix='.', intents=intents)
         self.bot_channel_manager = BotChannelManager(wall_e_config, self)
+        super().__init__(command_prefix='.', intents=intents, help_command=EmbedHelpCommand())
         self.uploading = False
 
     async def setup_hook(self) -> None:
         # removing default help command to allow for custom help command
         logger.info("[main.py] default help command being removed")
-        self.remove_command("help")
 
         await bot.add_custom_cog()
         # tries to load any commands specified in the_commands into the bot
@@ -169,10 +172,50 @@ async def on_ready():
     logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 
-########################################################
-# Function that gets called any input or output from ##
-# the script					     ##
-########################################################
+@bot.listen(name="on_ready")
+async def delete_help_command_messages():
+    while True:
+        try:
+            help_messages = await HelpMessage.get_messages_to_delete()
+            for help_message in help_messages:
+                channel = bot.get_channel(int(help_message.channel_id))
+                if channel is not None:
+                    successful = False
+                    try:
+                        message = await channel.fetch_message(int(help_message.message_id))
+                        await message.delete()
+                        successful = True
+                    except discord.NotFound:
+                        logger.error(
+                            "[main.py delete_help_command_messages()] "
+                            f"could not find the message that contains the help command with obj "
+                            f"{help_message}"
+                        )
+                        # setting successful True since the message seems to already be deleted
+                        successful = True
+                    except discord.Forbidden:
+                        logger.error(
+                            "[main.py delete_help_command_messages()] "
+                            f"wall_e does not seem to have permissions to view/delete the message that "
+                            f"contains the help command with obj {help_message}"
+                        )
+                        # if wall_e does not have the permission to delete the message,
+                        # a retry would not fix that anyways
+                        successful = True
+                    except discord.HTTPException:
+                        logger.error(
+                            "[main.py delete_help_command_messages()] "
+                            f"some sort of HTTP prevented wall_e from deleting the message that "
+                            f"contains the help command with obj {help_message}"
+                        )
+                        # there might be a momentary network glitch, best to try again
+                    if successful:
+                        await HelpMessage.delete_message(help_message)
+        except Exception as error:
+            print_wall_e_exception(error, error.__traceback__, error_logger=logger.error)
+        await asyncio.sleep(60)
+
+
 @bot.event
 async def on_message(message):
     if message.guild is None and message.author != bot.user:

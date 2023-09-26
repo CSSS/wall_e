@@ -41,7 +41,23 @@ class Frosh(commands.Cog):
                 self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "frosh_error"
             )
 
-    @commands.command(aliases=["team"])
+    @commands.command(
+        brief="Creates an embed that holds details about your Frosh game team.",
+        help=(
+            'Need help picking a colour?\n[HTML Colour Codes](https://htmlcolorcodes.com/color-picker/)\n\n'
+            'Arguments:\n'
+            '---team name: the name for the team\n'
+            '---game name: the name of the game\n'
+            '---team member names: a comma separate list of the team names'
+            '---[colour]: the hex code/value for embed colour\n\n'
+            'Examples:\n'
+            '---.team "JL" "Super Tag" "Jon, Bruce, Clark, Diana, Barry"\n'
+            '---.team "team 1337" "PacMacro" "Jeffrey, Harry, Noble, Ali" "#E8C100"\n'
+            '---.team "Z fighters" "Cell Games" "Goku, Vegeta, Uub, Beerus" "4CD100"\n\n'
+        ),
+        usage='"team name "game name" "team member names" [hex color]',
+        aliases=["team"]
+    )
     async def froshteam(self, ctx, *info):
         self.logger.info(f'[Frosh froshteam()] team command detected from user {ctx.author}')
         self.logger.info(f'[Frosh froshteam()] arguments given: {info}')
@@ -90,7 +106,17 @@ class Frosh(commands.Cog):
 
         await ctx.send(embed=e_obj)
 
-    @commands.command()
+    @commands.command(
+        brief="Creates an embed that report a win for your team.",
+        help=(
+            'Arguments:\n'
+            '---team name: the name for the team\n'
+            '---team member names: a comma separate list of the team names\n\n'
+            'Examples:\n'
+            '---.reportwin "team 1337" "Jeffrey, Harry, Noble, Ali"'
+        ),
+        usage='"team name "team member names"',
+    )
     async def reportwin(self, ctx, *info):
         self.logger.info(f'[Frosh reportwin()] team command detected from user {ctx.author}')
         self.logger.info(f'[Frosh reportwin()] arguments given: {info}')

@@ -13,6 +13,10 @@ from utilities.role_commands_autocomplete_functions import get_roles_with_member
 from utilities.setup_logger import Loggers
 
 
+def user_can_manage_roles(ctx):
+    return ctx.author.guild_permissions.administrator or ctx.author.guild_permissions.manage_roles
+
+
 class RoleCommands(commands.Cog):
 
     def __init__(self, bot, config, bot_channel_manager):
@@ -64,8 +68,8 @@ class RoleCommands(commands.Cog):
         )
         self.logger.info(f"[RoleCommands get_bot_general_channel()] bot channel {self.bot_channel} acquired.")
 
-    @app_commands.command(name="newrole", description="create a new role")
-    @app_commands.describe(new_role_name="name for new role")
+    @app_commands.command(name="newrole", description="creates assignable role with the specified name")
+    @app_commands.describe(new_role_name="name for assignable role to create")
     async def slash_newrole(self, interaction: discord.Interaction, new_role_name: str):
         self.logger.info(f"[RoleCommands slash_newrole()] {interaction.user} "
                          f"called newrole with following argument: new_role_name={new_role_name}")
@@ -101,31 +105,41 @@ class RoleCommands(commands.Cog):
         )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
 
-    @commands.command()
-    async def newrole(self, ctx, role_to_add):
+    @commands.command(
+        brief="creates assignable role with the specified name",
+        help=(
+            'Arguments:\n'
+            '---"new assignable role name": name for assignable role to add\n\n'
+            'Example:\n'
+            '---.newrole "role name"\n\n'
+        ),
+        usage='"new assignable role name"'
+    )
+    async def newrole(self, ctx, new_role_name):
         self.logger.info(f"[RoleCommands newrole()] {ctx.message.author} "
-                         f"called newrole with following argument: role_to_add={role_to_add}")
-        role_to_add = role_to_add.lower()
+                         f"called newrole with following argument: new_role_name={new_role_name}")
+        new_role_name = new_role_name.lower()
         guild = ctx.guild
         for role in guild.roles:
-            if role.name == role_to_add:
+            if role.name == new_role_name:
                 e_obj = await embed(
                     self.logger,
                     colour=WallEColour.ERROR,
                     ctx=ctx,
                     author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
                     avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
-                    description=f"Role '{role_to_add}' exists. Calling "
-                                f".iam {role_to_add} will add you to it.\n\nPSST: try out the new `/newrole` command"
+                    description=f"Role '{new_role_name}' exists. Calling "
+                                f".iam {new_role_name} will add you to it.\n\n"
+                                f"PSST: try out the new `/newrole` command"
                                 "\n`.newrole` will be deprecated soon."
                 )
                 await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
                 if e_obj is not False:
-                    self.logger.info(f"[RoleCommands newrole()] {role_to_add} already exists")
+                    self.logger.info(f"[RoleCommands newrole()] {new_role_name} already exists")
                 return
-        role = await guild.create_role(name=role_to_add)
+        role = await guild.create_role(name=new_role_name)
         await role.edit(mentionable=True)
-        self.logger.info(f"[RoleCommands newrole()] {role_to_add} created and is set to mentionable")
+        self.logger.info(f"[RoleCommands newrole()] {new_role_name} created and is set to mentionable")
 
         e_obj = await embed(
             self.logger,
@@ -135,14 +149,15 @@ class RoleCommands(commands.Cog):
             avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
             description=(
                 "You have successfully created role "
-                f"**`{role_to_add}`**.\nCalling `.iam {role_to_add}` will add it to you."
+                f"**`{new_role_name}`**.\nCalling `.iam {new_role_name}` will add it to you."
                 "\n\nPSST: try out the new `/newrole` command"
                 "\n`.newrole` will be deprecated soon."
             )
         )
         await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
 
-    @app_commands.command(name="deleterole", description="delete a role")
+    @app_commands.command(name="deleterole", description="deletes empty assignable role with the specified name")
+    @app_commands.describe(empty_role="name for empty assignable role to remove")
     @app_commands.autocomplete(empty_role=get_roles_that_can_be_deleted)
     async def slash_deleterole(self, interaction: discord.Interaction, empty_role: str):
         self.logger.info(f"[RoleCommands slash_deleterole()] {interaction.user} "
@@ -183,7 +198,16 @@ class RoleCommands(commands.Cog):
         )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
 
-    @commands.command()
+    @commands.command(
+        brief="deletes empty assignable role with the specified name",
+        help=(
+            'Arguments:\n'
+            '---existing empty assignable role name: name for the existing empty assignable role to delete\n\n'
+            'Example:\n'
+            '---.deleterole "role name"\n\n'
+        ),
+        usage='"existing empty assignable role name"'
+    )
     async def deleterole(self, ctx, role_to_delete):
         self.logger.info(f"[RoleCommands deleterole()] {ctx.message.author} "
                          f"called deleterole with role {role_to_delete}.")
@@ -240,6 +264,7 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
 
     @app_commands.command(name="iam", description="add yourself to an assignable role")
+    @app_commands.describe(role_to_assign_to_me="name for existing role to assign to yourself")
     @app_commands.autocomplete(role_to_assign_to_me=get_assignable_roles)
     async def slash_iam(self, interaction: discord.Interaction, role_to_assign_to_me: str):
         self.logger.info(f"[RoleCommands slash_iam()] {interaction.user} called iam with role {role_to_assign_to_me}")
@@ -292,7 +317,16 @@ class RoleCommands(commands.Cog):
             )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
 
-    @commands.command()
+    @commands.command(
+        brief="add yourself to an assignable role",
+        help=(
+            'Arguments:\n'
+            '---existing assignable role name: name for existing role to assign to yourself\n\n'
+            'Example:\n'
+            '---.iam "role name"\n\n'
+        ),
+        usage='"existing assignable role name"'
+    )
     async def iam(self, ctx, role_to_add):
         self.logger.info(f"[RoleCommands iam()] {ctx.message.author} called iam with role {role_to_add}")
         role_to_add = role_to_add.lower()
@@ -364,6 +398,7 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, ctx=ctx)
 
     @app_commands.command(name="iamn", description="remove yourself from an assignable role")
+    @app_commands.describe(role_to_remove_from_me="name for existing role to remove from yourself")
     @app_commands.autocomplete(role_to_remove_from_me=get_assigned_roles)
     async def slash_iamn(self, interaction: discord.Interaction, role_to_remove_from_me: str):
         self.logger.info(
@@ -422,7 +457,16 @@ class RoleCommands(commands.Cog):
                 e_obj, interaction=interaction, send_func=interaction.channel.send
             )
 
-    @commands.command()
+    @commands.command(
+        brief="remove yourself from an assignable role",
+        help=(
+            'Arguments:\n'
+            '---existing assigned role name: name for existing assigned role to remove from yourself\n\n'
+            'Example:\n'
+            '---.iamn "role name"\n\n'
+        ),
+        usage='"existing assigned role name"'
+    )
     async def iamn(self, ctx, role_to_remove):
         self.logger.info(f"[RoleCommands iamn()] {ctx.message.author} called iamn with role {role_to_remove}")
         role_to_remove = role_to_remove.lower()
@@ -545,6 +589,7 @@ class RoleCommands(commands.Cog):
                         await self.bot_channel.send(f'<@{author.id}>', embed=e_obj)
 
     @app_commands.command(name="whois", description="list folks in a role")
+    @app_commands.describe(role="name of the existing role to return the membership of")
     @app_commands.autocomplete(role=get_roles_with_members)
     async def slash_whois(self, interaction: discord.Interaction, role: str):
         if role == "-1":
@@ -617,7 +662,16 @@ class RoleCommands(commands.Cog):
                 self.logger, self.bot, self.config, member_string, title=title, interaction=interaction
             )
 
-    @commands.command()
+    @commands.command(
+        brief="list folks in a role",
+        help=(
+            'Arguments:\n'
+            '---role to check: name of the existing role to return the membership of\n\n'
+            'Example:\n'
+            '---.whois "role name"\n\n'
+        ),
+        usage='"role to check"'
+    )
     async def whois(self, ctx, role_to_check):
         author_is_minion = ctx.message.author in discord.utils.get(ctx.guild.roles, name="Minions").members
         if f"{role_to_check}" == "Muted" and not author_is_minion:
@@ -698,7 +752,7 @@ class RoleCommands(commands.Cog):
             title = f"Members belonging to role: `{role_to_check}`"
             await paginate_embed(self.logger, self.bot, self.config, member_string, title=title, ctx=ctx)
 
-    @commands.command()
+    @commands.command(brief="will display all the self-assignable roles that exist")
     async def roles(self, ctx):
         if ctx.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(ctx)
@@ -738,7 +792,7 @@ class RoleCommands(commands.Cog):
                 self.logger, self.bot, self.config, description_to_embed, "Self-Assignable Roles", ctx=ctx
             )
 
-    @commands.command()
+    @commands.command(brief="will display all the Mod/Exec/XP Assigned roles that exist")
     async def Roles(self, ctx):  # noqa: N802
         if ctx.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(ctx)
@@ -776,7 +830,8 @@ class RoleCommands(commands.Cog):
                 self.logger, self.bot, self.config, description_to_embed, "Mod/Exec/XP Assigned Roles", ctx=ctx
             )
 
-    @commands.command()
+    @commands.command(brief="deletes all empty self-assignable roles")
+    @commands.check(user_can_manage_roles)
     async def purgeroles(self, ctx):
         if ctx.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(ctx)

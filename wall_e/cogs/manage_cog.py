@@ -25,7 +25,6 @@ class ManageCog(commands.Cog):
         self.bot = bot
         self.config = config
         self.guild = None
-        self.help_dict = self.config.get_help_json()
         self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
@@ -67,7 +66,8 @@ class ManageCog(commands.Cog):
                 "general_channel"
             )
 
-    @commands.command(hidden=True)
+    @commands.command(brief="returns which branch the user is testing")
+    @commands.has_role("Bot_manager")
     async def debuginfo(self, ctx):
         self.logger.info(f"[ManageCog debuginfo()] debuginfo command detected from {ctx.message.author}")
         if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST':

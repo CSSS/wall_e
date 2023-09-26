@@ -80,7 +80,19 @@ class Here(commands.Cog):
         embed.description = string
         return embed
 
-    @commands.command()
+    @commands.command(
+        brief="Displays users with permission to view the current channel.",
+        help=(
+            'Results can be filtered by looking for users whose useraliases or nickaliases on the '
+            'server contains the substring indicated with any of the included strings or all '
+            'users if no args are given. Multiple may be entered.\n\n'
+            'Arguments:\n'
+            '---the filter: the filter to apply the users through\n\n'
+            'Example:\n'
+            '---.here ab\n\n'
+        ),
+        usage='"the filter"'
+    )
     async def here(self, ctx, *search):
         self.logger.info(
             f"[Here here()] {ctx.message.author} called here with {len(search)} arguments: {', '.join(search)}"

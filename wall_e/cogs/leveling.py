@@ -439,15 +439,21 @@ class Leveling(commands.Cog):
                     f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
                 )
 
-    @commands.command()
+    @commands.command(
+        brief="associates an XP level with the role with the specified name",
+        help=(
+            'associates an existing role with the specified name for the specified level or it renames a '
+            'role that is already assigned to the specified level\n\n'
+            'Arguments:\n'
+            '---level number: the number for the XP level to set\n'
+            '---new role name: the name to set for the role associated with the XP level for "level number"\n\n'
+            'Example:\n'
+            '---.set_level_name 2 "Vim User"\n\n'
+        ),
+        usage='<level number> "new role name"'
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def set_level_name(self, ctx, level_number: int, new_role_name: str):
-        """
-
-        :param ctx:
-        :param level_number: example: 1
-        :param new_role_name: example: Hello World
-        :return:
-        """
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
@@ -533,14 +539,19 @@ class Leveling(commands.Cog):
                 await self.levels[level_number].rename_level_name(new_role_name)
                 await ctx.send(f"renamed role {old_name} to {new_role_name} for level {level_number}")
 
-    @commands.command()
+    @commands.command(
+        brief="unmaps the any role that is currently mapped to the specified level",
+        help=(
+            'de-associates an existing role with the specified name from the specified level\n\n'
+            'Arguments:\n'
+            '---level number: the number for the XP level to remove the role association from\n\n'
+            'Example:\n'
+            '---.remove_level_name 2\n\n'
+        ),
+        usage='<level number>'
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def remove_level_name(self, ctx, level_number: int):
-        """
-
-        :param ctx:
-        :param level_number:
-        :return:
-        """
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
@@ -562,13 +573,18 @@ class Leveling(commands.Cog):
             f"Don't forget to delete the role"
         )
 
-    @commands.command()
+    @commands.command(
+        brief="Get the XP rank for first tagged user or calling user",
+        help=(
+            'Arguments:\n'
+            '---[@user] : the tagged user\'s whose rank to return\n\n'
+            'Example:\n'
+            '---.rank\n'
+            '---.rank @user\n\n'
+        ),
+        usage='[@user]'
+    )
     async def rank(self, ctx):
-        """
-
-        :param ctx:
-        :return:
-        """
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
@@ -605,7 +621,10 @@ class Leveling(commands.Cog):
         if e_obj is not None:
             await ctx.send(embed=e_obj)
 
-    @commands.command()
+    @commands.command(
+        brief="Shows a list of all the XP levels and their associated roles and whether or not the roles exist"
+    )
+    @commands.has_any_role("Minions", "Moderator")
     async def levels(self, ctx):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
@@ -643,7 +662,7 @@ class Leveling(commands.Cog):
 
         await paginate_embed(self.logger, self.bot, self.config, descriptions_to_embed, title="Levels", ctx=ctx)
 
-    @commands.command()
+    @commands.command(brief="shows the current leaderboards")
     async def ranks(self, ctx):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
@@ -676,7 +695,17 @@ class Leveling(commands.Cog):
         else:
             await paginate_embed(self.logger, self.bot, self.config, descriptions_to_embed, ctx=ctx)
 
-    @commands.command()
+    @commands.command(
+        brief="Hide a user's ranking from .rank @user and .ranks",
+        help=(
+            'Arguments:\n'
+            '---[@user] : the tagged user\'s whose rank to hide\n\n'
+            'Example:\n'
+            '---.hide_xp\n'
+            '---.hide_xp @user\n\n'
+        ),
+        usage='[@user]'
+    )
     async def hide_xp(self, ctx):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
@@ -703,7 +732,17 @@ class Leveling(commands.Cog):
                 f"User {user_to_hide} is now hidden"
             )
 
-    @commands.command()
+    @commands.command(
+        brief="Makes a user's ranking visible again in .rank @user and .ranks",
+        help=(
+            'Arguments:\n'
+            '---[@user] : the tagged user\'s whose rank to show\n\n'
+            'Example:\n'
+            '---.show_xp\n'
+            '---.show_xp @user\n\n'
+        ),
+        usage='[@user]'
+    )
     async def show_xp(self, ctx):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")

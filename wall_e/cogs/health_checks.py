@@ -21,7 +21,6 @@ class HealthChecks(commands.Cog):
         self.config = config
         self.guild = None
         self.bot_channel_manager = bot_channel_manager
-        self.help_dict = self.config.get_help_json()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -47,7 +46,7 @@ class HealthChecks(commands.Cog):
                 "health_checks_error"
             )
 
-    @app_commands.command(name="ping")
+    @app_commands.command(name="ping", description="return pong!")
     async def ping(self, interaction: discord.Interaction):
         await slash_command_checks(self.logger, self.config, interaction, self.help_dict)
         self.logger.info(f"[HealthChecks ping()] ping command detected from {interaction.user}")

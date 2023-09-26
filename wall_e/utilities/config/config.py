@@ -1,8 +1,6 @@
 
 import os
-import json
 import configparser
-from collections import OrderedDict
 
 
 config_file_dockerized_location_local = "utilities/config/local.ini"
@@ -10,9 +8,6 @@ config_file_location_production = "utilities/config/production.ini"
 config_file_location_dev = "utilities/config/dev.ini"
 
 cog_location_python_path = "cogs."
-
-help_json_location = "locales/"
-help_json_file_name = "help.json"
 
 
 class WallEConfig:
@@ -75,8 +70,3 @@ class WallEConfig:
                (cog == 'reminders' and self.enabled("database_config", option="ENABLED"))):
                 cogs_to_load.append({'name': cog, 'path': cog_location_python_path})
         return cogs_to_load
-
-    def get_help_json(self):
-        with open(help_json_location + help_json_file_name) as f:
-            help_dict = json.load(f, object_pairs_hook=OrderedDict)
-        return help_dict
