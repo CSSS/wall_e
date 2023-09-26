@@ -1,5 +1,4 @@
 import asyncio
-import os
 import subprocess
 
 import discord
@@ -33,14 +32,6 @@ class Administration(commands.Cog):
             self.plt = plt
             import numpy as np  # noqa
             self.np = np
-            self.image_parent_directory = ''
-            if self.config.get_config_value('basic_config', 'ENVIRONMENT') == "LOCALHOST":
-                image_parent_directory = self.config.get_config_value(
-                    "basic_config", option="FOLDER_FOR_FREQUENCY_IMAGES"
-                )
-                if image_parent_directory is not None:
-                    if os.path.isdir(image_parent_directory):
-                        self.image_parent_directory = image_parent_directory
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -368,7 +359,7 @@ class Administration(commands.Cog):
                 key=lambda kv: kv[1]
             )
             self.logger.info("[Administration frequency()] sorted dic_results by value")
-            image_path = f"{self.image_parent_directory}image.png"
+            image_name = "image.png"
             if len(dic_result) <= 50:
                 self.logger.info("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
@@ -389,10 +380,10 @@ class Administration(commands.Cog):
                     title = args[0]
                 ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
                 fig.set_size_inches(18.5, 10.5)
-                fig.savefig(image_path)
+                fig.savefig(image_name)
                 self.logger.info("[Administration frequency()] graph created and saved")
                 self.plt.close(fig)
-                await ctx.send(file=discord.File(image_path))
+                await ctx.send(file=discord.File(image_name))
                 self.logger.info("[Administration frequency()] graph image file has been sent")
             else:
                 self.logger.info("[Administration frequency()] dic_results's length is > 50")
@@ -439,14 +430,14 @@ class Administration(commands.Cog):
                         title = args[0]
                     ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
                     fig.set_size_inches(30, 10.5)
-                    fig.savefig(image_path)
+                    fig.savefig(image_name)
                     self.logger.info("[Administration frequency()] graph created and saved")
                     self.plt.close(fig)
                     if msg is None:
-                        msg = await ctx.send(file=discord.File(image_path))
+                        msg = await ctx.send(file=discord.File(image_name))
                     else:
                         await msg.delete()
-                        msg = await ctx.send(file=discord.File(image_path))
+                        msg = await ctx.send(file=discord.File(image_name))
                     for reaction in to_react:
                         await msg.add_reaction(reaction)
 
