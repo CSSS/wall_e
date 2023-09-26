@@ -912,7 +912,8 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(embed, ctx=ctx)
 
     async def send_error_message_to_user_for_paginated_commands(self, ctx):
-        await ctx.message.delete()
+        if ctx.message is not None:
+            await ctx.message.delete()
         description = (f'Please call the command `{ctx.command.name}` from the channel '
                        f"[#{self.bot_channel.name}](https://discord.com/channels/"
                        f"{ctx.guild.id}/{self.bot_channel.id}) to be able to use this command")
