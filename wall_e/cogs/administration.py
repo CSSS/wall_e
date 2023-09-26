@@ -164,7 +164,7 @@ class Administration(commands.Cog):
                 avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
             )
             if e_obj is not False:
-                await interaction.followup.send(embed=e_obj)
+                await interaction.response.send_message(embed=e_obj)
 
     @staticmethod
     def user_has_permission_to_load_or_unload_cog(ctx, module_name):
