@@ -107,3 +107,8 @@ ERROR: could not find an available, non-overlapping IPv4 address pool among the 
 
 ```
 resolution: If you are using a VPN, please disconnect and try again.
+
+### Additional Resources
+Check out these additional resources related to the Wall-E Discord bot project:
+- [External Documentation](https://gist.github.com/Ash-02014/b6f57065f394b54f43666037ade38d32): This gist provides further insights into the bot.
+
