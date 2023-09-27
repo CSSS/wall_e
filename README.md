@@ -9,8 +9,3 @@
 Wall-E, named after the lovable character [Wall-E](https://en.wikipedia.org/wiki/WALL-E), is the CSSS Discord Bot. This bot is owned by the CSSS and will be maintained by the Bot_manager team.  
 
 What commands do we have? You can find this out by looking at the file located at the following directory [(`commands_to_load/help.json`)](https://github.com/CSSS/wall_e/blob/master/commands_to_load/help.json) or log onto the [discord server](https://discord.gg/9jZ5wa8?fbclid=IwAR3rKhuygMViNlOH0CoLmIloA-X-5RjIelevzIj25uwEHq-RimIb5T1xWYs) and run the command `.help`  
-
-
-### Additional Resources
-Check out these additional resources related to the Wall-E Discord bot project:
-- [External Documentation](https://gist.github.com/Ash-02014/b6f57065f394b54f43666037ade38d32): This gist provides further insights into the bot.
