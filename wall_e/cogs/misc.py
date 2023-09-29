@@ -81,16 +81,14 @@ class Misc(commands.Cog):
     )
     async def poll(self, ctx, *questions):
         self.logger.info(f"[Misc poll()] poll command detected from user {ctx.message.author}")
-        name = ctx.author.display_name
-        ava = ctx.author.avatar.url
         if len(questions) > 12:
             self.logger.info("[Misc poll()] was called with too many options.")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
                 title='Poll Error',
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description='Please only submit a maximum of 11 options for a multi-option question.'
             )
             if e_obj is not False:
@@ -99,7 +97,11 @@ class Misc(commands.Cog):
             return
         elif len(questions) == 1:
             self.logger.info("[Misc poll()] yes/no poll being constructed.")
-            e_obj = await embed(self.logger, ctx=ctx, title='Poll', author=name, avatar=ava, description=questions[0])
+            e_obj = await embed(
+                self.logger, ctx=ctx, title='Poll', author=ctx.author.display_name,
+                avatar=ctx.author.display_avatar.url,
+                description=questions[0]
+            )
             if e_obj is not False:
                 post = await ctx.send(embed=e_obj)
                 await post.add_reaction(u"\U0001F44D")
@@ -113,8 +115,8 @@ class Misc(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Poll Error',
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description='Please submit at least 2 options for a multi-option question.'
             )
             if e_obj is not False:
@@ -127,8 +129,8 @@ class Misc(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Usage',
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description='.poll <Question> [Option A] [Option B] ...'
             )
             if e_obj is not False:
@@ -151,7 +153,9 @@ class Misc(commands.Cog):
 
             content = [['Options:', option_string]]
             e_obj = await embed(
-                self.logger, ctx=ctx, title='Poll:', author=name, avatar=ava, description=question, content=content
+                self.logger, ctx=ctx, title='Poll:', author=ctx.author.display_name,
+                avatar=ctx.author.display_avatar.url, description=question,
+                content=content
             )
             if e_obj is not False:
                 poll_post = await ctx.send(embed=e_obj)
@@ -192,8 +196,8 @@ class Misc(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title="Urban Results",
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     colour=WallEColour.ERROR,
                     description=":thonk:404:thonk:You searched something dumb didn't you?"
                 )
@@ -216,8 +220,8 @@ class Misc(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title='Results from Urban Dictionary',
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     content=content
                 )
                 if e_obj is not False:
@@ -253,8 +257,8 @@ class Misc(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 content=content
             )
             if e_obj is not False:
@@ -267,8 +271,8 @@ class Misc(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 colour=WallEColour.ERROR,
                 content=content
             )
@@ -301,8 +305,8 @@ class Misc(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title='EmojiSpeak Error',
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description='Please refrain from using non-server emoji.'
                 )
                 if e_obj is not False:

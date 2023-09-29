@@ -610,13 +610,12 @@ class Leveling(commands.Cog):
         Total Messages: {self.user_points[message_author_id].message_count}
 
         """
-
         e_obj = await embed(
             self.logger,
             ctx=ctx,
-            avatar=message_author.avatar.url if message_author.avatar is not None else '',
-            author=message_author.name,
-            title=f"{message_author.name}'s Stat Card",
+            avatar=message_author.display_avatar.url,
+            author=message_author.display_name,
+            title=f"{message_author.display_name}'s Stat Card",
             content=[
                 (
                     f"Rank # {await self.user_points[message_author_id].get_rank()}",

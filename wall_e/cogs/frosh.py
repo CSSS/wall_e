@@ -67,8 +67,8 @@ class Frosh(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Missing Arguments',
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help team` for how to use the command')],
                 footer='Team Error'
@@ -83,7 +83,7 @@ class Frosh(commands.Cog):
             ctx=ctx,
             title='CSSS Frosh 2020 Gaming Arena',
             author=ctx.author.display_name,
-            avatar=ctx.author.avatar.url,
+            avatar=ctx.author.display_avatar.url,
             content=[
                 ('Team Name', info[0]),
                 ('Game', info[1]),
@@ -120,14 +120,13 @@ class Frosh(commands.Cog):
     async def reportwin(self, ctx, *info):
         self.logger.info(f'[Frosh reportwin()] team command detected from user {ctx.author}')
         self.logger.info(f'[Frosh reportwin()] arguments given: {info}')
-
         if len(info) < 2:
             e_obj = await em(
                 self.logger,
                 ctx=ctx,
                 title='Missing Arguments',
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help reportwin` for how to use the command')],
                 footer='ReportWin Error'
@@ -141,7 +140,7 @@ class Frosh(commands.Cog):
             ctx=ctx,
             title='CSSS Frosh 2020 Gaming Arena Winner',
             author=ctx.author.display_name,
-            avatar=ctx.author.avatar.url,
+            avatar=ctx.author.display_avatar.url,
             colour=WallEColour.FROSH_2020_THEME,
             content=[
                 ('Team Name', info[0]),
