@@ -93,9 +93,9 @@ class Mod(commands.Cog):
             fields.append([arg[i], arg[i + 1]])
             i += 2
 
-        name = ctx.author.nick or ctx.author.name
         e_obj = await embed(
-            self.logger, ctx=ctx, description=desc, author=name, avatar=ctx.author.avatar.url,
+            self.logger, ctx=ctx, description=desc, author=ctx.author.display_name,
+            avatar=ctx.author.display_avatar.url,
             content=fields
         )
         if e_obj is not False:
@@ -108,8 +108,8 @@ class Mod(commands.Cog):
             self.logger,
             ctx=ctx,
             title='Minion Things',
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            author=ctx.me.display_name,
+            avatar=ctx.me.display_avatar.url,
             description=lol
         )
         if e_obj is not False:
@@ -150,7 +150,8 @@ class Mod(commands.Cog):
 
         e_obj = await embed(
             self.logger, ctx=ctx, title='ATTENTION:', author=ctx.author.display_name,
-            avatar=ctx.author.avatar.url, description=msg, footer='Moderator Warning'
+            avatar=ctx.author.display_avatar.url,
+            description=msg, footer='Moderator Warning'
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)

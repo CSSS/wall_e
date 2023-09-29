@@ -52,8 +52,8 @@ class HealthChecks(commands.Cog):
             self.logger,
             interaction=interaction,
             description='Pong!',
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+            author=interaction.client.user.display_name,
+            avatar=interaction.client.user.display_avatar.url
         )
         if e_obj is not False:
             await interaction.response.send_message(embed=e_obj)
@@ -61,13 +61,12 @@ class HealthChecks(commands.Cog):
     @app_commands.command(name="echo", description="repeats what the user said back at them")
     @app_commands.describe(string="string to echo")
     async def echo(self, interaction: discord.Interaction, string: str):
-        user = interaction.user.display_name
         self.logger.info(
             f"[HealthChecks echo()] echo command detected from {interaction.user} with argument {string}"
         )
-        avatar = interaction.user.avatar.url
         e_obj = await embed(
-            self.logger, interaction=interaction, author=user, avatar=avatar, description=string
+            self.logger, interaction=interaction, author=interaction.user.display_name,
+            avatar=interaction.user.display_avatar.url, description=string
         )
         if e_obj is not False:
             await interaction.response.send_message(embed=e_obj)

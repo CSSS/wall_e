@@ -80,8 +80,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Role '{new_role_name}' exists. Calling "
                             f".iam {new_role_name} will add you to it."
             )
@@ -96,8 +96,8 @@ class RoleCommands(commands.Cog):
         e_obj = await embed(
             self.logger,
             interaction=interaction,
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            author=interaction.client.user.display_name,
+            avatar=interaction.client.user.display_avatar.url,
             description=(
                 "You have successfully created role "
                 f"**`{new_role_name}`**.\nCalling `.iam {new_role_name}` will add it to you."
@@ -126,8 +126,8 @@ class RoleCommands(commands.Cog):
                     self.logger,
                     colour=WallEColour.ERROR,
                     ctx=ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description=f"Role '{new_role_name}' exists. Calling "
                                 f".iam {new_role_name} will add you to it.\n\n"
                                 f"PSST: try out the new `/newrole` command"
@@ -145,8 +145,8 @@ class RoleCommands(commands.Cog):
             self.logger,
             colour=WallEColour.ERROR,
             ctx=ctx,
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            author=ctx.me.display_name,
+            avatar=ctx.me.display_avatar.url,
             description=(
                 "You have successfully created role "
                 f"**`{new_role_name}`**.\nCalling `.iam {new_role_name}` will add it to you."
@@ -169,8 +169,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{empty_role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -181,8 +181,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{empty_role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -192,8 +192,8 @@ class RoleCommands(commands.Cog):
         e_obj = await embed(
             self.logger,
             interaction=interaction,
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            author=interaction.client.user.display_name,
+            avatar=interaction.client.user.display_avatar.url,
             description=f"Role **`{role}`** deleted."
         )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -219,8 +219,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     f"Role **`{role_to_delete}`** does not exist."
                     "\n\nPSST: try out the new `/deleterole` command"
@@ -238,8 +238,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     f"Role **`{role_to_delete}`** deleted."
                     "\n\nPSST: try out the new `/deleterole` command"
@@ -253,8 +253,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     f"Role **`{role_to_delete}`** has members. Cannot delete."
                     "\n\nPSST: try out the new `/deleterole` command"
@@ -275,8 +275,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -287,8 +287,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -300,8 +300,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=(
                     "**WELCOME TO SFU!!!!**\nYou have successfully "
                     f"been added to role **`{role}`**."
@@ -311,8 +311,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"You have successfully been added to role **`{role}`**."
             )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -337,8 +337,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     f"Role **`{role_to_add}`** doesn't exist.\nCalling .newrole {role_to_add}"
                     "\n\nPSST: try out the new `/iam` command"
@@ -355,8 +355,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     "Beep Boop\n You've already got the role dude STAAAHP!!"
                     "\n\nPSST: try out the new `/iam` command"
@@ -373,8 +373,8 @@ class RoleCommands(commands.Cog):
                     self.logger,
                     colour=WallEColour.ERROR,
                     ctx=ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description=(
                         "**WELCOME TO SFU!!!!**\nYou have successfully "
                         f"been added to role **`{role_to_add}`**."
@@ -387,8 +387,8 @@ class RoleCommands(commands.Cog):
                     self.logger,
                     colour=WallEColour.ERROR,
                     ctx=ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description=(
                         f"You have successfully been added to role **`{role_to_add}`**."
                         "\n\nPSST: try out the new `/iam` command"
@@ -411,8 +411,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -423,8 +423,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -434,8 +434,8 @@ class RoleCommands(commands.Cog):
         e_obj = await embed(
             self.logger,
             interaction=interaction,
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            author=interaction.client.user.display_name,
+            avatar=interaction.client.user.display_avatar.url,
             description=f"You have successfully been removed from role **`{role}`**."
         )
         if e_obj is not False:
@@ -449,8 +449,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Role **`{role.name}`** deleted."
             )
             await self.send_message_to_user_or_bot_channel(
@@ -477,8 +477,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     f"Role **`{role_to_remove}`** doesn't exist."
                     "\n\nPSST: try out the new `/iamn` command"
@@ -495,8 +495,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     f"You have successfully been removed from role **`{role_to_remove}`**."
                     "\n\nPSST: try out the new `/iamn` command"
@@ -516,8 +516,8 @@ class RoleCommands(commands.Cog):
                     self.logger,
                     colour=WallEColour.ERROR,
                     ctx=ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description=(
                         f"Role **`{role.name}`** deleted."
                         "\n\nPSST: try out the new `/iamn` command"
@@ -531,8 +531,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 colour=WallEColour.ERROR,
                 ctx=ctx,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=ctx.me.display_name,
+                avatar=ctx.me.display_avatar.url,
                 description=(
                     "Boop Beep??\n You don't have the role, so how am I gonna remove it????"
                     "\n\nPSST: try out the new `/iamn` command"
@@ -549,6 +549,12 @@ class RoleCommands(commands.Cog):
         channel_id = interaction.channel.id if interaction is not None else ctx.channel.id
         send_func = send_func if send_func is not None else \
             interaction.response.send_message if interaction is not None else ctx.send
+        if interaction is None:
+            bot_name = ctx.me.display_name
+            bot_avatar = ctx.me.display_avatar.url
+        else:
+            bot_name = interaction.client.user.display_name
+            bot_avatar = interaction.client.user.display_avatar.url
         if e_obj is not False:
             if channel_id == self.bot_channel.id:
                 self.logger.info("[RoleCommands send_message_to_user_or_bot_channel()] sending result to"
@@ -576,8 +582,8 @@ class RoleCommands(commands.Cog):
                     interaction=interaction,
                     title='ATTENTION:',
                     colour=WallEColour.ERROR,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=bot_name,
+                    avatar=bot_avatar,
                     description=description
                 )
                 if e_obj is not False:
@@ -600,8 +606,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(
@@ -614,8 +620,8 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Invalid role **`{role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -627,7 +633,7 @@ class RoleCommands(commands.Cog):
             await interaction.response.send_message("no peaking at the muted folks!")
             return
         if interaction.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(interaction)
+            await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
         else:
             number_of_users_per_page = 20
             self.logger.info(
@@ -682,7 +688,7 @@ class RoleCommands(commands.Cog):
             )
             return
         if ctx.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx=ctx)
         else:
             number_of_users_per_page = 10
             self.logger.info(
@@ -697,8 +703,8 @@ class RoleCommands(commands.Cog):
                     self.logger,
                     colour=WallEColour.ERROR,
                     ctx=ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description=(
                         f"**`{role_to_check}`** does not exist."
                         "\n\nPSST: try out the new `/whois` command"
@@ -715,8 +721,8 @@ class RoleCommands(commands.Cog):
                     self.logger,
                     colour=WallEColour.ERROR,
                     ctx=ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description=(
                         f"No members in role **`{role_to_check}`**."
                         "\n\nPSST: try out the new `/whois` command"
@@ -755,7 +761,7 @@ class RoleCommands(commands.Cog):
     @commands.command(brief="will display all the self-assignable roles that exist")
     async def roles(self, ctx):
         if ctx.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx=ctx)
         else:
             number_of_roles_per_page = 5
             self.logger.info(f"[RoleCommands roles()] roles command detected from user {ctx.message.author}")
@@ -795,7 +801,7 @@ class RoleCommands(commands.Cog):
     @commands.command(brief="will display all the Mod/Exec/XP Assigned roles that exist")
     async def Roles(self, ctx):  # noqa: N802
         if ctx.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx=ctx)
         else:
             number_of_roles_per_page = 5
             self.logger.info(f"[RoleCommands Roles()] roles command detected from user {ctx.message.author}")
@@ -834,7 +840,7 @@ class RoleCommands(commands.Cog):
     @commands.check(user_can_manage_roles)
     async def purgeroles(self, ctx):
         if ctx.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(ctx)
+            await self.send_error_message_to_user_for_paginated_commands(ctx=ctx)
         else:
             self.logger.info(
                 "[RoleCommands purgeroles()] "
@@ -911,20 +917,23 @@ class RoleCommands(commands.Cog):
             embed.description = description
             await self.send_message_to_user_or_bot_channel(embed, ctx=ctx)
 
-    async def send_error_message_to_user_for_paginated_commands(self, ctx):
-        if ctx.message is not None:
+    async def send_error_message_to_user_for_paginated_commands(self, ctx=None, interaction=None):
+        if ctx is not None:
             await ctx.message.delete()
+        elif interaction is not None:
+            await interaction.message.delete()
         description = (f'Please call the command `{ctx.command.name}` from the channel '
                        f"[#{self.bot_channel.name}](https://discord.com/channels/"
                        f"{ctx.guild.id}/{self.bot_channel.id}) to be able to use this command")
         e_obj = await embed(
             self.logger,
             ctx=ctx,
+            interaction=interaction,
             title='ATTENTION:',
             colour=WallEColour.ERROR,
             description=description,
-            author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR')
+            author=interaction.client.user.display_name,
+            avatar=interaction.client.user.display_avatar.url
         )
         if e_obj is not False:
             await ctx.author.send(embed=e_obj)

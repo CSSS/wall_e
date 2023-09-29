@@ -120,8 +120,8 @@ class ManageCog(commands.Cog):
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
-                    author=self.config.get_config_value('bot_profile', 'BOT_NAME'),
-                    avatar=self.config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                    author=ctx.me.display_name,
+                    avatar=ctx.me.display_avatar.url,
                     description=f"Missing argument: {error.param}"
                 )
                 if e_obj is not False:
