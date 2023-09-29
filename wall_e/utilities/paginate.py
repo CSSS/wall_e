@@ -26,6 +26,12 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
         "[paginate.py paginate_embed()] called with following argument: "
         f"title={title}\n\ndescription_to_embed={description_to_embed}\n\n"
     )
+    if interaction is None:
+        bot_name = ctx.me.display_name
+        bot_avatar = ctx.me.display_avatar.url
+    else:
+        bot_name = interaction.client.user.display_name
+        bot_avatar = interaction.client.user.display_avatar.url
 
     current_page = 0
     first_run = True
@@ -39,8 +45,8 @@ async def paginate_embed(logger, bot, config, description_to_embed, title=" ", c
             interaction=interaction,
             ctx=ctx,
             title=title,
-            author=config.get_config_value('bot_profile', 'BOT_NAME'),
-            avatar=config.get_config_value('bot_profile', 'BOT_AVATAR'),
+            author=bot_name,
+            avatar=bot_avatar,
             description=description_to_embed[current_page],
             footer=f"{current_page + 1}/{num_of_pages}"
         )

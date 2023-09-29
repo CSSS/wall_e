@@ -179,17 +179,6 @@ async def on_ready():
     logger.info(f'[main.py on_ready()] {bot.user.name}')
     logger.info(f'[main.py on_ready()] {bot.user.id}')
     logger.info('[main.py on_ready()] ------')
-    wall_e_config.set_config_value("bot_profile", "BOT_NAME", bot.user.name)
-    wall_e_config.set_config_value("bot_profile", "BOT_AVATAR", bot.user.avatar.url)
-    logger.info(
-        "[main.py on_ready()] BOT_NAME initialized to"
-        f" {wall_e_config.get_config_value('bot_profile', 'BOT_NAME')}"
-    )
-    logger.info(
-        "[main.py on_ready()] BOT_AVATAR initialized to "
-        f"{wall_e_config.get_config_value('bot_profile', 'BOT_AVATAR')}"
-
-    )
     logger.info(f"[main.py on_ready()] {bot.user.name} is now ready for commands")
 
 
@@ -363,8 +352,8 @@ async def on_raw_reaction_add(reaction):
     e_obj = await imported_embed(
         logger,
         ctx=channel,
-        author=wall_e_config.get_config_value('bot_profile', 'BOT_NAME'),
-        avatar=wall_e_config.get_config_value('bot_profile', 'BOT_AVATAR'),
+        author=bot.user.display_name,
+        avatar=bot.user.display_avatar.url,
         description=message,
     )
     if e_obj is not False:
@@ -388,8 +377,8 @@ async def on_command_error(interaction: discord.Interaction, error):
             e_obj = await imported_embed(
                 logger,
                 interaction=interaction,
-                author=wall_e_config.get_config_value('bot_profile', 'BOT_NAME'),
-                avatar=wall_e_config.get_config_value('bot_profile', 'BOT_AVATAR'),
+                author=interaction.client.user.display_name,
+                avatar=interaction.client.user.display_avatar.url,
                 description=f"Missing argument: {error.param}"
             )
             if e_obj is not False:
