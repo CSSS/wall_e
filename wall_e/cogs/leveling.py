@@ -458,7 +458,8 @@ class Leveling(commands.Cog):
             await ctx.send("level command is not yet ready...")
             return
         self.logger.info(
-            f"[Leveling set_level_name()] received request to set name for level {level_number} to {new_role_name}"
+            f"[Leveling set_level_name()] received request to set name for level {level_number} to {new_role_name} "
+            f"from {ctx.author}"
         )
         existing_xp_level_with_specified_role_name = [
             level for level in self.levels.values() if level.role_name == new_role_name
@@ -562,6 +563,10 @@ class Leveling(commands.Cog):
             await self.levels[level_number].remove_role()
             await ctx.send(f"level {level_number} does not have an existing role associated with it")
             return
+        self.logger.info(
+            f"[Ban remove_level_name()] remove_level_name command detected from {ctx.author} with level_number"
+            f" {level_number}"
+        )
         role_name = self.levels[level_number].role_name
         await self.levels[level_number].remove_role()
         self.logger.info(
@@ -596,6 +601,7 @@ class Leveling(commands.Cog):
         if self.user_points[message_author_id].hidden and message_author_id != ctx.author.id:
             await ctx.send("This user has hidden their score")
             return
+        self.logger.info(f"[Ban rank()] rank command detected from {ctx.author} for user {message_author}")
         xp_required_to_level_up = await self.user_points[message_author_id].get_xp_needed_to_level_up_to_next_level()
 
         description = f"""
@@ -629,6 +635,7 @@ class Leveling(commands.Cog):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
+        self.logger.info(f"[Ban levels()] levels command detected from {ctx.author}")
         levels_with_a_role = [level for level in self.levels.values() if level.role_name is not None]
         levels_with_a_role.sort(key=lambda level: level.number)
 
@@ -667,6 +674,7 @@ class Leveling(commands.Cog):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
+        self.logger.info(f"[Ban ranks()] ranks command detected from {ctx.author}")
         user_points = self.user_points.copy()
         user_points = [
             user_point for user_point in list(user_points.values())
@@ -711,6 +719,9 @@ class Leveling(commands.Cog):
             await ctx.send("level command is not yet ready...")
             return
         user_to_hide = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
+        self.logger.info(
+            f"[Ban hide_xp()] hide_xp command detected from {ctx.author} with user {user_to_hide} specified"
+        )
         if user_to_hide.id != ctx.author.id:
             user_roles = [
                 role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
@@ -748,6 +759,9 @@ class Leveling(commands.Cog):
             await ctx.send("level command is not yet ready...")
             return
         user_to_show = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
+        self.logger.info(
+            f"[Ban show_xp()] show_xp command detected from {ctx.author} with user {user_to_show} specified"
+        )
         if user_to_show.id != ctx.author.id:
             user_roles = [
                 role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)
