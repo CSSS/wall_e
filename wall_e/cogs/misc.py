@@ -35,6 +35,7 @@ class Misc(commands.Cog):
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.logger.info("[Misc __init__()] initializing Misc")
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.config = config

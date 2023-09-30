@@ -21,6 +21,7 @@ class Ban(commands.Cog):
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.logger.info("[Ban __init__()] initializing Ban")
         self.bot = bot
         self.config = config
         self.ban_list = []

@@ -16,6 +16,7 @@ class HealthChecks(commands.Cog):
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.logger.info("[HealthChecks __init__()] initializing HealthChecks")
         self.bot = bot
         self.config = config
         self.guild = None
@@ -46,6 +47,7 @@ class HealthChecks(commands.Cog):
             )
 
     @app_commands.command(name="ping", description="return pong!")
+    @app_commands.checks.has_role("Bot_manager")
     async def ping(self, interaction: discord.Interaction):
         self.logger.info(f"[HealthChecks ping()] ping command detected from {interaction.user}")
         e_obj = await embed(

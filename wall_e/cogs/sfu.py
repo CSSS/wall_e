@@ -18,6 +18,7 @@ class SFU(commands.Cog):
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.logger.info("[SFU __init__()] initializing SFU")
         self.bot = bot
         self.req = aiohttp.ClientSession(loop=bot.loop)
         self.config = config
