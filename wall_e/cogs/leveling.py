@@ -666,7 +666,7 @@ class Leveling(commands.Cog):
         if description_to_embed != "\nLevel Number - Invalid Level Role\n":
             descriptions_to_embed.append(description_to_embed)
 
-        await paginate_embed(self.logger, self.bot, self.config, descriptions_to_embed, title="Levels", ctx=ctx)
+        await paginate_embed(self.logger, self.bot, descriptions_to_embed, title="Levels", ctx=ctx)
 
     @commands.command(brief="shows the current leaderboards")
     async def ranks(self, ctx):
@@ -700,7 +700,7 @@ class Leveling(commands.Cog):
         if len(descriptions_to_embed) == 0:
             await ctx.send("No users currently being tracked")
         else:
-            await paginate_embed(self.logger, self.bot, self.config, descriptions_to_embed, ctx=ctx)
+            await paginate_embed(self.logger, self.bot, descriptions_to_embed, ctx=ctx)
 
     @commands.command(
         brief="Hide a user's ranking from .rank @user and .ranks",

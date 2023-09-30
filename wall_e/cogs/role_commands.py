@@ -665,7 +665,7 @@ class RoleCommands(commands.Cog):
 
             title = f"Members belonging to role: `{role}`"
             await paginate_embed(
-                self.logger, self.bot, self.config, member_string, title=title, interaction=interaction
+                self.logger, self.bot, member_string, title=title, interaction=interaction
             )
 
     @commands.command(
@@ -756,7 +756,7 @@ class RoleCommands(commands.Cog):
             self.logger.info(f"[RoleCommands whois()] following members were found in the role: {log_string}")
 
             title = f"Members belonging to role: `{role_to_check}`"
-            await paginate_embed(self.logger, self.bot, self.config, member_string, title=title, ctx=ctx)
+            await paginate_embed(self.logger, self.bot, member_string, title=title, ctx=ctx)
 
     @commands.command(brief="will display all the self-assignable roles that exist")
     async def roles(self, ctx):
@@ -795,7 +795,7 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.info("[RoleCommands roles()] transfer successful")
             await paginate_embed(
-                self.logger, self.bot, self.config, description_to_embed, "Self-Assignable Roles", ctx=ctx
+                self.logger, self.bot, description_to_embed, "Self-Assignable Roles", ctx=ctx
             )
 
     @commands.command(brief="will display all the Mod/Exec/XP Assigned roles that exist")
@@ -833,7 +833,7 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.info("[RoleCommands Roles()] transfer successful")
             await paginate_embed(
-                self.logger, self.bot, self.config, description_to_embed, "Mod/Exec/XP Assigned Roles", ctx=ctx
+                self.logger, self.bot, description_to_embed, "Mod/Exec/XP Assigned Roles", ctx=ctx
             )
 
     @commands.command(brief="deletes all empty self-assignable roles")

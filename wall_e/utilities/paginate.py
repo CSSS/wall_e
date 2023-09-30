@@ -2,12 +2,11 @@ import asyncio
 from utilities.embed import embed as imported_embed
 
 
-async def paginate_embed(logger, bot, config, description_to_embed, title=" ", ctx=None, interaction=None):
+async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None, interaction=None):
     """
     Creates an interactive paginated embed message
     :param logger: the calling serivce's logger object
     :param bot: the bot which is needed to detect emoji reactions
-    :param config: needed to get the bot_name and avatar for the embed
     :param description_to_embed: a list of string descriptions that will be used in the embed
     :param title: the title of the embed [Optional]
     :param ctx: the ctx object that is in the command's arguments if it was a dot command
