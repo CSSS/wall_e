@@ -1,4 +1,5 @@
 import asyncio
+import re
 import subprocess
 
 import discord
@@ -316,7 +317,17 @@ class Administration(commands.Cog):
     @commands.has_role("Bot_manager")
     async def announce(self, ctx, *message):
         self.logger.info(f"[Administration announce()] announce command detected from {ctx.message.author}")
-        await self.announcement_channel.send("\n".join(message))
+        message = list(message)
+        matched_strings = re.findall(r"https://discord.com/channels/\d*/\d*/\d*", message[len(message) - 1])
+        reference = None
+        if len(matched_strings) == 1:
+            message.pop(len(message)-1)
+            ids = matched_strings[0].split("/")
+            channel_id = int(ids[5])
+            message_id = int(ids[6])
+            reference_channel = discord.utils.get(self.guild.channels, id=channel_id)
+            reference = await reference_channel.fetch_message(message_id)
+        await self.announcement_channel.send("\n".join(message), reference=reference)
         await ctx.message.delete()
 
     @commands.command(
