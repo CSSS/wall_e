@@ -333,7 +333,9 @@ class RoleCommands(commands.Cog):
                 self.logger, self.bot, member_string, title=title, interaction=interaction
             )
 
-    @app_commands.command(name="roles", description="will display all the self-assignable roles that exist")
+    @app_commands.command(
+        name="roles_assignable", description="will display all the self-assignable roles that exist"
+    )
     async def roles(self, interaction: discord.Interaction):
         if interaction.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
@@ -374,7 +376,7 @@ class RoleCommands(commands.Cog):
             )
 
     @app_commands.command(
-        name="roles_assigned",
+        name="roles",
         description="will display all the Mod/Exec/XP Assigned roles that exist"
     )
     async def Roles(self, interaction: discord.Interaction): # noqa N802
