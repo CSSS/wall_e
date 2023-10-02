@@ -613,7 +613,7 @@ class Leveling(commands.Cog):
         e_obj = await embed(
             self.logger,
             ctx=ctx,
-            avatar=message_author.display_avatar.url,
+            avatar_url=message_author.display_avatar.url,
             author=message_author.display_name,
             title=f"{message_author.display_name}'s Stat Card",
             content=[
