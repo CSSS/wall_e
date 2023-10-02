@@ -170,6 +170,9 @@ async def on_ready():
             await start_file_uploading(
                 logger, bot_guild, bot, wall_e_config, discordpy_error_log_file_absolute_path, "discordpy_error"
             )
+            await bot.bot_channel_manager.create_or_get_channel_id(
+                logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'), "embed_avatars"
+            )
             bot.uploading = True
         except Exception as e:
             raise Exception(

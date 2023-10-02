@@ -122,12 +122,11 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
         # in the future, which will result in an embed that has a broken avatar
         avatar_obj = await EmbedAvatar.get_avatar_by_url(avatar_url)
         if avatar_obj is None:
+            channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
+            embed_avatar_chan: discord.TextChannel = discord.utils.get(channels, name="embed_avatars")
             avatar_file_name = f'avatar-{time.time()*1000}.png'
             with open(avatar_file_name, "wb") as file:
-                response = requests.get(avatar_url)
-                file.write(response.content)
-                channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
-                embed_avatar_chan: discord.TextChannel = discord.utils.get(channels, name="embed_avatars")
+                file.write(requests.get(avatar_url).content)
             avatar_msg = await embed_avatar_chan.send(file=discord.File(avatar_file_name))
             os.remove(avatar_file_name)
             avatar_obj = EmbedAvatar(

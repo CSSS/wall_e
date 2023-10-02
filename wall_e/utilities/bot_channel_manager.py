@@ -87,6 +87,11 @@ class BotChannelManager:
                 "PRODUCTION": config.get_config_value('channel_names', 'ANNOUNCEMENTS_CHANNEL'),
                 "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_announcements",
                 "LOCALHOST": config.get_config_value('channel_names', 'ANNOUNCEMENTS_CHANNEL')
+            },
+            "embed_avatars": {
+                "PRODUCTION": config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL'),
+                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_embed_avatar",
+                "LOCALHOST": config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
             }
         }
         self.channel_obtained = {
