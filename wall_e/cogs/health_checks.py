@@ -53,7 +53,7 @@ class HealthChecks(commands.Cog):
             interaction=interaction,
             description='Pong!',
             author=interaction.client.user.display_name,
-            avatar=interaction.client.user.display_avatar.url
+            avatar_url=interaction.client.user.display_avatar.url
         )
         if e_obj is not False:
             await interaction.response.send_message(embed=e_obj)
@@ -66,7 +66,7 @@ class HealthChecks(commands.Cog):
         )
         e_obj = await embed(
             self.logger, interaction=interaction, author=interaction.user.display_name,
-            avatar=interaction.user.display_avatar.url, description=string
+            avatar_url=interaction.user.display_avatar.url, description=string
         )
         if e_obj is not False:
             await interaction.response.send_message(embed=e_obj)

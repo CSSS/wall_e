@@ -45,7 +45,7 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
             ctx=ctx,
             title=title,
             author=bot_name,
-            avatar=bot_avatar,
+            avatar_url=bot_avatar,
             description=description_to_embed[current_page],
             footer=f"{current_page + 1}/{num_of_pages}"
         )

@@ -64,7 +64,7 @@ class SFU(commands.Cog):
                 ctx=ctx,
                 title='Missing Arguments',
                 author=ctx.me.display_name,
-                avatar=ctx.me.display_avatar.url,
+                avatar_url=ctx.me.display_avatar.url,
                 colour=WallEColour.ERROR,
                 content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
                 footer='SFU Error'
@@ -98,7 +98,7 @@ class SFU(commands.Cog):
                     ctx=ctx,
                     title='Bad Arguments',
                     author=ctx.me.display_name,
-                    avatar=ctx.me.display_avatar.url,
+                    avatar_url=ctx.me.display_avatar.url,
                     colour=WallEColour.ERROR,
                     content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
                     footer='SFU Error'
@@ -136,7 +136,7 @@ class SFU(commands.Cog):
                     ctx=ctx,
                     title='Results from SFU',
                     author=ctx.me.display_name,
-                    avatar=ctx.me.display_avatar.url,
+                    avatar_url=ctx.me.display_avatar.url,
                     colour=WallEColour.ERROR,
                     description=(
                         f'Couldn\'t find anything for:\n{year}/{term.upper()}/{course_code.upper()}'
@@ -165,7 +165,7 @@ class SFU(commands.Cog):
             ctx=ctx,
             title='Results from SFU',
             author=ctx.me.display_name,
-            avatar=ctx.me.display_avatar.url,
+            avatar_url=ctx.me.display_avatar.url,
             content=fields,
             colour=WallEColour.ERROR,
             footer=footer
@@ -213,7 +213,7 @@ class SFU(commands.Cog):
                 ctx=ctx,
                 title='Missing Arguments',
                 author=ctx.me.display_name,
-                avatar=ctx.me.display_avatar.url,
+                avatar_url=ctx.me.display_avatar.url,
                 colour=WallEColour.ERROR,
                 content=usage,
                 footer='SFU Outline Error'
@@ -258,7 +258,7 @@ class SFU(commands.Cog):
                     ctx=ctx,
                     title='Bad Arguments',
                     author=ctx.me.display_name,
-                    avatar=ctx.me.display_avatar.url,
+                    avatar_url=ctx.me.display_avatar.url,
                     colour=WallEColour.ERROR,
                     content=usage,
                     footer='SFU Outline Error'
@@ -301,7 +301,7 @@ class SFU(commands.Cog):
                         ctx=ctx,
                         title='Bad Arguments',
                         author=ctx.me.display_name,
-                        avatar=ctx.me.display_avatar.url,
+                        avatar_url=ctx.me.display_avatar.url,
                         colour=WallEColour.ERROR,
                         description=(
                             'Make sure your arguments are in the following order:\n<course> '
@@ -339,7 +339,7 @@ class SFU(commands.Cog):
                     ctx=ctx,
                     title='SFU Course Outlines',
                     author=ctx.me.display_name,
-                    avatar=ctx.me.display_avatar.url,
+                    avatar_url=ctx.me.display_avatar.url,
                     colour=WallEColour.ERROR,
                     description=(
                         f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
@@ -371,7 +371,7 @@ class SFU(commands.Cog):
                 ctx=ctx,
                 title='SFU Course Outlines',
                 author=ctx.me.display_name,
-                avatar=ctx.me.display_avatar.url,
+                avatar_url=ctx.me.display_avatar.url,
                 colour=WallEColour.ERROR,
                 description=(
                     f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`'
@@ -397,7 +397,7 @@ class SFU(commands.Cog):
                 ctx=ctx,
                 title='SFU Course Outlines',
                 author=ctx.me.display_name,
-                avatar=ctx.me.display_avatar.url,
+                avatar_url=ctx.me.display_avatar.url,
                 colour=WallEColour.ERROR,
                 description=(
                     f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
@@ -496,7 +496,7 @@ class SFU(commands.Cog):
             ctx=ctx,
             title='SFU Outline Results',
             author=ctx.me.display_name,
-            avatar=ctx.me.display_avatar.url,
+            avatar_url=ctx.me.display_avatar.url,
             colour=WallEColour.ERROR,
             thumbnail=img,
             content=fields,

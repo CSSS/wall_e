@@ -353,7 +353,7 @@ async def on_raw_reaction_add(reaction):
         logger,
         ctx=channel,
         author=bot.user.display_name,
-        avatar=bot.user.display_avatar.url,
+        avatar_url=bot.user.display_avatar.url,
         description=message,
     )
     if e_obj is not False:
@@ -378,7 +378,7 @@ async def on_command_error(interaction: discord.Interaction, error):
                 logger,
                 interaction=interaction,
                 author=interaction.client.user.display_name,
-                avatar=interaction.client.user.display_avatar.url,
+                avatar_url=interaction.client.user.display_avatar.url,
                 description=f"Missing argument: {error.param}"
             )
             if e_obj is not False:

@@ -121,7 +121,7 @@ class ManageCog(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     author=ctx.me.display_name,
-                    avatar=ctx.me.display_avatar.url,
+                    avatar_url=ctx.me.display_avatar.url,
                     description=f"Missing argument: {error.param}"
                 )
                 if e_obj is not False:

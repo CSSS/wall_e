@@ -19,7 +19,7 @@ COLOUR_MAPPING = {
 
 
 async def embed(logger, ctx=None, interaction=None, title='', content=None, description='', author='',
-                colour: WallEColour = WallEColour.INFO, link='', thumbnail='', avatar='', footer=''):
+                colour: WallEColour = WallEColour.INFO, link='', thumbnail='', avatar_url='', footer=''):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -43,7 +43,7 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
     :param link: deprecated -  the link to assign to the embe
     :param thumbnail: the thumbnail to assign to the embed [Optional]
      Url to image to be used in the embed. Thumbnail appears top right corner of the embed.
-    :param avatar: the avatar to assign to the icon_url part of embed's author [Optional]
+    :param avatar_url: the avatar to assign to the icon_url part of embed's author [Optional]
      Used to set avatar next to author's name. Must be url.
     :param footer: the footer to assign to the embed [Optional]
     :return:
@@ -113,7 +113,21 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
 
     emb_obj = discord.Embed(title=title, type='rich')
     emb_obj.description = description
-    emb_obj.set_author(name=author, icon_url=avatar)
+    if avatar_url != "":
+        from wall_e_models.models import EmbedAvatar
+        # the below is needed in case the avatar url that was passed in to this function is deleted at some point
+        # in the future, which will result in an embed that has a broken avatar
+        avatar_obj = await EmbedAvatar.get_avatar_by_url(avatar_url)
+        if avatar_obj is None:
+            channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
+            embed_avatar_chan = discord.utils.get(channels, name="embed_avatars")
+            avatar_msg = await embed_avatar_chan.send(avatar_url)
+            await EmbedAvatar.insert_record(
+                EmbedAvatar(avatar_discord_url=avatar_url, avatar_discord_permanent_url=avatar_msg.content)
+            )
+        else:
+            avatar_url = avatar_obj.avatar_discord_permanent_url
+    emb_obj.set_author(name=author, icon_url=avatar_url)
     emb_obj.colour = COLOUR_MAPPING[colour]
     emb_obj.set_thumbnail(url=thumbnail)
     emb_obj.set_footer(text=footer)
