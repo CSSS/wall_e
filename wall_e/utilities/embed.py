@@ -1,6 +1,9 @@
+import os
+import time
 from enum import Enum
 
 import discord
+import requests
 
 
 class WallEColour(Enum):
@@ -119,14 +122,20 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
         # in the future, which will result in an embed that has a broken avatar
         avatar_obj = await EmbedAvatar.get_avatar_by_url(avatar_url)
         if avatar_obj is None:
-            channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
-            embed_avatar_chan = discord.utils.get(channels, name="embed_avatars")
-            avatar_msg = await embed_avatar_chan.send(avatar_url)
-            await EmbedAvatar.insert_record(
-                EmbedAvatar(avatar_discord_url=avatar_url, avatar_discord_permanent_url=avatar_msg.content)
+            avatar_file_name = f'avatar-{time.time()*1000}.png'
+            with open(avatar_file_name, "wb") as file:
+                response = requests.get(avatar_url)
+                file.write(response.content)
+                channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
+                embed_avatar_chan: discord.TextChannel = discord.utils.get(channels, name="embed_avatars")
+            avatar_msg = await embed_avatar_chan.send(file=discord.File(avatar_file_name))
+            os.remove(avatar_file_name)
+            avatar_obj = EmbedAvatar(
+                avatar_discord_url=avatar_url,
+                avatar_discord_permanent_url=avatar_msg.attachments[0].url
             )
-        else:
-            avatar_url = avatar_obj.avatar_discord_permanent_url
+            await EmbedAvatar.insert_record(avatar_obj)
+        avatar_url = avatar_obj.avatar_discord_permanent_url
     emb_obj.set_author(name=author, icon_url=avatar_url)
     emb_obj.colour = COLOUR_MAPPING[colour]
     emb_obj.set_thumbnail(url=thumbnail)
