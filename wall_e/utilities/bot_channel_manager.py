@@ -63,11 +63,6 @@ class BotChannelManager:
                 "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel",
                 "LOCALHOST": config.get_config_value('channel_names', 'BOT_GENERAL_CHANNEL')
             },
-            "log_channel": {
-                "PRODUCTION": config.get_config_value('channel_names', 'BOT_LOG_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_logs",
-                "LOCALHOST": config.get_config_value('channel_names', 'BOT_LOG_CHANNEL')
-            },
             "ban": {
                 "PRODUCTION": config.get_config_value('channel_names', 'MOD_CHANNEL'),
                 "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_mod_channel",
