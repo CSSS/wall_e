@@ -423,6 +423,7 @@ class RoleCommands(commands.Cog):
         if interaction.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
         else:
+            await interaction.response.defer()
             self.logger.info(
                 "[RoleCommands purgeroles()] "
                 f"purgeroles command detected from user {interaction.user}"
@@ -441,8 +442,9 @@ class RoleCommands(commands.Cog):
 
             if not (bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator):
                 embed.title = "It seems that the bot don't have permissions to delete roles. :("
-                await self.send_message_to_user_or_bot_channel(embed, interaction=interaction)
-
+                await self.send_message_to_user_or_bot_channel(
+                    embed, interaction=interaction, send_func=interaction.followup.send
+                )
                 return
             self.logger.info(
                 "[RoleCommands purgeroles()] bot's "
@@ -457,9 +459,11 @@ class RoleCommands(commands.Cog):
             user_can_delete_roles = (
                 interaction.user.guild_permissions.manage_roles or interaction.user.guild_permissions.administrator
             )
-            if not not user_can_delete_roles:
+            if not user_can_delete_roles:
                 embed.title = "You don't have permissions to delete roles. :("
-                await self.send_message_to_user_or_bot_channel(embed, interaction=interaction)
+                await self.send_message_to_user_or_bot_channel(
+                    embed, interaction=interaction, send_func=interaction.followup.send
+                )
                 return
 
             self.logger.info(
@@ -492,14 +496,18 @@ class RoleCommands(commands.Cog):
 
             if not deleted:
                 embed.title = "No empty roles to delete."
-                await self.send_message_to_user_or_bot_channel(embed, interaction=interaction)
+                await self.send_message_to_user_or_bot_channel(
+                    embed, interaction=interaction, send_func=interaction.followup.send
+                )
                 return
             deleted.sort(key=itemgetter(0))
             description = "\n".join(deleted)
             embed.title = f"Purging {len(deleted)} empty roles!"
 
             embed.description = description
-            await self.send_message_to_user_or_bot_channel(embed, interaction=interaction)
+            await self.send_message_to_user_or_bot_channel(
+                embed, interaction=interaction, send_func=interaction.followup.send
+            )
 
     async def send_message_to_user_or_bot_channel(self, e_obj, interaction=None, send_func=None):
         send_func = send_func if send_func is not None else interaction.response.send_message
