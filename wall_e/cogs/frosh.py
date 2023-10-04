@@ -14,6 +14,7 @@ class Frosh(commands.Cog):
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.logger.info("[Frosh __init__()] initializing Frosh")
         self.bot = bot
         self.config = config
         self.guild = None

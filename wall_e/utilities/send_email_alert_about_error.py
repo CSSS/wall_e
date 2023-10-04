@@ -1,4 +1,4 @@
-from utilities.Gmail import Gmail
+from utilities.gmail import Gmail
 
 
 def send_email_alert_about_error(logger, config, message, file_path):

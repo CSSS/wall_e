@@ -18,6 +18,7 @@ class Leveling(commands.Cog):
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.logger.info("[Leveling __init__()] initializing Leveling")
         self.levels_have_been_changed = False
         self.bot = bot
         self.config = config

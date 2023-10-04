@@ -1,17 +1,62 @@
 import asyncio
+import datetime
 import re
 import subprocess
 
 import discord
 from discord import app_commands
 from discord.ext import commands
-from wall_e_models.models import CommandStat
+
+from cogs.manage_test_guild import ManageTestGuild
+from utilities.global_vars import wall_e_config, bot
 
 from utilities.bot_channel_manager import BotChannelManager
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.send import send as helper_send
 from utilities.setup_logger import Loggers
+from wall_e_models.models import CommandStat
+
+
+@bot.event
+async def on_app_command_completion(interaction: discord.Interaction, cmd: discord.app_commands.commands.Command):
+    """
+    Function that gets called whenever a slash command gets called, being use for data gathering purposes
+    :param interaction:
+    :param cmd:
+    :return:
+    """
+    await save_command_stat(
+        interaction.channel.name, interaction.command.name, cmd.qualified_name, None
+    )
+
+
+@bot.listen(name="on_command")
+async def save_command_stats(ctx):
+    """
+    Function that gets called whenever a text commmand gets called, being use for data gathering purposes
+    :param ctx: the ctx object that is part of command parameters that are not slash commands
+    :return:
+    """
+    await save_command_stat(
+        ctx.channel, ctx.command, invoked_with=ctx.invoked_with, invoked_subcommand=ctx.invoked_subcommand, ctx=ctx
+    )
+
+
+async def save_command_stat(
+        channel_name, command_name, invoked_with, invoked_subcommand=None, ctx=None):
+    database_enabled = wall_e_config.enabled("database_config", option="ENABLED")
+    if ctx is None:
+        command_in_correct_channel = wall_e_config.enabled("basic_config", option="ENVIRONMENT") != "TEST"
+    else:
+        command_in_correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
+
+    if database_enabled and command_in_correct_channel:
+        await CommandStat.save_command_stat(CommandStat(
+            epoch_time=datetime.datetime.now().timestamp(), channel_name=channel_name,
+            command=command_name, invoked_with=invoked_with,
+            invoked_subcommand=invoked_subcommand
+        ))
 
 
 class Administration(commands.Cog):
@@ -21,6 +66,7 @@ class Administration(commands.Cog):
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
+        self.logger.info("[Administration __init__()] initializing Administration")
         self.config = config
         self.bot = bot
         self.bot_channel_manager = bot_channel_manager
