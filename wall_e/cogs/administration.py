@@ -234,7 +234,7 @@ class Administration(commands.Cog):
         usage='module name'
     )
     @commands.has_any_role("Bot_manager", "Minions", "Moderator")
-    async def load(self, ctx, *module_name):
+    async def load(self, ctx, module_name):
 
         self.logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
         valid, folder = self.valid_cog(module_name)
