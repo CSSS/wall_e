@@ -28,13 +28,10 @@ if [ -z "${ORIGIN_IMAGE}" ]; then
 	exit 1
 fi
 
-pushd ../../
-
 ./CI/destroy-dev-env.sh
 
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 ${docker_compose} -f CI/user_scripts/docker-compose-mount.yml up --force-recreate -d
-popd
 
 wall_e_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 wall_e_db_container_name="${COMPOSE_PROJECT_NAME}_wall_e_db"
