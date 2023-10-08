@@ -67,7 +67,7 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, erro
                     raise Exception(
                         f'[log_channel.py write_to_bot_log_channel()] write to channel failed\n{exc_str}'
                     )
-                if message is not None and error_channel and 'traceback' in output.lower():
+                if message is not None and error_channel:
                     if last_time_error_detected is None or (time.perf_counter() - last_time_error_detected > 60):
                         send_email_alert_about_error(logger, config, output, file_path)
                     last_time_error_detected = time.perf_counter()
