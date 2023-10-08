@@ -3,7 +3,7 @@
 - [wall_e's Services and Functionality](https://github.com/CSSS/wall_e/wiki/1.-wall_e's-Services-and-Functionality)  
 - [Creating Bot and Attaching it to a Development Server](https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server)  
 - [How to work on the bot](https://github.com/CSSS/wall_e/wiki/3.-Working-on-the-Bot)  
-- [Software Engineering and Process Document](https://github.com/CSSS/wall_e/wiki/5.-Software-Engineering-and-Process-Document)
+- [Software Engineering and Process Document](https://github.com/CSSS/wall_e/wiki/6.-Software-Engineering-and-Process-Document)
 
 ![The One and Only, Lovable Wall-E](wall_e_pic.jpg)
 
