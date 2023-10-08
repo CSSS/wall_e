@@ -3,6 +3,7 @@ import json
 
 import discord
 from discord.ext import commands
+from discord.ext.commands import MemberNotFound
 from wall_e_models.models import Level, UserPoint
 
 from utilities.embed import embed
@@ -420,21 +421,29 @@ class Leveling(commands.Cog):
             )
             number_of_retries = 0
             success = False
-            while number_of_retries < 5 and success is False:
+            member_not_found = False
+            while number_of_retries < 5 and (success is False and member_not_found is False):
                 try:
                     number_of_retries += 1
                     await member.add_roles(*guild_roles)
                     success = True
+                except MemberNotFound:
+                    member_not_found = True
                 except Exception as e:
                     self.logger.info(
                         f"[Leveling re_assign_roles()] encountered following error when fixing the roles for "
-                        f"member {member}, \n{e}"
+                        f"member {member}, \n{type(e)}\n{e}"
                     )
                     if number_of_retries < 5:
                         self.logger.info("[Leveling re_assign_roles()] will try again in one minute")
                         await asyncio.sleep(60)
             if success:
                 self.logger.info(f"[Leveling re_assign_roles()] XP roles fixed for user {member}")
+            elif member_not_found:
+                self.logger.info(
+                    f"[Leveling re_assign_roles()] could not fix XP roles for user {member}. "
+                    f"Assuming they are a banned user"
+                )
             else:
                 self.logger.error(
                     f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
