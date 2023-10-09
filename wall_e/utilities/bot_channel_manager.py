@@ -2,36 +2,6 @@ import asyncio
 
 import discord
 
-log_positioning = {
-    "incident_reports": 0,
-    "sys_debug": 1,
-    "sys_error": 2,
-    "wall_e_debug": 3,
-    "wall_e_error": 4,
-    "discordpy_debug": 5,
-    "discordpy_error": 6,
-    "administration_debug": 7,
-    "administration_error": 8,
-    "ban_debug": 9,
-    "ban_error": 10,
-    "health_checks_debug": 11,
-    "health_checks_error": 12,
-    "here_debug": 13,
-    "here_error": 14,
-    "leveling_debug": 15,
-    "leveling_error": 16,
-    "misc_debug": 17,
-    "misc_error": 18,
-    "mod_debug": 19,
-    "mod_error": 20,
-    "reminders_debug": 21,
-    "reminders_error": 22,
-    "role_commands_debug": 23,
-    "role_commands_error": 24,
-    "sfu_debug": 25,
-    "sfu_error": 26
-}
-
 test_guild_log_positioning = {
     "sys_debug": 0,
     "sys_error": 1,
@@ -126,6 +96,38 @@ class BotChannelManager:
         }
         self.channel_obtained = {
         }
+        incident_report_channel_name = (
+            self.channel_names['incident_reports'][config.get_config_value('basic_config', 'ENVIRONMENT')]
+        )
+        BotChannelManager.log_positioning = {
+            incident_report_channel_name: 0,
+            "sys_debug": 1,
+            "sys_error": 2,
+            "wall_e_debug": 3,
+            "wall_e_error": 4,
+            "discordpy_debug": 5,
+            "discordpy_error": 6,
+            "administration_debug": 7,
+            "administration_error": 8,
+            "ban_debug": 9,
+            "ban_error": 10,
+            "health_checks_debug": 11,
+            "health_checks_error": 12,
+            "here_debug": 13,
+            "here_error": 14,
+            "leveling_debug": 15,
+            "leveling_error": 16,
+            "misc_debug": 17,
+            "misc_error": 18,
+            "mod_debug": 19,
+            "mod_error": 20,
+            "reminders_debug": 21,
+            "reminders_error": 22,
+            "role_commands_debug": 23,
+            "role_commands_error": 24,
+            "sfu_debug": 25,
+            "sfu_error": 26
+        }
 
     async def create_or_get_channel_id_for_service(self, logger, guild, config, service):
         """
@@ -139,7 +141,7 @@ class BotChannelManager:
         await self.bot.wait_until_ready()
         service = service.lower()
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
-        text_channel_position = log_positioning[service]
+        text_channel_position = BotChannelManager.log_positioning[service]
         if environment == 'TEST':
             service = f"{service}_{config.get_config_value('basic_config', 'BRANCH_NAME')}"
         logger.info(
@@ -235,7 +237,16 @@ class BotChannelManager:
             number_of_retries_to_attempt = 10
             number_of_retries = 0
             while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
-                bot_chan = await guild.create_text_channel(channel_name)
+                if channel_purpose == "incident_reports":
+                    logs_category = discord.utils.get(
+                        guild.channels, id=int(self.channel_obtained[wall_e_category_name])
+                    )
+                    text_channel_position = BotChannelManager.log_positioning[channel_purpose]
+                    bot_chan = await guild.create_text_channel(
+                        channel_purpose, category=logs_category, position=text_channel_position
+                    )
+                else:
+                    bot_chan = await guild.create_text_channel(channel_name)
                 logger.info(
                     f"[BotChannelManager create_or_get_channel_id()] got channel \"{bot_chan}\" for {environment}"
                     f" {channel_purpose}"
@@ -283,9 +294,10 @@ class BotChannelManager:
          channels in the guild
         :return:
         """
+
         def text_log_channel(channel): return (
             type(channel) == discord.channel.TextChannel and
-            channel.name in list(log_positioning.keys())
+            channel.name in list(BotChannelManager.log_positioning.keys())
         )
 
         def log_category(channel): return (
@@ -302,9 +314,6 @@ class BotChannelManager:
 
     @classmethod
     async def fix_text_channel_positioning(cls, guild):
-        text_channels = [
-            discord.utils.get(guild.channels, name=channel_name)
-            for channel_name in log_positioning.keys()
-        ]
-        for index, text_channel in enumerate(text_channels):
-            await text_channel.edit(position=log_positioning[text_channel.name])
+        for text_channel_name, index in BotChannelManager.log_positioning.items():
+            text_channel = discord.utils.get(guild.channels, name=text_channel_name)
+            await text_channel.edit(position=index)
