@@ -316,4 +316,5 @@ class BotChannelManager:
     async def fix_text_channel_positioning(cls, guild):
         for text_channel_name, index in BotChannelManager.log_positioning.items():
             text_channel = discord.utils.get(guild.channels, name=text_channel_name)
-            await text_channel.edit(position=index)
+            if text_channel.position != index:
+                await text_channel.edit(position=index)
