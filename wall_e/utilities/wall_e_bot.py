@@ -10,6 +10,11 @@ from discord import Intents, Message
 from discord.ext import commands
 from discord.utils import MISSING
 
+from utilities.global_vars import wall_e_config, logger, sys_debug_log_file_absolute_path, \
+    sys_error_log_file_absolute_path, wall_e_debug_log_file_absolute_path, wall_e_error_log_file_absolute_path, \
+    discordpy_debug_log_file_absolute_path, discordpy_error_log_file_absolute_path, incident_report_logger, \
+    incident_report_debug_log_file_absolute_path
+
 from cogs.help_commands import EmbedHelpCommand
 from overriden_coroutines.delete_help_messages import delete_help_command_messages
 from overriden_coroutines.detect_reactions import reaction_detected
@@ -18,10 +23,6 @@ from utilities.bot_channel_manager import BotChannelManager
 from utilities.discordpy_stream_handler import DiscordPyDebugStreamHandler
 from utilities.embed import embed as imported_embed
 from utilities.file_uploading import start_file_uploading
-from utilities.global_vars import wall_e_config, logger, sys_debug_log_file_absolute_path, \
-    sys_error_log_file_absolute_path, wall_e_debug_log_file_absolute_path, wall_e_error_log_file_absolute_path, \
-    discordpy_debug_log_file_absolute_path, discordpy_error_log_file_absolute_path, incident_report_logger, \
-    incident_report_error_log_file_absolute_path
 
 intents = Intents.all()
 
@@ -159,7 +160,7 @@ class WalleBot(commands.Bot):
                     wall_e_config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
                 )
                 await start_file_uploading(
-                    logger, bot_guild, self, wall_e_config, incident_report_error_log_file_absolute_path,
+                    logger, bot_guild, self, wall_e_config, incident_report_debug_log_file_absolute_path,
                     "incident_report"
                 )
                 await self.bot_channel_manager.create_or_get_channel_id(
