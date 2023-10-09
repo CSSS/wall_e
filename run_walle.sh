@@ -199,6 +199,20 @@ then
 		channel_names__ANNOUNCEMENTS_CHANNEL="announcements"
 	fi
 
+	if [[ "${DEFAULT}" != "true" && -z "${channel_names__EMBED_AVATAR_CHANNEL}" ]] || [[ "${OVERWRITE_ENV_FROM_ENV_FILE}" == "true"  ]];
+	then
+		echo -e "What name do you want to set for the channel where embed avatars are stored? [enter nothing to revert to default]\n[or press s to skip]"
+		read user_input
+		if [ "${user_input}" != "s" ];
+		then
+			channel_names__EMBED_AVATAR_CHANNEL="${user_input}"
+		fi
+	fi
+	if [ -z "${channel_names__EMBED_AVATAR_CHANNEL}" ];
+	then
+		channel_names__EMBED_AVATAR_CHANNEL="embed_avatars"
+	fi
+
 	if [ "${DEFAULT}" != "true" ];
 	then
 		echo -e "Do you you want this script to launch wall_e? [Yn] [the alternative is to use PyCharm]"
