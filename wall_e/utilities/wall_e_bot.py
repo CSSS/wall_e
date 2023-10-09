@@ -155,13 +155,16 @@ class WalleBot(commands.Bot):
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, discordpy_error_log_file_absolute_path, "discordpy_error"
                 )
+                incident__report_channel_name = wall_e_config.get_config_value(
+                    'channel_names', 'INCIDENT_REPORT_CHANNEL'
+                )
                 await self.bot_channel_manager.create_or_get_channel_id(
                     incident_report_logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
-                    wall_e_config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
+                    incident__report_channel_name
                 )
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, incident_report_debug_log_file_absolute_path,
-                    "incident_report"
+                    incident__report_channel_name
                 )
                 await self.bot_channel_manager.create_or_get_channel_id(
                     logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
