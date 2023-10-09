@@ -7,7 +7,7 @@ from discord.ext import commands
 from cogs.manage_test_guild import ManageTestGuild
 
 
-from utilities.embed import embed as imported_embed, WallEColour
+from utilities.embed import embed as WallEColour, embed
 from utilities.setup_logger import print_wall_e_exception
 
 
@@ -31,7 +31,7 @@ async def report_text_command_error(ctx, error):
                 f"I ensure it is wiped from the channel**"
             )
             error_type = f"{type(error)}"[8:-2]
-            embed_obj = await imported_embed(
+            embed_obj = await embed(
                 logger=ctx.cog.logger, ctx=ctx, title=f"Error {error_type} encountered",
                 description=description, colour=WallEColour.ERROR
             )
@@ -72,25 +72,41 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
     )
     if isinstance(error, privilege_errors):
         from utilities.global_vars import incident_report_logger
-        author = (
-            f"{ctx.author.name}({ctx.author.id})"
-            if interaction is None else f"{interaction.user.name}({interaction.user.id})"
-        )
+        author = ctx.author if interaction is None else interaction.user
+        bot = ctx.me if interaction is None else interaction.client.user
         command = ctx.command if interaction is None else interaction.command.name
-        if interaction is not None:
+        channel = ctx.channel if ctx is not None else interaction.channel
+
+        if interaction is not None and interaction.message is not None:
             await interaction.message.delete()
         if ctx is not None:
             await ctx.message.delete()
-        incident_report_logger.info(f"{author} tried to run command {command}")
-        send_fund = ctx.channel.send if ctx is not None else interaction.channel.send
-        await send_fund(
-            "You do not have adequate permission to run this command, incident will be reported"
+        incident_report_logger.info(f"<@{author.id}> tried to run command `{command}`")
+        e_obj = await embed(
+            logger,
+            interaction=interaction,
+            ctx=ctx,
+            title='INCIDENT REPORT',
+            colour=WallEColour.ERROR,
+            author=bot.display_name,
+            avatar_url=bot.display_avatar.url,
+            description=(
+                "You do not have adequate permission to run this command.\n\n"
+                "Incident has been reported"
+            )
         )
+        if e_obj is not False:
+            try:
+                await author.send(embed=e_obj)
+            except discord.errors.Forbidden:
+                msg = await channel.send(f'<@{author.id}>', embed=e_obj)
+                await asyncio.sleep(10)
+                await msg.delete()
     elif isinstance(error, commands.MissingRequiredArgument):
         logger.error(f'[main.py on_command_error()] Missing argument: {error.param}')
         author = ctx.me.display_name if interaction is None else interaction.client.user.display_name
         avatar = ctx.me.display_avatar.url if interaction is None else interaction.client.user.display_avatar.url
-        e_obj = await imported_embed(
+        e_obj = await embed(
             logger,
             interaction=interaction,
             ctx=ctx,

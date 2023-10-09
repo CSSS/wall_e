@@ -31,13 +31,15 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, erro
     f = open(file_path, 'r')
     f.seek(0)
     last_time_error_detected = None
+    incident_report_chanel_name = config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
     while not bot.is_closed():
         f.flush()
         line = f.readline()
         while line:
             if line.strip() != "":
                 # this was done so that no one gets accidentally pinged from the bot log channel
-                line = line.replace("@", "[at]")
+                if channel.name != incident_report_chanel_name:
+                    line = line.replace("@", "[at]")
                 if line[0] == ' ':
                     line = f".{line}"
                 output = line
