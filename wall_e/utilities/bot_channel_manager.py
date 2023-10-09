@@ -3,7 +3,7 @@ import asyncio
 import discord
 
 log_positioning = {
-    "incident_report": 0,
+    "incident_reports": 0,
     "sys_debug": 1,
     "sys_error": 2,
     "wall_e_debug": 3,
