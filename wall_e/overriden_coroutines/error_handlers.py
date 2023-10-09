@@ -7,7 +7,7 @@ from discord.ext import commands
 from cogs.manage_test_guild import ManageTestGuild
 
 
-from utilities.embed import embed as WallEColour, embed
+from utilities.embed import WallEColour, embed
 from utilities.setup_logger import print_wall_e_exception
 
 
