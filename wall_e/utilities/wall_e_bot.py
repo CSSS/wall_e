@@ -157,6 +157,7 @@ class WalleBot(commands.Bot):
                     logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
                     wall_e_config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
                 )
+                await self.bot_channel_manager.fix_text_channel_positioning(guild=bot_guild)
                 self.uploading = True
             except Exception as e:
                 raise Exception(

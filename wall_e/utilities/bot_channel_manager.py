@@ -264,3 +264,12 @@ class BotChannelManager:
         ]
         for log_channel in log_channels:
             await log_channel.delete()
+
+    @classmethod
+    async def fix_text_channel_positioning(cls, guild):
+        text_channels = [
+            discord.utils.get(guild.channels, name=channel_name)
+            for channel_name in log_positioning.keys()
+        ]
+        for index, text_channel in enumerate(text_channels):
+            await text_channel.edit(position=log_positioning[text_channel.name])
