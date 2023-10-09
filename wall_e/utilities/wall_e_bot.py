@@ -20,7 +20,8 @@ from utilities.embed import embed as imported_embed
 from utilities.file_uploading import start_file_uploading
 from utilities.global_vars import wall_e_config, logger, sys_debug_log_file_absolute_path, \
     sys_error_log_file_absolute_path, wall_e_debug_log_file_absolute_path, wall_e_error_log_file_absolute_path, \
-    discordpy_debug_log_file_absolute_path, discordpy_error_log_file_absolute_path
+    discordpy_debug_log_file_absolute_path, discordpy_error_log_file_absolute_path, incident_report_logger, \
+    incident_report_error_log_file_absolute_path
 
 intents = Intents.all()
 
@@ -152,6 +153,14 @@ class WalleBot(commands.Bot):
                 )
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, discordpy_error_log_file_absolute_path, "discordpy_error"
+                )
+                await self.bot_channel_manager.create_or_get_channel_id(
+                    incident_report_logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+                    wall_e_config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
+                )
+                await start_file_uploading(
+                    logger, bot_guild, self, wall_e_config, incident_report_error_log_file_absolute_path,
+                    "incident_report"
                 )
                 await self.bot_channel_manager.create_or_get_channel_id(
                     logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),

@@ -3,6 +3,36 @@ import asyncio
 import discord
 
 log_positioning = {
+    "incident_report": 0,
+    "sys_debug": 1,
+    "sys_error": 2,
+    "wall_e_debug": 3,
+    "wall_e_error": 4,
+    "discordpy_debug": 5,
+    "discordpy_error": 6,
+    "administration_debug": 7,
+    "administration_error": 8,
+    "ban_debug": 9,
+    "ban_error": 10,
+    "health_checks_debug": 11,
+    "health_checks_error": 12,
+    "here_debug": 13,
+    "here_error": 14,
+    "leveling_debug": 15,
+    "leveling_error": 16,
+    "misc_debug": 17,
+    "misc_error": 18,
+    "mod_debug": 19,
+    "mod_error": 20,
+    "reminders_debug": 21,
+    "reminders_error": 22,
+    "role_commands_debug": 23,
+    "role_commands_error": 24,
+    "sfu_debug": 25,
+    "sfu_error": 26
+}
+
+test_guild_log_positioning = {
     "sys_debug": 0,
     "sys_error": 1,
     "wall_e_debug": 2,
@@ -87,6 +117,11 @@ class BotChannelManager:
                 "PRODUCTION": config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL'),
                 "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_embed_avatar",
                 "LOCALHOST": config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
+            },
+            "incident_reports": {
+                "PRODUCTION": config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL'),
+                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_incident_reports",
+                "LOCALHOST": config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
             }
         }
         self.channel_obtained = {

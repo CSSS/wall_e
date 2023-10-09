@@ -71,6 +71,7 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
 
     )
     if isinstance(error, privilege_errors):
+        from utilities.global_vars import incident_report_logger
         author = (
             f"{ctx.author.name}({ctx.author.id})"
             if interaction is None else f"{interaction.user.name}({interaction.user.id})"
@@ -80,7 +81,7 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
             await interaction.message.delete()
         if ctx is not None:
             await ctx.message.delete()
-        logger.error(f"{author} tried to run command {command}")
+        incident_report_logger.info(f"{author} tried to run command {command}")
         send_fund = ctx.channel.send if ctx is not None else interaction.channel.send
         await send_fund(
             "You do not have adequate permission to run this command, incident will be reported"

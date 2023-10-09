@@ -30,6 +30,12 @@ logger = log_info[0]
 wall_e_debug_log_file_absolute_path = log_info[1]
 wall_e_error_log_file_absolute_path = log_info[2]
 
+incident_report_log_info = Loggers.get_logger(logger_name="incident_report")
+
+incident_report_logger = incident_report_log_info[0]
+incident_report_debug_log_file_absolute_path = incident_report_log_info[1]
+incident_report_error_log_file_absolute_path = incident_report_log_info[2]
+
 from utilities.wall_e_bot import WalleBot # noqa E402
 
 bot = WalleBot()
