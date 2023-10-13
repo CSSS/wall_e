@@ -19,7 +19,7 @@ def render_latex(formula, fontsize=12, dpi=300, format_='svg'):
     """Renders LaTeX formula into image.
     """
     fig = plt.figure(figsize=(0.01, 0.01))
-    fig.text(0, 0, f'${formula}$', fontsize=fontsize, color='white')
+    fig.text(0, 0, fr'${formula}$', fontsize=fontsize, color='white')
     buffer_ = BytesIO()
     fig.savefig(
         buffer_, dpi=dpi, transparent=True, format=format_, bbox_inches='tight', pad_inches=0.0, facecolor='black'
