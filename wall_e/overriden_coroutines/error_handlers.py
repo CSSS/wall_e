@@ -87,8 +87,7 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
             ctx=ctx,
             title='INCIDENT REPORT',
             colour=WallEColour.ERROR,
-            author=bot.display_name,
-            avatar_url=bot.display_avatar.url,
+            author=bot,
             description=(
                 "You do not have adequate permission to run this command.\n\n"
                 "Incident has been reported"
@@ -103,14 +102,12 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
                 await msg.delete()
     elif isinstance(error, commands.MissingRequiredArgument):
         logger.error(f'[main.py on_command_error()] Missing argument: {error.param}')
-        author = ctx.me.display_name if interaction is None else interaction.client.user.display_name
-        avatar = ctx.me.display_avatar.url if interaction is None else interaction.client.user.display_avatar.url
+        author = ctx.me if interaction is None else interaction.client.user
         e_obj = await embed(
             logger,
             interaction=interaction,
             ctx=ctx,
             author=author,
-            avatar_url=avatar,
             description=f"Missing argument: {error.param}"
         )
         if e_obj is not False:

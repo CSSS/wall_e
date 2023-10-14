@@ -4,6 +4,9 @@ from enum import Enum
 
 import discord
 import requests
+from discord.ext import commands
+
+from utilities.global_vars import wall_e_config
 
 
 class WallEColour(Enum):
@@ -21,8 +24,10 @@ COLOUR_MAPPING = {
 }
 
 
-async def embed(logger, ctx=None, interaction=None, title='', content=None, description='', author='',
-                colour: WallEColour = WallEColour.INFO, link='', thumbnail='', avatar_url='', footer=''):
+async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
+                content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
+                author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
+                footer: str = ''):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -38,16 +43,17 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
      Tuple per field of the embed. Field name at index 0 and value at index 1.
     :param description: the description to assign to the embed [Optional]
      Appears under the title.
-    :param author: the author to assign to the name aprt of the embed's author [Optional]
+    :param author: the discord Member whose name and avatar has to be used as part of the
+     author section of the embed [Optional]
+    :param author_name: the name to assign to the name part of the embed's author [Optional]
      Used to indicate user who invoked the command or the bot itself when it makes sense like with the
      echo command.
+    :param author_icon_url: the avatar to assign to the icon_url part of embed's author [Optional]
+     Used to set avatar next to author's name. Must be url.
     :param colour: <INFO|WARNING|ERROR> the message level to assign to the embed [Optional]
      Used to set the coloured strip on the left side of the embed, by default set to a nice blue colour.
-    :param link: deprecated -  the link to assign to the embe
     :param thumbnail: the thumbnail to assign to the embed [Optional]
      Url to image to be used in the embed. Thumbnail appears top right corner of the embed.
-    :param avatar_url: the avatar to assign to the icon_url part of embed's author [Optional]
-     Used to set avatar next to author's name. Must be url.
     :param footer: the footer to assign to the embed [Optional]
     :return:
     """
@@ -116,29 +122,33 @@ async def embed(logger, ctx=None, interaction=None, title='', content=None, desc
 
     emb_obj = discord.Embed(title=title, type='rich')
     emb_obj.description = description
-    if avatar_url != "":
+    if author is not None:
+        author_name = author.display_name
+        author_icon_url = author.display_avatar.url
+    if author_icon_url != "":
         channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
-        embed_avatar_chan: discord.TextChannel = discord.utils.get(channels, name="embed_avatars")
+        embed_avatar_chan_name = wall_e_config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
+        embed_avatar_chan: discord.TextChannel = discord.utils.get(channels, name=embed_avatar_chan_name)
         if embed_avatar_chan is not None:  # since the TEST guild is the only environment where the channel does
             # not exist this is currently the best way to ensure that embed avatars aren't preserved for longevity
-            # on the TEST guils since there's really no point to that on a TEST environment
+            # on the TEST guild since there's really no point to that on a TEST environment
             from wall_e_models.models import EmbedAvatar
             # the below is needed in case the avatar url that was passed in to this function is deleted at some point
             # in the future, which will result in an embed that has a broken avatar
-            avatar_obj = await EmbedAvatar.get_avatar_by_url(avatar_url)
+            avatar_obj = await EmbedAvatar.get_avatar_by_url(author_icon_url)
             if avatar_obj is None:
                 avatar_file_name = f'avatar-{time.time()*1000}.png'
                 with open(avatar_file_name, "wb") as file:
-                    file.write(requests.get(avatar_url).content)
+                    file.write(requests.get(author_icon_url).content)
                 avatar_msg = await embed_avatar_chan.send(file=discord.File(avatar_file_name))
                 os.remove(avatar_file_name)
                 avatar_obj = EmbedAvatar(
-                    avatar_discord_url=avatar_url,
+                    avatar_discord_url=author_icon_url,
                     avatar_discord_permanent_url=avatar_msg.attachments[0].url
                 )
                 await EmbedAvatar.insert_record(avatar_obj)
-            avatar_url = avatar_obj.avatar_discord_permanent_url
-    emb_obj.set_author(name=author, icon_url=avatar_url)
+            author_icon_url = avatar_obj.avatar_discord_permanent_url
+    emb_obj.set_author(name=author_name, icon_url=author_icon_url)
     emb_obj.colour = COLOUR_MAPPING[colour]
     emb_obj.set_thumbnail(url=thumbnail)
     emb_obj.set_footer(text=footer)

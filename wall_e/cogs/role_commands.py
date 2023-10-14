@@ -80,8 +80,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Role '{new_role_name}' exists. Calling "
                             f".iam {new_role_name} will add you to it."
             )
@@ -96,8 +95,7 @@ class RoleCommands(commands.Cog):
         e_obj = await embed(
             self.logger,
             interaction=interaction,
-            author=interaction.client.user.display_name,
-            avatar_url=interaction.client.user.display_avatar.url,
+            author=interaction.client.user,
             description=(
                 "You have successfully created role "
                 f"**`{new_role_name}`**.\nCalling `.iam {new_role_name}` will add it to you."
@@ -118,8 +116,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{empty_role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -130,8 +127,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{empty_role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -141,8 +137,7 @@ class RoleCommands(commands.Cog):
         e_obj = await embed(
             self.logger,
             interaction=interaction,
-            author=interaction.client.user.display_name,
-            avatar_url=interaction.client.user.display_avatar.url,
+            author=interaction.client.user,
             description=f"Role **`{role}`** deleted."
         )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -159,8 +154,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -171,8 +165,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -184,8 +177,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=(
                     "**WELCOME TO SFU!!!!**\nYou have successfully "
                     f"been added to role **`{role}`**."
@@ -195,8 +187,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"You have successfully been added to role **`{role}`**."
             )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -215,8 +206,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -227,8 +217,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -238,8 +227,7 @@ class RoleCommands(commands.Cog):
         e_obj = await embed(
             self.logger,
             interaction=interaction,
-            author=interaction.client.user.display_name,
-            avatar_url=interaction.client.user.display_avatar.url,
+            author=interaction.client.user,
             description=f"You have successfully been removed from role **`{role}`**."
         )
         if e_obj is not False:
@@ -253,8 +241,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Role **`{role.name}`** deleted."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -271,8 +258,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(
@@ -285,8 +271,7 @@ class RoleCommands(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url,
+                author=interaction.client.user,
                 description=f"Invalid role **`{role}`** specified. Please select from the list."
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
@@ -527,8 +512,7 @@ class RoleCommands(commands.Cog):
                     interaction=interaction,
                     title='ATTENTION:',
                     colour=WallEColour.ERROR,
-                    author=interaction.client.user.display_name,
-                    avatar_url=interaction.client.user.display_avatar.url,
+                    author=interaction.client.user,
                     description=description
                 )
                 if e_obj is not False:
@@ -553,8 +537,7 @@ class RoleCommands(commands.Cog):
             title='ATTENTION:',
             colour=WallEColour.ERROR,
             description=description,
-            author=interaction.client.user.display_name,
-            avatar_url=interaction.client.user.display_avatar.url
+            author=interaction.client.user,
         )
         if e_obj is not False:
             await send_func(embed=e_obj)

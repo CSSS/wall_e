@@ -94,8 +94,7 @@ class Mod(commands.Cog):
             i += 2
 
         e_obj = await embed(
-            self.logger, ctx=ctx, description=desc, author=ctx.author.display_name,
-            avatar_url=ctx.author.display_avatar.url,
+            self.logger, ctx=ctx, description=desc, author=ctx.author,
             content=fields
         )
         if e_obj is not False:
@@ -108,8 +107,7 @@ class Mod(commands.Cog):
             self.logger,
             ctx=ctx,
             title='Minion Things',
-            author=ctx.me.display_name,
-            avatar_url=ctx.me.display_avatar.url,
+            author=ctx.me,
             description=lol
         )
         if e_obj is not False:
@@ -149,8 +147,7 @@ class Mod(commands.Cog):
             msg += f'{wrd} '
 
         e_obj = await embed(
-            self.logger, ctx=ctx, title='ATTENTION:', author=ctx.author.display_name,
-            avatar_url=ctx.author.display_avatar.url,
+            self.logger, ctx=ctx, title='ATTENTION:', author=ctx.author,
             description=msg, footer='Moderator Warning'
         )
         if e_obj is not False:

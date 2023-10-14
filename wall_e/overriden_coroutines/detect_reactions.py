@@ -95,8 +95,7 @@ async def reaction_detected(reaction):
     e_obj = await embed(
         logger,
         ctx=channel,
-        author=bot.user.display_name,
-        avatar_url=bot.user.display_avatar.url,
+        author=bot.user,
         description=message,
     )
     if e_obj is not False:

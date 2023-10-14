@@ -53,8 +53,7 @@ class HealthChecks(commands.Cog):
             self.logger,
             interaction=interaction,
             description='Pong!',
-            author=interaction.client.user.display_name,
-            avatar_url=interaction.client.user.display_avatar.url
+            author=interaction.client.user,
         )
         if e_obj is not False:
             await interaction.response.send_message(embed=e_obj)
@@ -66,8 +65,8 @@ class HealthChecks(commands.Cog):
             f"[HealthChecks echo()] echo command detected from {interaction.user} with argument {string}"
         )
         e_obj = await embed(
-            self.logger, interaction=interaction, author=interaction.user.display_name,
-            avatar_url=interaction.user.display_avatar.url, description=string
+            self.logger, interaction=interaction, author=interaction.user,
+            description=string
         )
         if e_obj is not False:
             await interaction.response.send_message(embed=e_obj)
