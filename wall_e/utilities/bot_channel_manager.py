@@ -195,6 +195,7 @@ class BotChannelManager:
             await asyncio.sleep(20)  # this is just here so that the above log line
             # gets a chance to get printed to discord
             exit(1)
+
         logger.info(
             f"[BotChannelManager create_or_get_channel_id_for_service()] the channel {service} for "
             f"in {environment} acquired."

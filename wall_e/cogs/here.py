@@ -6,43 +6,42 @@ import asyncio
 import discord
 from discord.ext import commands
 
+from utilities.global_vars import bot, wall_e_config
+
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
 
 class Here(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="Here")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[Here __init__()] initializing Here")
-        self.bot = bot
-        self.config = config
         self.guild = None
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "here_debug"
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "here_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "here_error"
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "here_error"
             )
 
     def build_embed(self, members, channel):
@@ -116,3 +115,7 @@ class Here(commands.Cog):
         embed = self.build_embed(members, channel)
 
         await ctx.send(embed=embed, delete_after=300)
+
+
+async def setup(bot):
+    await bot.add_cog(Here())

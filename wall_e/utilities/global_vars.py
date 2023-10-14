@@ -3,7 +3,6 @@ import os
 import django
 from django.core.wsgi import get_wsgi_application
 
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
 django.setup()
 
@@ -34,7 +33,6 @@ incident_report_log_info = Loggers.get_logger(logger_name="incident_report")
 
 incident_report_logger = incident_report_log_info[0]
 incident_report_debug_log_file_absolute_path = incident_report_log_info[1]
-incident_report_error_log_file_absolute_path = incident_report_log_info[2]
 
 from utilities.wall_e_bot import WalleBot # noqa E402
 

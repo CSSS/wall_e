@@ -7,44 +7,43 @@ import time
 import aiohttp
 from discord.ext import commands
 
+from utilities.global_vars import bot, wall_e_config
+
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
 
 class SFU(commands.Cog):
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="SFU")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[SFU __init__()] initializing SFU")
-        self.bot = bot
         self.req = aiohttp.ClientSession(loop=bot.loop)
-        self.config = config
         self.guild = None
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "sfu_debug"
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "sfu_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "sfu_error"
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "sfu_error"
             )
 
     @commands.command(
@@ -509,3 +508,7 @@ class SFU(commands.Cog):
     async def cog_unload(self) -> None:
         await self.req.close()
         await super().cog_unload()
+
+
+async def setup(bot):
+    await bot.add_cog(SFU())

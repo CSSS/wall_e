@@ -5,7 +5,7 @@ from discord.ext import commands
 
 class CustomCommands(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         pass
 
     @commands.command()
@@ -98,3 +98,7 @@ class CustomCommands(commands.Cog):
     @commands.command()
     async def thebest(self, ctx):
         await ctx.send("404: Best not found.")
+
+
+async def setup(bot):
+    await bot.add_cog(CustomCommands())

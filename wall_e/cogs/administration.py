@@ -7,8 +7,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from cogs.manage_test_guild import ManageTestGuild
 from utilities.global_vars import wall_e_config, bot
+
+from cogs.manage_test_guild import ManageTestGuild
 
 from utilities.bot_channel_manager import BotChannelManager
 from utilities.embed import embed
@@ -61,18 +62,15 @@ async def save_command_stat(
 
 class Administration(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="Administration")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[Administration __init__()] initializing Administration")
-        self.config = config
-        self.bot = bot
-        self.bot_channel_manager = bot_channel_manager
         self.guild = None
         self.announcement_channel = None
-        if self.config.enabled("database_config", option="ENABLED"):
+        if wall_e_config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
             import matplotlib.pyplot as plt  # noqa
@@ -82,14 +80,14 @@ class Administration(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def get_announcement_channel(self):
         while self.guild is None:
             await asyncio.sleep(2)
-        reminder_chan_id = await self.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+        reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "announcements"
         )
         self.announcement_channel = discord.utils.get(
@@ -101,38 +99,38 @@ class Administration(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path,
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
                 "administration_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path,
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
                 "administration_error"
             )
 
     def valid_cog(self, name):
-        for cog in self.config.get_cogs():
+        for cog in wall_e_config.get_cogs():
             if cog["name"] == name:
                 return True, cog["path"]
         return False, ''
 
     @commands.command()
     async def exit(self, ctx):
-        if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
-            await self.bot.close()
+        if 'LOCALHOST' == wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'):
+            await bot.close()
 
     @app_commands.command(description="Deletes the log channel and category")
     async def delete_log_channels(self, interaction: discord.Interaction):
-        if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
+        if 'LOCALHOST' == wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'):
             while self.guild is None:
                 await asyncio.sleep(2)
             self.logger.info("[Administration delete_log_channels()] delete_log_channels command "
@@ -161,7 +159,7 @@ class Administration(commands.Cog):
 
     @app_commands.command(description="Deletes last X messages from channel")
     async def purge_messages(self, interaction: discord.Interaction, last_x_messages_to_delete: int):
-        if 'LOCALHOST' == self.config.get_config_value('basic_config', 'ENVIRONMENT'):
+        if 'LOCALHOST' == wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'):
             while self.guild is None:
                 await asyncio.sleep(2)
             self.logger.info("[Administration purge_messages()] purge_messages command "
@@ -247,7 +245,7 @@ class Administration(commands.Cog):
             return
         if self.user_has_permission_to_load_or_unload_cog(ctx, module_name):
             try:
-                await self.bot.add_custom_cog(folder+module_name)
+                await bot.add_custom_cog(folder+module_name)
                 await ctx.send(f"{module_name} command loaded.")
                 self.logger.info(f"[Administration load()] {module_name} has been successfully loaded")
             except(AttributeError, ImportError) as e:
@@ -277,7 +275,7 @@ class Administration(commands.Cog):
             )
             return
         if self.user_has_permission_to_load_or_unload_cog(ctx, module_name):
-            await self.bot.remove_custom_cog(folder, module_name)
+            await bot.remove_custom_cog(folder, module_name)
             await ctx.send(f"{module_name} command unloaded")
             self.logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
 
@@ -302,9 +300,9 @@ class Administration(commands.Cog):
                              f"loading {name} which doesn't exist.")
             return
         if self.user_has_permission_to_load_or_unload_cog(ctx, name):
-            await self.bot.remove_custom_cog(folder, name)
+            await bot.remove_custom_cog(folder, name)
             try:
-                await self.bot.add_custom_cog(folder + name)
+                await bot.add_custom_cog(folder + name)
                 await ctx.send(f"`{folder + name} command reloaded`")
                 self.logger.info(f"[Administration reload()] {name} has been successfully reloaded")
             except(AttributeError, ImportError) as e:
@@ -336,7 +334,7 @@ class Administration(commands.Cog):
     async def sync(self, ctx):
         self.logger.info(f"[AdministrationAdministration sync()] sync command detected from {ctx.message.author}")
         message = "Testing guild does not provide support for Slash Commands" \
-            if self.config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
+            if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
             else 'Commands Synced!'
         e_obj = await embed(
             self.logger,
@@ -345,8 +343,8 @@ class Administration(commands.Cog):
             author=ctx.me.display_name,
             avatar_url=ctx.me.display_avatar.url
         )
-        if self.config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
-            await self.bot.tree.sync(guild=self.guild)
+        if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
+            await bot.tree.sync(guild=self.guild)
         if e_obj is not False:
             await ctx.send(embed=e_obj)
 
@@ -395,7 +393,7 @@ class Administration(commands.Cog):
     )
     @commands.has_role("Bot_manager")
     async def frequency(self, ctx, *args):
-        if self.config.enabled("database_config", option="ENABLED"):
+        if wall_e_config.enabled("database_config", option="ENABLED"):
             self.logger.info("[Administration frequency()] frequency command "
                              f"detected from {ctx.message.author} with arguments [{args}]")
             column_headers = CommandStat.get_column_headers_from_database()
@@ -509,7 +507,7 @@ class Administration(commands.Cog):
                     user_reacted = None
                     while user_reacted is None:
                         try:
-                            user_reacted = await self.bot.wait_for('reaction_add', timeout=20, check=check_reaction)
+                            user_reacted = await bot.wait_for('reaction_add', timeout=20, check=check_reaction)
                         except asyncio.TimeoutError:
                             self.logger.info(
                                 "[Administration frequency()] timed out waiting for the user's reaction."
@@ -541,3 +539,7 @@ class Administration(commands.Cog):
                             return
                     self.logger.info("[Administration frequency()] updating first_index "
                                      f"and last_index to {first_index} and {last_index} respectively")
+
+
+async def setup(bot):
+    await bot.add_cog(Administration())

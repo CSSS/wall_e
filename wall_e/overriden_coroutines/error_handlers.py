@@ -4,8 +4,6 @@ import re
 import discord
 from discord.ext import commands
 
-from cogs.manage_test_guild import ManageTestGuild
-
 
 from utilities.embed import WallEColour, embed
 from utilities.setup_logger import print_wall_e_exception
@@ -19,6 +17,7 @@ async def report_text_command_error(ctx, error):
     :return:
     """
     from utilities.global_vars import logger
+    from cogs.manage_test_guild import ManageTestGuild
     correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
     if correct_channel:
         if isinstance(error, commands.errors.ArgumentParsingError):

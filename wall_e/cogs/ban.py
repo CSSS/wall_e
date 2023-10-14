@@ -5,6 +5,9 @@ from typing import Union
 import discord
 import pytz
 from discord.ext import commands
+
+from utilities.global_vars import bot, wall_e_config
+
 from wall_e_models.models import BanRecord
 
 from utilities.embed import embed, WallEColour
@@ -16,47 +19,44 @@ BanAction = discord.AuditLogAction.ban
 
 class Ban(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="Ban")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[Ban __init__()] initializing Ban")
-        self.bot = bot
-        self.config = config
         self.ban_list = []
         self.mod_channel = None
         self.guild: discord.Guild = None
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "ban_debug"
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "ban_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "ban_error"
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "ban_error"
             )
 
     @commands.Cog.listener(name='on_ready')
     async def load(self):
         while self.guild is None:
             await asyncio.sleep(2)
-        mod_channel_id = await self.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+        mod_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "ban"
         )
         self.mod_channel = discord.utils.get(
@@ -499,6 +499,10 @@ class Ban(commands.Cog):
 
     def cog_unload(self):
         self.logger.info('[Ban cog_unload()] Removing listeners for ban cog: on_ready, on_member_join, on_member_ban')
-        self.bot.remove_listener(self.load, 'on_ready')
-        self.bot.remove_listener(self.watchdog, 'on_member_join')
-        self.bot.remove_listener(self.intercept, 'on_member_ban')
+        bot.remove_listener(self.load, 'on_ready')
+        bot.remove_listener(self.watchdog, 'on_member_join')
+        bot.remove_listener(self.intercept, 'on_member_ban')
+
+
+async def setup(bot):
+    await bot.add_cog(Ban())

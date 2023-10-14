@@ -4,6 +4,9 @@ import json
 import discord
 from discord.ext import commands
 from discord.ext.commands import MemberNotFound
+
+from utilities.global_vars import bot, wall_e_config
+
 from wall_e_models.models import Level, UserPoint
 
 from utilities.embed import embed
@@ -14,42 +17,39 @@ from utilities.setup_logger import Loggers
 
 class Leveling(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="Leveling")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[Leveling __init__()] initializing Leveling")
         self.levels_have_been_changed = False
-        self.bot = bot
-        self.config = config
         self.guild = None
         self.user_points = {}
         self.levels = {}
         self.xp_system_ready = False
         self.council_channel = None
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "leveling_debug"
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "leveling_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "leveling_error"
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "leveling_error"
             )
 
     @commands.Cog.listener(name="on_ready")
@@ -59,7 +59,7 @@ class Leveling(commands.Cog):
         to quicker read access
         :return:
         """
-        if self.config.enabled("database_config", option="ENABLED"):
+        if wall_e_config.enabled("database_config", option="ENABLED"):
             if not await Level.level_points_have_been_imported():
                 self.logger.info("[Leveling load_points_into_dict()] loading levels into DB and dict")
                 with open('resources/mee6_levels/levels.json') as f:
@@ -82,7 +82,7 @@ class Leveling(commands.Cog):
             self.xp_system_ready = True
 
     # async def load_data_from_mee6_endpoint_and_json(self):
-    #     await self.bot.wait_until_ready()
+    #     await bot.wait_until_ready()
     #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading XP data")
     #     await Level.clear_all_entries()
     #     await UserPoint.clear_all_entries()
@@ -112,7 +112,7 @@ class Leveling(commands.Cog):
     #             r = requests.get(
     #                 f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
     #                 headers={
-    #                     'Authorization': self.config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
+    #                     'Authorization': wall_e_config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
     #                 }
     #             )
     #             if r.status_code == 200:
@@ -168,8 +168,8 @@ class Leveling(commands.Cog):
         """
         while self.guild is None:
             await asyncio.sleep(2)
-        council_channel_id = await self.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+        council_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "leveling"
         )
         self.council_channel = discord.utils.get(
@@ -238,7 +238,7 @@ class Leveling(commands.Cog):
         """
         while self.guild is None:
             await asyncio.sleep(2)
-        if self.config.enabled("database_config", option="ENABLED"):
+        if wall_e_config.enabled("database_config", option="ENABLED"):
             while not self.xp_system_ready or self.council_channel is None:
                 await asyncio.sleep(2)
             while True:
@@ -391,7 +391,7 @@ class Leveling(commands.Cog):
         :param member: the member whose join triggered the function call and may need their XP levels re-assigned
         :return:
         """
-        if self.config.enabled("database_config", option="ENABLED"):
+        if wall_e_config.enabled("database_config", option="ENABLED"):
             if member.id not in self.user_points:
                 return
             while not self.xp_system_ready:
@@ -676,7 +676,7 @@ class Leveling(commands.Cog):
         if description_to_embed != "\nLevel Number - Invalid Level Role\n":
             descriptions_to_embed.append(description_to_embed)
 
-        await paginate_embed(self.logger, self.bot, descriptions_to_embed, title="Levels", ctx=ctx)
+        await paginate_embed(self.logger, bot, descriptions_to_embed, title="Levels", ctx=ctx)
 
     @commands.command(brief="shows the current leaderboards")
     async def ranks(self, ctx):
@@ -710,7 +710,7 @@ class Leveling(commands.Cog):
         if len(descriptions_to_embed) == 0:
             await ctx.send("No users currently being tracked")
         else:
-            await paginate_embed(self.logger, self.bot, descriptions_to_embed, ctx=ctx)
+            await paginate_embed(self.logger, bot, descriptions_to_embed, ctx=ctx)
 
     @commands.command(
         brief="Hide a user's ranking from .rank @user and .ranks",
@@ -792,3 +792,7 @@ class Leveling(commands.Cog):
                 "You are now visible" if user_to_show.id == ctx.author.id else
                 f"User {user_to_show} is now visible"
             )
+
+
+async def setup(bot):
+    await bot.add_cog(Leveling())

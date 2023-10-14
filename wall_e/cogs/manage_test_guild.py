@@ -3,46 +3,44 @@ import asyncio
 from discord.ext import commands
 from discord.ext.commands import Context
 
+from utilities.global_vars import wall_e_config, bot
+
 from utilities.file_uploading import start_file_uploading
-from utilities.global_vars import wall_e_config
 from utilities.setup_logger import Loggers
 
 
 class ManageTestGuild(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="ManageTestGuild")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[ManageTestGuild __init__()] initializing ManageTestGuild")
         bot.add_check(ManageTestGuild.check_text_command_test_environment)
-        self.bot = bot
-        self.config = config
         self.guild = None
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path,
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
                 "manage_test_guild_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path,
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
                 "manage_test_guild_error"
             )
 
@@ -56,8 +54,8 @@ class ManageTestGuild(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
         self.logger.info(f"[ManageTestGuild on_ready()] acquired {len(self.guild.channels)} channels")
-        await self.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+        await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "general_channel"
         )
 
@@ -67,7 +65,7 @@ class ManageTestGuild(commands.Cog):
         self.logger.info(f"[ManageTestGuild debuginfo()] debuginfo command detected from {ctx.message.author}")
         await ctx.send(
             '```You are testing the latest commit of branch or pull request: '
-            f'{self.config.get_config_value("basic_config", "BRANCH_NAME")}```'
+            f'{wall_e_config.get_config_value("basic_config", "BRANCH_NAME")}```'
         )
 
     @classmethod
@@ -90,3 +88,7 @@ class ManageTestGuild(commands.Cog):
             guild is not None and (channel_name == text_bot_channel_name or channel_name == branch_name)
         )
         return correct_test_guild_text_channel
+
+
+async def setup(bot):
+    await bot.add_cog(ManageTestGuild())
