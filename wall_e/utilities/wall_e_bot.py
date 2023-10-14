@@ -3,11 +3,13 @@ import inspect
 import logging
 import sys
 import time
-from typing import Optional
+from typing import Optional, Sequence
 
 import discord
 from discord import Intents, Message
+from discord.abc import Snowflake
 from discord.ext import commands
+from discord.ext.commands import Cog
 from discord.utils import MISSING
 
 from utilities.global_vars import wall_e_config, logger, sys_debug_log_file_absolute_path, \
@@ -66,44 +68,39 @@ class WalleBot(commands.Bot):
                 )  # adding this in cause
                 # discord is just way to buggy to reliably unload and reload a slash command at this time
                 if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_has_no_slash_commands:
-                    await self.remove_cog(class_name[0])
+                    await self.unload_extension(folder + module_name)
+
+    async def add_cog(
+        self,
+        cog: Cog,
+        /,
+        *,
+        override: bool = False,
+        guild: Optional[Snowflake] = MISSING,
+        guilds: Sequence[Snowflake] = MISSING,
+    ) -> None:
+        guild = discord.Object(id=int(wall_e_config.get_config_value("basic_config", "GUILD_ID")))
+        await super(WalleBot, self).add_cog(cog, override=override, guild=guild, guilds=guilds)
 
     async def add_custom_cog(self, module_path_and_name: str = None):
-        guild = discord.Object(id=int(wall_e_config.get_config_value("basic_config", "GUILD_ID")))
         adding_all_cogs = module_path_and_name is None
         cog_unloaded = False
         for cog in wall_e_config.get_cogs():
             if cog_unloaded:
                 break
             try:
-                if adding_all_cogs or module_path_and_name == f"{cog['path']}{cog['name']}":
-                    cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
-                    classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
-                    for class_that_match in classes_that_match:
-                        cog_class_to_load = getattr(cog_module, class_that_match[0])
-                        cog_class_matches_file_name = (
-                            cog_class_to_load.__name__.lower() == cog['name'].lower().replace("_", "")
-                        )
-                        if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_matches_file_name:
-                            logger.info(
-                                f"[main.py] attempting to load cog {cog_class_to_load.__name__} "
-                                f"under file {cog['name']}"
-                            )
-                            # the below piece of logic will not work well in the test guild if there
-                            # are multiple PRs being worked on at the same time that have different
-                            # slash command as there is no way to avoid a conflict. I tried to fix this
-                            # by having the bot in multiple guilds, one for each PR, but there is no way to
-                            # know till too late [when the bot is already logged in] the GUILD ID of the TEST
-                            # guild the bot is being deployed to, which it needs to know what guild to add the
-                            # cogs to.
-                            await self.add_cog(
-                                cog_class_to_load(self, wall_e_config, self.bot_channel_manager),
-                                guild=guild
-                            )
-                            logger.info(f"[main.py] {cog_class_to_load.__name__} successfully loaded")
-                            if not adding_all_cogs:
-                                cog_unloaded = True
-                                break
+                logger.info(f"[main.py] attempting to load cog {cog['name']} ")
+                # the below piece of logic will not work well in the test guild if there
+                # are multiple PRs being worked on at the same time that have different
+                # slash command as there is no way to avoid a conflict. I tried to fix this
+                # by having the bot in multiple guilds, one for each PR, but if a cog is loaded to wall_e
+                # after the on_ready signal has already been received, any on_ready functions in the cog
+                # that is loaded will not be run, which is a pre-req for almost all the cogs
+                await self.load_extension(f"{cog['path']}{cog['name']}")
+                logger.info(f"[main.py] {cog['name']} successfully loaded")
+                if not adding_all_cogs:
+                    cog_unloaded = True
+                    break
             except Exception as err:
                 exception = f'{type(err).__name__}: {err}'
                 logger.error(f'[main.py] Failed to load command {cog}\n{exception}')

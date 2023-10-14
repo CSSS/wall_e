@@ -5,6 +5,9 @@ import discord
 import parsedatetime
 import pytz
 from discord.ext import commands
+
+from utilities.global_vars import bot, wall_e_config
+
 from wall_e_models.models import Reminder
 
 import django_settings
@@ -15,37 +18,34 @@ from utilities.setup_logger import Loggers, print_wall_e_exception
 
 class Reminders(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="Reminders")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[Reminders __init__()] initializing Reminders")
-        self.bot = bot
-        self.config = config
         self.guild = None
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "reminders_debug"
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "reminders_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "reminders_error"
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "reminders_error"
             )
 
     @commands.Cog.listener(name="on_ready")
@@ -56,8 +56,8 @@ class Reminders(commands.Cog):
         """
         while self.guild is None:
             await asyncio.sleep(2)
-        reminder_chan_id = await self.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+        reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "reminders"
         )
         reminder_channel = discord.utils.get(
@@ -77,8 +77,8 @@ class Reminders(commands.Cog):
                     e_obj = await embed(
                         self.logger,
                         reminder_channel,
-                        author=self.bot.user.display_name,
-                        avatar_url=self.bot.user.display_avatar.url,
+                        author=bot.user.display_name,
+                        avatar_url=bot.user.display_avatar.url,
                         description=f"This is your reminder to {reminder_message}",
                         footer='Reminder'
                     )
@@ -310,3 +310,7 @@ class Reminders(commands.Cog):
         except Exception as error:
             self.logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
             print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
+
+
+async def setup(bot):
+    await bot.add_cog(Reminders())

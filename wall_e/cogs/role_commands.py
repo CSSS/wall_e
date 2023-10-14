@@ -5,6 +5,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from utilities.global_vars import bot, wall_e_config
+
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.paginate import paginate_embed
@@ -19,40 +21,37 @@ def user_can_manage_roles(ctx: discord.Interaction) -> bool:
 
 class RoleCommands(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="RoleCommands")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[RoleCommands __init__()] initializing RoleCommands")
-        self.bot = bot
-        self.config = config
         self.guild = None
         self.bot_channel = None
         self.exec_role_colour = [3447003, 6533347]
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path,
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
                 "role_commands_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path,
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
                 "role_commands_error"
             )
 
@@ -60,8 +59,8 @@ class RoleCommands(commands.Cog):
     async def get_bot_general_channel(self):
         while self.guild is None:
             await asyncio.sleep(2)
-        reminder_chan_id = await self.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, self.config.get_config_value('basic_config', 'ENVIRONMENT'),
+        reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "role_commands"
         )
         self.bot_channel = discord.utils.get(
@@ -331,7 +330,7 @@ class RoleCommands(commands.Cog):
 
             title = f"Members belonging to role: `{role}`"
             await paginate_embed(
-                self.logger, self.bot, member_string, title=title, interaction=interaction
+                self.logger, bot, member_string, title=title, interaction=interaction
             )
 
     @app_commands.command(
@@ -373,7 +372,7 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.info("[RoleCommands roles()] transfer successful")
             await paginate_embed(
-                self.logger, self.bot, description_to_embed, "Self-Assignable Roles", interaction=interaction
+                self.logger, bot, description_to_embed, "Self-Assignable Roles", interaction=interaction
             )
 
     @app_commands.command(
@@ -414,7 +413,7 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.info("[RoleCommands Roles()] transfer successful")
             await paginate_embed(
-                self.logger, self.bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction
+                self.logger, bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction
             )
 
     @app_commands.command(name="purgeroles", description="deletes all empty self-assignable roles")
@@ -563,3 +562,7 @@ class RoleCommands(commands.Cog):
                 "[RoleCommands send_error_message_to_user_for_paginated_commands()] "
                 f"embed sent to member {interaction.user}"
             )
+
+
+async def setup(bot):
+    await bot.add_cog(RoleCommands())

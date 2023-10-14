@@ -2,6 +2,8 @@ import asyncio
 
 from discord.ext import commands
 
+from utilities.global_vars import bot, wall_e_config
+
 from utilities.embed import embed as em, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
@@ -9,37 +11,34 @@ from utilities.setup_logger import Loggers
 
 class Frosh(commands.Cog):
 
-    def __init__(self, bot, config, bot_channel_manager):
+    def __init__(self):
         log_info = Loggers.get_logger(logger_name="Frosh")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
         self.error_log_file_absolute_path = log_info[2]
         self.logger.info("[Frosh __init__()] initializing Frosh")
-        self.bot = bot
-        self.config = config
         self.guild = None
-        self.bot_channel_manager = bot_channel_manager
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
-        self.guild = self.bot.guilds[0]
+        self.guild = bot.guilds[0]
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.debug_log_file_absolute_path, "frosh_debug"
+                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "frosh_debug"
             )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if self.config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
             await start_file_uploading(
-                self.logger, self.guild, self.bot, self.config, self.error_log_file_absolute_path, "frosh_error"
+                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "frosh_error"
             )
 
     @commands.command(
@@ -152,3 +151,7 @@ class Frosh(commands.Cog):
 
         self.logger.info(f'[Frosh reportwin()] winner announcement embed made with following fields: {e_obj.fields}')
         await ctx.send(embed=e_obj)
+
+
+async def setup(bot):
+    await bot.add_cog(Frosh())
