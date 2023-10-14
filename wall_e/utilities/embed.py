@@ -44,7 +44,14 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     :param description: the description to assign to the embed [Optional]
      Appears under the title.
     :param author: the discord Member whose name and avatar has to be used as part of the
-     author section of the embed [Optional]
+     author section of the embed [Optional].
+     Examples of how to access the Member object with text command
+      - author = ctx.author # individual who invoked command
+      - author = ctx.me # bot will be used as author
+
+     Examples of how to access the Member object with slash command
+      - author = interaction.user # individual who invoked command
+      - author = interaction.client.user # bot will be used as author
     :param author_name: the name to assign to the name part of the embed's author [Optional]
      Used to indicate user who invoked the command or the bot itself when it makes sense like with the
      echo command.
