@@ -77,8 +77,7 @@ class Reminders(commands.Cog):
                     e_obj = await embed(
                         self.logger,
                         reminder_channel,
-                        author=bot.user.display_name,
-                        avatar_url=bot.user.display_avatar.url,
+                        author=bot.user,
                         description=f"This is your reminder to {reminder_message}",
                         footer='Reminder'
                     )
@@ -135,8 +134,7 @@ class Reminders(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='RemindMeIn Error',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 description="unable to extract a time"
             )
             if e_obj is not False:
@@ -148,8 +146,7 @@ class Reminders(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='RemindMeIn Error',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 description="unable to extract a string"
             )
             if e_obj is not False:
@@ -169,8 +166,7 @@ class Reminders(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='RemindMeIn Error',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 description="Could not parse time!"
             )
             if e_obj is not False:
@@ -184,8 +180,7 @@ class Reminders(commands.Cog):
         e_obj = await embed(
             self.logger,
             ctx=ctx,
-            author=ctx.me.display_name,
-            avatar_url=ctx.me.display_avatar.url,
+            author=ctx.me,
             description=reminder_obj.get_countdown()
         )
         if e_obj is not False:
@@ -217,8 +212,7 @@ class Reminders(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title=f"Here are your reminders {author}",
-                    author=ctx.me.display_name,
-                    avatar_url=ctx.me.display_avatar.url,
+                    author=ctx.me,
                     content=[["MessageID\n - Date\n - Reminder", reminders]]
                 )
                 if e_obj is not False:
@@ -230,8 +224,7 @@ class Reminders(commands.Cog):
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
-                    author=ctx.me.display_name,
-                    avatar_url=ctx.me.display_avatar.url,
+                    author=ctx.me,
                     description=f"You don't seem to have any reminders {author}"
                 )
                 if e_obj is not False:
@@ -240,8 +233,7 @@ class Reminders(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 description="Something screwy seems to have happened, look at the logs for more info."
             )
             if e_obj is not False:
@@ -271,8 +263,7 @@ class Reminders(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title='Delete Reminder',
-                    author=ctx.me.display_name,
-                    avatar_url=ctx.me.display_avatar.url,
+                    author=ctx.me,
                     description="ERROR\nSpecified reminder could not be found"
                 )
                 if e_obj is not False:
@@ -287,8 +278,7 @@ class Reminders(commands.Cog):
                         self.logger,
                         ctx=ctx,
                         title='Delete Reminder',
-                        author=ctx.me.display_name,
-                        avatar_url=ctx.me.display_avatar.url,
+                        author=ctx.me,
                         description=f"Following reminder has been deleted:\n{reminder.message}"
                     )
                     if e_obj is not False:
@@ -298,8 +288,7 @@ class Reminders(commands.Cog):
                         self.logger,
                         ctx=ctx,
                         title='Delete Reminder',
-                        author=ctx.me.display_name,
-                        avatar_url=ctx.me.display_avatar.url,
+                        author=ctx.me,
                         description="ERROR\nYou are trying to delete a reminder that is not yours"
                     )
                     if e_obj is not False:

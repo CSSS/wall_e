@@ -87,8 +87,7 @@ class Misc(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Poll Error',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 description='Please only submit a maximum of 11 options for a multi-option question.'
             )
             if e_obj is not False:
@@ -98,8 +97,7 @@ class Misc(commands.Cog):
         elif len(questions) == 1:
             self.logger.info("[Misc poll()] yes/no poll being constructed.")
             e_obj = await embed(
-                self.logger, ctx=ctx, title='Poll', author=ctx.author.display_name,
-                avatar_url=ctx.author.display_avatar.url,
+                self.logger, ctx=ctx, title='Poll', author=ctx.author,
                 description=questions[0]
             )
             if e_obj is not False:
@@ -115,8 +113,7 @@ class Misc(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Poll Error',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 description='Please submit at least 2 options for a multi-option question.'
             )
             if e_obj is not False:
@@ -129,8 +126,7 @@ class Misc(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Usage',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 description='.poll <Question> [Option A] [Option B] ...'
             )
             if e_obj is not False:
@@ -153,8 +149,8 @@ class Misc(commands.Cog):
 
             content = [['Options:', option_string]]
             e_obj = await embed(
-                self.logger, ctx=ctx, title='Poll:', author=ctx.author.display_name,
-                avatar_url=ctx.author.display_avatar.url, description=question,
+                self.logger, ctx=ctx, title='Poll:', author=ctx.author,
+                description=question,
                 content=content
             )
             if e_obj is not False:
@@ -196,8 +192,7 @@ class Misc(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title="Urban Results",
-                    author=ctx.me.display_name,
-                    avatar_url=ctx.me.display_avatar.url,
+                    author=ctx.me,
                     colour=WallEColour.ERROR,
                     description=":thonk:404:thonk:You searched something dumb didn't you?"
                 )
@@ -220,8 +215,7 @@ class Misc(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title='Results from Urban Dictionary',
-                    author=ctx.me.display_name,
-                    avatar_url=ctx.me.display_avatar.url,
+                    author=ctx.me,
                     content=content
                 )
                 if e_obj is not False:
@@ -257,8 +251,7 @@ class Misc(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 content=content
             )
             if e_obj is not False:
@@ -271,8 +264,7 @@ class Misc(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 colour=WallEColour.ERROR,
                 content=content
             )
@@ -305,8 +297,7 @@ class Misc(commands.Cog):
                     self.logger,
                     ctx=ctx,
                     title='EmojiSpeak Error',
-                    author=ctx.me.display_name,
-                    avatar_url=ctx.me.display_avatar.url,
+                    author=ctx.me,
                     description='Please refrain from using non-server emoji.'
                 )
                 if e_obj is not False:

@@ -141,8 +141,7 @@ class Administration(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 description='Log Channels Deleted!',
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url
+                author=interaction.client.user,
             )
             if e_obj is not False:
                 await interaction.followup.send(embed=e_obj)
@@ -151,8 +150,7 @@ class Administration(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 description='This command only work when doing dev work',
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url
+                author=interaction.client.user,
             )
             if e_obj is not False:
                 await interaction.followup.send(embed=e_obj)
@@ -177,8 +175,7 @@ class Administration(commands.Cog):
                     self.logger,
                     interaction=interaction,
                     description=f'There are not {last_x_messages_to_delete} messages to delete',
-                    author=interaction.client.user.display_name,
-                    avatar_url=interaction.client.user.display_avatar.url
+                    author=interaction.client.user,
                 )
                 send_func = interaction.followup.send
             else:
@@ -192,8 +189,7 @@ class Administration(commands.Cog):
                     self.logger,
                     interaction=interaction,
                     description=f'Last {last_x_messages_to_delete} message[s] deleted',
-                    author=interaction.client.user.display_name,
-                    avatar_url=interaction.client.user.display_avatar.url
+                    author=interaction.client.user,
                 )
                 send_func = interaction.channel.send
             if e_obj is not None:
@@ -205,8 +201,7 @@ class Administration(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 description='This command only work when running wall_e on your local machine',
-                author=interaction.client.user.display_name,
-                avatar_url=interaction.client.user.display_avatar.url
+                author=interaction.client.user,
             )
             if e_obj is not False:
                 await interaction.response.send_message(embed=e_obj)
@@ -340,8 +335,7 @@ class Administration(commands.Cog):
             self.logger,
             ctx=ctx,
             description=message,
-            author=ctx.me.display_name,
-            avatar_url=ctx.me.display_avatar.url
+            author=ctx.me,
         )
         if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
             await bot.tree.sync(guild=self.guild)

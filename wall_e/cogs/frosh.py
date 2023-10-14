@@ -67,8 +67,7 @@ class Frosh(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Missing Arguments',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help team` for how to use the command')],
                 footer='Team Error'
@@ -82,8 +81,7 @@ class Frosh(commands.Cog):
             self.logger,
             ctx=ctx,
             title='CSSS Frosh 2020 Gaming Arena',
-            author=ctx.author.display_name,
-            avatar_url=ctx.author.display_avatar.url,
+            author=ctx.author,
             content=[
                 ('Team Name', info[0]),
                 ('Game', info[1]),
@@ -125,8 +123,7 @@ class Frosh(commands.Cog):
                 self.logger,
                 ctx=ctx,
                 title='Missing Arguments',
-                author=ctx.me.display_name,
-                avatar_url=ctx.me.display_avatar.url,
+                author=ctx.me,
                 colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help reportwin` for how to use the command')],
                 footer='ReportWin Error'
@@ -139,8 +136,7 @@ class Frosh(commands.Cog):
             self.logger,
             ctx=ctx,
             title='CSSS Frosh 2020 Gaming Arena Winner',
-            author=ctx.author.display_name,
-            avatar_url=ctx.author.display_avatar.url,
+            author=ctx.author,
             colour=WallEColour.FROSH_2020_THEME,
             content=[
                 ('Team Name', info[0]),
