@@ -10,10 +10,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utilities.cog_load_unload_autocomplete_functions import get_cog_that_can_be_unloaded, get_cog_that_can_be_loaded
+from utilities.extension_load_unload_autocomplete_functions import get_extension_that_can_be_loaded, \
+    get_extension_that_can_be_unloaded
 from utilities.global_vars import wall_e_config, bot
 
-from cogs.manage_test_guild import ManageTestGuild
+from extensions.manage_test_guild import ManageTestGuild
 
 from utilities.bot_channel_manager import BotChannelManager
 from utilities.embed import embed
@@ -21,6 +22,8 @@ from utilities.file_uploading import start_file_uploading
 from utilities.send import send as helper_send
 from utilities.setup_logger import Loggers
 from wall_e_models.models import CommandStat
+
+from utilities.wall_e_bot import extension_location_python_path
 
 extension_mapping = {}
 
@@ -77,16 +80,16 @@ class Administration(commands.Cog):
         self.guild = None
         self.announcement_channel = None
 
-        for cog in wall_e_config.get_cogs():
-            cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
-            classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
+        for extension in wall_e_config.get_extensions():
+            extension_module = importlib.import_module(f"{extension_location_python_path}{extension}")
+            classes_that_match = inspect.getmembers(sys.modules[extension_module.__name__], inspect.isclass)
             for class_that_match in classes_that_match:
-                cog_class_to_load = getattr(cog_module, class_that_match[0])
+                cog_class_to_load = getattr(extension_module, class_that_match[0])
                 cog_class_matches_file_name = (
-                    cog_class_to_load.__name__.lower() == cog['name'].lower().replace("_", "")
+                    cog_class_to_load.__name__.lower() == extension.lower().replace("_", "")
                 )
                 if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_matches_file_name:
-                    extension_mapping[f"{cog['path']}{cog['name']}"] = class_that_match[0]
+                    extension_mapping[extension] = class_that_match[0]
         if wall_e_config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
@@ -217,50 +220,50 @@ class Administration(commands.Cog):
             if e_obj is not False:
                 await interaction.response.send_message(embed=e_obj)
 
-    @app_commands.command(name="load", description="loads the specified cog")
-    @app_commands.describe(cog_to_load="cog class to load")
-    @app_commands.autocomplete(cog_to_load=get_cog_that_can_be_loaded)
+    @app_commands.command(name="load", description="loads the specified extension")
+    @app_commands.describe(extension_to_load="extension to load")
+    @app_commands.autocomplete(extension_to_load=get_extension_that_can_be_loaded)
     @app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
-    async def load(self, interaction: discord.Interaction, cog_to_load: str):
+    async def load(self, interaction: discord.Interaction, extension_to_load: str):
         self.logger.info(f"[Administration load()] load command detected from {interaction.user}")
         await interaction.response.defer()
         try:
-            await bot.load_extension(cog_to_load)
+            await bot.load_extension(extension_to_load)
             await self.sync_helper(interaction=interaction)
-            await interaction.followup.send(f"`{cog_to_load}` cog loaded.")
-            self.logger.info(f"[Administration load()] {cog_to_load} has been successfully loaded")
+            await interaction.followup.send(f"`{extension_to_load}` extension loaded.")
+            self.logger.info(f"[Administration load()] {extension_to_load} has been successfully loaded")
         except(AttributeError, ImportError) as e:
-            await interaction.followup.send(f"{cog_to_load}` cog load failed: {type(e)}, {e}")
-            self.logger.error(f"[Administration load()] loading {cog_to_load} failed :{type(e)}, {e}")
+            await interaction.followup.send(f"{extension_to_load}` extension load failed: {type(e)}, {e}")
+            self.logger.error(f"[Administration load()] loading {extension_to_load} failed :{type(e)}, {e}")
 
-    @app_commands.command(name="unload", description="unloads the specified cog")
-    @app_commands.describe(cog_to_unload="cog class to unload")
-    @app_commands.autocomplete(cog_to_unload=get_cog_that_can_be_unloaded)
+    @app_commands.command(name="unload", description="unloads the specified extension")
+    @app_commands.describe(extension_to_unload="extension to unload")
+    @app_commands.autocomplete(extension_to_unload=get_extension_that_can_be_unloaded)
     @app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
-    async def unload(self, interaction: discord.Interaction, cog_to_unload: str):
+    async def unload(self, interaction: discord.Interaction, extension_to_unload: str):
         self.logger.info(f"[Administration unload()] unload command detected from {interaction.user}")
         await interaction.response.defer()
-        await bot.unload_extension(cog_to_unload)
+        await bot.unload_extension(extension_to_unload)
         await self.sync_helper(interaction=interaction)
-        await interaction.followup.send(f"`{cog_to_unload}` cog unloaded.")
-        self.logger.info(f"[Administration unload()] {cog_to_unload} has been successfully loaded")
+        await interaction.followup.send(f"`{extension_to_unload}` extension unloaded.")
+        self.logger.info(f"[Administration unload()] {extension_to_unload} has been successfully loaded")
 
-    @app_commands.command(name="reload", description="reloads the specified cog")
-    @app_commands.describe(cog_to_reload="cog class to reload")
-    @app_commands.autocomplete(cog_to_reload=get_cog_that_can_be_unloaded)
+    @app_commands.command(name="reload", description="reloads the specified extension")
+    @app_commands.describe(extension_to_reload="extension to reload")
+    @app_commands.autocomplete(extension_to_reload=get_extension_that_can_be_unloaded)
     @app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
-    async def reload(self, interaction: discord.Interaction, cog_to_reload: str):
+    async def reload(self, interaction: discord.Interaction, extension_to_reload: str):
         self.logger.info(f"[Administration reload()] reload command detected from {interaction.user}")
         await interaction.response.defer()
-        await bot.unload_extension(cog_to_reload)
+        await bot.unload_extension(extension_to_reload)
         try:
-            await bot.load_extension(cog_to_reload)
+            await bot.load_extension(extension_to_reload)
             await self.sync_helper(interaction=interaction)
-            await interaction.followup.send(f"`{cog_to_reload}` cog reloaded.")
-            self.logger.info(f"[Administration reload()] {cog_to_reload} has been successfully reloaded")
+            await interaction.followup.send(f"`{extension_to_reload}` extension reloaded.")
+            self.logger.info(f"[Administration reload()] {extension_to_reload} has been successfully reloaded")
         except(AttributeError, ImportError) as e:
-            await interaction.followup.send(f"{cog_to_reload}` cog reload failed: {type(e)}, {e}")
-            self.logger.info(f"[Administration reload()] reloading {cog_to_reload} failed :{type(e)}, {e}")
+            await interaction.followup.send(f"{extension_to_reload}` extension reload failed: {type(e)}, {e}")
+            self.logger.info(f"[Administration reload()] reloading {extension_to_reload} failed :{type(e)}, {e}")
 
     @commands.command(
         brief="executes the command on the bot host OS",

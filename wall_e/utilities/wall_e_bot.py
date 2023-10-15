@@ -1,7 +1,4 @@
-import importlib
-import inspect
 import logging
-import sys
 import time
 from typing import Optional, Sequence
 
@@ -17,7 +14,7 @@ from utilities.global_vars import wall_e_config, logger, sys_debug_log_file_abso
     discordpy_debug_log_file_absolute_path, discordpy_error_log_file_absolute_path, \
     incident_report_debug_log_file_absolute_path
 
-from cogs.help_commands import EmbedHelpCommand
+from extensions.help_commands import EmbedHelpCommand
 from overriden_coroutines.delete_help_messages import delete_help_command_messages
 from overriden_coroutines.detect_reactions import reaction_detected
 from overriden_coroutines.error_handlers import report_text_command_error, report_slash_command_error
@@ -27,6 +24,8 @@ from utilities.embed import embed as imported_embed
 from utilities.file_uploading import start_file_uploading
 
 intents = Intents.all()
+
+extension_location_python_path = "extensions."
 
 
 class WalleBot(commands.Bot):
@@ -52,23 +51,41 @@ class WalleBot(commands.Bot):
         self.add_listener(reaction_detected, "on_raw_reaction_add")
         self.add_listener(delete_help_command_messages, "on_ready")
 
-        await self.add_custom_cog()
+        await self.add_custom_extension()
         logger.info("[main.py] commands cleared and synced")
         await super().setup_hook()
 
-    async def remove_custom_cog(self, folder: str, module_name: str):
-        cog_module = importlib.import_module(folder + module_name)
-        class_names = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
-        for class_name in class_names:
-            if class_name[0].lower() == module_name.lower():
-                cog_class_to_load = class_name[1]
-                cog_class_has_no_slash_commands = (
-                    (not hasattr(cog_class_to_load, "__cog_app_commands__")) or
-                    len(cog_class_to_load.__cog_app_commands__) == 0
-                )  # adding this in cause
-                # discord is just way to buggy to reliably unload and reload a slash command at this time
-                if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_has_no_slash_commands:
-                    await self.unload_extension(folder + module_name)
+    async def add_custom_extension(self, module_path_and_name: str = None):
+        adding_all_extensions = module_path_and_name is None
+        extension_unloaded = False
+        for extension in wall_e_config.get_extensions():
+            if extension_unloaded:
+                break
+            try:
+                logger.info(f"[wall_e_bot.py] attempting to load extension {extension} ")
+                # the below piece of logic will not work well in the test guild if there
+                # are multiple PRs being worked on at the same time that have different
+                # slash command as there is no way to avoid a conflict. I tried to fix this
+                # by having the bot in multiple guilds, one for each PR, but if an extension is loaded to wall_e
+                # after the on_ready signal has already been received, any on_ready functions in the extension
+                # that is loaded will not be run, which is a pre-req for almost all the extensions
+                await self.load_extension(extension)
+                logger.info(f"[wall_e_bot.py] {extension} successfully loaded")
+                if not adding_all_extensions:
+                    extension_unloaded = True
+                    break
+            except Exception as err:
+                exception = f'{type(err).__name__}: {err}'
+                logger.error(f'[wall_e_bot.py] Failed to load extension {extension}\n{exception}')
+                if adding_all_extensions:
+                    time.sleep(20)
+                    exit(1)
+
+    async def load_extension(self, name: str, *, package: Optional[str] = None) -> None:
+        await super(WalleBot, self).load_extension(f"{extension_location_python_path}{name}", package=package)
+
+    async def unload_extension(self, name: str, *, package: Optional[str] = None) -> None:
+        await super(WalleBot, self).unload_extension(f"{extension_location_python_path}{name}", package=package)
 
     async def add_cog(
         self,
@@ -81,32 +98,6 @@ class WalleBot(commands.Bot):
     ) -> None:
         guild = discord.Object(id=int(wall_e_config.get_config_value("basic_config", "GUILD_ID")))
         await super(WalleBot, self).add_cog(cog, override=override, guild=guild, guilds=guilds)
-
-    async def add_custom_cog(self, module_path_and_name: str = None):
-        adding_all_cogs = module_path_and_name is None
-        cog_unloaded = False
-        for cog in wall_e_config.get_cogs():
-            if cog_unloaded:
-                break
-            try:
-                logger.info(f"[main.py] attempting to load cog {cog['name']} ")
-                # the below piece of logic will not work well in the test guild if there
-                # are multiple PRs being worked on at the same time that have different
-                # slash command as there is no way to avoid a conflict. I tried to fix this
-                # by having the bot in multiple guilds, one for each PR, but if a cog is loaded to wall_e
-                # after the on_ready signal has already been received, any on_ready functions in the cog
-                # that is loaded will not be run, which is a pre-req for almost all the cogs
-                await self.load_extension(f"{cog['path']}{cog['name']}")
-                logger.info(f"[main.py] {cog['name']} successfully loaded")
-                if not adding_all_cogs:
-                    cog_unloaded = True
-                    break
-            except Exception as err:
-                exception = f'{type(err).__name__}: {err}'
-                logger.error(f'[main.py] Failed to load command {cog}\n{exception}')
-                if adding_all_cogs:
-                    time.sleep(20)
-                    exit(1)
 
     async def on_message(self, message: Message, /) -> None:
         """
