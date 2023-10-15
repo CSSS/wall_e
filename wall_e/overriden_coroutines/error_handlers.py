@@ -17,7 +17,7 @@ async def report_text_command_error(ctx, error):
     :return:
     """
     from utilities.global_vars import logger
-    from cogs.manage_test_guild import ManageTestGuild
+    from extensions.manage_test_guild import ManageTestGuild
     correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
     if correct_channel:
         if isinstance(error, commands.errors.ArgumentParsingError):

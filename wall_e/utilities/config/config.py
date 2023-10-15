@@ -7,8 +7,6 @@ config_file_location_local = "utilities/config/local.ini"
 config_file_location_dev = "utilities/config/dev.ini"
 config_file_location_production = "utilities/config/production.ini"
 
-cog_location_python_path = "cogs."
-
 
 class WallEConfig:
     def __init__(self, environment, wall_e=True):
@@ -58,17 +56,17 @@ class WallEConfig:
         else:
             raise KeyError(f"Section '{section}' or Option '{option}' does not exist")
 
-    def get_cogs(self):
+    def get_extensions(self):
 
-        def cog_can_be_loaded(cog):
+        def extension_can_be_loaded(extension):
             return (
-                (cog != 'reminders') or
-                (cog == 'reminders' and self.enabled("database_config", option="ENABLED"))
+                (extension != 'reminders') or
+                (extension == 'reminders' and self.enabled("database_config", option="ENABLED"))
             )
 
-        cogs = [
-            {'name': cog, 'path': cog_location_python_path}
-            for cog in self.config['cogs']
-            if self.enabled("cogs", cog) == 1 and cog_can_be_loaded(cog)
+        extensions = [
+            extension
+            for extension in self.config['extensions']
+            if self.enabled("extensions", extension) == 1 and extension_can_be_loaded(extension)
         ]
-        return cogs
+        return extensions
