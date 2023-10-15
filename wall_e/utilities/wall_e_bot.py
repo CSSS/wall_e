@@ -52,7 +52,7 @@ class WalleBot(commands.Bot):
         self.add_listener(delete_help_command_messages, "on_ready")
 
         await self.add_custom_extension()
-        logger.info("[main.py] commands cleared and synced")
+        logger.info("[wall_e_bot.py] extensions loaded")
         await super().setup_hook()
 
     async def add_custom_extension(self, module_path_and_name: str = None):
@@ -155,8 +155,8 @@ class WalleBot(commands.Bot):
                 self.uploading = True
             except Exception as e:
                 raise Exception(
-                    "[main.py] Could not open log file to read from and sent entries to bot_log channel due to "
+                    "[wall_e_bot.py] Could not open log file to read from and sent entries to bot_log channel due to "
                     f"following error {e}")
-        logger.info('[main.py on_ready()] Logged in as')
-        logger.info(f'[main.py on_ready()] {self.user.name}({self.user.id})')
-        logger.info('[main.py on_ready()] ------')
+        logger.info('[wall_e_bot.py on_ready()] Logged in as')
+        logger.info(f'[wall_e_bot.py on_ready()] {self.user.name}({self.user.id})')
+        logger.info('[wall_e_bot.py on_ready()] ------')

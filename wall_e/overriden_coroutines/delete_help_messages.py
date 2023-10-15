@@ -21,7 +21,7 @@ async def delete_help_command_messages():
                         successful = True
                     except discord.NotFound:
                         logger.error(
-                            "[main.py delete_help_command_messages()] "
+                            "[delete_help_messages.py delete_help_command_messages()] "
                             f"could not find the message that contains the help command with obj "
                             f"{help_message}"
                         )
@@ -29,7 +29,7 @@ async def delete_help_command_messages():
                         successful = True
                     except discord.Forbidden:
                         logger.error(
-                            "[main.py delete_help_command_messages()] "
+                            "[delete_help_messages.py delete_help_command_messages()] "
                             f"wall_e does not seem to have permissions to view/delete the message that "
                             f"contains the help command with obj {help_message}"
                         )
@@ -38,7 +38,7 @@ async def delete_help_command_messages():
                         successful = True
                     except discord.HTTPException:
                         logger.error(
-                            "[main.py delete_help_command_messages()] "
+                            "[delete_help_messages.py delete_help_command_messages()] "
                             f"some sort of HTTP prevented wall_e from deleting the message that "
                             f"contains the help command with obj {help_message}"
                         )
