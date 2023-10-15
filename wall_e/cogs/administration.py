@@ -1,12 +1,16 @@
 import asyncio
 import datetime
+import importlib
+import inspect
 import re
 import subprocess
+import sys
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+from utilities.cog_load_unload_autocomplete_functions import get_cog_that_can_be_unloaded, get_cog_that_can_be_loaded
 from utilities.global_vars import wall_e_config, bot
 
 from cogs.manage_test_guild import ManageTestGuild
@@ -17,6 +21,8 @@ from utilities.file_uploading import start_file_uploading
 from utilities.send import send as helper_send
 from utilities.setup_logger import Loggers
 from wall_e_models.models import CommandStat
+
+extension_mapping = {}
 
 
 @bot.event
@@ -70,6 +76,17 @@ class Administration(commands.Cog):
         self.logger.info("[Administration __init__()] initializing Administration")
         self.guild = None
         self.announcement_channel = None
+
+        for cog in wall_e_config.get_cogs():
+            cog_module = importlib.import_module(f"{cog['path']}{cog['name']}")
+            classes_that_match = inspect.getmembers(sys.modules[cog_module.__name__], inspect.isclass)
+            for class_that_match in classes_that_match:
+                cog_class_to_load = getattr(cog_module, class_that_match[0])
+                cog_class_matches_file_name = (
+                    cog_class_to_load.__name__.lower() == cog['name'].lower().replace("_", "")
+                )
+                if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_matches_file_name:
+                    extension_mapping[f"{cog['path']}{cog['name']}"] = class_that_match[0]
         if wall_e_config.enabled("database_config", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
@@ -116,12 +133,6 @@ class Administration(commands.Cog):
                 self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
                 "administration_error"
             )
-
-    def valid_cog(self, name):
-        for cog in wall_e_config.get_cogs():
-            if cog["name"] == name:
-                return True, cog["path"]
-        return False, ''
 
     @commands.command()
     async def exit(self, ctx):
@@ -206,103 +217,50 @@ class Administration(commands.Cog):
             if e_obj is not False:
                 await interaction.response.send_message(embed=e_obj)
 
-    @staticmethod
-    def user_has_permission_to_load_or_unload_cog(ctx, module_name):
-        roles = [role.name for role in sorted(ctx.author.roles, key=lambda x: int(x.position), reverse=True)]
-        user_is_bot_manager = 'Bot_manager' in roles
-        user_is_moderator = 'Minions' in roles or 'Moderators' in roles
-        valid_load_call = user_is_bot_manager or user_is_moderator \
-            if module_name in ['ban', 'mod'] else user_is_bot_manager
-        return valid_load_call
+    @app_commands.command(name="load", description="loads the specified cog")
+    @app_commands.describe(cog_to_load="cog class to load")
+    @app_commands.autocomplete(cog_to_load=get_cog_that_can_be_loaded)
+    @app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
+    async def load(self, interaction: discord.Interaction, cog_to_load: str):
+        self.logger.info(f"[Administration load()] load command detected from {interaction.user}")
+        await interaction.response.defer()
+        try:
+            await bot.load_extension(cog_to_load)
+            await self.sync_helper(interaction=interaction)
+            await interaction.followup.send(f"`{cog_to_load}` cog loaded.")
+            self.logger.info(f"[Administration load()] {cog_to_load} has been successfully loaded")
+        except(AttributeError, ImportError) as e:
+            await interaction.followup.send(f"{cog_to_load}` cog load failed: {type(e)}, {e}")
+            self.logger.error(f"[Administration load()] loading {cog_to_load} failed :{type(e)}, {e}")
 
-    @commands.command(
-        brief="loads the commands in the class in the specified module",
-        help=(
-            'Arguments:\n'
-            '---module name: the module with the cog class and commands to load\n\n'
-            'Example:\n'
-            '---.load health_checks\n\n'
-            'The classes and their corresponding commands can be determined using the ".help" command\n\n'
-        ),
-        usage='module name'
-    )
-    @commands.has_any_role("Bot_manager", "Minions", "Moderator")
-    async def load(self, ctx, module_name):
+    @app_commands.command(name="unload", description="unloads the specified cog")
+    @app_commands.describe(cog_to_unload="cog class to unload")
+    @app_commands.autocomplete(cog_to_unload=get_cog_that_can_be_unloaded)
+    @app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
+    async def unload(self, interaction: discord.Interaction, cog_to_unload: str):
+        self.logger.info(f"[Administration unload()] unload command detected from {interaction.user}")
+        await interaction.response.defer()
+        await bot.unload_extension(cog_to_unload)
+        await self.sync_helper(interaction=interaction)
+        await interaction.followup.send(f"`{cog_to_unload}` cog unloaded.")
+        self.logger.info(f"[Administration unload()] {cog_to_unload} has been successfully loaded")
 
-        self.logger.info(f"[Administration load()] load command detected from {ctx.message.author}")
-        valid, folder = self.valid_cog(module_name)
-        if not valid:
-            await ctx.send(f"```{module_name} isn't a real cog```")
-            self.logger.info(
-                f"[Administration load()] {ctx.message.author} tried loading "
-                f"{module_name} which doesn't exist."
-            )
-            return
-        if self.user_has_permission_to_load_or_unload_cog(ctx, module_name):
-            try:
-                await bot.add_custom_cog(folder+module_name)
-                await ctx.send(f"{module_name} command loaded.")
-                self.logger.info(f"[Administration load()] {module_name} has been successfully loaded")
-            except(AttributeError, ImportError) as e:
-                await ctx.send(f"command load failed: {type(e)}, {e}")
-                self.logger.info(f"[Administration load()] loading {module_name} failed :{type(e)}, {e}")
-
-    @commands.command(
-        brief="unloads the commands in the class in the specified module",
-        help=(
-            'The classes and their corresponding commands can be determined using the ".help" command\n\n'
-            'Arguments:\n'
-            '---module name: the module with the cog class and commands to unload\n'
-            'Example:\n'
-            '---.unload health_checks\n\n'
-        ),
-        usage='module name'
-    )
-    @commands.has_any_role("Bot_manager", "Minions", "Moderator")
-    async def unload(self, ctx, module_name):
-        self.logger.info(f"[Administration unload()] unload command detected from {ctx.message.author}")
-        valid, folder = self.valid_cog(module_name)
-        if not valid:
-            await ctx.send(f"```{module_name} isn't a real cog```")
-            self.logger.info(
-                f"[Administration unload()] {ctx.message.author} tried loading "
-                f"{module_name} which doesn't exist."
-            )
-            return
-        if self.user_has_permission_to_load_or_unload_cog(ctx, module_name):
-            await bot.remove_custom_cog(folder, module_name)
-            await ctx.send(f"{module_name} command unloaded")
-            self.logger.info(f"[Administration unload()] {module_name} has been successfully loaded")
-
-    @commands.command(
-        brief="reloads the commands in the class in the specified module",
-        help=(
-            'The classes and their corresponding commands can be determined using the ".help" command\n\n'
-            'Arguments:\n'
-            '---module name: the module with the cog class and commands to reload\n'
-            'Example:\n'
-            '---.reload health_checks\n\n'
-        ),
-        usage='module name'
-    )
-    @commands.has_any_role("Bot_manager", "Minions", "Moderator")
-    async def reload(self, ctx, name):
-        self.logger.info(f"[Administration reload()] reload command detected from {ctx.message.author}")
-        valid, folder = self.valid_cog(name)
-        if not valid:
-            await ctx.send(f"```{name} isn't a real cog```")
-            self.logger.info(f"[Administration reload()] {ctx.message.author} tried "
-                             f"loading {name} which doesn't exist.")
-            return
-        if self.user_has_permission_to_load_or_unload_cog(ctx, name):
-            await bot.remove_custom_cog(folder, name)
-            try:
-                await bot.add_custom_cog(folder + name)
-                await ctx.send(f"`{folder + name} command reloaded`")
-                self.logger.info(f"[Administration reload()] {name} has been successfully reloaded")
-            except(AttributeError, ImportError) as e:
-                await ctx.send(f"Command load failed: {type(e)}, {e}")
-                self.logger.info(f"[Administration reload()] loading {name} failed :{type(e)}, {e}")
+    @app_commands.command(name="reload", description="reloads the specified cog")
+    @app_commands.describe(cog_to_reload="cog class to reload")
+    @app_commands.autocomplete(cog_to_reload=get_cog_that_can_be_unloaded)
+    @app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
+    async def reload(self, interaction: discord.Interaction, cog_to_reload: str):
+        self.logger.info(f"[Administration reload()] reload command detected from {interaction.user}")
+        await interaction.response.defer()
+        await bot.unload_extension(cog_to_reload)
+        try:
+            await bot.load_extension(cog_to_reload)
+            await self.sync_helper(interaction=interaction)
+            await interaction.followup.send(f"`{cog_to_reload}` cog reloaded.")
+            self.logger.info(f"[Administration reload()] {cog_to_reload} has been successfully reloaded")
+        except(AttributeError, ImportError) as e:
+            await interaction.followup.send(f"{cog_to_reload}` cog reload failed: {type(e)}, {e}")
+            self.logger.info(f"[Administration reload()] reloading {cog_to_reload} failed :{type(e)}, {e}")
 
     @commands.command(
         brief="executes the command on the bot host OS",
@@ -328,19 +286,24 @@ class Administration(commands.Cog):
     @commands.has_role("Bot_manager")
     async def sync(self, ctx):
         self.logger.info(f"[AdministrationAdministration sync()] sync command detected from {ctx.message.author}")
+        await self.sync_helper(ctx=ctx)
+
+    async def sync_helper(self, ctx=None, interaction=None):
         message = "Testing guild does not provide support for Slash Commands" \
             if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
             else 'Commands Synced!'
         e_obj = await embed(
             self.logger,
             ctx=ctx,
+            interaction=interaction,
             description=message,
-            author=ctx.me,
+            author=ctx.me if interaction is None else interaction.client.user,
         )
         if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
             await bot.tree.sync(guild=self.guild)
         if e_obj is not False:
-            await ctx.send(embed=e_obj)
+            send_func = ctx.send if interaction is None else interaction.channel.send
+            await send_func(embed=e_obj)
 
     @commands.command(
         brief="sends an announcement to the announcement channel",
