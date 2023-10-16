@@ -253,7 +253,13 @@ class RoleCommands(commands.Cog):
         if role == "-1":
             return
         if not role.isdigit():
-            await interaction.response.defer()
+            try:
+                await interaction.response.defer()
+            except discord.errors.NotFound:
+                await interaction.channel.send(
+                    "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+                )
+                return
             self.logger.info(f"[RoleCommands whois()] invalid role id of {role} detected")
             e_obj = await embed(
                 self.logger,
