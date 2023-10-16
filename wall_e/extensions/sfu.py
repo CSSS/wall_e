@@ -117,17 +117,17 @@ class SFU(commands.Cog):
 
         async with aiohttp.ClientSession() as req:
             res = await req.get(url)
-
+            data = ''
             if(res.status == 200):
                 self.logger.info('[SFU sfu()] get request successful')
-                data = ''
                 while True:
                     chunk = await res.content.read(10)
                     if not chunk:
                         break
                     data += str(chunk.decode())
-                data = json.loads(data)
-            else:
+                if data.strip():
+                    data = json.loads(data.strip())
+            if not data:
                 self.logger.info(f'[SFU sfu()] get resulted in {res.status}')
                 e_obj = await embed(
                     self.logger,
