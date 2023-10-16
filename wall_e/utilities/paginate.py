@@ -25,10 +25,7 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
         "[paginate.py paginate_embed()] called with following argument: "
         f"title={title}\n\ndescription_to_embed={description_to_embed}\n\n"
     )
-    if interaction is None:
-        bot = ctx.me
-    else:
-        bot = interaction.client.user
+    embed_author = ctx.me if interaction is None else interaction.client.user
 
     current_page = 0
     first_run = True
@@ -42,7 +39,7 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
             interaction=interaction,
             ctx=ctx,
             title=title,
-            author=bot,
+            author=embed_author,
             description=description_to_embed[current_page],
             footer=f"{current_page + 1}/{num_of_pages}"
         )
