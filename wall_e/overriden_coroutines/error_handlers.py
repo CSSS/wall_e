@@ -20,15 +20,19 @@ async def report_text_command_error(ctx, error):
     from extensions.manage_test_guild import ManageTestGuild
     correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
     if correct_channel:
-        if isinstance(error, commands.errors.ArgumentParsingError):
-            description = (
-                f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"
-                f"\n'{error.args[0]}'\n\n[Technical Details link if you care to look]"
-                f"(https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?"
-                f"highlight=argumentparsingerror#exceptions)\n\n"
-                f"**You have 20 seconds to copy your input to do a retry before "
-                f"I ensure it is wiped from the channel**"
-            )
+        handled_errors = (commands.errors.ArgumentParsingError, commands.errors.MemberNotFound)
+        if isinstance(error, handled_errors):
+            if isinstance(error, commands.errors.ArgumentParsingError):
+                description = (
+                    f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"
+                    f"\n'{error.args[0]}'\n\n[Technical Details link if you care to look]"
+                    f"(https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?"
+                    f"highlight=argumentparsingerror#exceptions)\n\n"
+                    f"**You have 20 seconds to copy your input to do a retry before "
+                    f"I ensure it is wiped from the channel**"
+                )
+            else:
+                description = error.args[0]
             error_type = f"{type(error)}"[8:-2]
             embed_obj = await embed(
                 logger=ctx.cog.logger, ctx=ctx, title=f"Error {error_type} encountered",
