@@ -330,12 +330,36 @@ class BotChannelManager:
             await log_channel.delete()
 
     @classmethod
-    async def fix_text_channel_positioning(cls, guild):
-        for text_channel_name, index in BotChannelManager.log_positioning.items():
-            text_channel = discord.utils.get(guild.channels, name=text_channel_name)
-            while text_channel is None:
-                print(f"unable to get channel [{text_channel_name}], retrying in 5 seconds")
-                await asyncio.sleep(5)
+    async def fix_text_channel_positioning(cls, logger, guild):
+        position_edited = True
+        while position_edited:
+            # encapsulating the whole thing in a while loop cause sometimes a channel might erroneously get pushed to
+            # the bottom while the repositioning is happening, which necessitates another sweep-through
+            # as such, I am going to make the code keep going over the channels until all the positions are verified
+            # as what they should be
+            position_edited = False
+            for text_channel_name, index in BotChannelManager.log_positioning.items():
                 text_channel = discord.utils.get(guild.channels, name=text_channel_name)
-            if text_channel.position != index:
-                await text_channel.edit(position=index)
+                while text_channel is None:
+                    logger.warn(
+                        f"[bot_channel_manager.py fix_text_channel_positioning()] unable to get channel "
+                        f"[{text_channel_name}], retrying in 5 seconds"
+                    )
+                    await asyncio.sleep(5)
+                    text_channel = discord.utils.get(guild.channels, name=text_channel_name)
+                if text_channel.position != index:
+                    logger.info(
+                        f"[bot_channel_manager.py fix_text_channel_positioning()] changing the position for "
+                        f"{text_channel_name} from {text_channel.position} to {index}"
+                    )
+                    position_edited = True
+                    await text_channel.edit(position=index)
+            if position_edited:
+                logger.warn(
+                    "[bot_channel_manager.py fix_text_channel_positioning()] doing another sweep of the log text "
+                    "channels positioning"
+                )
+        logger.info(
+            "[bot_channel_manager.py fix_text_channel_positioning()] done with sweep of the log text channels "
+            "positioning"
+        )
