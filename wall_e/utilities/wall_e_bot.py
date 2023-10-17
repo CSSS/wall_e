@@ -12,7 +12,8 @@ from discord.utils import MISSING
 from utilities.global_vars import wall_e_config, logger, sys_debug_log_file_absolute_path, \
     sys_error_log_file_absolute_path, wall_e_debug_log_file_absolute_path, wall_e_error_log_file_absolute_path, \
     discordpy_debug_log_file_absolute_path, discordpy_error_log_file_absolute_path, \
-    incident_report_debug_log_file_absolute_path
+    incident_report_debug_log_file_absolute_path, sys_warn_log_file_absolute_path, \
+    wall_e_warn_log_file_absolute_path, discordpy_warn_log_file_absolute_path
 
 from extensions.help_commands import EmbedHelpCommand
 from overriden_coroutines.delete_help_messages import delete_help_command_messages
@@ -129,16 +130,25 @@ class WalleBot(commands.Bot):
                     logger, bot_guild, self, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug"
                 )
                 await start_file_uploading(
+                    logger, bot_guild, self, wall_e_config, sys_warn_log_file_absolute_path, "sys_warn"
+                )
+                await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, sys_error_log_file_absolute_path, "sys_error"
                 )
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, wall_e_debug_log_file_absolute_path, "wall_e_debug"
                 )
                 await start_file_uploading(
+                    logger, bot_guild, self, wall_e_config, wall_e_warn_log_file_absolute_path, "wall_e_warn"
+                )
+                await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, wall_e_error_log_file_absolute_path, "wall_e_error"
                 )
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, discordpy_debug_log_file_absolute_path, "discordpy_debug"
+                )
+                await start_file_uploading(
+                    logger, bot_guild, self, wall_e_config, discordpy_warn_log_file_absolute_path, "discordpy_warn"
                 )
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, discordpy_error_log_file_absolute_path, "discordpy_error"

@@ -11,12 +11,20 @@ SYS_LOG_HANDLER_NAME = "sys"
 
 date_timezone = pytz.timezone('US/Pacific')
 
-barrier_logging_level = logging.ERROR
+error_logging_level = logging.ERROR
+
+warn_logging_level = logging.WARNING
+
+
+class WalleWarnStreamHandler(logging.StreamHandler):
+    def emit(self, record):
+        if record.levelno < error_logging_level:
+            super().emit(record)
 
 
 class WalleDebugStreamHandler(logging.StreamHandler):
     def emit(self, record):
-        if record.levelno < barrier_logging_level:
+        if record.levelno < warn_logging_level:
             super().emit(record)
 
 
@@ -82,6 +90,9 @@ class Loggers:
         debug_log_file_absolute_path = (
             f"logs/{SYS_LOG_HANDLER_NAME}/{date}_debug.log"
         )
+        sys_stream_warn_log_file_absolute_path = (
+            f"logs/{SYS_LOG_HANDLER_NAME}/{date}_warn.log"
+        )
         sys_stream_error_log_file_absolute_path = (
             f"logs/{SYS_LOG_HANDLER_NAME}/{date}_error.log"
         )
@@ -91,9 +102,14 @@ class Loggers:
         debug_filehandler.setLevel(logging.DEBUG)
         sys_logger.addHandler(debug_filehandler)
 
+        # ensures that anything printed to this logger at level WARN or above goes to the specified file
+        warn_filehandler = logging.FileHandler(sys_stream_warn_log_file_absolute_path)
+        warn_filehandler.setLevel(warn_logging_level)
+        sys_logger.addHandler(warn_filehandler)
+
         # ensures that anything printed to this logger at level ERROR or above goes to the specified file
         error_filehandler = logging.FileHandler(sys_stream_error_log_file_absolute_path)
-        error_filehandler.setLevel(barrier_logging_level)
+        error_filehandler.setLevel(error_logging_level)
         sys_logger.addHandler(error_filehandler)
 
         # ensures that anything from the log goes to the stdout
@@ -105,15 +121,22 @@ class Loggers:
         if REDIRECT_STD_STREAMS:
             sys.stdout = LoggerWriter(sys_logger.info)
 
+        sys_std_warn_stream_handler = WalleWarnStreamHandler(sys.stdout)
+        sys_std_warn_stream_handler.setLevel(warn_logging_level)
+        sys_logger.addHandler(sys_std_warn_stream_handler)
+
         if REDIRECT_STD_STREAMS:
             sys.stderr = sys.__stderr__
         sys_stderr_stream_handler = logging.StreamHandler(sys.stderr)
-        sys_stderr_stream_handler.setLevel(barrier_logging_level)
+        sys_stderr_stream_handler.setLevel(error_logging_level)
         sys_logger.addHandler(sys_stderr_stream_handler)
         if REDIRECT_STD_STREAMS:
             sys.stderr = LoggerWriter(sys_logger.error)
 
-        return sys_logger, debug_log_file_absolute_path, sys_stream_error_log_file_absolute_path
+        return (
+            sys_logger, debug_log_file_absolute_path, sys_stream_warn_log_file_absolute_path,
+            sys_stream_error_log_file_absolute_path
+        )
 
     @classmethod
     def _setup_logger(cls, service_name):
@@ -127,6 +150,7 @@ class Loggers:
         if not os.path.exists(f"logs/{service_name}"):
             os.makedirs(f"logs/{service_name}")
         debug_log_file_absolute_path = f"logs/{service_name}/{date}_debug.log"
+        warn_log_file_absolute_path = f"logs/{service_name}/{date}_warn.log"
         error_log_file_absolute_path = f"logs/{service_name}/{date}_error.log"
 
         logger = logging.getLogger(service_name)
@@ -137,9 +161,14 @@ class Loggers:
         debug_filehandler.setFormatter(sys_stream_formatting)
         logger.addHandler(debug_filehandler)
 
+        warn_filehandler = logging.FileHandler(warn_log_file_absolute_path)
+        warn_filehandler.setFormatter(sys_stream_formatting)
+        warn_filehandler.setLevel(warn_logging_level)
+        logger.addHandler(warn_filehandler)
+
         error_filehandler = logging.FileHandler(error_log_file_absolute_path)
         error_filehandler.setFormatter(sys_stream_formatting)
-        error_filehandler.setLevel(barrier_logging_level)
+        error_filehandler.setLevel(error_logging_level)
         logger.addHandler(error_filehandler)
 
         sys_stdout_stream_handler = WalleDebugStreamHandler(sys.stdout)
@@ -147,12 +176,19 @@ class Loggers:
         sys_stdout_stream_handler.setLevel(logging.DEBUG)
         logger.addHandler(sys_stdout_stream_handler)
 
+        sys_std_warn_stream_handler = WalleWarnStreamHandler(sys.stdout)
+        sys_std_warn_stream_handler.setFormatter(sys_stream_formatting)
+        sys_std_warn_stream_handler.setLevel(warn_logging_level)
+        logger.addHandler(sys_std_warn_stream_handler)
+
         sys_sterr_stream_handler = logging.StreamHandler()
         sys_sterr_stream_handler.setFormatter(sys_stream_formatting)
-        sys_sterr_stream_handler.setLevel(barrier_logging_level)
+        sys_sterr_stream_handler.setLevel(error_logging_level)
         logger.addHandler(sys_sterr_stream_handler)
 
-        return logger, debug_log_file_absolute_path, error_log_file_absolute_path
+        return (
+            logger, debug_log_file_absolute_path, warn_log_file_absolute_path, error_log_file_absolute_path
+        )
 
 
 class LoggerWriter:

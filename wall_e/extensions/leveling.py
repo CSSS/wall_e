@@ -20,7 +20,8 @@ class Leveling(commands.Cog):
         log_info = Loggers.get_logger(logger_name="Leveling")
         self.logger = log_info[0]
         self.debug_log_file_absolute_path = log_info[1]
-        self.error_log_file_absolute_path = log_info[2]
+        self.warn_log_file_absolute_path = log_info[2]
+        self.error_log_file_absolute_path = log_info[3]
         self.logger.info("[Leveling __init__()] initializing Leveling")
         self.levels_have_been_changed = False
         self.guild = None
@@ -40,6 +41,16 @@ class Leveling(commands.Cog):
                 await asyncio.sleep(2)
             await start_file_uploading(
                 self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "leveling_debug"
+            )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_warn_logs(self):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            await start_file_uploading(
+                self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
+                "leveling_warn"
             )
 
     @commands.Cog.listener(name="on_ready")
