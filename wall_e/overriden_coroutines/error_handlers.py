@@ -128,7 +128,7 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
             if type(error) is discord.ext.commands.errors.CheckFailure:
                 author = ctx.author if ctx is not None else f"{interaction.user.name}({interaction.user.id})"
                 logger.warning(
-                    f"[ManageTestGuild on_command_error()] user {author} "
+                    f"[error_handlers.py on_command_error()] user {author} "
                     "probably tried to access a command they arent supposed to"
                 )
             else:
