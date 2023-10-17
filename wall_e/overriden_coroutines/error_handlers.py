@@ -105,7 +105,7 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
                 await asyncio.sleep(10)
                 await msg.delete()
     elif isinstance(error, commands.MissingRequiredArgument):
-        logger.error(f'[error_handlers.py on_command_error()] Missing argument: {error.param}')
+        logger.warning(f'[error_handlers.py on_command_error()] Missing argument: {error.param}')
         author = ctx.me if interaction is None else interaction.client.user
         e_obj = await embed(
             logger,
