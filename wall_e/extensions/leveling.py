@@ -393,7 +393,7 @@ class Leveling(commands.Cog):
         if wall_e_config.enabled("database_config", option="ENABLED"):
             if member.id not in self.user_points:
                 return
-            if BanRecord.user_is_banned(member.id):
+            if await BanRecord.user_is_banned(member.id):
                 return
             while not self.xp_system_ready:
                 await asyncio.sleep(2)
