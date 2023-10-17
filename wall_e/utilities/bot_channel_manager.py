@@ -99,35 +99,51 @@ class BotChannelManager:
         incident_report_channel_name = (
             self.channel_names['incident_reports'][config.get_config_value('basic_config', 'ENVIRONMENT')]
         )
-        BotChannelManager.log_positioning = {
-            incident_report_channel_name: 0,
-            "sys_debug": 1,
-            "sys_error": 2,
-            "wall_e_debug": 3,
-            "wall_e_error": 4,
-            "discordpy_debug": 5,
-            "discordpy_error": 6,
-            "administration_debug": 7,
-            "administration_error": 8,
-            "ban_debug": 9,
-            "ban_error": 10,
-            "health_checks_debug": 11,
-            "health_checks_error": 12,
-            "here_debug": 13,
-            "here_error": 14,
-            "leveling_debug": 15,
-            "leveling_error": 16,
-            "misc_debug": 17,
-            "misc_error": 18,
-            "mod_debug": 19,
-            "mod_error": 20,
-            "reminders_debug": 21,
-            "reminders_error": 22,
-            "role_commands_debug": 23,
-            "role_commands_error": 24,
-            "sfu_debug": 25,
-            "sfu_error": 26
-        }
+        log_names = [
+            incident_report_channel_name,
+            "sys_debug",
+            "sys_warn",
+            "sys_error",
+            "wall_e_debug",
+            "wall_e_warn",
+            "wall_e_error",
+            "discordpy_debug",
+            "discordpy_warn",
+            "discordpy_error",
+            "administration_debug",
+            "administration_warn",
+            "administration_error",
+            "ban_debug",
+            "ban_warn",
+            "ban_error",
+            "health_checks_debug",
+            "health_checks_warn",
+            "health_checks_error",
+            "here_debug",
+            "here_warn",
+            "here_error",
+            "leveling_debug",
+            "leveling_warn",
+            "leveling_error",
+            "misc_debug",
+            "misc_warn",
+            "misc_error",
+            "mod_debug",
+            "mod_warn",
+            "mod_error",
+            "reminders_debug",
+            "reminders_warn",
+            "reminders_error",
+            "role_commands_debug",
+            "role_commands_warn",
+            "role_commands_error",
+            "sfu_debug",
+            "sfu_warn",
+            "sfu_error"
+        ]
+        BotChannelManager.log_positioning = {}
+        for index, channel_name in enumerate(log_names):
+            BotChannelManager.log_positioning[channel_name] = index
 
     async def create_or_get_channel_id_for_service(self, logger, guild, config, service):
         """
@@ -317,5 +333,9 @@ class BotChannelManager:
     async def fix_text_channel_positioning(cls, guild):
         for text_channel_name, index in BotChannelManager.log_positioning.items():
             text_channel = discord.utils.get(guild.channels, name=text_channel_name)
+            while text_channel is None:
+                print(f"unable to get channel [{text_channel_name}], retrying in 5 seconds")
+                await asyncio.sleep(5)
+                text_channel = discord.utils.get(guild.channels, name=text_channel_name)
             if text_channel.position != index:
                 await text_channel.edit(position=index)
