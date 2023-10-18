@@ -275,10 +275,18 @@ then
 		./CI/user_scripts/setup-dev-env.sh
 		docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
 	else
-		if [[ "${DEFAULT}" != "true" && -z "${sqlite3_database}" ]];
+		if [[ "${DEFAULT}" != "true" && -z "${sqlite3_database}" ]] || [[ "${OVERWRITE_ENV_FROM_ENV_FILE}" == "true"  ]];
 		then
-			echo "Do you want to use db.sqlite3 for the database? [alternative is a separate service, dockerized or not] [Y/n]"
-			read sqlite3_database
+			echo -e "Do you want to use db.sqlite3 for the database? [alternative is a separate service, dockerized or not] [Y/n] [enter nothing to revert to default]\n[or press s to skip]"
+			read user_input
+			if [ "${user_input}" != "s" ];
+			then
+				sqlite3_database="${user_input}"
+			fi
+		fi
+		if [ -z "${sqlite3_database}" ];
+		then
+			sqlite3_database="y"
 		fi
 
 		if [[ "${sqlite3_database}" != "y" && -z "${postgres_database}" ]];
