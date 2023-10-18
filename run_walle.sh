@@ -253,6 +253,8 @@ then
 	echo 'channel_names__BOT_GENERAL_CHANNEL='"'"${channel_names__BOT_GENERAL_CHANNEL}"'" >> CI/user_scripts/wall_e.env
 	echo 'channel_names__MOD_CHANNEL='"'"${channel_names__MOD_CHANNEL}"'" >> CI/user_scripts/wall_e.env
 	echo 'channel_names__LEVELLING_CHANNEL='"'"${channel_names__LEVELLING_CHANNEL}"'" >> CI/user_scripts/wall_e.env
+	echo 'channel_names__EMBED_AVATAR_CHANNEL='"'"${channel_names__EMBED_AVATAR_CHANNEL}"'" >> CI/user_scripts/wall_e.env
+	echo 'channel_names__INCIDENT_REPORT_CHANNEL='"'"${channel_names__INCIDENT_REPORT_CHANNEL}"'" >> CI/user_scripts/wall_e.env
 	echo -e 'channel_names__ANNOUNCEMENTS_CHANNEL='"'"${channel_names__ANNOUNCEMENTS_CHANNEL}"'\n\n" >> CI/user_scripts/wall_e.env
 
 	export POSTGRES_PASSWORD='postgres_passwd'
