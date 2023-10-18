@@ -14,6 +14,7 @@ SKIP_REQUIREMENTS_INSTALL="false"
 SKIP_DATABASE_CREATION="false"
 SPECIFY_ENV_FILE="false"
 OVERWRITE_ENV_FROM_ENV_FILE="false"
+SKIP_WALL_E_MODELS="false"
 DEFAULT="false"
 
 show_help() {
@@ -29,6 +30,8 @@ show_help() {
   printf "		informs the script of the location of the .env file from which it can pull the values for the necessary environment variables.\n"
   printf "	--overwrite_envs\n"
   printf "		allows the user to overwrite any environment variable that the script may have pulled from the .env file due to --env_file\n"
+  printf "	--skip_wall_e_model\n"
+  printf "		allows the user to skip being asked for the wall_e_models repo if there is a path already specified in the env file \n"
   printf "	--use_default\n"
   printf "		script will launch wall_e using an sqlite3 database\n"
 }
@@ -49,6 +52,9 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--overwrite_envs)
 			OVERWRITE_ENV_FROM_ENV_FILE="true"
+			;;
+		--skip_wall_e_model)
+			SKIP_WALL_E_MODELS="true"
 			;;
 		--use_default)
 			DEFAULT="true"
@@ -255,6 +261,18 @@ then
 	echo 'channel_names__LEVELLING_CHANNEL='"'"${channel_names__LEVELLING_CHANNEL}"'" >> CI/user_scripts/wall_e.env
 	echo -e 'channel_names__ANNOUNCEMENTS_CHANNEL='"'"${channel_names__ANNOUNCEMENTS_CHANNEL}"'\n\n" >> CI/user_scripts/wall_e.env
 
+
+	if [[ "${SKIP_WALL_E_MODELS}" != "true" && -z "${WALL_E_MODEL_PATH}" ]] || [[ "${OVERWRITE_ENV_FROM_ENV_FILE}" == "true"  ]];
+	then
+		echo -e "Please specify the relative/absolute path for the wall_e_model\n[or press s to skip if you already specified it]"
+		read user_input
+		if [ "${user_input}" != "s" ];
+		then
+			WALL_E_MODEL_PATH="${user_input}"
+		fi
+	fi
+	echo -e 'WALL_E_MODEL_PATH='"'"${WALL_E_MODEL_PATH}"'\n\n" >> CI/user_scripts/wall_e.env
+
 	export POSTGRES_PASSWORD='postgres_passwd'
 	echo 'database_config__WALL_E_DB_DBNAME='"'"'csss_discord_db'"'" >> CI/user_scripts/wall_e.env
 	echo 'database_config__WALL_E_DB_USER='"'"'wall_e'"'" >> CI/user_scripts/wall_e.env
@@ -305,6 +323,8 @@ then
 
 		pushd wall_e
 
+		ln -sn ${WALL_E_MODEL_PATH} wall_e_models || true
+
 		if [ "${SKIP_REQUIREMENTS_INSTALL}" == "false" ]; then
 			wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-1-requirements.txt
 			wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-2-requirements.txt
@@ -312,7 +332,7 @@ then
 			python3 -m pip install -r layer-2-requirements.txt
 			rm layer-1-requirements.txt layer-2-requirements.txt
 
-			python3 -m pip install -r requirements.txt
+			python3 -m pip install -r local-requirements.txt
 		fi
 
 		if [[ "${SKIP_DATABASE_CREATION}" == "false" ]]; then
