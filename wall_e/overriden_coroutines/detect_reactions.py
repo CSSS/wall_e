@@ -17,7 +17,7 @@ async def reaction_detected(reaction):
     """
     from utilities.global_vars import bot, logger
     guild = bot.guilds[0]
-    stack_trace_has_been_tackled = reaction.emoji.name == '👍🏿'
+    stack_trace_has_been_tackled = reaction.emoji.name == '⬆️'
 
     users_roles = [role.name for role in discord.utils.get(guild.members, id=reaction.user_id).roles]
     reaction_is_from_bot_manager = "Bot_manager" in users_roles
@@ -44,12 +44,15 @@ async def reaction_detected(reaction):
 
     # will try to find the message that contains the Traceback string as that's the most reliable way to
     # detect the beginning of a stack trace in a channel
+    number_of_messages_crawled = 0
     while traceback_message_index == -1:
         messages = [message async for message in channel.history(limit=100, before=last_message_checked)]
+        number_of_messages_crawled += 100
         iteration = 0
         if len(messages) > 0:
             while traceback_message_index == -1 and iteration < len(messages):
-                if "Traceback (most recent call last):" in messages[iteration].content:
+                upper_bound_emoji_detected = '⬇️' in [reaction.emoji for reaction in messages[iteration].reactions]
+                if upper_bound_emoji_detected and reaction.message_id != messages[iteration].id:
                     traceback_message_index = iteration
                 iteration += 1
         else:
@@ -84,12 +87,17 @@ async def reaction_detected(reaction):
                 # message in the list for the "after" parameter
                 last_message_checked = messages[traceback_message_index + 1]
     messages_to_delete = [
-        message async for message in channel.history(after=last_message_checked, oldest_first=False)
+        message async for message in channel.history(
+            after=last_message_checked, oldest_first=False, limit=number_of_messages_crawled
+        )
     ]
-    await channel.delete_messages(messages_to_delete, reason="issue fixed")
+    number_of_messages_deleted = len(messages_to_delete)
+    while len(messages_to_delete) > 0:
+        await channel.delete_messages(messages_to_delete[:100], reason="issue fixed")
+        messages_to_delete = messages_to_delete[100:]
     message = (
         'Last' +
-        (f" {len(messages_to_delete)} messages" if len(messages_to_delete) > 1 else " message") +
+        (f" {number_of_messages_deleted} messages" if number_of_messages_deleted > 1 else " message") +
         " deleted"
     )
     e_obj = await embed(
