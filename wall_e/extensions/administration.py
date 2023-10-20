@@ -114,7 +114,7 @@ class Administration(commands.Cog):
         self.announcement_channel = discord.utils.get(
             self.guild.channels, id=reminder_chan_id
         )
-        self.logger.info(
+        self.logger.debug(
             f"[Administration get_announcement_channel()] bot channel {self.announcement_channel} acquired."
         )
 
@@ -208,7 +208,7 @@ class Administration(commands.Cog):
                     after_message = None
                 else:
                     after_message = messages[0]
-                self.logger.info(f"deleting {last_x_messages_to_delete} messages")
+                self.logger.debug(f"deleting {last_x_messages_to_delete} messages")
                 await interaction.channel.purge(after=after_message, bulk=True)
                 e_obj = await embed(
                     self.logger,
@@ -242,7 +242,7 @@ class Administration(commands.Cog):
             await bot.load_extension(extension_to_load)
             await self.sync_helper(interaction=interaction)
             await interaction.followup.send(f"`{extension_to_load}` extension loaded.")
-            self.logger.info(f"[Administration load()] {extension_to_load} has been successfully loaded")
+            self.logger.debug(f"[Administration load()] {extension_to_load} has been successfully loaded")
         except(AttributeError, ImportError) as e:
             await interaction.followup.send(f"{extension_to_load}` extension load failed: {type(e)}, {e}")
             self.logger.error(f"[Administration load()] loading {extension_to_load} failed :{type(e)}, {e}")
@@ -257,7 +257,7 @@ class Administration(commands.Cog):
         await bot.unload_extension(extension_to_unload)
         await self.sync_helper(interaction=interaction)
         await interaction.followup.send(f"`{extension_to_unload}` extension unloaded.")
-        self.logger.info(f"[Administration unload()] {extension_to_unload} has been successfully loaded")
+        self.logger.debug(f"[Administration unload()] {extension_to_unload} has been successfully loaded")
 
     @app_commands.command(name="reload", description="reloads the specified extension")
     @app_commands.describe(extension_to_reload="extension to reload")

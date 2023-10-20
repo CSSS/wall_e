@@ -77,7 +77,7 @@ class RoleCommands(commands.Cog):
         self.bot_channel = discord.utils.get(
             self.guild.channels, id=reminder_chan_id
         )
-        self.logger.info(f"[RoleCommands get_bot_general_channel()] bot channel {self.bot_channel} acquired.")
+        self.logger.debug(f"[RoleCommands get_bot_general_channel()] bot channel {self.bot_channel} acquired.")
 
     @app_commands.command(name="newrole", description="creates assignable role with the specified name")
     @app_commands.describe(new_role_name="name for assignable role to create")
@@ -97,11 +97,11 @@ class RoleCommands(commands.Cog):
             )
             if e_obj is not False:
                 await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
-                self.logger.info(f"[RoleCommands newrole()] {new_role_name} already exists")
+                self.logger.debug(f"[RoleCommands newrole()] {new_role_name} already exists")
             return
         role = await guild.create_role(name=new_role_name)
         await role.edit(mentionable=True)
-        self.logger.info(f"[RoleCommands newrole()] {new_role_name} created and is set to mentionable")
+        self.logger.debug(f"[RoleCommands newrole()] {new_role_name} created and is set to mentionable")
 
         e_obj = await embed(
             self.logger,
@@ -123,7 +123,7 @@ class RoleCommands(commands.Cog):
         if empty_role == "-1":
             return
         if not empty_role.isdigit():
-            self.logger.info(f"[RoleCommands deleterole()] invalid empty_role id of {empty_role} exists")
+            self.logger.debug(f"[RoleCommands deleterole()] invalid empty_role id of {empty_role} exists")
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
@@ -134,7 +134,7 @@ class RoleCommands(commands.Cog):
             return
         role = discord.utils.get(interaction.guild.roles, id=int(empty_role))
         if role is None:
-            self.logger.info(f"[RoleCommands deleterole()] invalid role id of {empty_role} detected")
+            self.logger.debug(f"[RoleCommands deleterole()] invalid role id of {empty_role} detected")
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,

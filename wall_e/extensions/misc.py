@@ -93,7 +93,7 @@ class Misc(commands.Cog):
     async def poll(self, ctx, *questions):
         self.logger.info(f"[Misc poll()] poll command detected from user {ctx.message.author}")
         if len(questions) > 12:
-            self.logger.info("[Misc poll()] was called with too many options.")
+            self.logger.debug("[Misc poll()] was called with too many options.")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -106,7 +106,7 @@ class Misc(commands.Cog):
             await ctx.message.delete()
             return
         elif len(questions) == 1:
-            self.logger.info("[Misc poll()] yes/no poll being constructed.")
+            self.logger.debug("[Misc poll()] yes/no poll being constructed.")
             e_obj = await embed(
                 self.logger, ctx=ctx, title='Poll', author=ctx.author,
                 description=questions[0]
@@ -115,11 +115,11 @@ class Misc(commands.Cog):
                 post = await ctx.send(embed=e_obj)
                 await post.add_reaction(u"\U0001F44D")
                 await post.add_reaction(u"\U0001F44E")
-                self.logger.info("[Misc poll()] yes/no poll constructed and sent to server.")
+                self.logger.debug("[Misc poll()] yes/no poll constructed and sent to server.")
             await ctx.message.delete()
             return
         if len(questions) == 2:
-            self.logger.info("[Misc poll()] poll with only 2 arguments detected.")
+            self.logger.debug("[Misc poll()] poll with only 2 arguments detected.")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -132,7 +132,7 @@ class Misc(commands.Cog):
             await ctx.message.delete()
             return
         elif len(questions) == 0:
-            self.logger.info("[Misc poll()] poll with no arguments detected.")
+            self.logger.debug("[Misc poll()] poll with no arguments detected.")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -145,7 +145,7 @@ class Misc(commands.Cog):
             await ctx.message.delete()
             return
         else:
-            self.logger.info("[Misc poll()] multi-option poll being constructed.")
+            self.logger.debug("[Misc poll()] multi-option poll being constructed.")
             questions = list(questions)
             option_string = "\n"
             numbers_emoji = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:",
@@ -166,11 +166,11 @@ class Misc(commands.Cog):
             )
             if e_obj is not False:
                 poll_post = await ctx.send(embed=e_obj)
-                self.logger.info("[Misc poll()] multi-option poll message contructed and sent.")
+                self.logger.debug("[Misc poll()] multi-option poll message contructed and sent.")
 
                 for i in range(0, options):
                     await poll_post.add_reaction(numbers_unicode[i])
-                self.logger.info("[Misc poll()] reactions added to multi-option poll message.")
+                self.logger.debug("[Misc poll()] reactions added to multi-option poll message.")
             await ctx.message.delete()
 
     @commands.command(
@@ -188,11 +188,11 @@ class Misc(commands.Cog):
                          f"from user {ctx.message.author} with argument =\"{arg}\"")
         query_string = urllib.parse.urlencode({'term': " ".join(arg)})
         url = f'http://api.urbandictionary.com/v0/define?{query_string}'
-        self.logger.info(f"[Misc urban()] following url  constructed for get request =\"{url}\"")
+        self.logger.debug(f"[Misc urban()] following url  constructed for get request =\"{url}\"")
         async with self.session.get(url) as res:
             data = ''
             if res.status == 200:
-                self.logger.info("[Misc urban()] Get request successful")
+                self.logger.debug("[Misc urban()] Get request successful")
                 data = await res.json()
             else:
                 self.logger.info(f"[Misc urban()] Get request failed resulted in {res.status}")

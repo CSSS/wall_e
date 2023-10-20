@@ -121,7 +121,7 @@ class Here(commands.Cog):
                                if query.lower() in m.display_name.lower() or query.lower() in str(m).lower()]) > 0]
             members = allowed
 
-        self.logger.info(f"[Here here()] found {len(members)} users in {channel.name}")
+        self.logger.debug(f"[Here here()] found {len(members)} users in {channel.name}")
 
         embed = self.build_embed(members, channel)
 

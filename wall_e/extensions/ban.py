@@ -74,10 +74,10 @@ class Ban(commands.Cog):
         )
 
         # read in ban_list of banned users
-        self.logger.info('[Ban load()] loading ban list from the database')
+        self.logger.debug('[Ban load()] loading ban list from the database')
         self.ban_list = await BanRecord.get_all_active_ban_user_ids()
         count = await BanRecord.get_active_bans_count()
-        self.logger.info(f"[Ban load()] loaded {count} banned users from database")
+        self.logger.debug(f"[Ban load()] loaded {count} banned users from database")
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
@@ -101,7 +101,7 @@ class Ban(commands.Cog):
             try:
                 await member.send(embed=e_obj)
             except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
-                self.logger.info('[Ban watchdog()] unable to send warning dm to banned user due to user dm settings.')
+                self.logger.debug('[Ban watchdog()] unable to send warning dm to banned user due to user dm settings.')
             await member.kick(reason="Not allowed back on server.")
 
     @commands.Cog.listener(name='on_member_ban')
@@ -112,7 +112,7 @@ class Ban(commands.Cog):
 
         # need to read the audit log to grab mod, date, and reason
         self.logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
-        self.logger.info("[Ban intercept()] waiting 1 second to ensure ban log is created")
+        self.logger.debug("[Ban intercept()] waiting 1 second to ensure ban log is created")
         # sleep is needed so discord has time to create the audit log
         await asyncio.sleep(1)
 
@@ -121,20 +121,20 @@ class Ban(commands.Cog):
                 return member.id == ban.target.id
             audit_ban = await discord.utils.find(pred, self.guild.audit_logs(action=BanAction, oldest_first=False))
         except Exception as e:
-            self.logger.info(f'[Ban intercept()] error while fetching ban data: {e}')
+            self.logger.debug(f'[Ban intercept()] error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
 
         if audit_ban is None:
-            self.logger.info(
+            self.logger.debug(
                 "[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel"
             )
             await self.mod_channel.send(f"Ban for {member.name} has not been added to walle due to error"
                                         "Please use `.convertbans` then `.purgebans` to add to walle system.")
             return
 
-        self.logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
+        self.logger.debug(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
 
         # name, id, mod, mod id, date, reason
         ban = BanRecord(
@@ -152,7 +152,7 @@ class Ban(commands.Cog):
 
         # unban
         await guild.unban(member)
-        self.logger.info(f"[Ban intercept()] ban for {ban.username} moved into db and guild ban was removed")
+        self.logger.debug(f"[Ban intercept()] ban for {ban.username} moved into db and guild ban was removed")
 
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed",
@@ -165,7 +165,7 @@ class Ban(commands.Cog):
         e_obj.set_footer(text="Intercepted Moderator Action")
         e_obj.timestamp = audit_ban.created_at
         await self.mod_channel.send(embed=e_obj)
-        self.logger.info(
+        self.logger.debug(
             f"[Ban intercept()] Message sent to mod channel,{self.mod_channel}, for ban of {ban.username}."
         )
 
@@ -189,7 +189,7 @@ class Ban(commands.Cog):
             }
             guild_ban_list = [ban async for ban in self.guild.bans()]
         except Exception as e:
-            self.logger.info(f'[Ban convertbans()] error while fetching ban data: {e}')
+            self.logger.debug(f'[Ban convertbans()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
             return
 

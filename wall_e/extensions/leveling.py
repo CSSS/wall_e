@@ -83,12 +83,12 @@ class Leveling(commands.Cog):
                         for (level_number, level_info) in json.load(f).items()
                     }
             elif len(self.levels) == 0:
-                self.logger.info("[Leveling load_points_into_dict()] loading level from DB into dict")
+                self.logger.debug("[Leveling load_points_into_dict()] loading level from DB into dict")
                 self.levels = await Level.load_to_dict()
-            self.logger.info("[Leveling load_points_into_dict()] levels loaded in DB and dict")
+            self.logger.debug("[Leveling load_points_into_dict()] levels loaded in DB and dict")
             self.user_points = await UserPoint.load_to_dict()
-            self.logger.info("[Leveling load_points_into_dict()] UserPoints loaded into dict")
-            self.logger.info("[Leveling load_points_into_dict()] XP system ready")
+            self.logger.debug("[Leveling load_points_into_dict()] UserPoints loaded into dict")
+            self.logger.debug("[Leveling load_points_into_dict()] XP system ready")
             self.xp_system_ready = True
 
     # async def load_data_from_mee6_endpoint_and_json(self):
@@ -215,7 +215,7 @@ class Leveling(commands.Cog):
                 if level.role_id is not None:
                     role = message.guild.get_role(level.role_id)
                     if role is not None:
-                        self.logger.info(
+                        self.logger.debug(
                             f"[Leveling on_message()] the new level {level.number} "
                             f" for user {message.author}({message_author_id}) has the role {role} "
                             f"associated with it. Assigning to user"
