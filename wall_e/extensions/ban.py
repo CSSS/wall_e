@@ -29,6 +29,7 @@ class Ban(commands.Cog):
         self.ban_list = []
         self.mod_channel = None
         self.guild: discord.Guild = None
+        self.ban_progress = []
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -110,6 +111,10 @@ class Ban(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
 
+        if member.id in self.ban_progress:
+            self.logger.info(f"[Ban intercept()] user={member} ban already pending. Command terminated.")
+            return
+
         # need to read the audit log to grab mod, date, and reason
         self.logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
         self.logger.info("[Ban intercept()] waiting 1 second to ensure ban log is created")
@@ -148,7 +153,10 @@ class Ban(commands.Cog):
 
         # update ban_list and db
         self.ban_list.append(member.id)
-        await BanRecord.insert_record(ban)
+        success = await BanRecord.insert_record(ban)
+        if not success:
+            self.logger.info("[Ban intercept()] Duplicate ban entry. Command terminated.")
+            return
 
         # unban
         await guild.unban(member)
@@ -263,6 +271,10 @@ class Ban(commands.Cog):
     async def ban(self, ctx, user: discord.Member, *args):
         self.logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, args={args}")
 
+        if user.id in self.ban_progress:
+            self.logger.info(f"[Ban ban()] user={user} is already in process of being banned. Command terminated.")
+            return
+
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
             self.logger.info("[Ban ban()] No user were @ mentioned in the args")
@@ -279,6 +291,7 @@ class Ban(commands.Cog):
                 await ctx.send(embed=e_obj)
             return
 
+        self.ban_progress.append(user.id)
         self.logger.info(f"[Ban ban()] User to ban: {user}")
 
         args = list(args)
@@ -361,7 +374,12 @@ class Ban(commands.Cog):
         )
 
         # update database
-        await BanRecord.insert_record(ban)
+        success = await BanRecord.insert_record(ban)
+        if not success:
+            self.logger.info(f"[Ban ban()] Ban for {user} is duplicate.")
+            await self.mod_channel.send(f"Ban for {user} is duplicate")
+
+        self.ban_progress.remove(user.id)
 
     async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
