@@ -156,6 +156,7 @@ class Ban(commands.Cog):
         success = await BanRecord.insert_record(ban)
         if not success:
             self.logger.info("[Ban intercept()] Duplicate ban entry. Command terminated.")
+            self.mod_channel.send(f"User: `{member}` is already banned in the system.")
             return
 
         # unban
