@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
 
-from utilities.embed import embed
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
@@ -105,7 +105,7 @@ class Mod(commands.Cog):
             i += 2
 
         e_obj = await embed(
-            self.logger, ctx=ctx, description=desc, author=ctx.author,
+            self.logger, ctx=ctx, description=desc, author=ctx.author, colour=WallEColour.WARNING,
             content=fields
         )
         if e_obj is not False:
@@ -158,7 +158,7 @@ class Mod(commands.Cog):
             msg += f'{wrd} '
 
         e_obj = await embed(
-            self.logger, ctx=ctx, title='ATTENTION:', author=ctx.author,
+            self.logger, ctx=ctx, title='ATTENTION:', author=ctx.author, colour=WallEColour.ERROR,
             description=msg, footer='Moderator Warning'
         )
         if e_obj is not False:
