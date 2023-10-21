@@ -312,7 +312,7 @@ class RoleCommands(commands.Cog):
 
             members_of_role = role.members
             x, current_index = 0, 0
-            for members in members_of_role:
+            for index, members in enumerate(members_of_role):
                 name = members.display_name
                 member_string[current_index] += f"{name}"
                 exec_role = [
@@ -323,7 +323,7 @@ class RoleCommands(commands.Cog):
                     member_string[current_index] += f"- {exec_role[0]}"
                 member_string[current_index] += "\n"
                 x += 1
-                if x == number_of_users_per_page:
+                if x == number_of_users_per_page and (index + 1 < len(members_of_role)):
                     member_string.append("")
                     current_index += 1
                     x = 0
