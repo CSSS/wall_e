@@ -342,7 +342,7 @@ then
 			python3 -m pip install -r layer-2-requirements.txt
 			rm layer-1-requirements.txt layer-2-requirements.txt
 
-			python3 -m pip install -r local-requirements.txt
+			python3 -m pip install -r requirements.txt
 		fi
 
 		if [[ "${SKIP_DATABASE_CREATION}" == "false" ]]; then
