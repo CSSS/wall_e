@@ -495,7 +495,7 @@ class Ban(commands.Cog):
             if len(names) + len(name) > 1024 or (len(ids) + len(str(user_id))) > 1024:
                 emb.add_field(name="Names", value=names, inline=True)
                 emb.add_field(name="IDs", value=ids, inline=True)
-                await ctx.send(embed=emb)
+                await ctx.send(embed=emb, delete_after=30)
                 emb.clear_fields()
                 names = ""
                 ids = ""
