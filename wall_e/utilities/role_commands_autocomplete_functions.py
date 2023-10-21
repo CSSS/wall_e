@@ -11,12 +11,15 @@ def get_lowercase_roles(interaction: discord.Interaction, current: str):
     :param current: the substring that the user has entered into the search box on discord
     :return: the list of assign-able roles that match the substring "current"
     """
-    return [
+    print("getting the list of roles")
+    roles = [
         role
         for role in list(interaction.guild.roles)
         if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
         role.name != "@everyone"
     ]
+    print("list of roles obtained")
+    return roles
 
 
 async def get_assigned_or_unassigned_roles(
@@ -76,6 +79,7 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     error_message = [
         f'No assignable roles could be found that contain "{current}"',
         "No assignable roles could be found",
@@ -95,6 +99,7 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     error_message = [
         f'No assigned roles could be found that contain "{current}"',
         "No assigned roles could be found",
@@ -115,6 +120,7 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     current = current.strip()
     roles = get_lowercase_roles(interaction, current)
     roles = [
@@ -146,12 +152,15 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     current = current.strip()
+    print("getting list of all roles")
     roles = [
         app_commands.Choice(name=role.name, value=f"{role.id}")
         for role in list(interaction.guild.roles)
         if len(role.members) > 0 and role.name != "@everyone" and current.lower() in role.name.lower()
     ]
+    print("list of all roles obtained")
     if len(roles) == 0:
         if len(current) > 0:
             roles.append(
