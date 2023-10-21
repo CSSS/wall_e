@@ -29,7 +29,6 @@ class Ban(commands.Cog):
         self.ban_list = []
         self.mod_channel = None
         self.guild: discord.Guild = None
-        self.ban_progress = []
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -110,10 +109,6 @@ class Ban(commands.Cog):
         """Watches for a guild ban. The guild ban is undone and the user is banned via this ban system"""
         while self.guild is None:
             await asyncio.sleep(2)
-
-        if member.id in self.ban_progress:
-            self.logger.info(f"[Ban intercept()] user={member} ban already pending. Command terminated.")
-            return
 
         # need to read the audit log to grab mod, date, and reason
         self.logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
@@ -271,10 +266,6 @@ class Ban(commands.Cog):
     async def ban(self, ctx, user: discord.Member, *args):
         self.logger.info(f"[Ban ban()] Ban command detected from {ctx.author} with args: user={user}, args={args}")
 
-        if user.id in self.ban_progress:
-            self.logger.info(f"[Ban ban()] user={user} is already in process of being banned. Command terminated.")
-            return
-
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
             self.logger.info("[Ban ban()] No user were @ mentioned in the args")
@@ -290,8 +281,6 @@ class Ban(commands.Cog):
             if e_obj:
                 await ctx.send(embed=e_obj)
             return
-
-        self.ban_progress.append(user.id)
         self.logger.info(f"[Ban ban()] User to ban: {user}")
 
         # indicate working on banning
@@ -379,8 +368,6 @@ class Ban(commands.Cog):
         if not success:
             self.logger.info(f"[Ban ban()] Ban for {user} is duplicate.")
             await self.mod_channel.send(f"Ban for {user} is duplicate")
-
-        self.ban_progress.remove(user.id)
 
         # begin purging messages from user in the last purge_window_days
         await self.purge_messages(ctx, user, purge_window_days)
