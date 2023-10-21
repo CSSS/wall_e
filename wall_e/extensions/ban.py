@@ -150,18 +150,17 @@ class Ban(commands.Cog):
                          ban_date=audit_ban.created_at.timestamp(),
                          reason=audit_ban.reason if audit_ban.reason else 'No Reason Given!'
                          )
-
-        # update ban_list and db
-        self.ban_list.append(member.id)
-        success = await BanRecord.insert_record(ban)
-        if not success:
-            self.logger.info("[Ban intercept()] Duplicate ban entry. Command terminated.")
-            self.mod_channel.send(f"User: `{member}` is already banned in the system.")
-            return
-
         # unban
         await guild.unban(member)
         self.logger.info(f"[Ban intercept()] ban for {ban.username} moved into db and guild ban was removed")
+
+        # update ban_list and db
+        success = await BanRecord.insert_record(ban)
+        if not success:
+            self.logger.info(f"[Ban intercept()] User: {member} is already in ban system.")
+            await self.mod_channel.send(f"User: `{member}` is already banned in the system.")
+            return
+        self.ban_list.append(member.id)
 
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed",
