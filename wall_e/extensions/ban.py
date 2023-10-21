@@ -303,23 +303,7 @@ class Ban(commands.Cog):
         reason = reason if reason else "No Reason Given."
         self.logger.info(f"[Ban ban()] Ban reason '{reason}'")
 
-        # ban
-        dm = True
-
-        ban = BanRecord(
-                         username=user.name + '#' + user.discriminator,
-                         user_id=user.id,
-                         mod=ctx.author.name+'#'+ctx.author.discriminator,
-                         mod_id=ctx.author.id,
-                         reason=reason
-                         )
-
-        self.logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
-
-        # add to ban_list
-        self.ban_list.append(ban.user_id)
-
-        # dm banned user
+        # construct dm message for banned user
         e_obj = discord.Embed(title="Ban Notification",
                               description="You have been **PERMANENTLY BANNED** from " +
                               f"**{self.guild.name.upper()}**",
@@ -332,6 +316,21 @@ class Ban(commands.Cog):
                         )
 
         e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
+
+        # Conduct banning
+        dm = True
+        ban = BanRecord(
+                         username=user.name + '#' + user.discriminator,
+                         user_id=user.id,
+                         mod=ctx.author.name+'#'+ctx.author.discriminator,
+                         mod_id=ctx.author.id,
+                         reason=reason
+                         )
+
+        self.logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
+
+        # add to ban_list
+        self.ban_list.append(ban.user_id)
         try:
             await user.send(embed=e_obj)
             self.logger.info("[Ban ban()] User notified via dm of their ban")
