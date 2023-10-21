@@ -21,6 +21,10 @@ def user_can_manage_roles(ctx: discord.Interaction) -> bool:
 
 class RoleCommands(commands.Cog):
 
+    lowercase_roles = {}
+    roles_with_members = {}
+    roles_list_being_updated = False
+
     def __init__(self):
         log_info = Loggers.get_logger(logger_name="RoleCommands")
         self.logger = log_info[0]
@@ -79,6 +83,73 @@ class RoleCommands(commands.Cog):
         )
         self.logger.info(f"[RoleCommands get_bot_general_channel()] bot channel {self.bot_channel} acquired.")
 
+    @commands.Cog.listener(name="on_ready")
+    async def update_roles_cache(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        while True:
+            if not RoleCommands.roles_list_being_updated:
+                self.logger.debug("[RoleCommands update_roles_cache()] updating roles cache")
+                RoleCommands.roles_list_being_updated = True
+                RoleCommands.roles_with_members = {
+                    role.id: role
+                    for role in list(self.guild.roles)
+                    if len(role.members) > 0 and role.name != "@everyone"
+                }
+                self.logger.debug("[RoleCommands update_roles_cache()] roles_with_members updated")
+                RoleCommands.lowercase_roles = {
+                    role.id: role
+                    for role in list(self.guild.roles)
+                    if role.name[0] == role.name[0].lower() and role.name != "@everyone"
+                }
+                self.logger.debug("[RoleCommands update_roles_cache()] all roles caches have been updated")
+                RoleCommands.roles_list_being_updated = False
+            await asyncio.sleep(600)
+
+    @app_commands.command(
+        name="sync_roles", description="manually updates the cache of roles for the auto-complete menus"
+    )
+    async def sync_roles(self, interaction: discord.Interaction):
+        self.logger.info(f"[RoleCommands sync_roles()] {interaction.user} called sync_roles")
+        if not RoleCommands.roles_list_being_updated:
+            RoleCommands.roles_list_being_updated = True
+            await interaction.response.defer()
+            self.logger.debug("[RoleCommands update_roles_cache()] updating roles cache")
+            RoleCommands.roles_with_members = {
+                role.id: role
+                for role in list(self.guild.roles)
+                if len(role.members) > 0 and role.name != "@everyone"
+            }
+            self.logger.debug("[RoleCommands update_roles_cache()] roles_with_members updated")
+            RoleCommands.lowercase_roles = {
+                role.id: role
+                for role in list(self.guild.roles)
+                if role.name[0] == role.name[0].lower() and role.name != "@everyone"
+            }
+            self.logger.debug("[RoleCommands update_roles_cache()] all roles caches have been updated")
+            RoleCommands.roles_list_being_updated = False
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description="Roles Cache Updated"
+            )
+            if e_obj:
+                await self.send_message_to_user_or_bot_channel(
+                    e_obj, interaction, send_func=interaction.followup.send
+                )
+        else:
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description="Roles Cache Already Being Updated"
+            )
+            if e_obj:
+                await self.send_message_to_user_or_bot_channel(
+                    e_obj, interaction, send_func=interaction.followup.send
+                )
+
     @app_commands.command(name="newrole", description="creates assignable role with the specified name")
     @app_commands.describe(new_role_name="name for assignable role to create")
     async def newrole(self, interaction: discord.Interaction, new_role_name: str):
@@ -100,6 +171,7 @@ class RoleCommands(commands.Cog):
                 self.logger.info(f"[RoleCommands newrole()] {new_role_name} already exists")
             return
         role = await guild.create_role(name=new_role_name)
+        self.lowercase_roles[role.id] = role
         await role.edit(mentionable=True)
         self.logger.info(f"[RoleCommands newrole()] {new_role_name} created and is set to mentionable")
 
@@ -144,6 +216,7 @@ class RoleCommands(commands.Cog):
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
         await role.delete()
+        del self.lowercase_roles[int(empty_role)]
         self.logger.info("[RoleCommands deleterole()] no members were detected, role has been deleted.")
         e_obj = await embed(
             self.logger,
@@ -183,6 +256,7 @@ class RoleCommands(commands.Cog):
             return
         user = interaction.user
         await user.add_roles(role)
+        RoleCommands.roles_with_members[role.id] = role
         self.logger.info(f"[RoleCommands iam()] user {user} added to role {role}.")
         if role == 'froshee':
             e_obj = await embed(
@@ -235,6 +309,8 @@ class RoleCommands(commands.Cog):
             return
         user = interaction.user
         await user.remove_roles(role)
+        if len(role.members) == 0:
+            del RoleCommands.roles_with_members[role.id]
         e_obj = await embed(
             self.logger,
             interaction=interaction,
