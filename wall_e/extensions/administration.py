@@ -266,9 +266,8 @@ class Administration(commands.Cog):
     async def reload(self, interaction: discord.Interaction, extension_to_reload: str):
         self.logger.info(f"[Administration reload()] reload command detected from {interaction.user}")
         await interaction.response.defer()
-        await bot.unload_extension(extension_to_reload)
         try:
-            await bot.load_extension(extension_to_reload)
+            await bot.reload_extension(extension_to_reload)
             await self.sync_helper(interaction=interaction)
             await interaction.followup.send(f"`{extension_to_reload}` extension reloaded.")
             self.logger.info(f"[Administration reload()] {extension_to_reload} has been successfully reloaded")
