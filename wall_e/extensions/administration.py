@@ -300,6 +300,7 @@ class Administration(commands.Cog):
     @commands.has_role("Bot_manager")
     async def sync(self, ctx):
         self.logger.info(f"[AdministrationAdministration sync()] sync command detected from {ctx.message.author}")
+        await ctx.message.delete()
         await self.sync_helper(ctx=ctx)
 
     async def sync_helper(self, ctx=None, interaction=None):
@@ -317,7 +318,9 @@ class Administration(commands.Cog):
             await bot.tree.sync(guild=self.guild)
         if e_obj is not False:
             send_func = ctx.send if interaction is None else interaction.channel.send
-            await send_func(embed=e_obj)
+            message = await send_func(embed=e_obj)
+            await asyncio.sleep(10)
+            await message.delete()
 
     @commands.command(
         brief="sends an announcement to the announcement channel",
