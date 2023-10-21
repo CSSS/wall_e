@@ -353,9 +353,6 @@ class Ban(commands.Cog):
 
         self.logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
 
-        # begin purging messages from user in the last purge_window_days
-        await self.purge_messages(ctx, user, purge_window_days)
-
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed",
                               colour=discord.Color.red())
@@ -380,6 +377,9 @@ class Ban(commands.Cog):
             await self.mod_channel.send(f"Ban for {user} is duplicate")
 
         self.ban_progress.remove(user.id)
+
+        # begin purging messages from user in the last purge_window_days
+        await self.purge_messages(ctx, user, purge_window_days)
 
     async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
