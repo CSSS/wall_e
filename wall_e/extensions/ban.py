@@ -152,12 +152,12 @@ class Ban(commands.Cog):
                          )
         # unban
         await guild.unban(member)
-        self.logger.info(f"[Ban intercept()] ban for {ban.username} moved into db and guild ban was removed")
+        self.logger.info(f"[Ban intercept()] Guild ban for user: {ban.username} removed. Moving ban into db.")
 
         # update ban_list and db
         success = await BanRecord.insert_record(ban)
         if not success:
-            self.logger.info(f"[Ban intercept()] User: {member} is already in ban system.")
+            self.logger.info(f"[Ban intercept()] User: {member} is already banned in the system.")
             await self.mod_channel.send(f"User: `{member}` is already banned in the system.")
             return
         self.ban_list.append(member.id)
