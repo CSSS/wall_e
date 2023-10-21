@@ -294,6 +294,10 @@ class Ban(commands.Cog):
         self.ban_progress.append(user.id)
         self.logger.info(f"[Ban ban()] User to ban: {user}")
 
+        # indicate working on banning
+        await ctx.message.add_reaction("⚡")
+        await ctx.message.add_reaction("🔨")
+
         args = list(args)
         purge_window_days = 1
         try:
@@ -380,6 +384,7 @@ class Ban(commands.Cog):
 
         # begin purging messages from user in the last purge_window_days
         await self.purge_messages(ctx, user, purge_window_days)
+        await ctx.message.delete()
 
     async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
