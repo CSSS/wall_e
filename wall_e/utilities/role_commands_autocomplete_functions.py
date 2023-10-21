@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import discord
@@ -11,12 +12,11 @@ def get_lowercase_roles(interaction: discord.Interaction, current: str):
     :param current: the substring that the user has entered into the search box on discord
     :return: the list of assign-able roles that match the substring "current"
     """
-    return [
-        role
-        for role in list(interaction.guild.roles)
-        if role.name[0] == role.name[0].lower() and current.lower() in role.name.lower() and
-        role.name != "@everyone"
-    ]
+    roles = []
+    from extensions.role_commands import RoleCommands
+    if not RoleCommands.roles_list_being_updated:
+        roles = [role for role in list(RoleCommands.lowercase_roles.values()) if current.lower() in role.name.lower()]
+    return roles
 
 
 async def get_assigned_or_unassigned_roles(
@@ -78,12 +78,20 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
     """
     error_message = [
         f'No assignable roles could be found that contain "{current}"',
-        "No assignable roles could be found",
+        "No assignable roles could be found. Try the /sync_roles if you know it exists",
         f'You are in all the assignable roles that contain "{current}"',
         'You are in all the assignable roles',
         "Start typing to get better results"
     ]
-    return await get_assigned_or_unassigned_roles(interaction, current, error_message, assigned_roles=False)
+    logger = logging.getLogger("RoleCommands")
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_assignable_roles()] getting list of assignable roles"
+    )
+    roles = await get_assigned_or_unassigned_roles(interaction, current, error_message, assigned_roles=False)
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_assignable_roles()] retrieved list of assignable roles"
+    )
+    return roles
 
 
 async def get_assigned_roles(interaction: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
@@ -97,12 +105,20 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
     """
     error_message = [
         f'No assigned roles could be found that contain "{current}"',
-        "No assigned roles could be found",
+        "No assigned roles could be found. Try the /sync_roles if you know it exists",
         f'You are not in any assignable roles that contain "{current}"',
         'You are not in any assignable roles',
         "Start typing to get better results"
     ]
-    return await get_assigned_or_unassigned_roles(interaction, current, error_message)
+    logger = logging.getLogger("RoleCommands")
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_assigned_roles()] getting list of assigned roles"
+    )
+    roles = await get_assigned_or_unassigned_roles(interaction, current, error_message)
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_assigned_roles()] retrieved list of assigned roles"
+    )
+    return roles
 
 
 async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
@@ -115,6 +131,11 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    logger = logging.getLogger("RoleCommands")
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_roles_that_can_be_deleted()] getting list of "
+        "roles that can be deleted"
+    )
     current = current.strip()
     roles = get_lowercase_roles(interaction, current)
     roles = [
@@ -130,10 +151,19 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
                 )
             )
         else:
-            roles.append(app_commands.Choice(name="No empty assignable roles could be found", value="-1"))
+            roles.append(
+                app_commands.Choice(
+                    name="No empty assignable roles could be found. Try the /sync_roles if you know it exists",
+                    value="-1"
+                )
+            )
     if len(roles) > 25:
         roles = roles[:24]
         roles.append(app_commands.Choice(name="Start typing to get better results", value="-1"))
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_roles_that_can_be_deleted()] obtained list of "
+        "roles that can be deleted"
+    )
     return roles
 
 
@@ -146,22 +176,39 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    logger = logging.getLogger("RoleCommands")
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_roles_with_members()] getting list of "
+        "roles with members"
+    )
     current = current.strip()
-    roles = [
-        app_commands.Choice(name=role.name, value=f"{role.id}")
-        for role in list(interaction.guild.roles)
-        if len(role.members) > 0 and role.name != "@everyone" and current.lower() in role.name.lower()
-    ]
-    if len(roles) == 0:
-        if len(current) > 0:
-            roles.append(
-                app_commands.Choice(
-                    name=f'No roles could be found with a member that contain "{current}"', value="-1"
+    roles = []
+    from extensions.role_commands import RoleCommands
+    if not RoleCommands.roles_list_being_updated:
+        roles = [
+            app_commands.Choice(name=role.name, value=f"{role.id}")
+            for role in list(RoleCommands.roles_with_members.values())
+            if current.lower() in role.name.lower()
+        ]
+        if len(roles) == 0:
+            if len(current) > 0:
+                roles.append(
+                    app_commands.Choice(
+                        name=f'No roles could be found with a member that contain "{current}"', value="-1"
+                    )
                 )
-            )
-        else:
-            roles.append(app_commands.Choice(name="No roles could be found with a member", value="-1"))
-    if len(roles) > 25:
-        roles = roles[:24]
-        roles.append(app_commands.Choice(name="Start typing to get better results", value="-1"))
+            else:
+                roles.append(
+                    app_commands.Choice(
+                        name="No roles could be found with a member. Try the /sync_roles if you know it exists",
+                        value="-1"
+                    )
+                )
+        if len(roles) > 25:
+            roles = roles[:24]
+            roles.append(app_commands.Choice(name="Start typing to get better results", value="-1"))
+    logger.debug(
+        "[role_commands_autocomplete_functions.py get_roles_with_members()] obtained list of "
+        "roles with members"
+    )
     return roles
