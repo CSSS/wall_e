@@ -79,6 +79,7 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     error_message = [
         f'No assignable roles could be found that contain "{current}"',
         "No assignable roles could be found",
@@ -98,6 +99,7 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     error_message = [
         f'No assigned roles could be found that contain "{current}"',
         "No assigned roles could be found",
@@ -118,6 +120,7 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     current = current.strip()
     roles = get_lowercase_roles(interaction, current)
     roles = [
@@ -149,6 +152,7 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
      value is the role's ID in string format cause an int version of the role ID was too big a number for
      discord to be able to handle
     """
+    await interaction.response.defer()
     current = current.strip()
     print("getting list of all roles")
     roles = [
