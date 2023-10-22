@@ -316,6 +316,7 @@ class Ban(commands.Cog):
             e_obj.description = f"Duplicate ban for user: {ban.username} prevented."
             e_obj.set_footer(text="Moderator Action")
             await self.mod_channel.send(embed=e_obj)
+            await ctx.message.delete()
             return
 
         # Construct dm message for banned user
