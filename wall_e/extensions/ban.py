@@ -108,12 +108,16 @@ class Ban(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
 
-        # need to read the audit log to grab mod, date, and reason
         self.logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
-        self.logger.info("[Ban intercept()] waiting 1 second to ensure ban log is created")
+
+        # Remove guild ban
+        await guild.unban(member)
+        self.logger.info(f"[Ban intercept()] Guild ban for user: {ban.username} removed. Moving ban into db.")
+
         # sleep is needed so discord has time to create the audit log
         await asyncio.sleep(1)
 
+        # need to read the audit log to grab mod, date, and reason
         try:
             def pred(ban: discord.AuditLogEntry):
                 return member.id == ban.target.id
@@ -133,8 +137,6 @@ class Ban(commands.Cog):
             return
 
         self.logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
-
-        # name, id, mod, mod id, date, reason
         ban = BanRecord(
                          username=member.name + '#' + member.discriminator,
                          user_id=member.id,
@@ -143,11 +145,7 @@ class Ban(commands.Cog):
                          ban_date=audit_ban.created_at.timestamp(),
                          reason=audit_ban.reason if audit_ban.reason else 'No Reason Given!'
                          )
-        # unban
-        await guild.unban(member)
-        self.logger.info(f"[Ban intercept()] Guild ban for user: {ban.username} removed. Moving ban into db.")
-
-        # update ban_list and db
+        # update db
         success = await BanRecord.insert_record(ban)
         if not success:
             self.logger.info(f"[Ban intercept()] User: {member} is already banned in the system.")
