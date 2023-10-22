@@ -149,7 +149,10 @@ class Ban(commands.Cog):
         success = await BanRecord.insert_record(ban)
         if not success:
             self.logger.info(f"[Ban intercept()] User: {member} is already banned in the system.")
-            await self.mod_channel.send(f"User: `{member}` is already banned in the system.")
+            e_obj = discord.Embed(title="Duplicate Ban", colour=discord.Colour.red())
+            e_obj.description = f"Duplicate ban for user: {ban.username} prevented"
+            e_obj.set_footer(text="Intercepted Moderator Action")
+            await self.mod_channel.send(embed=e_obj)
             return
 
         # report to council
@@ -309,7 +312,10 @@ class Ban(commands.Cog):
         success = await BanRecord.insert_record(ban)
         if not success:
             self.logger.info(f"[Ban ban()] Ban for {user} is duplicate.")
-            await self.mod_channel.send(f"Ban for {user} is duplicate")
+            e_obj = discord.Embed(title="Duplicate Ban", colour=discord.Colour.red())
+            e_obj.description = f"Duplicate ban for user: {ban.username} prevented."
+            e_obj.set_footer(text="Moderator Action")
+            await self.mod_channel.send(embed=e_obj)
             return
 
         # Construct dm message for banned user
