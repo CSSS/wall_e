@@ -298,7 +298,22 @@ class Ban(commands.Cog):
         reason = reason if reason else "No Reason Given."
         self.logger.info(f"[Ban ban()] Ban reason '{reason}'")
 
-        # construct dm message for banned user
+        # Construct ban record and attempt save
+        ban = BanRecord(
+                         username=user.name + '#' + user.discriminator,
+                         user_id=user.id,
+                         mod=ctx.author.name+'#'+ctx.author.discriminator,
+                         mod_id=ctx.author.id,
+                         reason=reason
+                         )
+        success = await BanRecord.insert_record(ban)
+        if not success:
+            self.logger.info(f"[Ban ban()] Ban for {user} is duplicate.")
+            await self.mod_channel.send(f"Ban for {user} is duplicate")
+            return
+
+        # Construct dm message for banned user
+        dm = True
         e_obj = discord.Embed(title="Ban Notification",
                               description="You have been **PERMANENTLY BANNED** from " +
                               f"**{self.guild.name.upper()}**",
@@ -309,20 +324,7 @@ class Ban(commands.Cog):
                         value=f"```{reason}```\n" +
                         "**Please refrain from this kind of behaviour in the future. Thank you.**"
                         )
-
         e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
-
-        # Conduct banning
-        dm = True
-        ban = BanRecord(
-                         username=user.name + '#' + user.discriminator,
-                         user_id=user.id,
-                         mod=ctx.author.name+'#'+ctx.author.discriminator,
-                         mod_id=ctx.author.id,
-                         reason=reason
-                         )
-
-        self.logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
 
         try:
             await user.send(embed=e_obj)
@@ -331,17 +333,17 @@ class Ban(commands.Cog):
             dm = False
             self.logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
 
-        # kick
+        # Conduct banning
+        self.logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
         await user.kick(reason=reason)
         dt = datetime.datetime.now(pytz.utc)
         ban.ban_date = dt.timestamp()
+        ban.save()
 
         self.logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
 
-        # report to council
-        e_obj = discord.Embed(title="Ban Hammer Deployed",
-                              colour=discord.Color.red())
-
+        # Report to council
+        e_obj = discord.Embed(title="Ban Hammer Deployed", colour=discord.Color.red())
         e_obj.add_field(name="Banned User", value=f"**{ban.username}**", inline=True)
         e_obj.add_field(name="Moderator", value=f"**{ban.mod}**", inline=True)
         e_obj.add_field(name="Reason", value=f"```{ban.reason}```", inline=False)
@@ -355,13 +357,7 @@ class Ban(commands.Cog):
             f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}."
         )
 
-        # update database
-        success = await BanRecord.insert_record(ban)
-        if not success:
-            self.logger.info(f"[Ban ban()] Ban for {user} is duplicate.")
-            await self.mod_channel.send(f"Ban for {user} is duplicate")
-
-        # begin purging messages from user in the last purge_window_days
+        # Begin purging messages from user in the last purge_window_days
         await self.purge_messages(ctx, user, purge_window_days)
         await ctx.message.delete()
 
