@@ -26,7 +26,7 @@ class Ban(commands.Cog):
         self.warn_log_file_absolute_path = log_info[2]
         self.error_log_file_absolute_path = log_info[3]
         self.logger.info("[Ban __init__()] initializing Ban")
-        self.ban_list = []
+
         self.mod_channel = None
         self.guild: discord.Guild = None
 
@@ -73,11 +73,9 @@ class Ban(commands.Cog):
             self.guild.channels, id=mod_channel_id
         )
 
-        # read in ban_list of banned users
-        self.logger.info('[Ban load()] loading ban list from the database')
-        self.ban_list = await BanRecord.get_all_active_ban_user_ids()
+        # Checking count of banned user in system
         count = await BanRecord.get_active_bans_count()
-        self.logger.info(f"[Ban load()] loaded {count} banned users from database")
+        self.logger.info(f"[Ban load()] There are {count} banned users in the system")
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
@@ -85,9 +83,9 @@ class Ban(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
 
-        if member.id in self.ban_list:
+        if BanRecord.user_is_banned(member.id):
             self.logger.info(
-                f"[Ban watchdog()] banned member, {member}, detected. Promply will notify and kick them."
+                f"[Ban watchdog()] banned member, {member}, detected. Promptly will notify and kick them."
             )
 
             e_obj = discord.Embed(title="Ban Notification",
@@ -155,7 +153,6 @@ class Ban(commands.Cog):
             self.logger.info(f"[Ban intercept()] User: {member} is already banned in the system.")
             await self.mod_channel.send(f"User: `{member}` is already banned in the system.")
             return
-        self.ban_list.append(member.id)
 
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed",
@@ -207,13 +204,11 @@ class Ban(commands.Cog):
 
         self.logger.info("[Ban convertbans()] Starting process to move all guild bans into db")
 
-        # update self.ban_list
+        # update bans
         ban_records = []
         for ban in guild_ban_list:
             # NOTE: In the unlikely case there are >1 bans for the same user only 1 will be recorded
-            if ban.user.id not in self.ban_list:
-                self.ban_list.append(ban.user.id)
-
+            if not BanRecord.user_is_banned(ban.user.id):
                 mod = None
                 mod_id = None
                 ban_date = None
@@ -329,8 +324,6 @@ class Ban(commands.Cog):
 
         self.logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
 
-        # add to ban_list
-        self.ban_list.append(ban.user_id)
         try:
             await user.send(embed=e_obj)
             self.logger.info("[Ban ban()] User notified via dm of their ban")
@@ -413,7 +406,7 @@ class Ban(commands.Cog):
     @commands.has_any_role("Minions", "Moderator")
     async def unban(self, ctx, user_id: int):
         self.logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
-        if user_id not in self.ban_list:
+        if not BanRecord.user_is_banned(user_id):
             self.logger.info(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
             e_obj = await embed(
                 self.logger, ctx=ctx, title="Error",
@@ -427,9 +420,6 @@ class Ban(commands.Cog):
             if e_obj:
                 await ctx.send(embed=e_obj)
             return
-
-        # "unban"
-        self.ban_list.remove(user_id)
 
         name = await BanRecord.unban_by_id(user_id)
         if not name:
