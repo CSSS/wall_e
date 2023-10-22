@@ -307,7 +307,7 @@ class Ban(commands.Cog):
                          mod_id=ctx.author.id,
                          reason=reason,
                          # negligible difference between now and when user is kicked
-                         ban_date = datetime.datetime.now(pytz.utc)
+                         ban_date=datetime.datetime.now(pytz.utc)
                          )
         success = await BanRecord.insert_record(ban)
         if not success:
