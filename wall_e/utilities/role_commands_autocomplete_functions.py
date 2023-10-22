@@ -5,10 +5,9 @@ import discord
 from discord import app_commands
 
 
-def get_lowercase_roles(interaction: discord.Interaction, current: str):
+def get_lowercase_roles(current: str):
     """
     Gets the latest assign-able roles that contain the substring "current"
-    :param interaction: the interaction object that contains the roles
     :param current: the substring that the user has entered into the search box on discord
     :return: the list of assign-able roles that match the substring "current"
     """
@@ -41,7 +40,7 @@ async def get_assigned_or_unassigned_roles(
     cause an int version of the role ID was too big a number for discord to be able to handle
     """
     current = current.strip()
-    roles = get_lowercase_roles(interaction, current)
+    roles = get_lowercase_roles(current)
     if len(roles) == 0:
         if len(current) > 0:
             roles = [app_commands.Choice(name=error_message[0], value="-1")]
@@ -146,7 +145,7 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
         "roles that can be deleted"
     )
     current = current.strip()
-    roles = get_lowercase_roles(interaction, current)
+    roles = get_lowercase_roles(current)
     roles = [
         app_commands.Choice(name=role.name, value=f"{role.id}")
         for role in roles
