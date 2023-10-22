@@ -77,10 +77,16 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
      discord to be able to handle
     """
     error_message = [
-        f'No assignable roles could be found that contain "{current}"',
-        "No assignable roles could be found. Try the /sync_roles if you know it exists",
-        f'You are in all the assignable roles that contain "{current}"',
-        'You are in all the assignable roles',
+        (
+            f"No assignable roles found with '{current[:13]}{'...' if current != current[:13] else ''}'. "
+            f"Maybe try after /sync_roles if you know it exists"
+        ),
+        "No assignable roles found. Maybe re-try after /sync_roles if you know it exists",
+        (
+            f"You are in all the assignable roles with '{current[:3]}{'...' if current != current[:3] else ''}'. "
+            f"Maybe try after /sync_roles if you know it exists"
+        ),
+        "You are in all the assignable roles. Maybe re-try after /sync_roles if you know it exists",
         "Start typing to get better results"
     ]
     logger = logging.getLogger("RoleCommands")
@@ -104,10 +110,13 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
      discord to be able to handle
     """
     error_message = [
-        f'No assigned roles could be found that contain "{current}"',
-        "No assigned roles could be found. Try the /sync_roles if you know it exists",
-        f'You are not in any assignable roles that contain "{current}"',
-        'You are not in any assignable roles',
+        f"No assigned roles found with '{current[:66]}{'...' if current != current[:66] else ''}",
+        "No assigned roles could be found. Maybe try after /sync_roles if you know it exists",
+        (
+            f"You aren't in any assignable roles with '{current[:4]}{'...' if current != current[:4] else ''}'. "
+            f"Maybe try after /sync_roles if you know it exists"
+        ),
+        "You are not in any assignable roles",
         "Start typing to get better results"
     ]
     logger = logging.getLogger("RoleCommands")
@@ -147,13 +156,20 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
         if len(current) > 0:
             roles.append(
                 app_commands.Choice(
-                    name=f'No empty assignable roles could be found that contain "{current}"', value="-1"
+                    name=(
+                        "No empty assignable roles found with "
+                        f"'{current[:10]}{'...' if current != current[:10] else ''}'. "
+                        "Maybe try after /sync_roles if you know it exists"
+                    ), value="-1"
                 )
             )
         else:
             roles.append(
                 app_commands.Choice(
-                    name="No empty assignable roles could be found. Try the /sync_roles if you know it exists",
+                    name=(
+                        "No empty assignable roles could be found. "
+                        "Maybe re-try after /sync_roles if you know it exists"
+                    ),
                     value="-1"
                 )
             )
@@ -194,13 +210,20 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
             if len(current) > 0:
                 roles.append(
                     app_commands.Choice(
-                        name=f'No roles could be found with a member that contain "{current}"', value="-1"
+                        name=(
+                            "No roles found with a member with "
+                            f"'{current[:10]}{'...' if current != current[:10] else ''}'. "
+                            "Maybe try after /sync_roles if you know it exists"
+                        ), value="-1"
                     )
                 )
             else:
                 roles.append(
                     app_commands.Choice(
-                        name="No roles could be found with a member. Try the /sync_roles if you know it exists",
+                        name=(
+                            "No roles could be found with a member. "
+                            "maybe be-try after /sync_roles if you know it exists"
+                        ),
                         value="-1"
                     )
                 )
