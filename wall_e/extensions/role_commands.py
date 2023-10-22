@@ -35,6 +35,7 @@ class RoleCommands(commands.Cog):
         self.guild = None
         self.bot_channel = None
         self.exec_role_colour = [3447003, 6533347]
+        self.role_change_detected = True
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -83,28 +84,72 @@ class RoleCommands(commands.Cog):
         )
         self.logger.info(f"[RoleCommands get_bot_general_channel()] bot channel {self.bot_channel} acquired.")
 
+    @commands.Cog.listener(name="on_raw_member_remove")
+    async def on_raw_member_remove(self, payload):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.role_change_detected = True
+
+    @commands.Cog.listener(name="on_member_update")
+    async def on_member_update(self, member_before_update, member_after_update):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.role_change_detected = len(member_before_update.roles) != len(member_after_update.roles)
+
+    @commands.Cog.listener(name="on_member_ban")
+    async def on_member_ban(self, banned_member):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.role_change_detected = True
+
+    @commands.Cog.listener(name="on_guild_role_create")
+    async def on_guild_role_create(self, created_role):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.role_change_detected = True
+
+    @commands.Cog.listener(name="on_guild_role_delete")
+    async def on_guild_role_delete(self, deleted_role):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.role_change_detected = True
+
+    @commands.Cog.listener(name="on_guild_role_update")
+    async def on_guild_role_update(self, role_before_update, role_after_update):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.role_change_detected = True
+
     @commands.Cog.listener(name="on_ready")
     async def update_roles_cache(self):
         while self.guild is None:
             await asyncio.sleep(2)
         while True:
-            if not RoleCommands.roles_list_being_updated:
-                self.logger.debug("[RoleCommands update_roles_cache()] updating roles cache")
-                RoleCommands.roles_list_being_updated = True
-                RoleCommands.roles_with_members = {
-                    role.id: role
-                    for role in list(self.guild.roles)
-                    if len(role.members) > 0 and role.name != "@everyone"
-                }
-                self.logger.debug("[RoleCommands update_roles_cache()] roles_with_members updated")
-                RoleCommands.lowercase_roles = {
-                    role.id: role
-                    for role in list(self.guild.roles)
-                    if role.name[0] == role.name[0].lower() and role.name != "@everyone"
-                }
-                self.logger.debug("[RoleCommands update_roles_cache()] all roles caches have been updated")
-                RoleCommands.roles_list_being_updated = False
-            await asyncio.sleep(600)
+            if self.role_change_detected:
+                self.role_change_detected = False
+                if not RoleCommands.roles_list_being_updated:
+                    self.logger.debug("[RoleCommands update_roles_cache()] updating roles cache")
+                    RoleCommands.roles_list_being_updated = True
+                    RoleCommands.roles_with_members = {
+                        role.id: role
+                        for role in list(self.guild.roles)
+                        if len(role.members) > 0 and role.name != "@everyone"
+                    }
+                    self.logger.debug("[RoleCommands update_roles_cache()] roles_with_members updated")
+                    RoleCommands.lowercase_roles = {
+                        role.id: role
+                        for role in list(self.guild.roles)
+                        if role.name[0] == role.name[0].lower() and role.name != "@everyone"
+                    }
+                    self.logger.debug("[RoleCommands update_roles_cache()] all roles caches have been updated")
+                    RoleCommands.roles_list_being_updated = False
+            await asyncio.sleep(2)
 
     @app_commands.command(
         name="sync_roles", description="manually updates the cache of roles for the auto-complete menus"
