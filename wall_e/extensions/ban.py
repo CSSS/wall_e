@@ -83,7 +83,7 @@ class Ban(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
 
-        if BanRecord.user_is_banned(member.id):
+        if await BanRecord.user_is_banned(member.id):
             self.logger.info(
                 f"[Ban watchdog()] banned member, {member}, detected. Promptly will notify and kick them."
             )
@@ -112,7 +112,7 @@ class Ban(commands.Cog):
 
         # Remove guild ban
         await guild.unban(member)
-        self.logger.info(f"[Ban intercept()] Guild ban for user: {ban.username} removed. Moving ban into db.")
+        self.logger.info(f"[Ban intercept()] Guild ban for user: {member} removed. Moving ban into db.")
 
         # sleep is needed so discord has time to create the audit log
         await asyncio.sleep(1)
@@ -206,7 +206,7 @@ class Ban(commands.Cog):
         ban_records = []
         for ban in guild_ban_list:
             # NOTE: In the unlikely case there are >1 bans for the same user only 1 will be recorded
-            if not BanRecord.user_is_banned(ban.user.id):
+            if not await BanRecord.user_is_banned(ban.user.id):
                 mod = None
                 mod_id = None
                 ban_date = None
@@ -302,7 +302,9 @@ class Ban(commands.Cog):
                          user_id=user.id,
                          mod=ctx.author.name+'#'+ctx.author.discriminator,
                          mod_id=ctx.author.id,
-                         reason=reason
+                         reason=reason,
+                         # negligible difference between now and when user is kicked
+                         ban_date = datetime.datetime.now(pytz.utc)
                          )
         success = await BanRecord.insert_record(ban)
         if not success:
@@ -335,9 +337,6 @@ class Ban(commands.Cog):
         self.logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
         await user.kick(reason=reason)
         dt = datetime.datetime.now(pytz.utc)
-        ban.ban_date = dt.timestamp()
-        ban.save()
-
         self.logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
 
         # Report to council
@@ -400,7 +399,7 @@ class Ban(commands.Cog):
     @commands.has_any_role("Minions", "Moderator")
     async def unban(self, ctx, user_id: int):
         self.logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
-        if not BanRecord.user_is_banned(user_id):
+        if not await BanRecord.user_is_banned(user_id):
             self.logger.info(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
             e_obj = await embed(
                 self.logger, ctx=ctx, title="Error",
