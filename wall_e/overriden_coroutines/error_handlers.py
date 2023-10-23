@@ -126,6 +126,7 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
             logger=logger, interaction=interaction, title=f"Error {error_type} encountered",
             description=description, colour=WallEColour.ERROR
         )
+        error.command.binding.logger.error(description)
         if embed_obj is not False:
             # not using interaction.response cause that sends a message that can't be deleted
             message = await interaction.channel.send(embed=embed_obj)
