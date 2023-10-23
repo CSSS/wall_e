@@ -209,7 +209,8 @@ class RoleCommands(commands.Cog):
                 interaction=interaction,
                 author=interaction.client.user,
                 description=f"Role '{new_role_name}' exists. Calling "
-                            f".iam {new_role_name} will add you to it."
+                            f".iam {new_role_name} will add you to it.",
+                colour=WallEColour.ERROR
             )
             if e_obj is not False:
                 await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
@@ -245,7 +246,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{empty_role}`** specified. Please select from the list."
+                description=f"Invalid role **`{empty_role}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
             return
@@ -256,7 +258,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{empty_role}`** specified. Please select from the list."
+                description=f"Invalid role **`{empty_role}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
@@ -284,7 +287,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
+                description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
@@ -295,7 +299,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list."
+                description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
@@ -337,7 +342,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
+                description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
@@ -348,7 +354,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list."
+                description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
@@ -397,7 +404,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{role}`** specified. Please select from the list."
+                description=f"Invalid role **`{role}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(
                 e_obj, interaction=interaction, send_func=interaction.followup.send
@@ -410,7 +418,8 @@ class RoleCommands(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                description=f"Invalid role **`{role}`** specified. Please select from the list."
+                description=f"Invalid role **`{role}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
             )
             await self.send_message_to_user_or_bot_channel(e_obj, interaction)
             return
