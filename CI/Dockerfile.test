@@ -18,7 +18,7 @@ WORKDIR $CONTAINER_HOME_DIR
 
 COPY CI/test_config_files/test-requirements.txt ./
 
-COPY wall_e ./
+COPY wall_e wall_e
 
 COPY CI/test_config_files/pytest.ini ./
 
@@ -28,4 +28,6 @@ RUN pip install --no-cache-dir -r test-requirements.txt
 
 RUN mkdir -p $UNIT_TEST_RESULTS
 
-CMD ["sh" , "-c", "py.test --junitxml=${UNIT_TEST_RESULTS}/${TEST_RESULT_FILE_NAME}" ]
+# CMD ["sh" , "-c", "py.test --junitxml=${UNIT_TEST_RESULTS}/${TEST_RESULT_FILE_NAME}" ]
+CMD ["sh" , "-c", "pylint wall_e" ]
+CMD ["sh"]

@@ -3,3 +3,5 @@ pytest
 pytest-flake8
 pep8-naming
 flake8-sfs
+pylint[spelling]
+PyEnchant
