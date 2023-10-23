@@ -17,7 +17,7 @@ from utilities.global_vars import wall_e_config, bot
 from extensions.manage_test_guild import ManageTestGuild
 
 from utilities.bot_channel_manager import BotChannelManager
-from utilities.embed import embed
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.send import send as helper_send
 from utilities.setup_logger import Loggers
@@ -233,6 +233,18 @@ class Administration(commands.Cog):
     async def load(self, interaction: discord.Interaction, extension_to_load: str):
         self.logger.info(f"[Administration load()] load command detected from {interaction.user}")
         await interaction.response.defer()
+        if extension_to_load not in wall_e_config.get_extensions():
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description=f"Invalid extension **`{extension_to_load}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
+            )
+            await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(10)
+            await interaction.delete_original_response()
+            return
         try:
             await bot.load_extension(extension_to_load)
             await self.sync_helper(interaction=interaction)
@@ -249,6 +261,18 @@ class Administration(commands.Cog):
     async def unload(self, interaction: discord.Interaction, extension_to_unload: str):
         self.logger.info(f"[Administration unload()] unload command detected from {interaction.user}")
         await interaction.response.defer()
+        if extension_to_unload not in wall_e_config.get_extensions():
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description=f"Invalid extension **`{extension_to_unload}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
+            )
+            await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(10)
+            await interaction.delete_original_response()
+            return
         await bot.unload_extension(extension_to_unload)
         await self.sync_helper(interaction=interaction)
         await interaction.followup.send(f"`{extension_to_unload}` extension unloaded.")
@@ -261,6 +285,18 @@ class Administration(commands.Cog):
     async def reload(self, interaction: discord.Interaction, extension_to_reload: str):
         self.logger.info(f"[Administration reload()] reload command detected from {interaction.user}")
         await interaction.response.defer()
+        if extension_to_reload not in wall_e_config.get_extensions():
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description=f"Invalid extension **`{extension_to_reload}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
+            )
+            await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(10)
+            await interaction.delete_original_response()
+            return
         try:
             await bot.reload_extension(extension_to_reload)
             await self.sync_helper(interaction=interaction)
