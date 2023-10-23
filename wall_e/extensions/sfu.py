@@ -66,8 +66,7 @@ class SFU(commands.Cog):
         usage='course'
     )
     async def sfu(self, ctx, *course):
-        self.logger.info(f'[SFU sfu()] sfu command detected from user {ctx.message.author}')
-        self.logger.info(f'[SFU sfu()] arguments given: {course}')
+        self.logger.info(f'[SFU sfu()] sfu command detected from user {ctx.message.author} with arguments: {course}')
 
         if(not course):
             e_obj = await embed(
@@ -81,7 +80,7 @@ class SFU(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
-            self.logger.info('[SFU sfu()] missing arguments, command ended')
+            self.logger.debug('[SFU sfu()] missing arguments, command ended')
             return
 
         year = time.localtime()[0]
@@ -114,7 +113,7 @@ class SFU(commands.Cog):
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
-                self.logger.info('[SFU sfu()] bad arguments, command ended')
+                self.logger.debug('[SFU sfu()] bad arguments, command ended')
                 return
 
             course_code = crs[0].lower()
@@ -124,13 +123,13 @@ class SFU(commands.Cog):
             course_num = course[1].lower()
 
         url = f'http://www.sfu.ca/bin/wcm/academic-calendar?{year}/{term}/courses/{course_code}/{course_num}'
-        self.logger.info(f'[SFU sfu()] url for get request constructed: {url}')
+        self.logger.debug(f'[SFU sfu()] url for get request constructed: {url}')
 
         async with aiohttp.ClientSession() as req:
             res = await req.get(url)
             data = ''
             if(res.status == 200):
-                self.logger.info('[SFU sfu()] get request successful')
+                self.logger.debug('[SFU sfu()] get request successful')
                 while True:
                     chunk = await res.content.read(10)
                     if not chunk:
@@ -139,7 +138,7 @@ class SFU(commands.Cog):
                 if data.strip():
                     data = json.loads(data.strip())
             if not data:
-                self.logger.info(f'[SFU sfu()] get resulted in {res.status}')
+                self.logger.debug(f'[SFU sfu()] get resulted in {res.status}')
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
@@ -157,7 +156,7 @@ class SFU(commands.Cog):
                     await ctx.send(embed=e_obj)
                 return
 
-        self.logger.info('[SFU sfu()] parsing json data returned from get request')
+        self.logger.debug('[SFU sfu()] parsing json data returned from get request')
 
         sfu_url = f'http://www.sfu.ca/students/calendar/{year}/{term}/courses/{course_code}/{course_num}.html'
         link = f'[here]({sfu_url})'
@@ -179,7 +178,7 @@ class SFU(commands.Cog):
         )
         if embed_obj is not False:
             await ctx.send(embed=embed_obj)
-        self.logger.info('[SFU sfu()] out sent to server')
+        self.logger.debug('[SFU sfu()] out sent to server')
 
     @commands.command(
         brief="Returns outline details of the specified course",
@@ -203,8 +202,9 @@ class SFU(commands.Cog):
         usage='course [spring|summer|fall] [section] [next]'
     )
     async def outline(self, ctx, *course):
-        self.logger.info(f'[SFU outline()] outline command detected from user {ctx.message.author}')
-        self.logger.info(f'[SFU outline()] arguments given: {course}')
+        self.logger.info(
+            f'[SFU outline()] outline command detected from user {ctx.message.author} with arguments: {course}'
+        )
 
         usage = [
                 ['Usage', '`.outline <course> [<term> <section> next]`\n*<term>, <section>, and next are optional ar'
@@ -226,7 +226,7 @@ class SFU(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
-            self.logger.info('[SFU outline()] missing arguments, command ended')
+            self.logger.debug('[SFU outline()] missing arguments, command ended')
             return
         course = list(course)
         if 'next' in course:
@@ -241,7 +241,7 @@ class SFU(commands.Cog):
         course_num = ''
         section = ''
 
-        self.logger.info('[SFU outline()] parsing args')
+        self.logger.debug('[SFU outline()] parsing args')
         arg_num = len(course)
 
         if(arg_num > 1 and course[1][:len(course[1]) - 1].isdigit()):
@@ -270,7 +270,7 @@ class SFU(commands.Cog):
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
-                self.logger.info('[SFU outline()] bad arguments, command ended')
+                self.logger.debug('[SFU outline()] bad arguments, command ended')
                 return
 
             course_code = crs[0].lower()
@@ -300,7 +300,7 @@ class SFU(commands.Cog):
                     term = course[1].lower()
                 else:
                     # Send something saying be in this order
-                    self.logger.info('[SFU outline()] args out of order or wrong')
+                    self.logger.debug('[SFU outline()] args out of order or wrong')
                     e_obj = await embed(
                         self.logger,
                         ctx=ctx,
@@ -321,7 +321,7 @@ class SFU(commands.Cog):
         # Set up url for get
         if section == '':
             # get req the section
-            self.logger.info('[SFU outline()] getting section')
+            self.logger.debug('[SFU outline()] getting section')
             res = await self.req.get(
                 f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{course_code}/{course_num}'
             )
@@ -331,13 +331,13 @@ class SFU(commands.Cog):
                     chunk = await res.content.readchunk()
                     data += str(chunk[0].decode())
                 res = json.loads(data)
-                self.logger.info('[SFU outline()] parsing section data')
+                self.logger.debug('[SFU outline()] parsing section data')
                 for x in res:
                     if x['sectionCode'] in ['LEC', 'LAB', 'TUT', 'SEM']:
                         section = x['value']
                         break
             else:
-                self.logger.info(f'[SFU outline()] section get resulted in {res.status}')
+                self.logger.debug(f'[SFU outline()] section get resulted in {res.status}')
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
@@ -355,12 +355,12 @@ class SFU(commands.Cog):
                 return
 
         url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{course_code}/{course_num}/{section}'
-        self.logger.info(f'[SFU outline()] url for get constructed: {url}')
+        self.logger.debug(f'[SFU outline()] url for get constructed: {url}')
 
         res = await self.req.get(url)
 
         if(res.status == 200):
-            self.logger.info('[SFU outline()] get request successful')
+            self.logger.debug('[SFU outline()] get request successful')
             data = ''
             while not res.content.at_eof():
                 chunk = await res.content.readchunk()
@@ -368,7 +368,7 @@ class SFU(commands.Cog):
 
             data = json.loads(data)
         else:
-            self.logger.info(f'[SFU outline()] full outline get resulted in {res.status}')
+            self.logger.debug(f'[SFU outline()] full outline get resulted in {res.status}')
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -385,7 +385,7 @@ class SFU(commands.Cog):
                 await ctx.send(embed=e_obj)
             return
 
-        self.logger.info('[SFU outline()] parsing data from get request')
+        self.logger.debug('[SFU outline()] parsing data from get request')
         try:
             # Main course information
             info = data['info']
@@ -393,7 +393,7 @@ class SFU(commands.Cog):
             # Course schedule information
             schedule = data['courseSchedule']
         except Exception:
-            self.logger.info('[SFU outline()] info keys didn\'t exist')
+            self.logger.debug('[SFU outline()] info keys didn\'t exist')
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -475,7 +475,7 @@ class SFU(commands.Cog):
             corequisites = ''
 
         url = f"http://www.sfu.ca/outlines.html?{data['info']['outlinePath']}"
-        self.logger.info(f"[SFU outline()] finished parsing data for: {data['info']['outlinePath']}")
+        self.logger.debug(f"[SFU outline()] finished parsing data for: {data['info']['outlinePath']}")
         # Make tuple of the data for the fields
         fields = [
             ['Outline', outline],

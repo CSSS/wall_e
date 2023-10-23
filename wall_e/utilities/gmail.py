@@ -30,16 +30,16 @@ class Gmail:
             while not self.connection_successful and number_of_retries < max_number_of_retries:
                 try:
                     self.server = smtplib.SMTP(f'{smtp}:{port}')
-                    self.logger.info(f"[Gmail __init__()] setup smptlib server connection to {smtp}:{port}")
+                    self.logger.debug(f"[Gmail __init__()] setup smptlib server connection to {smtp}:{port}")
                     self.server.connect(f'{smtp}:{port}')
-                    self.logger.info("[Gmail __init__()] smptlib server connected")
+                    self.logger.debug("[Gmail __init__()] smptlib server connected")
                     self.server.ehlo()
-                    self.logger.info("[Gmail __init__()] smptlib server ehlo() successful")
+                    self.logger.debug("[Gmail __init__()] smptlib server ehlo() successful")
                     self.server.starttls()
-                    self.logger.info("[Gmail __init__()] smptlib server ttls started")
-                    self.logger.info(f"[Gmail __init__()] Logging into account {self.from_email}")
+                    self.logger.debug("[Gmail __init__()] smptlib server ttls started")
+                    self.logger.debug(f"[Gmail __init__()] Logging into account {self.from_email}")
                     self.server.login(self.from_email, self.password)
-                    self.logger.info(f"[Gmail __init__()] login to email {self.from_email} successful")
+                    self.logger.debug(f"[Gmail __init__()] login to email {self.from_email} successful")
                     self.connection_successful = True
                 except Exception as e:
                     number_of_retries += 1
@@ -82,15 +82,15 @@ class Gmail:
                             encoders.encode_base64(payload)
                             payload.add_header('Content-Disposition', f"attachment; filename={attachment}")
                             msg.attach(payload)
-                            self.logger.info(f"{attachment} has been attached")
+                            self.logger.debug(f"{attachment} has been attached")
                         except Exception as e:
-                            self.logger.info(f"{attachment} could not be attached. Error: {e}")
+                            self.logger.debug(f"{attachment} could not be attached. Error: {e}")
 
-                    self.logger.info(f"[Gmail send_email()] sending email to {to_email}")
+                    self.logger.debug(f"[Gmail send_email()] sending email to {to_email}")
                     self.server.send_message(from_addr=self.from_email, to_addrs=to_email, msg=msg)
                     return True, None
                 except Exception as e:
-                    self.logger.info(f"[Gmail send_email()] unable to send email to {to_email} due to error.\n{e}")
+                    self.logger.debug(f"[Gmail send_email()] unable to send email to {to_email} due to error.\n{e}")
                     number_of_retries += 1
                     self.error_message = f"{e}"
         return False, self.error_message
@@ -109,9 +109,9 @@ class Gmail:
             number_of_retries = 0
             while number_of_retries < self.max_number_of_retries:
                 try:
-                    self.logger.info("[Gmail close_connection()] closing connection to smtplib server")
+                    self.logger.debug("[Gmail close_connection()] closing connection to smtplib server")
                     self.server.close()
-                    self.logger.info("[Gmail close_connection()] connection to smtplib server closed")
+                    self.logger.debug("[Gmail close_connection()] connection to smtplib server closed")
                     return True, None
                 except Exception as e:
                     self.logger.error(

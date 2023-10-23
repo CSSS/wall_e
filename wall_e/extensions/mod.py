@@ -77,18 +77,18 @@ class Mod(commands.Cog):
     async def embed(self, ctx, *arg):
         self.logger.info(f'[Mod embed()] embed function detected by user {ctx.message.author}')
         await ctx.message.delete()
-        self.logger.info('[Mod embed()] invoking message deleted')
+        self.logger.debug('[Mod embed()] invoking message deleted')
 
         if not arg:
-            self.logger.info("[Mod embed()] no args, so command ended")
+            self.logger.debug("[Mod embed()] no args, so command ended")
             return
 
         if ctx.message.author not in discord.utils.get(ctx.guild.roles, name="Minions").members:
-            self.logger.info('[Mod embed()] unathorized command attempt detected. Being handled.')
+            self.logger.debug('[Mod embed()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
 
-        self.logger.info('[Mod embed()] minion confirmed')
+        self.logger.debug('[Mod embed()] minion confirmed')
         fields = []
         desc = ''
         arg = list(arg)
@@ -112,7 +112,7 @@ class Mod(commands.Cog):
             await ctx.send(embed=e_obj)
 
     async def rekt(self, ctx):
-        self.logger.info('[Mod rekt()] sending troll to unauthorized user')
+        self.logger.debug('[Mod rekt()] sending troll to unauthorized user')
         lol = '[secret](https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
         e_obj = await embed(
             self.logger,
@@ -125,7 +125,7 @@ class Mod(commands.Cog):
             msg = await ctx.send(embed=e_obj)
             await asyncio.sleep(5)
             await msg.delete()
-            self.logger.info('[Mod rekt()] troll message deleted')
+            self.logger.debug('[Mod rekt()] troll message deleted')
 
     @commands.command(
         brief="Posts the warning message in embed format.",
@@ -142,14 +142,14 @@ class Mod(commands.Cog):
     async def modspeak(self, ctx, *arg):
         self.logger.info(f'[Mod modspeak()] modspeack function detected by minion {ctx.message.author}')
         await ctx.message.delete()
-        self.logger.info('[Mod modspeak()] invoking message deleted')
+        self.logger.debug('[Mod modspeak()] invoking message deleted')
 
         if not arg:
-            self.logger.info("[Mod modspeak()] no args, so command ended")
+            self.logger.debug("[Mod modspeak()] no args, so command ended")
             return
 
         if ctx.message.author not in discord.utils.get(ctx.guild.roles, name="Minions").members:
-            self.logger.info('[Mod modspeak()] unathorized command attempt detected. Being handled.')
+            self.logger.debug('[Mod modspeak()] unathorized command attempt detected. Being handled.')
             await self.rekt(ctx)
             return
 
