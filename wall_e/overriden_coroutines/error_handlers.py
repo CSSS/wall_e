@@ -119,6 +119,18 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
                 await interaction.response.send_message(embed=e_obj)
             else:
                 await ctx.channel.send(embed=e_obj)
+    elif isinstance(error, discord.app_commands.commands.CommandInvokeError):
+        description = error.args[0]
+        error_type = f"{type(error)}"[8:-2]
+        embed_obj = await embed(
+            logger=logger, interaction=interaction, title=f"Error {error_type} encountered",
+            description=description, colour=WallEColour.ERROR
+        )
+        if embed_obj is not False:
+            # not using interaction.response cause that sends a message that can't be deleted
+            message = await interaction.channel.send(embed=embed_obj)
+            await asyncio.sleep(20)
+            await message.delete()
     elif isinstance(error, commands.errors.CommandNotFound):
         return
     else:
