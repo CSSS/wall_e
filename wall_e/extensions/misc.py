@@ -30,6 +30,20 @@ def render_latex(formula, fontsize=12, dpi=300, format_='svg'):
     return buffer_.getvalue()
 
 
+EXAMPLES_AUTO_COMPLETE_MENU_CHOICES = {
+    "tex": "tex option"
+}
+
+tex_option = r"""
+* `/tex e^{i\theta} = \cos x + i \sin x`
+* `/tex x = 2*\pi*n_{1} + Re(\theta) + iIm(\theta)`
+"""
+
+EXAMPLES = {
+    "tex option": {"header": "/Tex Examples", "description": tex_option}
+}
+
+
 class Misc(commands.Cog):
 
     def __init__(self):
@@ -349,11 +363,6 @@ class Misc(commands.Cog):
     @app_commands.command(name="tex", description="Draws a mathematical formula using latex markdown")
     @app_commands.describe(formula="formula to draw out")
     async def tex(self, interaction: discord.Interaction, formula: str):
-        r"""
-        /tex examples:
-        * `/tex e^{i\theta} = \cos x + i \sin x`
-        * `/tex x = 2*\pi*n_{1} + Re(\theta) + iIm(\theta)`
-        """
         # created using below links:
         # https://stackoverflow.com/a/31371907
         # https://stackoverflow.com/a/57472241
@@ -364,6 +373,34 @@ class Misc(commands.Cog):
             image_file.write(image_bytes)
         await interaction.response.send_message(file=discord.File('formula.png'))
         self.logger.debug(f"[Misc tex()] formula created and send for [{formula}]")
+
+    @app_commands.command(name="examples", description="show examples of how to call various wall_e slash commands")
+    @app_commands.describe(slash_command="wall_e slash command to get example for")
+    @app_commands.choices(
+        slash_command=[
+            app_commands.Choice(name=name, value=value)
+            for name, value in EXAMPLES_AUTO_COMPLETE_MENU_CHOICES.items()
+        ]
+    )
+    async def examples(self, interaction: discord.Interaction, slash_command: str):
+        if slash_command not in list(EXAMPLES_AUTO_COMPLETE_MENU_CHOICES.values()):
+            self.logger.debug(f"[Misc examples()] invalid choice of {slash_command} detected")
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description=f"Invalid choice **`{slash_command}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
+            )
+        else:
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                title=EXAMPLES[slash_command]['header'],
+                description=EXAMPLES[slash_command]['description']
+            )
+        await interaction.response.send_message(embed=e_obj)
 
     async def cog_unload(self) -> None:
         await self.session.close()
