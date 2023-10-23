@@ -59,8 +59,9 @@ class Frosh(commands.Cog):
         aliases=["team"]
     )
     async def froshteam(self, ctx, *info):
-        self.logger.info(f'[Frosh froshteam()] team command detected from user {ctx.author}')
-        self.logger.info(f'[Frosh froshteam()] arguments given: {info}')
+        self.logger.info(
+            f'[Frosh froshteam()] team command detected from user {ctx.author} with arguments: {info}'
+        )
 
         if len(info) < 3:
             e_obj = await em(
@@ -73,7 +74,7 @@ class Frosh(commands.Cog):
                 footer='Team Error'
             )
             await ctx.send(embed=e_obj)
-            self.logger.info('[Frosh froshteam()] Missing arguments, command ended')
+            self.logger.debug('[Frosh froshteam()] Missing arguments, command ended')
             return
 
         # just gonna assume the provided stuff is all good
@@ -100,7 +101,7 @@ class Frosh(commands.Cog):
         except Exception:
             pass
 
-        self.logger.info(f'[Frosh froshteam()] team embed created with the following fields: {e_obj.fields}')
+        self.logger.debug(f'[Frosh froshteam()] team embed created with the following fields: {e_obj.fields}')
 
         await ctx.send(embed=e_obj)
 
@@ -116,8 +117,7 @@ class Frosh(commands.Cog):
         usage='"team name "team member names"',
     )
     async def reportwin(self, ctx, *info):
-        self.logger.info(f'[Frosh reportwin()] team command detected from user {ctx.author}')
-        self.logger.info(f'[Frosh reportwin()] arguments given: {info}')
+        self.logger.info(f'[Frosh reportwin()] team command detected from user {ctx.author} with arguments: {info}')
         if len(info) < 2:
             e_obj = await em(
                 self.logger,
@@ -129,7 +129,7 @@ class Frosh(commands.Cog):
                 footer='ReportWin Error'
             )
             await ctx.send(embed=e_obj)
-            self.logger.info('[Frosh reportwin()] Missing arguments, command ended')
+            self.logger.debug('[Frosh reportwin()] Missing arguments, command ended')
             return
 
         e_obj = await em(
@@ -145,7 +145,7 @@ class Frosh(commands.Cog):
             footer='Frosh 2020'
         )
 
-        self.logger.info(f'[Frosh reportwin()] winner announcement embed made with following fields: {e_obj.fields}')
+        self.logger.debug(f'[Frosh reportwin()] winner announcement embed made with following fields: {e_obj.fields}')
         await ctx.send(embed=e_obj)
 
 

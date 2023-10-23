@@ -93,7 +93,7 @@ class Misc(commands.Cog):
     async def poll(self, ctx, *questions):
         self.logger.info(f"[Misc poll()] poll command detected from user {ctx.message.author}")
         if len(questions) > 12:
-            self.logger.info("[Misc poll()] was called with too many options.")
+            self.logger.debug("[Misc poll()] was called with too many options.")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -106,7 +106,7 @@ class Misc(commands.Cog):
             await ctx.message.delete()
             return
         elif len(questions) == 1:
-            self.logger.info("[Misc poll()] yes/no poll being constructed.")
+            self.logger.debug("[Misc poll()] yes/no poll being constructed.")
             e_obj = await embed(
                 self.logger, ctx=ctx, title='Poll', author=ctx.author,
                 description=questions[0]
@@ -115,11 +115,11 @@ class Misc(commands.Cog):
                 post = await ctx.send(embed=e_obj)
                 await post.add_reaction(u"\U0001F44D")
                 await post.add_reaction(u"\U0001F44E")
-                self.logger.info("[Misc poll()] yes/no poll constructed and sent to server.")
+                self.logger.debug("[Misc poll()] yes/no poll constructed and sent to server.")
             await ctx.message.delete()
             return
         if len(questions) == 2:
-            self.logger.info("[Misc poll()] poll with only 2 arguments detected.")
+            self.logger.debug("[Misc poll()] poll with only 2 arguments detected.")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -132,7 +132,7 @@ class Misc(commands.Cog):
             await ctx.message.delete()
             return
         elif len(questions) == 0:
-            self.logger.info("[Misc poll()] poll with no arguments detected.")
+            self.logger.debug("[Misc poll()] poll with no arguments detected.")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -145,7 +145,7 @@ class Misc(commands.Cog):
             await ctx.message.delete()
             return
         else:
-            self.logger.info("[Misc poll()] multi-option poll being constructed.")
+            self.logger.debug("[Misc poll()] multi-option poll being constructed.")
             questions = list(questions)
             option_string = "\n"
             numbers_emoji = [":zero:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:",
@@ -166,11 +166,11 @@ class Misc(commands.Cog):
             )
             if e_obj is not False:
                 poll_post = await ctx.send(embed=e_obj)
-                self.logger.info("[Misc poll()] multi-option poll message contructed and sent.")
+                self.logger.debug("[Misc poll()] multi-option poll message contructed and sent.")
 
                 for i in range(0, options):
                     await poll_post.add_reaction(numbers_unicode[i])
-                self.logger.info("[Misc poll()] reactions added to multi-option poll message.")
+                self.logger.debug("[Misc poll()] reactions added to multi-option poll message.")
             await ctx.message.delete()
 
     @commands.command(
@@ -188,17 +188,17 @@ class Misc(commands.Cog):
                          f"from user {ctx.message.author} with argument =\"{arg}\"")
         query_string = urllib.parse.urlencode({'term': " ".join(arg)})
         url = f'http://api.urbandictionary.com/v0/define?{query_string}'
-        self.logger.info(f"[Misc urban()] following url  constructed for get request =\"{url}\"")
+        self.logger.debug(f"[Misc urban()] following url  constructed for get request =\"{url}\"")
         async with self.session.get(url) as res:
             data = ''
             if res.status == 200:
-                self.logger.info("[Misc urban()] Get request successful")
+                self.logger.debug("[Misc urban()] Get request successful")
                 data = await res.json()
             else:
-                self.logger.info(f"[Misc urban()] Get request failed resulted in {res.status}")
+                self.logger.debug(f"[Misc urban()] Get request failed resulted in {res.status}")
             data = data['list']
             if not data:
-                self.logger.info("[Misc urban()] sending message indicating 404 result")
+                self.logger.debug("[Misc urban()] sending message indicating 404 result")
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
@@ -211,8 +211,8 @@ class Misc(commands.Cog):
                     await ctx.send(embed=e_obj)
                 return
             else:
-                self.logger.info("[Misc urban()] constructing "
-                                 f"embed object with definition of \"{' '.join(arg)}\"")
+                self.logger.debug("[Misc urban()] constructing "
+                                  f"embed object with definition of \"{' '.join(arg)}\"")
                 urban_url = f'https://www.urbandictionary.com/define.php?{query_string}'
                 # truncate to fit in embed, field values must be 1024 or fewer in length
                 definition = (
@@ -246,7 +246,7 @@ class Misc(commands.Cog):
         arg = " ".join(arg)
         self.logger.info("[Misc wolfram()] wolfram command detected "
                          f"from user {ctx.message.author} with argument =\"{arg}\"")
-        self.logger.info("[Misc wolfram()] URL being contructed")
+        self.logger.debug("[Misc wolfram()] URL being contructed")
         command_url = arg.replace("+", "%2B")
         command_url = command_url.replace("(", "%28")
         command_url = command_url.replace(")", "%29")
@@ -254,7 +254,7 @@ class Misc(commands.Cog):
         command_url = command_url.replace("]", "%5D")
         command_url = command_url.replace(" ", "+")
         wolfram_url = f'https://www.wolframalpha.com/input/?i={command_url}'
-        self.logger.info(f"[Misc wolfram()] querying WolframAlpha for {arg}")
+        self.logger.debug(f"[Misc wolfram()] querying WolframAlpha for {arg}")
         res = self.wolframClient.query(arg)
         try:
             content = [
@@ -267,7 +267,7 @@ class Misc(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
-                self.logger.info(f"[Misc wolfram()] result found for {arg}")
+                self.logger.debug(f"[Misc wolfram()] result found for {arg}")
         except (AttributeError, StopIteration):
             content = [
                 ['Results from Wolfram Alpha', f"No results found. :thinking: \n\n[Link]({wolfram_url})"],
@@ -303,7 +303,7 @@ class Misc(commands.Cog):
             if re.match(r'<:\w*:\d*>', word):
                 output += word
             elif re.match(r':*:', word):
-                self.logger.info("[Misc emojispeak()] was called with a non-server emoji.")
+                self.logger.debug("[Misc emojispeak()] was called with a non-server emoji.")
                 e_obj = await embed(
                     self.logger,
                     ctx=ctx,
@@ -341,9 +341,9 @@ class Misc(commands.Cog):
                             output += char
             output += " "
         # Mention the user, and send the emote speak
-        self.logger.info(f"[Misc emojispeak()] deleting {ctx.message}")
+        self.logger.debug(f"[Misc emojispeak()] deleting {ctx.message}")
         await ctx.message.delete()
-        self.logger.info(f"[Misc emojispeak()] sending {ctx.author.mention} says {output}")
+        self.logger.debug(f"[Misc emojispeak()] sending {ctx.author.mention} says {output}")
         await ctx.send(f"{ctx.author.mention} says {output}")
 
     @app_commands.command(name="tex", description="Draws a mathematical formula using latex markdown")
@@ -357,11 +357,13 @@ class Misc(commands.Cog):
         # created using below links:
         # https://stackoverflow.com/a/31371907
         # https://stackoverflow.com/a/57472241
+        self.logger.info("[Misc tex()] tex command detected "
+                         f"from user {interaction.user} with formula =\"{formula}\"")
         image_bytes = render_latex(formula, fontsize=10, dpi=200, format_='png')
         with open('formula.png', 'wb') as image_file:
             image_file.write(image_bytes)
         await interaction.response.send_message(file=discord.File('formula.png'))
-        self.logger.info(f"[Misc tex()] formula created and send for [{formula}]")
+        self.logger.debug(f"[Misc tex()] formula created and send for [{formula}]")
 
     async def cog_unload(self) -> None:
         await self.session.close()

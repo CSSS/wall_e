@@ -64,10 +64,15 @@ class ManageTestGuild(commands.Cog):
         """
         while self.guild is None:
             await asyncio.sleep(2)
-        self.logger.info(f"[ManageTestGuild on_ready()] acquired {len(self.guild.channels)} channels")
+        self.logger.info(
+            "[ManageTestGuild create_main_channel()] creating text channel for bot commands in TEST guild."
+        )
         await bot.bot_channel_manager.create_or_get_channel_id(
             self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "general_channel"
+        )
+        self.logger.debug(
+            "[ManageTestGuild create_main_channel()] text channel for bot commands in TEST guild created."
         )
 
     @commands.command(brief="returns which branch the user is testing")

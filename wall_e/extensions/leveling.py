@@ -70,8 +70,9 @@ class Leveling(commands.Cog):
         :return:
         """
         if wall_e_config.enabled("database_config", option="ENABLED"):
+            self.logger.info("[Leveling load_points_into_dict()] loading points and level into DB and dict")
             if not await Level.level_points_have_been_imported():
-                self.logger.info("[Leveling load_points_into_dict()] loading levels into DB and dict")
+                self.logger.debug("[Leveling load_points_into_dict()] loading levels into DB and dict")
                 with open('resources/mee6_levels/levels.json') as f:
                     self.levels = {
                         int(level_number): await Level.create_level(
@@ -83,12 +84,12 @@ class Leveling(commands.Cog):
                         for (level_number, level_info) in json.load(f).items()
                     }
             elif len(self.levels) == 0:
-                self.logger.info("[Leveling load_points_into_dict()] loading level from DB into dict")
+                self.logger.debug("[Leveling load_points_into_dict()] loading level from DB into dict")
                 self.levels = await Level.load_to_dict()
-            self.logger.info("[Leveling load_points_into_dict()] levels loaded in DB and dict")
+            self.logger.debug("[Leveling load_points_into_dict()] levels loaded in DB and dict")
             self.user_points = await UserPoint.load_to_dict()
-            self.logger.info("[Leveling load_points_into_dict()] UserPoints loaded into dict")
-            self.logger.info("[Leveling load_points_into_dict()] XP system ready")
+            self.logger.debug("[Leveling load_points_into_dict()] UserPoints loaded into dict")
+            self.logger.debug("[Leveling load_points_into_dict()] XP system ready")
             self.xp_system_ready = True
 
     # async def load_data_from_mee6_endpoint_and_json(self):
@@ -178,12 +179,16 @@ class Leveling(commands.Cog):
         """
         while self.guild is None:
             await asyncio.sleep(2)
+        self.logger.info("[Leveling create_council_channel()] acquiring text channel for council.")
         council_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
             self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "leveling"
         )
         self.council_channel = discord.utils.get(
             self.guild.channels, id=council_channel_id
+        )
+        self.logger.debug(
+            f"[Leveling create_council_channel()] text channel {self.council_channel} acquired."
         )
 
     @commands.Cog.listener(name='on_message')
@@ -201,13 +206,13 @@ class Leveling(commands.Cog):
                 return
             message_author_id = message.author.id
             if message_author_id not in self.user_points:
-                self.logger.info(
+                self.logger.debug(
                     f"[Leveling on_message()] could not detect author {message.author}({message_author_id}) "
                     "in the user_points dict"
                 )
                 self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
             if await self.user_points[message_author_id].increment_points():
-                self.logger.info(
+                self.logger.debug(
                     f"[Leveling on_message()] increased points for {message.author}({message_author_id}) "
                     f" and alerting them that they are in a new level in channel {message.channel}"
                 )
@@ -215,14 +220,14 @@ class Leveling(commands.Cog):
                 if level.role_id is not None:
                     role = message.guild.get_role(level.role_id)
                     if role is not None:
-                        self.logger.info(
+                        self.logger.debug(
                             f"[Leveling on_message()] the new level {level.number} "
                             f" for user {message.author}({message_author_id}) has the role {role} "
                             f"associated with it. Assigning to user"
                         )
                         await message.author.add_roles(role)
                     else:
-                        self.logger.info(
+                        self.logger.debug(
                             f"[Leveling on_message()] the new level {level.number} "
                             f" for user {message.author}({message_author_id}) has an invalid role {role} associated "
                             f"with it. Alerting the council to this "
@@ -237,7 +242,7 @@ class Leveling(commands.Cog):
                 await message.channel.send(
                     f"<@{message_author_id}> is now **level {level.number}**!"
                 )
-                self.logger.info(f"[Leveling on_message()] message sent to {message.author}({message_author_id})")
+                self.logger.debug(f"[Leveling on_message()] message sent to {message.author}({message_author_id})")
 
     @commands.Cog.listener(name="on_ready")
     async def ensure_roles_exist_and_have_right_users(self):
@@ -261,7 +266,7 @@ class Leveling(commands.Cog):
                     # ordering level roles in an ascending order
 
                     guild_roles = []
-                    self.logger.info(
+                    self.logger.debug(
                         "[Leveling ensure_roles_exist_and_have_right_users()]"
                         f" ensuring that all {len(levels_with_a_role)} XP roles exist"
                     )
@@ -275,7 +280,7 @@ class Leveling(commands.Cog):
                         else:
                             xp_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
                     if len(xp_roles_that_are_missing) == 0:
-                        self.logger.info(
+                        self.logger.debug(
                             "[Leveling ensure_roles_exist_and_have_right_users()] all"
                             f" {len(levels_with_a_role)} XP roles exist"
                         )
@@ -291,7 +296,7 @@ class Leveling(commands.Cog):
                             "re-create the roles:\n\nRole Name - Linked XP Level\n"
                             f"{xp_roles_that_are_missing}"
                         )
-                        self.logger.info(
+                        self.logger.debug(
                             "[Leveling ensure_roles_exist_and_have_right_users()]"
                             f" Moderators have been informed that {len(xp_roles_that_are_missing)}"
                             f" XP roles do not exist "
@@ -303,7 +308,7 @@ class Leveling(commands.Cog):
                     members_with_points.sort(key=lambda member: self.user_points[member.id].points)
 
                     role_index = 0
-                    self.logger.info(
+                    self.logger.debug(
                         "[Leveling ensure_roles_exist_and_have_right_users()] ensuring that members with XP points"
                         " have the right XP roles"
                     )
@@ -359,18 +364,18 @@ class Leveling(commands.Cog):
                         ):
                             prev_number_of_members_skipped = number_of_members_skipped
                             prev_number_of_members_fixed = number_of_members_fixed
-                            self.logger.info(
+                            self.logger.debug(
                                 f"[Leveling ensure_roles_exist_and_have_right_users()] current_progress so far..."
                                 f" number_of_members_fixed = {number_of_members_fixed}/{number_of_members} || "
                                 f"number_of_members_skipped = {number_of_members_skipped}/{number_of_members}"
                             )
                         await asyncio.sleep(5)
 
-                    self.logger.info(
+                    self.logger.debug(
                         "[Leveling ensure_roles_exist_and_have_right_users()] ensured that the members with XP points"
                         " have the right XP roles")
 
-                    self.logger.info(
+                    self.logger.debug(
                         "[Leveling ensure_roles_exist_and_have_right_users()] ensuring that members without XP points"
                         " don't have any XP roles "
                     )
@@ -383,12 +388,12 @@ class Leveling(commands.Cog):
                                 f"following error when fixing the roles for member {member_without_points}, \n{e}"
                             )
                         await asyncio.sleep(5)
-                    self.logger.info(
+                    self.logger.debug(
                         "[Leveling ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
                         " don't have any XP roles "
                     )
                     self.levels_have_been_changed = False
-                    self.logger.info(
+                    self.logger.debug(
                         "[Leveling ensure_roles_exist_and_have_right_users()] "
                         "users and role are now updated for XP system"
                     )
@@ -417,7 +422,10 @@ class Leveling(commands.Cog):
                 level for level in self.levels.values()
                 if level.role_name is not None and level.total_points_required <= self.user_points[member.id].points
             ]
-            self.logger.info(
+            if len(levels_with_a_role) == 0:
+                self.logger.debug(f"[Leveling re_assign_roles()] seems user {member} is entitled to no XP levels")
+                return
+            self.logger.debug(
                 f"[Leveling re_assign_roles()] seems user {member} is entitled to the following levels which have"
                 f" a role: {levels_with_a_role}"
             )
@@ -428,7 +436,7 @@ class Leveling(commands.Cog):
             ]
             guild_roles = [guild_role for guild_role in guild_roles if guild_role]
 
-            self.logger.info(
+            self.logger.debug(
                 f"[Leveling re_assign_roles()] will get the {guild_roles} roles added back to {member}"
             )
             number_of_retries = 0
@@ -439,15 +447,15 @@ class Leveling(commands.Cog):
                     await member.add_roles(*guild_roles)
                     success = True
                 except Exception as e:
-                    self.logger.info(
+                    self.logger.debug(
                         f"[Leveling re_assign_roles()] encountered following error when fixing the roles for "
                         f"member {member}, \n{type(e)}\n{e}"
                     )
                     if number_of_retries < 5:
-                        self.logger.info("[Leveling re_assign_roles()] will try again in one minute")
+                        self.logger.debug("[Leveling re_assign_roles()] will try again in one minute")
                         await asyncio.sleep(60)
             if success:
-                self.logger.info(f"[Leveling re_assign_roles()] XP roles fixed for user {member}")
+                self.logger.debug(f"[Leveling re_assign_roles()] XP roles fixed for user {member}")
             else:
                 self.logger.error(
                     f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
@@ -478,7 +486,7 @@ class Leveling(commands.Cog):
         existing_xp_level_with_specified_role_name = [
             level for level in self.levels.values() if level.role_name == new_role_name
         ]
-        self.logger.info(
+        self.logger.debug(
             f"[Leveling set_level_name()] len(existing_xp_level_with_specified_role_name)="
             f"{len(existing_xp_level_with_specified_role_name)}"
         )
@@ -489,7 +497,7 @@ class Leveling(commands.Cog):
             )
             return
         if level_number not in list(self.levels.keys()):
-            self.logger.info(f"[Leveling set_level_name()] {level_number} is not valid")
+            self.logger.debug(f"[Leveling set_level_name()] {level_number} is not valid")
             current_levels = sorted([level.number for level in self.levels.values() if level.role_id is None])
             current_levels = [f"{level}" for level in current_levels]
 
@@ -500,17 +508,17 @@ class Leveling(commands.Cog):
             )
             return
         if self.levels[level_number].role_id is None:
-            self.logger.info(f"[Leveling set_level_name()] no role_id detected for level {level_number}")
+            self.logger.debug(f"[Leveling set_level_name()] no role_id detected for level {level_number}")
             # level does not yet have a role associated with it
             role = discord.utils.get(self.guild.roles, name=new_role_name)
             if role is None:
-                self.logger.info(
+                self.logger.debug(
                     f"[Leveling set_level_name()] could not find the role {new_role_name}"
                     f" to associate with {level_number}"
                 )
                 await ctx.send(f"could not find role {new_role_name}. ")
             else:
-                self.logger.info(
+                self.logger.debug(
                     f"[Leveling set_level_name()] associating level {level_number} with role {new_role_name}"
                 )
                 await self.levels[level_number].set_level_name(new_role_name, role.id)
@@ -522,10 +530,10 @@ class Leveling(commands.Cog):
                 )
 
         else:
-            self.logger.info(f"[Leveling set_level_name()] role_id detected for level {level_number}")
+            self.logger.debug(f"[Leveling set_level_name()] role_id detected for level {level_number}")
             role = ctx.guild.get_role(self.levels[level_number].role_id)
             if role is None:
-                self.logger.info(
+                self.logger.debug(
                     f"[Leveling set_level_name()] detected role_id detected for level {level_number} is invalid"
                 )
                 # the XP level is getting a new role since the role it was associated with was an error
@@ -534,7 +542,7 @@ class Leveling(commands.Cog):
                     await ctx.send(f"could not find role {new_role_name}. ")
                 else:
                     await self.levels[level_number].set_level_name(new_role_name, role.id)
-                    self.logger.info(
+                    self.logger.debug(
                         f"[Leveling set_level_name()] set flag to associate level {level_number} with role"
                         f" {role.name}"
                     )
@@ -546,7 +554,7 @@ class Leveling(commands.Cog):
                     )
             else:
                 old_name = role.name
-                self.logger.info(
+                self.logger.debug(
                     f"[Leveling set_level_name()] renaming role {old_name} to {new_role_name} for level"
                     f" {level_number}"
                 )
@@ -570,20 +578,24 @@ class Leveling(commands.Cog):
         if not self.xp_system_ready:
             await ctx.send("level command is not yet ready...")
             return
+        self.logger.info(
+            f"[Leveling remove_level_name()] received request to set remove name for level {level_number} "
+            f"from {ctx.author}"
+        )
         if self.levels[level_number].role_id is None:
-            self.logger.info(
+            self.logger.debug(
                 f"[Leveling remove_level_name()] resetting role info to Null for level {level_number}"
             )
             await self.levels[level_number].remove_role()
             await ctx.send(f"level {level_number} does not have an existing role associated with it")
             return
-        self.logger.info(
+        self.logger.debug(
             f"[Ban remove_level_name()] remove_level_name command detected from {ctx.author} with level_number"
             f" {level_number}"
         )
         role_name = self.levels[level_number].role_name
         await self.levels[level_number].remove_role()
-        self.logger.info(
+        self.logger.debug(
             f"[Leveling remove_level_name()] resetting role info to Null for level {level_number}"
         )
         self.levels_have_been_changed = True
