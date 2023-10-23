@@ -83,10 +83,15 @@ class WalleBot(commands.Bot):
                     exit(1)
 
     async def load_extension(self, name: str, *, package: Optional[str] = None) -> None:
-        await super(WalleBot, self).load_extension(f"{extension_location_python_path}{name}", package=package)
+        extension_name = name if extension_location_python_path in name else f"{extension_location_python_path}{name}"
+        await super(WalleBot, self).load_extension(extension_name, package=package)
 
     async def unload_extension(self, name: str, *, package: Optional[str] = None) -> None:
-        await super(WalleBot, self).unload_extension(f"{extension_location_python_path}{name}", package=package)
+        extension_name = name if extension_location_python_path in name else f"{extension_location_python_path}{name}"
+        await super(WalleBot, self).unload_extension(extension_name, package=package)
+
+    async def reload_extension(self, name: str, *, package: Optional[str] = None) -> None:
+        await super(WalleBot, self).reload_extension(f"{extension_location_python_path}{name}", package=package)
 
     async def add_cog(
         self,
