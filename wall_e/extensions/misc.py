@@ -1,4 +1,5 @@
 import asyncio
+import json
 import re
 import urllib
 from io import BytesIO
@@ -10,6 +11,7 @@ from discord import app_commands
 from discord.ext import commands
 from matplotlib import pyplot as plt
 
+from utilities.autocomplete.examples_command import EXAMPLES_AUTO_COMPLETE_MENU_CHOICES
 from utilities.global_vars import bot, wall_e_config
 
 from utilities.embed import embed, WallEColour
@@ -30,20 +32,6 @@ def render_latex(formula, fontsize=12, dpi=300, format_='svg'):
     return buffer_.getvalue()
 
 
-EXAMPLES_AUTO_COMPLETE_MENU_CHOICES = {
-    "tex": "tex option"
-}
-
-tex_option = r"""
-* `/tex e^{i\theta} = \cos x + i \sin x`
-* `/tex x = 2*\pi*n_{1} + Re(\theta) + iIm(\theta)`
-"""
-
-EXAMPLES = {
-    "tex option": {"header": "/Tex Examples", "description": tex_option}
-}
-
-
 class Misc(commands.Cog):
 
     def __init__(self):
@@ -56,6 +44,8 @@ class Misc(commands.Cog):
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.guild = None
         self.wolframClient = wolframalpha.Client(wall_e_config.get_config_value('basic_config', 'WOLFRAM_API_TOKEN'))
+        with open("utilities/slash_command_examples.json") as examples:
+            self.slash_command_examples = json.load(examples)
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -397,8 +387,8 @@ class Misc(commands.Cog):
                 self.logger,
                 interaction=interaction,
                 author=interaction.client.user,
-                title=EXAMPLES[slash_command]['header'],
-                description=EXAMPLES[slash_command]['description']
+                title=self.slash_command_examples[slash_command]['header'],
+                description=self.slash_command_examples[slash_command]['description']
             )
         await interaction.response.send_message(embed=e_obj)
 

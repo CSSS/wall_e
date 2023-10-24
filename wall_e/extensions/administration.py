@@ -10,7 +10,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utilities.extension_load_unload_autocomplete_functions import get_extension_that_can_be_loaded, \
+from utilities.autocomplete.extensions_load_choices import get_extension_that_can_be_loaded, \
     get_extension_that_can_be_unloaded
 from utilities.global_vars import wall_e_config, bot
 

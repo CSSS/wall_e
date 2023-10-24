@@ -10,7 +10,7 @@ from utilities.global_vars import bot, wall_e_config
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.paginate import paginate_embed
-from utilities.role_commands_autocomplete_functions import get_roles_with_members, get_assigned_roles, \
+from utilities.autocomplete.role_commands_choices import get_roles_with_members, get_assigned_roles, \
     get_assignable_roles, get_roles_that_can_be_deleted
 from utilities.setup_logger import Loggers
 
