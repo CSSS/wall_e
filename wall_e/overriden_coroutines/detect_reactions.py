@@ -17,7 +17,7 @@ async def reaction_detected(reaction):
     """
     from utilities.global_vars import bot, logger
     guild = bot.guilds[0]
-    stack_trace_has_been_tackled = reaction.emoji.name == '⬆️'
+    delete_debug_log_reaction_detected = reaction.emoji.name == '⬆️'
 
     users_roles = [role.name for role in discord.utils.get(guild.members, id=reaction.user_id).roles]
     reaction_is_from_bot_manager = "Bot_manager" in users_roles
@@ -32,9 +32,10 @@ async def reaction_detected(reaction):
     text_channel_is_in_log_channel_category = channel_category.name == wall_e_category_name
 
     error_log_channel = channel_with_reaction.name[-6:] == '_error'
+    warn_log_channel = channel_with_reaction.name[-5:] == '_warn'
     valid_error_channel = (
-        stack_trace_has_been_tackled and reaction_is_from_bot_manager and
-        text_channel_is_in_log_channel_category and error_log_channel
+        delete_debug_log_reaction_detected and reaction_is_from_bot_manager and
+        text_channel_is_in_log_channel_category and (error_log_channel or warn_log_channel)
     )
     if not valid_error_channel:
         return

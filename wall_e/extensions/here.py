@@ -60,7 +60,7 @@ class Here(commands.Cog):
 
         title = f"Users in **#{channel.name}**"
 
-        self.logger.info(f"[Here build_embed()] creating an embed with title \"{title}\"")
+        self.logger.debug(f"[Here build_embed()] creating an embed with title \"{title}\"")
         embed = discord.Embed(type="rich")
         embed.title = title
         embed.color = discord.Color.blurple()
@@ -121,7 +121,7 @@ class Here(commands.Cog):
                                if query.lower() in m.display_name.lower() or query.lower() in str(m).lower()]) > 0]
             members = allowed
 
-        self.logger.info(f"[Here here()] found {len(members)} users in {channel.name}")
+        self.logger.debug(f"[Here here()] found {len(members)} users in {channel.name}")
 
         embed = self.build_embed(members, channel)
 

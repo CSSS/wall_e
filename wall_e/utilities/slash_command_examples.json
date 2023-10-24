@@ -1,0 +1,6 @@
+{
+    "tex option": {
+        "header": "/Tex Examples",
+        "description": "* `/tex e^{i\\theta} = \\cos x + i \\sin x`\n* `/tex x = 2*\\pi*n_{1} + Re(\\theta) + iIm(\\theta)`"
+    }
+}

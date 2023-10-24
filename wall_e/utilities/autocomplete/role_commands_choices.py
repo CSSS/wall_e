@@ -5,10 +5,9 @@ import discord
 from discord import app_commands
 
 
-def get_lowercase_roles(interaction: discord.Interaction, current: str):
+def get_lowercase_roles(current: str):
     """
     Gets the latest assign-able roles that contain the substring "current"
-    :param interaction: the interaction object that contains the roles
     :param current: the substring that the user has entered into the search box on discord
     :return: the list of assign-able roles that match the substring "current"
     """
@@ -41,7 +40,7 @@ async def get_assigned_or_unassigned_roles(
     cause an int version of the role ID was too big a number for discord to be able to handle
     """
     current = current.strip()
-    roles = get_lowercase_roles(interaction, current)
+    roles = get_lowercase_roles(current)
     if len(roles) == 0:
         if len(current) > 0:
             roles = [app_commands.Choice(name=error_message[0], value="-1")]
@@ -77,10 +76,16 @@ async def get_assignable_roles(interaction: discord.Interaction, current: str) -
      discord to be able to handle
     """
     error_message = [
-        f'No assignable roles could be found that contain "{current}"',
-        "No assignable roles could be found. Try the /sync_roles if you know it exists",
-        f'You are in all the assignable roles that contain "{current}"',
-        'You are in all the assignable roles',
+        (
+            f"No assignable roles found with '{current[:13]}{'...' if current != current[:13] else ''}'. "
+            f"Maybe try after /sync_roles if you know it exists"
+        ),
+        "No assignable roles found. Maybe re-try after /sync_roles if you know it exists",
+        (
+            f"You are in all the assignable roles with '{current[:3]}{'...' if current != current[:3] else ''}'. "
+            f"Maybe try after /sync_roles if you know it exists"
+        ),
+        "You are in all the assignable roles. Maybe re-try after /sync_roles if you know it exists",
         "Start typing to get better results"
     ]
     logger = logging.getLogger("RoleCommands")
@@ -104,10 +109,13 @@ async def get_assigned_roles(interaction: discord.Interaction, current: str) -> 
      discord to be able to handle
     """
     error_message = [
-        f'No assigned roles could be found that contain "{current}"',
-        "No assigned roles could be found. Try the /sync_roles if you know it exists",
-        f'You are not in any assignable roles that contain "{current}"',
-        'You are not in any assignable roles',
+        f"No assigned roles found with '{current[:66]}{'...' if current != current[:66] else ''}",
+        "No assigned roles could be found. Maybe try after /sync_roles if you know it exists",
+        (
+            f"You aren't in any assignable roles with '{current[:4]}{'...' if current != current[:4] else ''}'. "
+            f"Maybe try after /sync_roles if you know it exists"
+        ),
+        "You are not in any assignable roles",
         "Start typing to get better results"
     ]
     logger = logging.getLogger("RoleCommands")
@@ -137,7 +145,7 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
         "roles that can be deleted"
     )
     current = current.strip()
-    roles = get_lowercase_roles(interaction, current)
+    roles = get_lowercase_roles(current)
     roles = [
         app_commands.Choice(name=role.name, value=f"{role.id}")
         for role in roles
@@ -147,13 +155,20 @@ async def get_roles_that_can_be_deleted(interaction: discord.Interaction,
         if len(current) > 0:
             roles.append(
                 app_commands.Choice(
-                    name=f'No empty assignable roles could be found that contain "{current}"', value="-1"
+                    name=(
+                        "No empty assignable roles found with "
+                        f"'{current[:10]}{'...' if current != current[:10] else ''}'. "
+                        "Maybe try after /sync_roles if you know it exists"
+                    ), value="-1"
                 )
             )
         else:
             roles.append(
                 app_commands.Choice(
-                    name="No empty assignable roles could be found. Try the /sync_roles if you know it exists",
+                    name=(
+                        "No empty assignable roles could be found. "
+                        "Maybe re-try after /sync_roles if you know it exists"
+                    ),
                     value="-1"
                 )
             )
@@ -194,13 +209,20 @@ async def get_roles_with_members(interaction: discord.Interaction, current: str)
             if len(current) > 0:
                 roles.append(
                     app_commands.Choice(
-                        name=f'No roles could be found with a member that contain "{current}"', value="-1"
+                        name=(
+                            "No roles found with a member with "
+                            f"'{current[:10]}{'...' if current != current[:10] else ''}'. "
+                            "Maybe try after /sync_roles if you know it exists"
+                        ), value="-1"
                     )
                 )
             else:
                 roles.append(
                     app_commands.Choice(
-                        name="No roles could be found with a member. Try the /sync_roles if you know it exists",
+                        name=(
+                            "No roles could be found with a member. "
+                            "maybe be-try after /sync_roles if you know it exists"
+                        ),
                         value="-1"
                     )
                 )

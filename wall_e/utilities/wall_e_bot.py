@@ -53,7 +53,7 @@ class WalleBot(commands.Bot):
         self.add_listener(delete_help_command_messages, "on_ready")
 
         await self.add_custom_extension()
-        logger.info("[wall_e_bot.py] extensions loaded")
+        logger.debug("[wall_e_bot.py] extensions loaded")
         await super().setup_hook()
 
     async def add_custom_extension(self, module_path_and_name: str = None):
@@ -63,7 +63,7 @@ class WalleBot(commands.Bot):
             if extension_unloaded:
                 break
             try:
-                logger.info(f"[wall_e_bot.py] attempting to load extension {extension} ")
+                logger.debug(f"[wall_e_bot.py] attempting to load extension {extension} ")
                 # the below piece of logic will not work well in the test guild if there
                 # are multiple PRs being worked on at the same time that have different
                 # slash command as there is no way to avoid a conflict. I tried to fix this
@@ -71,7 +71,7 @@ class WalleBot(commands.Bot):
                 # after the on_ready signal has already been received, any on_ready functions in the extension
                 # that is loaded will not be run, which is a pre-req for almost all the extensions
                 await self.load_extension(extension)
-                logger.info(f"[wall_e_bot.py] {extension} successfully loaded")
+                logger.debug(f"[wall_e_bot.py] {extension} successfully loaded")
                 if not adding_all_extensions:
                     extension_unloaded = True
                     break
@@ -83,10 +83,15 @@ class WalleBot(commands.Bot):
                     exit(1)
 
     async def load_extension(self, name: str, *, package: Optional[str] = None) -> None:
-        await super(WalleBot, self).load_extension(f"{extension_location_python_path}{name}", package=package)
+        extension_name = name if extension_location_python_path in name else f"{extension_location_python_path}{name}"
+        await super(WalleBot, self).load_extension(extension_name, package=package)
 
     async def unload_extension(self, name: str, *, package: Optional[str] = None) -> None:
-        await super(WalleBot, self).unload_extension(f"{extension_location_python_path}{name}", package=package)
+        extension_name = name if extension_location_python_path in name else f"{extension_location_python_path}{name}"
+        await super(WalleBot, self).unload_extension(extension_name, package=package)
+
+    async def reload_extension(self, name: str, *, package: Optional[str] = None) -> None:
+        await super(WalleBot, self).reload_extension(f"{extension_location_python_path}{name}", package=package)
 
     async def add_cog(
         self,

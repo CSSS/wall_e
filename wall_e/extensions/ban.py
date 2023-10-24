@@ -65,6 +65,7 @@ class Ban(commands.Cog):
     async def load(self):
         while self.guild is None:
             await asyncio.sleep(2)
+        self.logger.info('[Ban load()] loading mod_channel and ban_list')
         mod_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
             self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "ban"
@@ -75,7 +76,7 @@ class Ban(commands.Cog):
 
         # Checking count of banned user in system
         count = await BanRecord.get_active_bans_count()
-        self.logger.info(f"[Ban load()] There are {count} banned users in the system")
+        self.logger.debug(f"[Ban load()] There are {count} banned users in the system")
 
     @commands.Cog.listener(name='on_member_join')
     async def watchdog(self, member: discord.Member):
@@ -99,7 +100,9 @@ class Ban(commands.Cog):
             try:
                 await member.send(embed=e_obj)
             except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
-                self.logger.info('[Ban watchdog()] unable to send warning dm to banned user due to user dm settings.')
+                self.logger.debug(
+                    '[Ban watchdog()] unable to send warning dm to banned user due to user dm settings.'
+                )
             await member.kick(reason="Not allowed back on server.")
 
     @commands.Cog.listener(name='on_member_ban')
@@ -112,7 +115,7 @@ class Ban(commands.Cog):
 
         # Remove guild ban
         await guild.unban(member)
-        self.logger.info(f"[Ban intercept()] Guild ban for user: {member} removed. Moving ban into db.")
+        self.logger.debug(f"[Ban intercept()] Guild ban for user: {member} removed. Moving ban into db.")
 
         # sleep is needed so discord has time to create the audit log
         await asyncio.sleep(1)
@@ -123,20 +126,20 @@ class Ban(commands.Cog):
                 return member.id == ban.target.id
             audit_ban = await discord.utils.find(pred, self.guild.audit_logs(action=BanAction, oldest_first=False))
         except Exception as e:
-            self.logger.info(f'[Ban intercept()] error while fetching ban data: {e}')
+            self.logger.debug(f'[Ban intercept()] error while fetching ban data: {e}')
             await self.mod_channel.send(f"Encountered following error while intercepting a ban: {e}\n" +
                                         "**Most likely need view audit log perms.**")
             return
 
         if audit_ban is None:
-            self.logger.info(
+            self.logger.debug(
                 "[Ban intercept()] Problem occurred with ban intercept, aborting and notifying mod channel"
             )
             await self.mod_channel.send(f"Ban for {member.name} has not been added to walle due to error"
                                         "Please use `.convertbans` then `.purgebans` to add to walle system.")
             return
 
-        self.logger.info(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
+        self.logger.debug(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
         ban = BanRecord(
                          username=member.name + '#' + member.discriminator,
                          user_id=member.id,
@@ -148,7 +151,7 @@ class Ban(commands.Cog):
         # update db
         success = await BanRecord.insert_record(ban)
         if not success:
-            self.logger.info(f"[Ban intercept()] User: {member} is already banned in the system.")
+            self.logger.debug(f"[Ban intercept()] User: {member} is already banned in the system.")
             e_obj = discord.Embed(title="Duplicate Ban", colour=discord.Colour.red())
             e_obj.description = f"Duplicate ban for user: {ban.username} prevented"
             e_obj.set_footer(text="Intercepted Moderator Action")
@@ -166,7 +169,7 @@ class Ban(commands.Cog):
         e_obj.set_footer(text="Intercepted Moderator Action")
         e_obj.timestamp = audit_ban.created_at
         await self.mod_channel.send(embed=e_obj)
-        self.logger.info(
+        self.logger.debug(
             f"[Ban intercept()] Message sent to mod channel,{self.mod_channel}, for ban of {ban.username}."
         )
 
@@ -190,20 +193,20 @@ class Ban(commands.Cog):
             }
             guild_ban_list = [ban async for ban in self.guild.bans()]
         except Exception as e:
-            self.logger.info(f'[Ban convertbans()] error while fetching ban data: {e}')
+            self.logger.debug(f'[Ban convertbans()] error while fetching ban data: {e}')
             await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
             return
 
         if not guild_ban_list:
-            self.logger.info("[Ban convertbans()] No bans to migrate into the ban system from guild. "
-                             "Sening message and ending command.")
+            self.logger.debug("[Ban convertbans()] No bans to migrate into the ban system from guild. "
+                              "Sening message and ending command.")
             await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
             return
 
-        self.logger.info(f"[Ban convertbans()] retrieved audit log data for ban actions: {ban_logs}")
-        self.logger.info(f"[Ban convertbans()] retrieved ban list from guild: {guild_ban_list}")
+        self.logger.debug(f"[Ban convertbans()] retrieved audit log data for ban actions: {ban_logs}")
+        self.logger.debug(f"[Ban convertbans()] retrieved ban list from guild: {guild_ban_list}")
 
-        self.logger.info("[Ban convertbans()] Starting process to move all guild bans into db")
+        self.logger.debug("[Ban convertbans()] Starting process to move all guild bans into db")
 
         # update bans
         ban_records = []
@@ -240,7 +243,7 @@ class Ban(commands.Cog):
         await BanRecord.insert_records(ban_records)
 
         await ctx.send(f"Moved `{len(ban_records)}` active bans from guild bans to walle bans.")
-        self.logger.info(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
+        self.logger.debug(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
 
     @commands.command(
         brief="Bans a user from the guild",
@@ -264,7 +267,7 @@ class Ban(commands.Cog):
 
         # confirm at least 1 @ mention of user to ban
         if len(ctx.message.mentions) < 1:
-            self.logger.info("[Ban ban()] No user were @ mentioned in the args")
+            self.logger.debug("[Ban ban()] No user were @ mentioned in the args")
             e_obj = await embed(
                 self.logger, ctx=ctx, title="Invalid Arguments",
                 content=[
@@ -277,7 +280,7 @@ class Ban(commands.Cog):
             if e_obj:
                 await ctx.send(embed=e_obj)
             return
-        self.logger.info(f"[Ban ban()] User to ban: {user}")
+        self.logger.debug(f"[Ban ban()] User to ban: {user}")
 
         # indicate working on banning
         await ctx.message.add_reaction("⚡")
@@ -292,12 +295,12 @@ class Ban(commands.Cog):
         except Exception:
             # use default value set above
             pass
-        self.logger.info(f"[Ban ban()] Purge window days set to {purge_window_days}")
+        self.logger.debug(f"[Ban ban()] Purge window days set to {purge_window_days}")
 
         # construct reason
         reason = ' '.join(args)
         reason = reason if reason else "No Reason Given."
-        self.logger.info(f"[Ban ban()] Ban reason '{reason}'")
+        self.logger.debug(f"[Ban ban()] Ban reason '{reason}'")
 
         # Construct ban record and attempt save
         ban = BanRecord(
@@ -311,7 +314,7 @@ class Ban(commands.Cog):
                          )
         success = await BanRecord.insert_record(ban)
         if not success:
-            self.logger.info(f"[Ban ban()] Ban for {user} is duplicate.")
+            self.logger.debug(f"[Ban ban()] Ban for {user} is duplicate.")
             e_obj = discord.Embed(title="Duplicate Ban", colour=discord.Colour.red())
             e_obj.description = f"Duplicate ban for user: {ban.username} prevented."
             e_obj.set_footer(text="Moderator Action")
@@ -335,16 +338,16 @@ class Ban(commands.Cog):
 
         try:
             await user.send(embed=e_obj)
-            self.logger.info("[Ban ban()] User notified via dm of their ban")
+            self.logger.debug("[Ban ban()] User notified via dm of their ban")
         except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
             dm = False
-            self.logger.info("[Ban ban()] Notification dm to user failed due to user preferences")
+            self.logger.debug("[Ban ban()] Notification dm to user failed due to user preferences")
 
         # Conduct banning
-        self.logger.info(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
+        self.logger.debug(f"[Ban ban()] Banning {ban.username} with id {ban.user_id}")
         await user.kick(reason=reason)
         dt = datetime.datetime.now(pytz.utc)
-        self.logger.info(f"[Ban ban()] User kicked from guiled at {dt}.")
+        self.logger.debug(f"[Ban ban()] User kicked from guiled at {dt}.")
 
         # Report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed", colour=discord.Color.red())
@@ -357,7 +360,7 @@ class Ban(commands.Cog):
         e_obj.timestamp = dt
 
         await self.mod_channel.send(embed=e_obj)
-        self.logger.info(
+        self.logger.debug(
             f"[Ban ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}."
         )
 
@@ -370,7 +373,7 @@ class Ban(commands.Cog):
         if timeframe <= 0 or timeframe > 14:
             await ctx.send('Window to purge message must be between 1 - 14 days. Using default of `1 day`')
             timeframe = 1
-        self.logger.info(f"[Ban purge_messages()] timeframe: {timeframe}")
+        self.logger.debug(f"[Ban purge_messages()] timeframe: {timeframe}")
 
         # begin purging messages
         # get list of all channels
@@ -380,7 +383,7 @@ class Ban(commands.Cog):
             return msg.author == user
 
         date = discord.utils.utcnow() - datetime.timedelta(timeframe)
-        self.logger.info(f"[Ban purge_messages()] message from {user} will be purge starting from date {date}")
+        self.logger.debug(f"[Ban purge_messages()] message from {user} will be purge starting from date {date}")
 
         for channel in channels:
             send_perm = channel.overwrites_for(ctx.guild.default_role).send_messages
@@ -407,7 +410,7 @@ class Ban(commands.Cog):
     async def unban(self, ctx, user_id: int):
         self.logger.info(f"[Ban unban()] unban command detected from {ctx.author} with args=[ {user_id} ]")
         if not await BanRecord.user_is_banned(user_id):
-            self.logger.info(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
+            self.logger.debug(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
             e_obj = await embed(
                 self.logger, ctx=ctx, title="Error",
                 content=[
@@ -423,10 +426,10 @@ class Ban(commands.Cog):
 
         name = await BanRecord.unban_by_id(user_id)
         if not name:
-            self.logger.info(f"[Ban unban()] No user with id: {user_id} found.")
+            self.logger.debug(f"[Ban unban()] No user with id: {user_id} found.")
             await self.mod_channel.send(f"*No user with id: **{user_id}** found.*")
 
-        self.logger.info(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
+        self.logger.debug(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
         e_obj = await embed(
             self.logger, ctx=ctx, title="Unban", description=f"**`{name}`** was unbanned.",
             colour=WallEColour.ERROR
@@ -459,7 +462,7 @@ class Ban(commands.Cog):
 
         bans = await BanRecord.get_all_active_bans()
         count = await BanRecord.get_active_bans_count()
-        self.logger.info(f"[Ban bans()] retrieved all banned users: {bans}")
+        self.logger.debug(f"[Ban bans()] retrieved all banned users: {bans}")
 
         emb = discord.Embed(title="Banned members", color=discord.Color.red())
 
@@ -485,7 +488,7 @@ class Ban(commands.Cog):
             emb.add_field(name="IDs", value=ids, inline=True)
             await ctx.send(embed=emb)
         await ctx.send(f"Total number of banned users: {count}")
-        self.logger.info("[Ban bans()] done sending embeds with banned user lists and total ban count")
+        self.logger.debug("[Ban bans()] done sending embeds with banned user lists and total ban count")
 
     @commands.command(brief="Clears the ban list on the guild.")
     @commands.has_any_role("Minions", "Moderator")
@@ -493,15 +496,15 @@ class Ban(commands.Cog):
         self.logger.info(f"[Ban purgebans()] purgebans command detected from {ctx.author}")
 
         bans = [ban async for ban in self.guild.bans()]
-        self.logger.info(f"[Ban purgebans()] Retrieved list of banned users from guild: {bans}")
+        self.logger.debug(f"[Ban purgebans()] Retrieved list of banned users from guild: {bans}")
 
         if not bans:
-            self.logger.info("[Ban purgebans()] Ban list is empty. Sending message and ending command.")
+            self.logger.debug("[Ban purgebans()] Ban list is empty. Sending message and ending command.")
             await ctx.send("Ban list is empty. Nothing to purge.")
             return
 
         for ban in bans:
-            self.logger.info(f"[Ban purgebans()] Unbanning user: {ban}")
+            self.logger.debug(f"[Ban purgebans()] Unbanning user: {ban}")
             await self.guild.unban(ban.user)
 
         await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")

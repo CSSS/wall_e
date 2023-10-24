@@ -67,6 +67,7 @@ class Reminders(commands.Cog):
         """
         while self.guild is None:
             await asyncio.sleep(2)
+        self.logger.info("[Reminders get_messages()] acquiring text channel for reminders.")
         reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
             self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "reminders"
@@ -74,17 +75,20 @@ class Reminders(commands.Cog):
         reminder_channel = discord.utils.get(
             self.guild.channels, id=reminder_chan_id
         )
+        self.logger.debug(
+            f"[Reminders get_messages()] text channel {reminder_channel} acquired."
+        )
         while True:
             try:
                 reminders = await Reminder.get_expired_reminders()
                 for reminder in reminders:
                     reminder_message = reminder.message
                     author_id = reminder.author_id
-                    self.logger.info(f'[Reminders get_messages()] obtained the message of [{reminder_message}] for '
-                                     f'author with id [{author_id}] for '
-                                     f'BOT_GENERAL_CHANNEL [{reminder_chan_id}]')
-                    self.logger.info('[Reminders get_messages()] sent off '
-                                     f'reminder to {author_id} about \"{reminder_message}\"')
+                    self.logger.debug(f'[Reminders get_messages()] obtained the message of [{reminder_message}] for '
+                                      f'author with id [{author_id}] for '
+                                      f'BOT_GENERAL_CHANNEL [{reminder_chan_id}]')
+                    self.logger.debug('[Reminders get_messages()] sent off '
+                                      f'reminder to {author_id} about \"{reminder_message}\"')
                     e_obj = await embed(
                         self.logger,
                         reminder_channel,
@@ -140,7 +144,7 @@ class Reminders(commands.Cog):
             else:
                 message += f"{value} "
         if parsed_time == '':
-            self.logger.info("[Reminders remindmein()] was unable to extract a time")
+            self.logger.debug("[Reminders remindmein()] was unable to extract a time")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -152,7 +156,7 @@ class Reminders(commands.Cog):
                 await ctx.send(embed=e_obj)
             return
         if message == '':
-            self.logger.info("[Reminders remindmein()] was unable to extract a message")
+            self.logger.debug("[Reminders remindmein()] was unable to extract a message")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -163,16 +167,16 @@ class Reminders(commands.Cog):
             if e_obj is not False:
                 await ctx.send(embed=e_obj)
             return
-        self.logger.info(f"[Reminders remindmein()] extracted time is {parsed_time}")
-        self.logger.info(f"[Reminders remindmein()] extracted timezone is {user_specified_timezone}")
-        self.logger.info(f"[Reminders remindmein()] extracted message is {message}")
+        self.logger.debug(f"[Reminders remindmein()] extracted time is {parsed_time}")
+        self.logger.debug(f"[Reminders remindmein()] extracted timezone is {user_specified_timezone}")
+        self.logger.debug(f"[Reminders remindmein()] extracted message is {message}")
         reminder_date, parse_status = parsedatetime.Calendar().parseDT(
             datetimeString=parsed_time,
             sourceTime=datetime.datetime.now(tz=user_specified_timezone),
             tzinfo=user_specified_timezone
         )
         if parse_status == 0:
-            self.logger.info("[Reminders remindmein()] couldn't parse the time")
+            self.logger.debug("[Reminders remindmein()] couldn't parse the time")
             e_obj = await embed(
                 self.logger,
                 ctx=ctx,
@@ -196,7 +200,7 @@ class Reminders(commands.Cog):
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)
-            self.logger.info("[Reminders remindmein()] reminder has been constructed and sent.")
+            self.logger.debug("[Reminders remindmein()] reminder has been constructed and sent.")
 
     @commands.command(brief="Show all your active reminders and their corresponding IDs")
     async def showreminders(self, ctx):
@@ -204,11 +208,11 @@ class Reminders(commands.Cog):
         try:
             reminders = ''
             reminder_objs = await Reminder.get_reminder_by_author(ctx.author.id)
-            self.logger.info(
+            self.logger.debug(
                 f"[Reminders showreminders()] retrieved all reminders belonging to user {ctx.message.author}"
             )
             for reminder_obj in reminder_objs:
-                self.logger.info(f"[Reminders showreminders()] dealing with reminder {reminder_obj}")
+                self.logger.debug(f"[Reminders showreminders()] dealing with reminder {reminder_obj}")
                 time_str = datetime.datetime.fromtimestamp(
                     reminder_obj.reminder_date_epoch,
                     pytz.timezone(django_settings.TIME_ZONE)
@@ -216,7 +220,7 @@ class Reminders(commands.Cog):
                 reminders += f"{reminder_obj.id}\n - {time_str}\n - {reminder_obj.message}\n"
             author = ctx.author.nick or ctx.author.name
             if reminders != '':
-                self.logger.info(
+                self.logger.debug(
                     f"[Reminders showreminders()] sent off the list of reminders to {ctx.message.author}"
                 )
                 e_obj = await embed(
@@ -229,7 +233,7 @@ class Reminders(commands.Cog):
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
             else:
-                self.logger.info(
+                self.logger.debug(
                     f"[Reminders showreminders()] {ctx.message.author} didnt seem to have any reminders."
                 )
                 e_obj = await embed(
@@ -279,12 +283,12 @@ class Reminders(commands.Cog):
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj)
-                    self.logger.info("[Reminders deletereminder()] Specified reminder could not be found ")
+                    self.logger.debug("[Reminders deletereminder()] Specified reminder could not be found ")
             else:
                 if reminder.author_id == ctx.message.author.id:
                     # check to make sure its the right author
                     await Reminder.delete_reminder_by_id(reminder.id)
-                    self.logger.info(f"[Reminders deletereminder()] following reminder was deleted = {reminder}")
+                    self.logger.debug(f"[Reminders deletereminder()] following reminder was deleted = {reminder}")
                     e_obj = await embed(
                         self.logger,
                         ctx=ctx,
@@ -305,8 +309,8 @@ class Reminders(commands.Cog):
                     if e_obj is not False:
                         await ctx.send(embed=e_obj)
                         member = self.guild.get_member(reminder.author_id)
-                        self.logger.info(f"[Reminders deletereminder()] It seems that {ctx.message.author} "
-                                         f"was trying to delete {member}'s reminder.")
+                        self.logger.debug(f"[Reminders deletereminder()] It seems that {ctx.message.author} "
+                                          f"was trying to delete {member}'s reminder.")
         except Exception as error:
             self.logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
             print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)

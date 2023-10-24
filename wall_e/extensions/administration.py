@@ -10,14 +10,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from utilities.extension_load_unload_autocomplete_functions import get_extension_that_can_be_loaded, \
+from utilities.autocomplete.extensions_load_choices import get_extension_that_can_be_loaded, \
     get_extension_that_can_be_unloaded
 from utilities.global_vars import wall_e_config, bot
 
 from extensions.manage_test_guild import ManageTestGuild
 
 from utilities.bot_channel_manager import BotChannelManager
-from utilities.embed import embed
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.send import send as helper_send
 from utilities.setup_logger import Loggers
@@ -107,15 +107,14 @@ class Administration(commands.Cog):
     async def get_announcement_channel(self):
         while self.guild is None:
             await asyncio.sleep(2)
+        self.logger.info("[Administration get_announcement_channel()] acquiring text channel for announcements.")
         reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
             self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
             "announcements"
         )
-        self.announcement_channel = discord.utils.get(
-            self.guild.channels, id=reminder_chan_id
-        )
-        self.logger.info(
-            f"[Administration get_announcement_channel()] bot channel {self.announcement_channel} acquired."
+        self.announcement_channel = discord.utils.get(self.guild.channels, id=reminder_chan_id)
+        self.logger.debug(
+            f"[Administration get_announcement_channel()] text channel {self.announcement_channel} acquired."
         )
 
     @commands.Cog.listener(name="on_ready")
@@ -156,8 +155,6 @@ class Administration(commands.Cog):
     @app_commands.command(description="Deletes the log channel and category")
     async def delete_log_channels(self, interaction: discord.Interaction):
         if 'LOCALHOST' == wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'):
-            while self.guild is None:
-                await asyncio.sleep(2)
             self.logger.info("[Administration delete_log_channels()] delete_log_channels command "
                              f"detected from {interaction.user}")
             await interaction.response.defer()
@@ -183,8 +180,6 @@ class Administration(commands.Cog):
     @app_commands.command(description="Deletes last X messages from channel")
     async def purge_messages(self, interaction: discord.Interaction, last_x_messages_to_delete: int):
         if 'LOCALHOST' == wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'):
-            while self.guild is None:
-                await asyncio.sleep(2)
             self.logger.info("[Administration purge_messages()] purge_messages command "
                              f"detected from {interaction.user}")
             await interaction.response.defer()
@@ -208,7 +203,7 @@ class Administration(commands.Cog):
                     after_message = None
                 else:
                     after_message = messages[0]
-                self.logger.info(f"deleting {last_x_messages_to_delete} messages")
+                self.logger.debug(f"deleting {last_x_messages_to_delete} messages")
                 await interaction.channel.purge(after=after_message, bulk=True)
                 e_obj = await embed(
                     self.logger,
@@ -238,11 +233,23 @@ class Administration(commands.Cog):
     async def load(self, interaction: discord.Interaction, extension_to_load: str):
         self.logger.info(f"[Administration load()] load command detected from {interaction.user}")
         await interaction.response.defer()
+        if extension_to_load not in wall_e_config.get_extensions():
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description=f"Invalid extension **`{extension_to_load}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
+            )
+            await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(10)
+            await interaction.delete_original_response()
+            return
         try:
             await bot.load_extension(extension_to_load)
             await self.sync_helper(interaction=interaction)
             await interaction.followup.send(f"`{extension_to_load}` extension loaded.")
-            self.logger.info(f"[Administration load()] {extension_to_load} has been successfully loaded")
+            self.logger.debug(f"[Administration load()] {extension_to_load} has been successfully loaded")
         except(AttributeError, ImportError) as e:
             await interaction.followup.send(f"{extension_to_load}` extension load failed: {type(e)}, {e}")
             self.logger.error(f"[Administration load()] loading {extension_to_load} failed :{type(e)}, {e}")
@@ -254,10 +261,22 @@ class Administration(commands.Cog):
     async def unload(self, interaction: discord.Interaction, extension_to_unload: str):
         self.logger.info(f"[Administration unload()] unload command detected from {interaction.user}")
         await interaction.response.defer()
+        if extension_to_unload not in wall_e_config.get_extensions():
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description=f"Invalid extension **`{extension_to_unload}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
+            )
+            await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(10)
+            await interaction.delete_original_response()
+            return
         await bot.unload_extension(extension_to_unload)
         await self.sync_helper(interaction=interaction)
         await interaction.followup.send(f"`{extension_to_unload}` extension unloaded.")
-        self.logger.info(f"[Administration unload()] {extension_to_unload} has been successfully loaded")
+        self.logger.debug(f"[Administration unload()] {extension_to_unload} has been successfully loaded")
 
     @app_commands.command(name="reload", description="reloads the specified extension")
     @app_commands.describe(extension_to_reload="extension to reload")
@@ -266,15 +285,26 @@ class Administration(commands.Cog):
     async def reload(self, interaction: discord.Interaction, extension_to_reload: str):
         self.logger.info(f"[Administration reload()] reload command detected from {interaction.user}")
         await interaction.response.defer()
-        await bot.unload_extension(extension_to_reload)
+        if extension_to_reload not in wall_e_config.get_extensions():
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description=f"Invalid extension **`{extension_to_reload}`** specified. Please select from the list.",
+                colour=WallEColour.ERROR
+            )
+            await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(10)
+            await interaction.delete_original_response()
+            return
         try:
-            await bot.load_extension(extension_to_reload)
+            await bot.reload_extension(extension_to_reload)
             await self.sync_helper(interaction=interaction)
             await interaction.followup.send(f"`{extension_to_reload}` extension reloaded.")
-            self.logger.info(f"[Administration reload()] {extension_to_reload} has been successfully reloaded")
+            self.logger.debug(f"[Administration reload()] {extension_to_reload} has been successfully reloaded")
         except(AttributeError, ImportError) as e:
             await interaction.followup.send(f"{extension_to_reload}` extension reload failed: {type(e)}, {e}")
-            self.logger.info(f"[Administration reload()] reloading {extension_to_reload} failed :{type(e)}, {e}")
+            self.logger.debug(f"[Administration reload()] reloading {extension_to_reload} failed :{type(e)}, {e}")
 
     @commands.command(
         brief="executes the command on the bot host OS",
@@ -300,6 +330,7 @@ class Administration(commands.Cog):
     @commands.has_role("Bot_manager")
     async def sync(self, ctx):
         self.logger.info(f"[AdministrationAdministration sync()] sync command detected from {ctx.message.author}")
+        await ctx.message.delete()
         await self.sync_helper(ctx=ctx)
 
     async def sync_helper(self, ctx=None, interaction=None):
@@ -317,7 +348,9 @@ class Administration(commands.Cog):
             await bot.tree.sync(guild=self.guild)
         if e_obj is not False:
             send_func = ctx.send if interaction is None else interaction.channel.send
-            await send_func(embed=e_obj)
+            message = await send_func(embed=e_obj)
+            await asyncio.sleep(10)
+            await message.delete()
 
     @commands.command(
         brief="sends an announcement to the announcement channel",
@@ -384,10 +417,10 @@ class Administration(commands.Cog):
                 (await CommandStat.get_command_stats_dict(args)).items(),
                 key=lambda kv: kv[1]
             )
-            self.logger.info("[Administration frequency()] sorted dic_results by value")
+            self.logger.debug("[Administration frequency()] sorted dic_results by value")
             image_name = "image.png"
             if len(dic_result) <= 50:
-                self.logger.info("[Administration frequency()] dic_results's length is <= 50")
+                self.logger.debug("[Administration frequency()] dic_results's length is <= 50")
                 labels = [i[0] for i in dic_result]
                 numbers = [i[1] for i in dic_result]
                 self.plt.rcdefaults()
@@ -407,12 +440,12 @@ class Administration(commands.Cog):
                 ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
                 fig.set_size_inches(18.5, 10.5)
                 fig.savefig(image_name)
-                self.logger.info("[Administration frequency()] graph created and saved")
+                self.logger.debug("[Administration frequency()] graph created and saved")
                 self.plt.close(fig)
                 await ctx.send(file=discord.File(image_name))
-                self.logger.info("[Administration frequency()] graph image file has been sent")
+                self.logger.debug("[Administration frequency()] graph image file has been sent")
             else:
-                self.logger.info("[Administration frequency()] dic_results's length is > 50")
+                self.logger.debug("[Administration frequency()] dic_results's length is > 50")
                 number_of_pages = int(len(dic_result) / 50)
                 if len(dic_result) % 50 != 0:
                     number_of_pages += 1
@@ -432,8 +465,8 @@ class Administration(commands.Cog):
                     last_index += number_of_bars_per_page
 
                 while True:
-                    self.logger.info("[Administration frequency()] creating "
-                                     f"a graph with entries {first_index} to {last_index}")
+                    self.logger.debug("[Administration frequency()] creating "
+                                      f"a graph with entries {first_index} to {last_index}")
                     to_react = ['⏪', '⏩', '✅']
                     first_index = boundaries_for_each_page[current_page]['first_index']
                     last_index = boundaries_for_each_page[current_page]['last_index']
@@ -457,7 +490,7 @@ class Administration(commands.Cog):
                     ax.set_title(f"How may times each {title} appears in the database since Sept 21, 2018")
                     fig.set_size_inches(30, 10.5)
                     fig.savefig(image_name)
-                    self.logger.info("[Administration frequency()] graph created and saved")
+                    self.logger.debug("[Administration frequency()] graph created and saved")
                     self.plt.close(fig)
                     if msg is None:
                         msg = await ctx.send(file=discord.File(image_name))
@@ -471,16 +504,16 @@ class Administration(commands.Cog):
                         if not user.bot:  # just making sure the bot doesnt take its own reactions
                             # into consideration
                             e = f"{reaction.emoji}"
-                            self.logger.info(f"[Administration frequency()] reaction {e} detected from {user}")
+                            self.logger.debug(f"[Administration frequency()] reaction {e} detected from {user}")
                             return e.startswith(('⏪', '⏩', '✅'))
 
-                    self.logger.info("[Administration frequency()] graph image file has been sent")
+                    self.logger.debug("[Administration frequency()] graph image file has been sent")
                     user_reacted = None
                     while user_reacted is None:
                         try:
                             user_reacted = await bot.wait_for('reaction_add', timeout=20, check=check_reaction)
                         except asyncio.TimeoutError:
-                            self.logger.info(
+                            self.logger.debug(
                                 "[Administration frequency()] timed out waiting for the user's reaction."
                             )
                         if user_reacted:
@@ -488,28 +521,28 @@ class Administration(commands.Cog):
                                 current_page -= 1
                                 if current_page < 0:
                                     current_page = number_of_pages - 1
-                                self.logger.info("[Administration frequency()] user indicates they "
-                                                 f" want to go back to page {current_page}")
+                                self.logger.debug("[Administration frequency()] user indicates they "
+                                                  f" want to go back to page {current_page}")
                             elif '⏩' == user_reacted[0].emoji:
                                 current_page += 1
                                 if current_page >= number_of_pages:
                                     current_page = 0
-                                self.logger.info(
+                                self.logger.debug(
                                     "[Administration frequency()] user indicates they "
                                     f"want to go to page {current_page}"
                                 )
                             elif '✅' == user_reacted[0].emoji:
-                                self.logger.info("[Administration frequency()] user "
-                                                 "indicates they are done with the roles "
-                                                 "command, deleting roles message")
+                                self.logger.debug("[Administration frequency()] user "
+                                                  "indicates they are done with the roles "
+                                                  "command, deleting roles message")
                                 await msg.delete()
                                 return
                         else:
-                            self.logger.info("[Administration frequency()] deleting message")
+                            self.logger.debug("[Administration frequency()] deleting message")
                             await msg.delete()
                             return
-                    self.logger.info("[Administration frequency()] updating first_index "
-                                     f"and last_index to {first_index} and {last_index} respectively")
+                    self.logger.debug("[Administration frequency()] updating first_index "
+                                      f"and last_index to {first_index} and {last_index} respectively")
 
 
 async def setup(bot):

@@ -79,7 +79,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
             f"being added to the title field is {len(title) - 256} characters "
             "too big, please cut down to a size of 256"
         )
-        logger.info(f"[embed.py embed()] length of title [{title}] being added to the field is too big")
+        logger.debug(f"[embed.py embed()] length of title [{title}] being added to the field is too big")
         return False
 
     if len(description) > 2048:
@@ -88,8 +88,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
             f"description field is {len(description) - 2048} characters too big, please cut "
             "down to a size of 2048"
         )
-        logger.info(f"[embed.py embed()] length of description [{description}] being added to the "
-                    "field is too big")
+        logger.debug(f"[embed.py embed()] length of description [{description}] being added to the "
+                     "field is too big")
         return False
 
     if len(content) > 25:
@@ -97,7 +97,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
             "Embed Error:\nlength of content being added to the content field "
             f"is {(len(content) - 25)} indices too big, please cut down to a size of 25"
         )
-        logger.info("[embed.py embed()] length of content array will be added to the fields is too big")
+        logger.debug("[embed.py embed()] length of content array will be added to the fields is too big")
         return False
 
     for idx, record in enumerate(content):
@@ -106,8 +106,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
                 f"Embed Error:\nlength of record[0] for content index {idx} being added to the name "
                 f"field is {(len(record[0]) - 256)} characters too big, please cut down to a size of 256"
             )
-            logger.info("[embed.py embed()] length of following record being added to the field is too big")
-            logger.info(f"[embed.py embed()] {record[0]}")
+            logger.debug("[embed.py embed()] length of following record being added to the field is too big")
+            logger.debug(f"[embed.py embed()] {record[0]}")
             return False
         if len(record[1]) > 1024:
             await send_func(
@@ -115,8 +115,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
                 f"field is {(len(record[1]) - 1024)} characters too big, please cut down to a "
                 "size of 1024"
             )
-            logger.info("[embed.py embed()] length of following record being added to the field is too big")
-            logger.info(f"[embed.py embed()] {record[1]}")
+            logger.debug("[embed.py embed()] length of following record being added to the field is too big")
+            logger.debug(f"[embed.py embed()] {record[1]}")
             return False
 
     if len(footer) > 2048:
@@ -124,7 +124,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
             f"Embed Error:\nlength of footer being added to the footer field is "
             f"{len(footer) - 2048} characters too big, please cut down to a size of 2048"
         )
-        logger.info(f"[embed.py embed()] length of footer [{footer}] being added to the field is too big")
+        logger.debug(f"[embed.py embed()] length of footer [{footer}] being added to the field is too big")
         return False
 
     emb_obj = discord.Embed(title=title, type='rich')

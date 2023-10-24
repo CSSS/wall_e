@@ -24,7 +24,7 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, erro
     channel = discord.utils.get(
         bot.guilds[0].channels, id=chan_id
     )
-    logger.info(
+    logger.debug(
         f"[log_channel.py write_to_bot_log_channel()] {channel} channel "
         f"with id {chan_id} successfully retrieved."
     )
@@ -59,7 +59,7 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, erro
                         if len(output[first_index:last_index]) == 0:
                             finished = True
                 except RuntimeError:
-                    logger.info(
+                    logger.debug(
                         "[log_channel.py write_to_bot_log_channel()] encountered RuntimeError, "
                         " will assume that the user is attempting to exit"
                     )
