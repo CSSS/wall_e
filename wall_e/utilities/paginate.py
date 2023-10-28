@@ -2,7 +2,7 @@ import asyncio
 from utilities.embed import embed as imported_embed
 
 
-async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None, interaction=None):
+async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None, interaction=None, send_func=None):
     """
     Creates an interactive paginated embed message
     :param logger: the calling serivce's logger object
@@ -13,13 +13,15 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
      [need to be specified if no interaction is detected]
     :param interaction: the interaction object that is in the command's arguments if it was a slash command
      [need to be specified if no ctx is detected]
+    :param send_func: needed if the calling function is a slash command that deferred the interaction
     :return:
     """
-    send_func = interaction.response.send_message if interaction is not None else None
-    send_func = ctx.send if ctx is not None and send_func is None else send_func
     if send_func is None:
-        logger.error("did not detect a ctx or interaction method")
-        return
+        send_func = interaction.response.send_message if interaction is not None else None
+        send_func = ctx.send if ctx is not None and send_func is None else send_func
+        if send_func is None:
+            logger.error("did not detect a ctx or interaction method")
+            return
     num_of_pages = len(description_to_embed)
     logger.debug(
         "[paginate.py paginate_embed()] called with following argument: "

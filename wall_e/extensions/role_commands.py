@@ -157,9 +157,9 @@ class RoleCommands(commands.Cog):
     )
     async def sync_roles(self, interaction: discord.Interaction):
         self.logger.info(f"[RoleCommands sync_roles()] {interaction.user} called sync_roles")
+        await interaction.response.defer()
         if not RoleCommands.roles_list_being_updated:
             RoleCommands.roles_list_being_updated = True
-            await interaction.response.defer()
             self.logger.debug("[RoleCommands update_roles_cache()] updating roles cache")
             RoleCommands.roles_with_members = {
                 role.id: role
@@ -203,6 +203,7 @@ class RoleCommands(commands.Cog):
                          f"called newrole with following argument: new_role_name={new_role_name}")
         new_role_name = new_role_name.lower()
         guild = interaction.guild
+        await interaction.response.defer()
         role_already_exists = len([role for role in guild.roles if role.name == new_role_name]) > 0
         if role_already_exists:
             e_obj = await embed(
@@ -214,7 +215,9 @@ class RoleCommands(commands.Cog):
                 colour=WallEColour.ERROR
             )
             if e_obj is not False:
-                await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+                await self.send_message_to_user_or_bot_channel(
+                    e_obj, interaction=interaction, send_func=interaction.followup.send
+                )
                 self.logger.debug(f"[RoleCommands newrole()] {new_role_name} already exists")
             return
         role = await guild.create_role(name=new_role_name)
@@ -231,7 +234,9 @@ class RoleCommands(commands.Cog):
                 f"**`{new_role_name}`**.\nCalling `.iam {new_role_name}` will add it to you."
             )
         )
-        await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+        await self.send_message_to_user_or_bot_channel(
+            e_obj, interaction=interaction, send_func=interaction.followup.send
+        )
 
     @app_commands.command(name="deleterole", description="deletes empty assignable role with the specified name")
     @app_commands.describe(empty_role="name for empty assignable role to remove")
@@ -241,6 +246,7 @@ class RoleCommands(commands.Cog):
                          f"called deleterole with role {empty_role}.")
         if empty_role == "-1":
             return
+        await interaction.response.defer()
         if not empty_role.isdigit():
             self.logger.debug(f"[RoleCommands deleterole()] invalid empty_role id of {empty_role} exists")
             e_obj = await embed(
@@ -250,7 +256,9 @@ class RoleCommands(commands.Cog):
                 description=f"Invalid role **`{empty_role}`** specified. Please select from the list.",
                 colour=WallEColour.ERROR
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         role = discord.utils.get(interaction.guild.roles, id=int(empty_role))
         if role is None:
@@ -262,7 +270,9 @@ class RoleCommands(commands.Cog):
                 description=f"Invalid role **`{empty_role}`** specified. Please select from the list.",
                 colour=WallEColour.ERROR
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         await role.delete()
         del self.lowercase_roles[int(empty_role)]
@@ -273,7 +283,9 @@ class RoleCommands(commands.Cog):
             author=interaction.client.user,
             description=f"Role **`{role}`** deleted."
         )
-        await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+        await self.send_message_to_user_or_bot_channel(
+            e_obj, interaction=interaction, send_func=interaction.followup.send
+        )
 
     @app_commands.command(name="iam", description="add yourself to an assignable role")
     @app_commands.describe(role_to_assign_to_me="name for existing role to assign to yourself")
@@ -282,6 +294,7 @@ class RoleCommands(commands.Cog):
         self.logger.info(f"[RoleCommands iam()] {interaction.user} called iam with role {role_to_assign_to_me}")
         if role_to_assign_to_me == "-1":
             return
+        await interaction.response.defer()
         if not role_to_assign_to_me.isdigit():
             self.logger.debug(f"[RoleCommands iam()] invalid role id of {role_to_assign_to_me} detected")
             e_obj = await embed(
@@ -291,7 +304,9 @@ class RoleCommands(commands.Cog):
                 description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list.",
                 colour=WallEColour.ERROR
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         role = discord.utils.get(interaction.guild.roles, id=int(role_to_assign_to_me))
         if role is None:
@@ -303,7 +318,9 @@ class RoleCommands(commands.Cog):
                 description=f"Invalid role **`{role_to_assign_to_me}`** specified. Please select from the list.",
                 colour=WallEColour.ERROR
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         user = interaction.user
         await user.add_roles(role)
@@ -326,7 +343,9 @@ class RoleCommands(commands.Cog):
                 author=interaction.client.user,
                 description=f"You have successfully been added to role **`{role}`**."
             )
-        await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+        await self.send_message_to_user_or_bot_channel(
+            e_obj, interaction=interaction, send_func=interaction.followup.send
+        )
 
     @app_commands.command(name="iamn", description="remove yourself from an assignable role")
     @app_commands.describe(role_to_remove_from_me="name for existing role to remove from yourself")
@@ -337,6 +356,7 @@ class RoleCommands(commands.Cog):
         )
         if role_to_remove_from_me == "-1":
             return
+        await interaction.response.defer()
         if not role_to_remove_from_me.isdigit():
             self.logger.debug(f"[RoleCommands iamn()] invalid role id of {role_to_remove_from_me} detected")
             e_obj = await embed(
@@ -346,7 +366,9 @@ class RoleCommands(commands.Cog):
                 description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list.",
                 colour=WallEColour.ERROR
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         role = discord.utils.get(interaction.guild.roles, id=int(role_to_remove_from_me))
         if role is None:
@@ -358,7 +380,9 @@ class RoleCommands(commands.Cog):
                 description=f"Invalid role **`{role_to_remove_from_me}`** specified. Please select from the list.",
                 colour=WallEColour.ERROR
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         user = interaction.user
         await user.remove_roles(role)
@@ -372,7 +396,9 @@ class RoleCommands(commands.Cog):
         )
         if e_obj is not False:
             self.logger.debug(f"[RoleCommands iamn()] {user} has been removed from role {role}")
-        await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+        await self.send_message_to_user_or_bot_channel(
+            e_obj, interaction=interaction, send_func=interaction.followup.send
+        )
         # delete role if last person
         members_of_role = role.members
         if not members_of_role:
@@ -384,7 +410,9 @@ class RoleCommands(commands.Cog):
                 author=interaction.client.user,
                 description=f"Role **`{role.name}`** deleted."
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction=interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.channel.send
+            )
 
     @app_commands.command(name="whois", description="list folks in a role")
     @app_commands.describe(role="name of the existing role to return the membership of")
@@ -395,14 +423,14 @@ class RoleCommands(commands.Cog):
         )
         if role == "-1":
             return
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
         if not role.isdigit():
-            try:
-                await interaction.response.defer()
-            except discord.errors.NotFound:
-                await interaction.channel.send(
-                    "Feeling a bit overloaded at the moment...Please try again in a few minutes"
-                )
-                return
             self.logger.debug(f"[RoleCommands whois()] invalid role id of {role} detected")
             e_obj = await embed(
                 self.logger,
@@ -425,13 +453,15 @@ class RoleCommands(commands.Cog):
                 description=f"Invalid role **`{role}`** specified. Please select from the list.",
                 colour=WallEColour.ERROR
             )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
+            await self.send_message_to_user_or_bot_channel(
+                e_obj, interaction=interaction, send_func=interaction.followup.send
+            )
             return
         author_roles = [
             role.name for role in interaction.user.roles
         ]
         if role.name == "Muted" and "Minions" not in author_roles:
-            await interaction.response.send_message("no peaking at the muted folks!")
+            await interaction.followup.send("no peaking at the muted folks!")
             return
         if interaction.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
@@ -466,7 +496,8 @@ class RoleCommands(commands.Cog):
 
             title = f"Members belonging to role: `{role}`"
             await paginate_embed(
-                self.logger, bot, member_string, title=title, interaction=interaction
+                self.logger, bot, member_string, title=title, interaction=interaction,
+                send_func=interaction.followup.send
             )
 
     @app_commands.command(
@@ -477,6 +508,7 @@ class RoleCommands(commands.Cog):
         if interaction.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
         else:
+            await interaction.response.defer()
             number_of_roles_per_page = 5
 
             # declares and populates self_assign_roles with all self-assignable roles and
@@ -508,7 +540,8 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.debug("[RoleCommands roles()] transfer successful")
             await paginate_embed(
-                self.logger, bot, description_to_embed, "Self-Assignable Roles", interaction=interaction
+                self.logger, bot, description_to_embed, "Self-Assignable Roles", interaction=interaction,
+                send_func=interaction.followup.send
             )
 
     @app_commands.command(
@@ -520,6 +553,7 @@ class RoleCommands(commands.Cog):
         if interaction.channel.id != self.bot_channel.id:
             await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
         else:
+            await interaction.response.defer()
             number_of_roles_per_page = 5
             # declares and populates assigned_roles with all self-assignable roles and
             # how many people are in each role
@@ -548,7 +582,8 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.debug("[RoleCommands Roles()] transfer successful")
             await paginate_embed(
-                self.logger, bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction
+                self.logger, bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction,
+                send_func=interaction.followup.send
             )
 
     @app_commands.command(name="purgeroles", description="deletes all empty self-assignable roles")
