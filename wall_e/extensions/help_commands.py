@@ -75,7 +75,9 @@ class EmbedHelpCommand(commands.DefaultHelpCommand):
     async def send_command_help(self, command):
         await self.context.message.delete()
         embed = discord.Embed(
-            title=f".{command} {command.usage}", colour=COLOUR_MAPPING[WallEColour.INFO], description=command.help,
+            title=f".{command}{f' {command.usage}' if command.usage else ''}",
+            colour=COLOUR_MAPPING[WallEColour.INFO],
+            description=command.help,
         )
         embed.set_footer(text=self.get_ending_note())
         msg = await self.get_destination().send(embed=embed)
