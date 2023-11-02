@@ -20,19 +20,23 @@ async def report_text_command_error(ctx, error):
     from extensions.manage_test_guild import ManageTestGuild
     correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
     if correct_channel:
-        handled_errors = (commands.errors.ArgumentParsingError, commands.errors.MemberNotFound)
+        handled_errors = (
+            commands.errors.ArgumentParsingError, commands.errors.MemberNotFound, commands.MissingRequiredArgument
+        )
         if isinstance(error, handled_errors):
+            message_footer = (
+                "\n\n**You have 20 seconds to copy your input to do a retry before I ensure it is wiped from the"
+                " channel**"
+            )
             if isinstance(error, commands.errors.ArgumentParsingError):
                 description = (
                     f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"
                     f"\n'{error.args[0]}'\n\n[Technical Details link if you care to look]"
                     f"(https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?"
-                    f"highlight=argumentparsingerror#exceptions)\n\n"
-                    f"**You have 20 seconds to copy your input to do a retry before "
-                    f"I ensure it is wiped from the channel**"
+                    f"highlight=argumentparsingerror#exceptions){message_footer}"
                 )
             else:
-                description = error.args[0]
+                description = f"{error.args[0]}{message_footer}"
             error_type = f"{type(error)}"[8:-2]
             embed_obj = await embed(
                 logger=ctx.cog.logger, ctx=ctx, title=f"Error {error_type} encountered",
@@ -104,21 +108,6 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
                 msg = await channel.send(f'<@{author.id}>', embed=e_obj)
                 await asyncio.sleep(10)
                 await msg.delete()
-    elif isinstance(error, commands.MissingRequiredArgument):
-        logger.warning(f'[error_handlers.py on_command_error()] Missing argument: {error.param}')
-        author = ctx.me if interaction is None else interaction.client.user
-        e_obj = await embed(
-            logger,
-            interaction=interaction,
-            ctx=ctx,
-            author=author,
-            description=f"Missing argument: {error.param}"
-        )
-        if e_obj is not False:
-            if ctx is None:
-                await interaction.response.send_message(embed=e_obj)
-            else:
-                await ctx.channel.send(embed=e_obj)
     elif isinstance(error, discord.app_commands.commands.CommandInvokeError):
         description = error.args[0]
         error_type = f"{type(error)}"[8:-2]
