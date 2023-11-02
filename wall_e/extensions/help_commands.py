@@ -87,3 +87,17 @@ class EmbedHelpCommand(commands.DefaultHelpCommand):
                 time_created=msg.created_at.timestamp()
             )
         )
+
+    async def send_error_message(self, error: str, /) -> None:
+        embed = discord.Embed(
+            title="ERROR", colour=COLOUR_MAPPING[WallEColour.INFO],
+            description=error,
+        )
+        embed.set_footer(text=self.get_ending_note())
+        msg = await self.get_destination().send(embed=embed)
+        await HelpMessage.insert_record(
+            HelpMessage(
+                message_id=msg.id, channel_name=msg.channel.name, channel_id=msg.channel.id,
+                time_created=msg.created_at.timestamp()
+            )
+        )
