@@ -31,7 +31,7 @@ def get_last_index(logger, content, index, reserved_space):
 
 
 async def send(logger, ctx, content=None, tts=False, embed=None, file=None, files=None,
-               delete_after=None, nonce=None, prefix=None, suffix=None):
+               delete_after=None, nonce=None, prefix=None, suffix=None, reference=None):
     """
     send helper function that helps when dealing with a message that has too many characters
     :param logger: the calling service's logger object
@@ -49,6 +49,7 @@ async def send(logger, ctx, content=None, tts=False, embed=None, file=None, file
     :param nonce: the nonce flag to send to the discord send message
     :param prefix: the prefix to surround all the messages that contain the cut down content
     :param suffix: the suffix to surround all the messages that contain the cut down content
+    :param reference: the original message this message being sent is a reference to
     :return:
     """
     # adds the requested prefix and suffic to the contents
@@ -61,7 +62,7 @@ async def send(logger, ctx, content=None, tts=False, embed=None, file=None, file
     # so what basically happens is it first tries to send the full message, then if it cant, it breaks it
     # down into 2000 sizes messages and send them individually
     try:
-        await ctx.send(formatted_content)
+        await ctx.send(formatted_content, reference=reference)
     except (aiohttp.ClientError, discord.errors.HTTPException):
         # used for determing how much space for each of the messages need to be reserved for the requested suffix
         # and prefix
@@ -89,7 +90,7 @@ async def send(logger, ctx, content=None, tts=False, embed=None, file=None, file
                     f" [{last_index}]"
                 )
                 await ctx.send(formatted_content, tts=tts, embed=embed, file=file, files=files,
-                               delete_after=delete_after, nonce=nonce)
+                               delete_after=delete_after, nonce=nonce, reference=reference)
             else:
                 formatted_content = content[first_index:last_index]
                 if prefix is not None:
@@ -100,7 +101,9 @@ async def send(logger, ctx, content=None, tts=False, embed=None, file=None, file
                     f"[send.py send()] messaage sent off with first_index = [{first_index}] and last_index = "
                     f"[{last_index}]"
                 )
-                await ctx.send(formatted_content, tts=tts, delete_after=delete_after, nonce=nonce)
+                await ctx.send(
+                    formatted_content, tts=tts, delete_after=delete_after, nonce=nonce, reference=reference
+                )
             first_index = last_index
             last_index = get_last_index(logger, content, first_index + 1, reserved_space)
             logger.debug(f"[send.py send()] last_index updated to {last_index}")

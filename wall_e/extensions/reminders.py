@@ -153,7 +153,7 @@ class Reminders(commands.Cog):
                 description="unable to extract a time"
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
         if message == '':
             self.logger.debug("[Reminders remindmein()] was unable to extract a message")
@@ -165,7 +165,7 @@ class Reminders(commands.Cog):
                 description="unable to extract a string"
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
         self.logger.debug(f"[Reminders remindmein()] extracted time is {parsed_time}")
         self.logger.debug(f"[Reminders remindmein()] extracted timezone is {user_specified_timezone}")
@@ -185,7 +185,7 @@ class Reminders(commands.Cog):
                 description="Could not parse time!"
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
         reminder_obj = Reminder(
             reminder_date_epoch=reminder_date.timestamp(), message=message,
@@ -199,7 +199,7 @@ class Reminders(commands.Cog):
             description=reminder_obj.get_countdown()
         )
         if e_obj is not False:
-            await ctx.send(embed=e_obj)
+            await ctx.send(embed=e_obj, reference=ctx.message)
             self.logger.debug("[Reminders remindmein()] reminder has been constructed and sent.")
 
     @commands.command(brief="Show all your active reminders and their corresponding IDs")
@@ -231,7 +231,7 @@ class Reminders(commands.Cog):
                     content=[["MessageID\n - Date\n - Reminder", reminders]]
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
             else:
                 self.logger.debug(
                     f"[Reminders showreminders()] {ctx.message.author} didnt seem to have any reminders."
@@ -243,7 +243,7 @@ class Reminders(commands.Cog):
                     description=f"You don't seem to have any reminders {author}"
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
         except Exception as error:
             e_obj = await embed(
                 self.logger,
@@ -252,7 +252,7 @@ class Reminders(commands.Cog):
                 description="Something screwy seems to have happened, look at the logs for more info."
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
                 self.logger.error('[Reminders showreminders()] Ignoring exception when generating reminder:')
                 print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
 
@@ -282,7 +282,7 @@ class Reminders(commands.Cog):
                     description="ERROR\nSpecified reminder could not be found"
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
                     self.logger.debug("[Reminders deletereminder()] Specified reminder could not be found ")
             else:
                 if reminder.author_id == ctx.message.author.id:
@@ -297,7 +297,7 @@ class Reminders(commands.Cog):
                         description=f"Following reminder has been deleted:\n{reminder.message}"
                     )
                     if e_obj is not False:
-                        await ctx.send(embed=e_obj)
+                        await ctx.send(embed=e_obj, reference=ctx.message)
                 else:
                     e_obj = await embed(
                         self.logger,
@@ -307,7 +307,7 @@ class Reminders(commands.Cog):
                         description="ERROR\nYou are trying to delete a reminder that is not yours"
                     )
                     if e_obj is not False:
-                        await ctx.send(embed=e_obj)
+                        await ctx.send(embed=e_obj, reference=ctx.message)
                         member = self.guild.get_member(reminder.author_id)
                         self.logger.debug(f"[Reminders deletereminder()] It seems that {ctx.message.author} "
                                           f"was trying to delete {member}'s reminder.")

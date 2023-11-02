@@ -122,7 +122,7 @@ class Mod(commands.Cog):
             description=lol
         )
         if e_obj is not False:
-            msg = await ctx.send(embed=e_obj)
+            msg = await ctx.send(f'<@{ctx.message.author.id}>', embed=e_obj)
             await asyncio.sleep(5)
             await msg.delete()
             self.logger.debug('[Mod rekt()] troll message deleted')

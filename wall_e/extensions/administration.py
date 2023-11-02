@@ -323,8 +323,8 @@ class Administration(commands.Cog):
         command = " ".join(command)
         # this got implemented for cases when the output of the command is too big to send to the channel
         exit_code, output = subprocess.getstatusoutput(command)
-        await helper_send(self.logger, ctx, f"Exit Code: {exit_code}")
-        await helper_send(self.logger, ctx, output, prefix="```", suffix="```")
+        await helper_send(self.logger, ctx, f"Exit Code: {exit_code}", reference=ctx.message)
+        await helper_send(self.logger, ctx, output, prefix="```", suffix="```", reference=ctx.message)
 
     @commands.command(brief="resyncs the slash commands in wall_e to this discord guild")
     @commands.has_role("Bot_manager")
@@ -402,14 +402,16 @@ class Administration(commands.Cog):
                              f"detected from {ctx.message.author} with arguments [{args}]")
             column_headers = CommandStat.get_column_headers_from_database()
             if len(args) == 0:
-                await ctx.send(f"please specify which columns you want to count={column_headers}")
+                await ctx.send(
+                    f"please specify which columns you want to count={column_headers}", reference=ctx.message
+                )
                 return
             else:
                 for arg in args:
                     if arg not in column_headers:
                         await ctx.send(
                             f"argument '{arg}' is not a valid option\nThe list of options are"
-                            f": {column_headers}"
+                            f": {column_headers}", reference=ctx.message
                         )
                         return
 
@@ -442,7 +444,7 @@ class Administration(commands.Cog):
                 fig.savefig(image_name)
                 self.logger.debug("[Administration frequency()] graph created and saved")
                 self.plt.close(fig)
-                await ctx.send(file=discord.File(image_name))
+                await ctx.send(file=discord.File(image_name), reference=ctx.message)
                 self.logger.debug("[Administration frequency()] graph image file has been sent")
             else:
                 self.logger.debug("[Administration frequency()] dic_results's length is > 50")
@@ -493,10 +495,10 @@ class Administration(commands.Cog):
                     self.logger.debug("[Administration frequency()] graph created and saved")
                     self.plt.close(fig)
                     if msg is None:
-                        msg = await ctx.send(file=discord.File(image_name))
+                        msg = await ctx.send(file=discord.File(image_name), reference=ctx.message)
                     else:
                         await msg.delete()
-                        msg = await ctx.send(file=discord.File(image_name))
+                        msg = await ctx.send(file=discord.File(image_name), reference=ctx.message)
                     for reaction in to_react:
                         await msg.add_reaction(reaction)
 

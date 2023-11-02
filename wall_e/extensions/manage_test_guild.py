@@ -81,7 +81,8 @@ class ManageTestGuild(commands.Cog):
         self.logger.info(f"[ManageTestGuild debuginfo()] debuginfo command detected from {ctx.message.author}")
         await ctx.send(
             '```You are testing the latest commit of branch or pull request: '
-            f'{wall_e_config.get_config_value("basic_config", "BRANCH_NAME")}```'
+            f'{wall_e_config.get_config_value("basic_config", "BRANCH_NAME")}```',
+            reference=ctx.message
         )
 
     @classmethod

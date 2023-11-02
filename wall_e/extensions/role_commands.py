@@ -496,8 +496,7 @@ class RoleCommands(commands.Cog):
 
             title = f"Members belonging to role: `{role}`"
             await paginate_embed(
-                self.logger, bot, member_string, title=title, interaction=interaction,
-                send_func=interaction.followup.send
+                self.logger, bot, member_string, title=title, interaction=interaction
             )
 
     @app_commands.command(
@@ -540,8 +539,7 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.debug("[RoleCommands roles()] transfer successful")
             await paginate_embed(
-                self.logger, bot, description_to_embed, "Self-Assignable Roles", interaction=interaction,
-                send_func=interaction.followup.send
+                self.logger, bot, description_to_embed, "Self-Assignable Roles", interaction=interaction
             )
 
     @app_commands.command(
@@ -582,8 +580,7 @@ class RoleCommands(commands.Cog):
                     x = 0
             self.logger.debug("[RoleCommands Roles()] transfer successful")
             await paginate_embed(
-                self.logger, bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction,
-                send_func=interaction.followup.send
+                self.logger, bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction
             )
 
     @app_commands.command(name="purgeroles", description="deletes all empty self-assignable roles")

@@ -2,7 +2,14 @@ import asyncio
 from utilities.embed import embed as imported_embed
 
 
-async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None, interaction=None, send_func=None):
+async def send_func_helper(embed_obj, send_func, text_command, reference):
+    if text_command:
+        return await send_func(embed=embed_obj, reference=reference)
+    else:
+        return await send_func(embed=embed_obj)
+
+
+async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None, interaction=None):
     """
     Creates an interactive paginated embed message
     :param logger: the calling serivce's logger object
@@ -16,12 +23,21 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
     :param send_func: needed if the calling function is a slash command that deferred the interaction
     :return:
     """
-    if send_func is None:
-        send_func = interaction.response.send_message if interaction is not None else None
-        send_func = ctx.send if ctx is not None and send_func is None else send_func
-        if send_func is None:
-            logger.error("did not detect a ctx or interaction method")
-            return
+    if ctx is not None:
+        reference = ctx.message
+        text_command = True
+        send_func = ctx.send
+    elif interaction is not None:
+        reference = None
+        text_command = False
+        deferred_interaction = interaction.response.type is not None
+        if deferred_interaction:
+            send_func = interaction.followup.send
+        else:
+            send_func = interaction.response.send_message
+    else:
+        logger.error("did not detect a ctx or interaction method")
+        return
     num_of_pages = len(description_to_embed)
     logger.debug(
         "[paginate.py paginate_embed()] called with following argument: "
@@ -61,7 +77,7 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
         # setting the content if it was the first run through or not.
         if first_run is True:
             first_run = False
-            msg = await send_func(content=None, embed=embed_obj)
+            msg = await send_func_helper(embed_obj, send_func, text_command, reference)
             if interaction is not None:
                 msg = await interaction.original_response()
             logger.debug("[paginate.py paginate_embed()] sent message")
