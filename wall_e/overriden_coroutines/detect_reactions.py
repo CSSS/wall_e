@@ -1,9 +1,63 @@
 import asyncio
 import discord
 
-
 from utilities.bot_channel_manager import wall_e_category_name
 from utilities.embed import embed
+
+
+async def get_message_after_up_arrow_emoji(channel, message_with_up_arrow_emoji):
+    messages = [message async for message in channel.history(limit=1, after=message_with_up_arrow_emoji)]
+    return messages[0] if len(messages) > 0 else None
+
+
+async def get_message_before_down_arrow_emoji(channel, reaction, message_after_message_with_up_arrow_emoji):
+    message_before_message_with_down_arrow_emoji = message_after_message_with_up_arrow_emoji
+    number_of_messages_crawled = 0
+    upper_bound_traceback_message_index = -1
+    while upper_bound_traceback_message_index == -1:
+        messages = [message async for message in
+                    channel.history(limit=100, before=message_before_message_with_down_arrow_emoji)]
+        number_of_messages_crawled += 100
+        iteration = 0
+        if len(messages) > 0:
+            while upper_bound_traceback_message_index == -1 and iteration < len(messages):
+                upper_bound_emoji_detected = '⬇️' in [reaction.emoji for reaction in messages[iteration].reactions]
+                if upper_bound_emoji_detected and reaction.message_id != messages[iteration].id:
+                    upper_bound_traceback_message_index = iteration
+                iteration += 1
+        else:
+            # could not find the original traceback message string
+            # will just clear the whole channel instead I guess
+            upper_bound_traceback_message_index = None
+
+        if upper_bound_traceback_message_index == -1:
+            # traceback message not found but there is more potential message to look through
+            message_before_message_with_down_arrow_emoji = messages[len(messages) - 1]
+        elif upper_bound_traceback_message_index is None:
+            # whole channel has to be cleared
+            message_before_message_with_down_arrow_emoji = None
+        else:
+            # message with down arrow found, will now try to find the message before it as that message is needed
+            # for the "after" parameter when getting the whole block of messages to delete
+            if len(messages) == upper_bound_traceback_message_index + 1:
+
+                # seems the message before the traceback message was not retrieved in the messages list, so
+                # another call needs to be made just for that message
+                previous_messages = [
+                    message async for message in
+                    channel.history(limit=1, before=messages[upper_bound_traceback_message_index])
+                ]
+                # either a previous message exists and was obtained, indicating that there
+                # is a suitable message for the "after" cursor or there is no previous
+                # message, so "None" should be used
+                message_before_message_with_down_arrow_emoji = previous_messages[0] if len(
+                    previous_messages) > 0 else None
+            else:
+                # if the code was lucky, the message right before the Traceback is in the list of
+                # messages that were already retrieved so the code just need to look at the next
+                # message in the list for the "after" parameter
+                message_before_message_with_down_arrow_emoji = messages[upper_bound_traceback_message_index + 1]
+    return number_of_messages_crawled, message_before_message_with_down_arrow_emoji
 
 
 async def reaction_detected(reaction):
@@ -39,57 +93,20 @@ async def reaction_detected(reaction):
     )
     if not valid_error_channel:
         return
-    traceback_message_index = -1
     channel = channel_with_reaction
-    last_message_checked = None
+    message_with_up_arrow_emoji = await channel.fetch_message(reaction.message_id)
 
-    # will try to find the message that contains the Traceback string as that's the most reliable way to
-    # detect the beginning of a stack trace in a channel
-    number_of_messages_crawled = 0
-    while traceback_message_index == -1:
-        messages = [message async for message in channel.history(limit=100, before=last_message_checked)]
-        number_of_messages_crawled += 100
-        iteration = 0
-        if len(messages) > 0:
-            while traceback_message_index == -1 and iteration < len(messages):
-                upper_bound_emoji_detected = '⬇️' in [reaction.emoji for reaction in messages[iteration].reactions]
-                if upper_bound_emoji_detected and reaction.message_id != messages[iteration].id:
-                    traceback_message_index = iteration
-                iteration += 1
-        else:
-            # could not find the original traceback message string
-            # will just clear the whole channel instead I guess
-            traceback_message_index = None
+    message_after_message_with_up_arrow_emoji = await get_message_after_up_arrow_emoji(
+        channel, message_with_up_arrow_emoji
+    )
+    (
+        number_of_messages_crawled, message_before_message_with_down_arrow_emoji
+    ) = await get_message_before_down_arrow_emoji(channel, reaction, message_after_message_with_up_arrow_emoji)
 
-        if traceback_message_index == -1:
-            # traceback message not found but there is more potential message to look through
-            last_message_checked = messages[len(messages) - 1]
-        elif traceback_message_index is None:
-            # whole channel has to be cleared
-            last_message_checked = None
-        else:
-            # traceback message found, will now try to find the message before it as that message is needed
-            # for the "after" parameter when getting the whole stacktrace
-            if len(messages) == traceback_message_index + 1:
-
-                # seems the message before the traceback message was not retrieved in the messages list, so
-                # another call needs to be made just for that message
-                previous_messages = [
-                    message async for message in
-                    channel.history(limit=1, before=messages[traceback_message_index])
-                ]
-                # either a previous message exists and was obtained, indicating that there
-                # is a suitable message for the "after" cursor or there is no previous
-                # message, so "None" should be used
-                last_message_checked = previous_messages[0] if len(previous_messages) > 0 else None
-            else:
-                # if the code was lucky, the message right before the Traceback is in the list of
-                # messages that were already retrieved so the code just need to look at the next
-                # message in the list for the "after" parameter
-                last_message_checked = messages[traceback_message_index + 1]
     messages_to_delete = [
         message async for message in channel.history(
-            after=last_message_checked, oldest_first=False, limit=number_of_messages_crawled
+            after=message_before_message_with_down_arrow_emoji, before=message_after_message_with_up_arrow_emoji,
+            oldest_first=False, limit=number_of_messages_crawled
         )
     ]
     number_of_messages_deleted = len(messages_to_delete)
