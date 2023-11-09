@@ -477,7 +477,7 @@ class Leveling(commands.Cog):
     @commands.has_any_role("Minions", "Moderator")
     async def set_level_name(self, ctx, level_number: int, new_role_name: str):
         if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...")
+            await ctx.send("level command is not yet ready...", reference=ctx.message)
             return
         self.logger.info(
             f"[Leveling set_level_name()] received request to set name for level {level_number} to {new_role_name} "
@@ -493,7 +493,8 @@ class Leveling(commands.Cog):
         if len(existing_xp_level_with_specified_role_name) > 0:
             await ctx.send(
                 f"role {new_role_name} is already in use by level "
-                f"{existing_xp_level_with_specified_role_name[0].number}"
+                f"{existing_xp_level_with_specified_role_name[0].number}",
+                reference=ctx.message
             )
             return
         if level_number not in list(self.levels.keys()):
@@ -504,7 +505,8 @@ class Leveling(commands.Cog):
             current_levels = ", ".join(current_levels)
             await ctx.send(
                 f"you specified an incorrect level, the only levels available for setting their names "
-                f"are :{current_levels}"
+                f"are :{current_levels}",
+                reference=ctx.message
             )
             return
         if self.levels[level_number].role_id is None:
@@ -516,7 +518,7 @@ class Leveling(commands.Cog):
                     f"[Leveling set_level_name()] could not find the role {new_role_name}"
                     f" to associate with {level_number}"
                 )
-                await ctx.send(f"could not find role {new_role_name}. ")
+                await ctx.send(f"could not find role {new_role_name}. ", reference=ctx.message)
             else:
                 self.logger.debug(
                     f"[Leveling set_level_name()] associating level {level_number} with role {new_role_name}"
@@ -526,7 +528,8 @@ class Leveling(commands.Cog):
                 await ctx.send(
                     f"assigned role {new_role_name} for level {level_number}. "
                     f"Will take about 24 hours to apply role to the right people.\n\n"
-                    f"Don't forget to correct the role position"
+                    f"Don't forget to correct the role position",
+                    reference=ctx.message
                 )
 
         else:
@@ -539,7 +542,7 @@ class Leveling(commands.Cog):
                 # the XP level is getting a new role since the role it was associated with was an error
                 role = discord.utils.get(self.guild.roles, name=new_role_name)
                 if role is None:
-                    await ctx.send(f"could not find role {new_role_name}. ")
+                    await ctx.send(f"could not find role {new_role_name}. ", reference=ctx.message)
                 else:
                     await self.levels[level_number].set_level_name(new_role_name, role.id)
                     self.logger.debug(
@@ -550,7 +553,8 @@ class Leveling(commands.Cog):
                     await ctx.send(
                         f"Associated role {new_role_name} for level {level_number}. "
                         f"Will take about 24 hours to apply role to the right people.\n\n"
-                        f"Don't forget to correct the role position"
+                        f"Don't forget to correct the role position",
+                        reference=ctx.message
                     )
             else:
                 old_name = role.name
@@ -560,7 +564,10 @@ class Leveling(commands.Cog):
                 )
                 await role.edit(name=new_role_name)
                 await self.levels[level_number].rename_level_name(new_role_name)
-                await ctx.send(f"renamed role {old_name} to {new_role_name} for level {level_number}")
+                await ctx.send(
+                    f"renamed role {old_name} to {new_role_name} for level {level_number}",
+                    reference=ctx.message
+                )
 
     @commands.command(
         brief="unmaps the any role that is currently mapped to the specified level",
@@ -576,7 +583,7 @@ class Leveling(commands.Cog):
     @commands.has_any_role("Minions", "Moderator")
     async def remove_level_name(self, ctx, level_number: int):
         if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...")
+            await ctx.send("level command is not yet ready...", reference=ctx.message)
             return
         self.logger.info(
             f"[Leveling remove_level_name()] received request to set remove name for level {level_number} "
@@ -587,7 +594,9 @@ class Leveling(commands.Cog):
                 f"[Leveling remove_level_name()] resetting role info to Null for level {level_number}"
             )
             await self.levels[level_number].remove_role()
-            await ctx.send(f"level {level_number} does not have an existing role associated with it")
+            await ctx.send(
+                f"level {level_number} does not have an existing role associated with it", reference=ctx.message
+            )
             return
         self.logger.debug(
             f"[Ban remove_level_name()] remove_level_name command detected from {ctx.author} with level_number"
@@ -601,7 +610,8 @@ class Leveling(commands.Cog):
         self.levels_have_been_changed = True
         await ctx.send(
             f"role {role_name} was disassociated from level {level_number}\n\n"
-            f"Don't forget to delete the role"
+            f"Don't forget to delete the role",
+            reference=ctx.message
         )
 
     @commands.command(
@@ -617,15 +627,15 @@ class Leveling(commands.Cog):
     )
     async def rank(self, ctx):
         if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...")
+            await ctx.send("level command is not yet ready...", reference=ctx.message)
             return
         message_author = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
         message_author_id = message_author.id
         if message_author_id not in self.user_points:
-            await ctx.send("specified user is not being tracked")
+            await ctx.send("specified user is not being tracked", reference=ctx.message)
             return
         if self.user_points[message_author_id].hidden and message_author_id != ctx.author.id:
-            await ctx.send("This user has hidden their score")
+            await ctx.send("This user has hidden their score", reference=ctx.message)
             return
         self.logger.info(f"[Ban rank()] rank command detected from {ctx.author} for user {message_author}")
         xp_required_to_level_up = await self.user_points[message_author_id].get_xp_needed_to_level_up_to_next_level()
@@ -649,7 +659,7 @@ class Leveling(commands.Cog):
             description=description
         )
         if e_obj is not None:
-            await ctx.send(embed=e_obj)
+            await ctx.send(embed=e_obj, reference=ctx.message)
 
     @commands.command(
         brief="Shows a list of all the XP levels and their associated roles and whether or not the roles exist"
@@ -657,7 +667,7 @@ class Leveling(commands.Cog):
     @commands.has_any_role("Minions", "Moderator")
     async def levels(self, ctx):
         if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...")
+            await ctx.send("level command is not yet ready...", reference=ctx.message)
             return
         self.logger.info(f"[Ban levels()] levels command detected from {ctx.author}")
         levels_with_a_role = [level for level in self.levels.values() if level.role_name is not None]
@@ -696,7 +706,7 @@ class Leveling(commands.Cog):
     @commands.command(brief="shows the current leaderboards")
     async def ranks(self, ctx):
         if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...")
+            await ctx.send("level command is not yet ready...", reference=ctx.message)
             return
         self.logger.info(f"[Ban ranks()] ranks command detected from {ctx.author}")
         user_points = self.user_points.copy()
@@ -723,7 +733,7 @@ class Leveling(commands.Cog):
         if description_to_embed != "\nUser - Messages - Experience - Level\n":
             descriptions_to_embed.append(description_to_embed)
         if len(descriptions_to_embed) == 0:
-            await ctx.send("No users currently being tracked")
+            await ctx.send("No users currently being tracked", reference=ctx.message)
         else:
             await paginate_embed(self.logger, bot, descriptions_to_embed, ctx=ctx)
 
@@ -740,7 +750,7 @@ class Leveling(commands.Cog):
     )
     async def hide_xp(self, ctx):
         if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...")
+            await ctx.send("level command is not yet ready...", reference=ctx.message)
             return
         user_to_hide = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
         self.logger.info(
@@ -752,19 +762,22 @@ class Leveling(commands.Cog):
             ]
             if 'Minions' not in user_roles:
                 await ctx.send(
-                    "You do not have adequate permission to hide another user's rank, incident will be reported"
+                    "You do not have adequate permission to hide another user's rank, incident will be reported",
+                    reference=ctx.message
                 )
                 return
         if self.user_points[user_to_hide.id].hidden:
             await ctx.send(
                 "You are already hidden" if user_to_hide.id == ctx.author.id else
-                f"User {user_to_hide} is already hidden"
+                f"User {user_to_hide} is already hidden",
+                reference=ctx.message
             )
         else:
             await self.user_points[user_to_hide.id].hide_xp()
             await ctx.send(
                 "You are now hidden" if user_to_hide.id == ctx.author.id else
-                f"User {user_to_hide} is now hidden"
+                f"User {user_to_hide} is now hidden",
+                reference=ctx.message
             )
 
     @commands.command(
@@ -780,7 +793,7 @@ class Leveling(commands.Cog):
     )
     async def show_xp(self, ctx):
         if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...")
+            await ctx.send("level command is not yet ready...", reference=ctx.message)
             return
         user_to_show = ctx.author if len(ctx.message.mentions) == 0 else ctx.message.mentions[0]
         self.logger.info(
@@ -792,20 +805,23 @@ class Leveling(commands.Cog):
             ]
             if 'Minions' not in user_roles:
                 await ctx.send(
-                    "You do not have adequate permission to show another user's rank, incident will be reported"
+                    "You do not have adequate permission to show another user's rank, incident will be reported",
+                    reference=ctx.message
                 )
                 return
 
         if not self.user_points[user_to_show.id].hidden:
             await ctx.send(
                 "You are already visible" if user_to_show.id == ctx.author.id else
-                f"User {user_to_show} is already visible"
+                f"User {user_to_show} is already visible",
+                reference=ctx.message
             )
         else:
             await self.user_points[user_to_show.id].show_xp()
             await ctx.send(
                 "You are now visible" if user_to_show.id == ctx.author.id else
-                f"User {user_to_show} is now visible"
+                f"User {user_to_show} is now visible",
+                reference=ctx.message
             )
 
 

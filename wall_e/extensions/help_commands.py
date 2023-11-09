@@ -12,7 +12,6 @@ class EmbedHelpCommand(commands.DefaultHelpCommand):
             show_parameter_descriptions=False, sort_commands=False)
 
     async def send_bot_help(self, mapping):
-        await self.context.message.delete()
         embed = discord.Embed(title='Bot Text Commands', colour=COLOUR_MAPPING[WallEColour.INFO])
         description = self.context.bot.description
         if description:
@@ -47,7 +46,7 @@ class EmbedHelpCommand(commands.DefaultHelpCommand):
         for sorted_cogs_key in sorted_cogs_keys:
             for mapped_cog in cogs_ordered_by_value_length[sorted_cogs_key]:
                 embed.add_field(name=mapped_cog['cog_name'], value=mapped_cog['cog_commands'])
-        msg = await self.get_destination().send(content=None, embed=embed)
+        msg = await self.get_destination().send(content=None, embed=embed, reference=self.context.message)
 
         await HelpMessage.insert_record(
             HelpMessage(
@@ -57,14 +56,13 @@ class EmbedHelpCommand(commands.DefaultHelpCommand):
         )
 
     async def send_cog_help(self, cog):
-        await self.context.message.delete()
         embed = discord.Embed(title=f'{cog.qualified_name} Commands', colour=COLOUR_MAPPING[WallEColour.INFO])
 
         for command in cog.get_commands():
             embed.add_field(name=self.get_command_signature(command), value=command.short_doc or '', inline=False)
 
         embed.set_footer(text=self.get_ending_note())
-        msg = await self.get_destination().send(embed=embed)
+        msg = await self.get_destination().send(embed=embed, reference=self.context.message)
         await HelpMessage.insert_record(
             HelpMessage(
                 message_id=msg.id, channel_name=msg.channel.name, channel_id=msg.channel.id,
@@ -73,14 +71,13 @@ class EmbedHelpCommand(commands.DefaultHelpCommand):
         )
 
     async def send_command_help(self, command):
-        await self.context.message.delete()
         embed = discord.Embed(
             title=f".{command}{f' {command.usage}' if command.usage else ''}",
             colour=COLOUR_MAPPING[WallEColour.INFO],
             description=command.help,
         )
         embed.set_footer(text=self.get_ending_note())
-        msg = await self.get_destination().send(embed=embed)
+        msg = await self.get_destination().send(embed=embed, reference=self.context.message)
         await HelpMessage.insert_record(
             HelpMessage(
                 message_id=msg.id, channel_name=msg.channel.name, channel_id=msg.channel.id,
@@ -94,7 +91,7 @@ class EmbedHelpCommand(commands.DefaultHelpCommand):
             description=error,
         )
         embed.set_footer(text=self.get_ending_note())
-        msg = await self.get_destination().send(embed=embed)
+        msg = await self.get_destination().send(embed=embed, reference=self.context.message)
         await HelpMessage.insert_record(
             HelpMessage(
                 message_id=msg.id, channel_name=msg.channel.name, channel_id=msg.channel.id,

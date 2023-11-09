@@ -17,6 +17,12 @@ async def delete_help_command_messages():
                     successful = False
                     try:
                         message = await channel.fetch_message(int(help_message.message_id))
+                        try:
+                            invocator_message = await channel.fetch_message(int(message.reference.message_id))
+                            await invocator_message.delete()
+                        except discord.NotFound:
+                            # means the original invocating message has since been deleted so the code can move on
+                            pass
                         await message.delete()
                         successful = True
                     except discord.NotFound:

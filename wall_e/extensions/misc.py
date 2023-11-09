@@ -106,8 +106,7 @@ class Misc(commands.Cog):
                 description='Please only submit a maximum of 11 options for a multi-option question.'
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
-            await ctx.message.delete()
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
         elif len(questions) == 1:
             self.logger.debug("[Misc poll()] yes/no poll being constructed.")
@@ -116,11 +115,10 @@ class Misc(commands.Cog):
                 description=questions[0]
             )
             if e_obj is not False:
-                post = await ctx.send(embed=e_obj)
+                post = await ctx.send(embed=e_obj, reference=ctx.message)
                 await post.add_reaction(u"\U0001F44D")
                 await post.add_reaction(u"\U0001F44E")
                 self.logger.debug("[Misc poll()] yes/no poll constructed and sent to server.")
-            await ctx.message.delete()
             return
         if len(questions) == 2:
             self.logger.debug("[Misc poll()] poll with only 2 arguments detected.")
@@ -132,8 +130,7 @@ class Misc(commands.Cog):
                 description='Please submit at least 2 options for a multi-option question.'
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
-            await ctx.message.delete()
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
         elif len(questions) == 0:
             self.logger.debug("[Misc poll()] poll with no arguments detected.")
@@ -145,8 +142,7 @@ class Misc(commands.Cog):
                 description='.poll <Question> [Option A] [Option B] ...'
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
-            await ctx.message.delete()
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
         else:
             self.logger.debug("[Misc poll()] multi-option poll being constructed.")
@@ -169,13 +165,12 @@ class Misc(commands.Cog):
                 content=content
             )
             if e_obj is not False:
-                poll_post = await ctx.send(embed=e_obj)
+                poll_post = await ctx.send(embed=e_obj, reference=ctx.message)
                 self.logger.debug("[Misc poll()] multi-option poll message contructed and sent.")
 
                 for i in range(0, options):
                     await poll_post.add_reaction(numbers_unicode[i])
                 self.logger.debug("[Misc poll()] reactions added to multi-option poll message.")
-            await ctx.message.delete()
 
     @commands.command(
         brief="returns definition of the search from urban dictionary",
@@ -212,7 +207,7 @@ class Misc(commands.Cog):
                     description=":thonk:404:thonk:You searched something dumb didn't you?"
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
                 return
             else:
                 self.logger.debug("[Misc urban()] constructing "
@@ -234,7 +229,7 @@ class Misc(commands.Cog):
                     content=content
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
 
     @commands.command(
         brief="returns the result searching Wolfram Alpha with given query",
@@ -270,7 +265,7 @@ class Misc(commands.Cog):
                 content=content
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
                 self.logger.debug(f"[Misc wolfram()] result found for {arg}")
         except (AttributeError, StopIteration):
             content = [
@@ -284,7 +279,7 @@ class Misc(commands.Cog):
                 content=content
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
                 self.logger.error(f"[Misc wolfram()] result NOT found for {arg}")
 
     @commands.command(
@@ -316,7 +311,7 @@ class Misc(commands.Cog):
                     description='Please refrain from using non-server emoji.'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
                 return
             else:
                 for char in word:

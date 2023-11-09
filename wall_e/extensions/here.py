@@ -125,7 +125,7 @@ class Here(commands.Cog):
 
         embed = self.build_embed(members, channel)
 
-        await ctx.send(embed=embed, delete_after=300)
+        await ctx.send(embed=embed, delete_after=300, reference=ctx.message)
 
 
 async def setup(bot):

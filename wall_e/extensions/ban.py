@@ -193,13 +193,18 @@ class Ban(commands.Cog):
             guild_ban_list = [ban async for ban in self.guild.bans()]
         except Exception as e:
             self.logger.debug(f'[Ban convertbans()] error while fetching ban data: {e}')
-            await ctx.send(f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**")
+            await ctx.send(
+                f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**",
+                reference=ctx.message
+            )
             return
 
         if not guild_ban_list:
             self.logger.debug("[Ban convertbans()] No bans to migrate into the ban system from guild. "
                               "Sening message and ending command.")
-            await ctx.send("There are no bans to migrate from the guild to the wall_e ban systeme.")
+            await ctx.send(
+                "There are no bans to migrate from the guild to the wall_e ban systeme.", reference=ctx.message
+            )
             return
 
         self.logger.debug(f"[Ban convertbans()] retrieved audit log data for ban actions: {ban_logs}")
@@ -243,7 +248,9 @@ class Ban(commands.Cog):
 
         await BanRecord.insert_records(ban_records)
 
-        await ctx.send(f"Moved `{len(ban_records)}` active bans from guild bans to walle bans.")
+        await ctx.send(
+            f"Moved `{len(ban_records)}` active bans from guild bans to walle bans.", reference=ctx.message
+        )
         self.logger.debug(f"[Ban convertbans()] total of {len(ban_records)} bans moved into walle ban system")
 
     @commands.command(
@@ -279,7 +286,7 @@ class Ban(commands.Cog):
                 footer="Command Error"
             )
             if e_obj:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
 
         self.logger.debug(f"[Ban ban()] User to ban: {user}")
@@ -369,7 +376,8 @@ class Ban(commands.Cog):
     async def purge_messages(self, ctx, user: discord.User, timeframe):
         # first do the ban
         if timeframe <= 0 or timeframe > 14:
-            await ctx.send('Window to purge message must be between 1 - 14 days. Using default of `1 day`')
+            await ctx.send('Window to purge message must be between 1 - 14 days. Using default of `1 day`',
+                           reference=ctx.message)
             timeframe = 1
         self.logger.debug(f"[Ban purge_messages()] timeframe: {timeframe}")
 
@@ -419,7 +427,7 @@ class Ban(commands.Cog):
                 footer="Command Error"
             )
             if e_obj:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
 
         # "unban"
@@ -451,7 +459,7 @@ class Ban(commands.Cog):
                 footer="Command Error"
             )
             if e_obj:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
 
     @commands.command(
         brief="Gets all banned users",
@@ -475,7 +483,7 @@ class Ban(commands.Cog):
             if len(names) + len(name) > 1024 or (len(ids) + len(str(user_id))) > 1024:
                 emb.add_field(name="Names", value=names, inline=True)
                 emb.add_field(name="IDs", value=ids, inline=True)
-                await ctx.send(embed=emb)
+                await ctx.send(embed=emb, reference=ctx.message)
                 emb.clear_fields()
                 names = ""
                 ids = ""
@@ -487,8 +495,8 @@ class Ban(commands.Cog):
         if names:
             emb.add_field(name="Names", value=names, inline=True)
             emb.add_field(name="IDs", value=ids, inline=True)
-            await ctx.send(embed=emb)
-        await ctx.send(f"Total number of banned users: {count}")
+            await ctx.send(embed=emb, reference=ctx.message)
+        await ctx.send(f"Total number of banned users: {count}", reference=ctx.message)
         self.logger.debug("[Ban bans()] done sending embeds with banned user lists and total ban count")
 
     @commands.command(brief="Clears the ban list on the guild.")
@@ -501,14 +509,14 @@ class Ban(commands.Cog):
 
         if not bans:
             self.logger.debug("[Ban purgebans()] Ban list is empty. Sending message and ending command.")
-            await ctx.send("Ban list is empty. Nothing to purge.")
+            await ctx.send("Ban list is empty. Nothing to purge.", reference=ctx.message)
             return
 
         for ban in bans:
             self.logger.debug(f"[Ban purgebans()] Unbanning user: {ban}")
             await self.guild.unban(ban.user)
 
-        await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}")
+        await ctx.send(f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}", reference=ctx.message)
 
     def cog_unload(self):
         self.logger.info('[Ban cog_unload()] Removing listeners for ban cog: on_ready, on_member_join, on_member_ban')

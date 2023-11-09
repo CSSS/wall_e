@@ -79,7 +79,7 @@ class SFU(commands.Cog):
                 footer='SFU Error'
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             self.logger.debug('[SFU sfu()] missing arguments, command ended')
             return
 
@@ -112,7 +112,7 @@ class SFU(commands.Cog):
                     footer='SFU Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
                 self.logger.debug('[SFU sfu()] bad arguments, command ended')
                 return
 
@@ -153,7 +153,7 @@ class SFU(commands.Cog):
                     footer='SFU Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
                 return
 
         self.logger.debug('[SFU sfu()] parsing json data returned from get request')
@@ -177,7 +177,7 @@ class SFU(commands.Cog):
             footer=footer
         )
         if embed_obj is not False:
-            await ctx.send(embed=embed_obj)
+            await ctx.send(embed=embed_obj, reference=ctx.message)
         self.logger.debug('[SFU sfu()] out sent to server')
 
     @commands.command(
@@ -225,7 +225,7 @@ class SFU(commands.Cog):
                 footer='SFU Outline Error'
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             self.logger.debug('[SFU outline()] missing arguments, command ended')
             return
         course = list(course)
@@ -269,7 +269,7 @@ class SFU(commands.Cog):
                     footer='SFU Outline Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
                 self.logger.debug('[SFU outline()] bad arguments, command ended')
                 return
 
@@ -315,7 +315,7 @@ class SFU(commands.Cog):
                         footer='SFU Outline Error'
                     )
                     if e_obj is not False:
-                        await ctx.send(embed=e_obj)
+                        await ctx.send(embed=e_obj, reference=ctx.message)
                     return
 
         # Set up url for get
@@ -351,7 +351,7 @@ class SFU(commands.Cog):
                     footer='SFU Outline Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj)
+                    await ctx.send(embed=e_obj, reference=ctx.message)
                 return
 
         url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{course_code}/{course_num}/{section}'
@@ -382,7 +382,7 @@ class SFU(commands.Cog):
                 footer='SFU Outline Error'
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
 
         self.logger.debug('[SFU outline()] parsing data from get request')
@@ -405,7 +405,7 @@ class SFU(commands.Cog):
                     f'Maybe the course doesn\'t exist? Or isn\'t offered right now.'),
                 footer='SFU Outline Error')
             if e_obj is not False:
-                await ctx.send(embed=e_obj)
+                await ctx.send(embed=e_obj, reference=ctx.message)
             return
 
         outline = info['outlinePath'].upper()
@@ -503,7 +503,7 @@ class SFU(commands.Cog):
             footer='Written by VJ'
         )
         if e_obj is not False:
-            await ctx.send(embed=e_obj)
+            await ctx.send(embed=e_obj, reference=ctx.message)
 
     async def cog_unload(self) -> None:
         await self.req.close()

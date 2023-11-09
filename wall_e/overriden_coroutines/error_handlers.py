@@ -43,9 +43,7 @@ async def report_text_command_error(ctx, error):
                 description=description, colour=WallEColour.ERROR
             )
             if embed_obj is not False:
-                message = await ctx.channel.send(
-                    embed=embed_obj
-                )
+                message = await ctx.channel.send(embed=embed_obj, reference=ctx.message)
                 await asyncio.sleep(20)
                 try:
                     await ctx.message.delete()
