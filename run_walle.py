@@ -12,11 +12,11 @@ from pathlib import Path
 def write_env_variables(basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED,
                         channel_names__BOT_GENERAL_CHANNEL, channel_names__MOD_CHANNEL,
                         channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
-                        channel_names__INCIDENT_REPORT_CHANNEL, channel_names__ANNOUNCEMENTS_CHANNEL,
-                        WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME, database_config__WALL_E_DB_USER,
-                        database_config__WALL_E_DB_PASSWORD, database_config__ENABLED, database_config__TYPE,
-                        COMPOSE_PROJECT_NAME, ORIGIN_IMAGE, POSTGRES_PASSWORD, database_config__HOST,
-                        database_config__DB_PORT):
+                        channel_names__INCIDENT_REPORT_CHANNEL, channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL,
+                        channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME,
+                        database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__ENABLED,
+                        database_config__TYPE, COMPOSE_PROJECT_NAME, ORIGIN_IMAGE, POSTGRES_PASSWORD,
+                        database_config__HOST, database_config__DB_PORT):
     with open("CI/user_scripts/wall_e.env", "r+") as f:
         f.seek(0)
         f.write(
@@ -33,6 +33,7 @@ channel_names__MOD_CHANNEL='{channel_names__MOD_CHANNEL}'
 channel_names__LEVELLING_CHANNEL='{channel_names__LEVELLING_CHANNEL}'
 channel_names__EMBED_AVATAR_CHANNEL='{channel_names__EMBED_AVATAR_CHANNEL}'
 channel_names__INCIDENT_REPORT_CHANNEL='{channel_names__INCIDENT_REPORT_CHANNEL}'
+channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL='{channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL}'
 channel_names__ANNOUNCEMENTS_CHANNEL='{channel_names__ANNOUNCEMENTS_CHANNEL}'
 
 WALL_E_MODEL_PATH='{WALL_E_MODEL_PATH}'
@@ -115,6 +116,7 @@ channel_names__MOD_CHANNEL = 'council-summary'
 channel_names__LEVELLING_CHANNEL = 'council'
 channel_names__EMBED_AVATAR_CHANNEL = 'embed_avatars'
 channel_names__INCIDENT_REPORT_CHANNEL = 'incident_reports'
+channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = 'leveling_website_avatar_images'
 channel_names__ANNOUNCEMENTS_CHANNEL = 'announcements'
 
 WALL_E_MODEL_PATH = args.specify_wall_e_models_location
@@ -256,6 +258,14 @@ if go_through_setup or (env_file_is_specified and overwrite_env_file):
         "What name do you want to set for the channel where incident reports are sent? ",
         os.environ.get("channel_names__INCIDENT_REPORT_CHANNEL", channel_names__INCIDENT_REPORT_CHANNEL)
     )
+    channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = take_user_input(
+        "What name do you want to set for the channel where the images used on the levelling website are sent? ",
+        os.environ.get(
+            "channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL",
+            channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL
+        )
+    )
+
 elif env_file_is_specified:
     basic_config__TOKEN = os.environ.get("basic_config__TOKEN", None)
     if basic_config__TOKEN is None:
@@ -339,6 +349,16 @@ elif env_file_is_specified:
             channel_names__INCIDENT_REPORT_CHANNEL
 
         )
+    channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = os.environ.get(
+        "channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL", None
+    )
+    channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = take_user_input(
+        "What name do you want to set for the channel where the images used on the levelling website are sent? ",
+        os.environ.get(
+            "channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL",
+            channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL
+        )
+    )
 
 if database_config__TYPE != DatabaseType.postgreSQL.value and database_config__TYPE != DatabaseType.sqlite3.value:
     print(f"unrecognized database type of {database_config__TYPE} detected")
@@ -361,10 +381,11 @@ if essential_variables_are_null[0]:
 write_env_variables(
     basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED, channel_names__BOT_GENERAL_CHANNEL,
     channel_names__MOD_CHANNEL, channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
-    channel_names__INCIDENT_REPORT_CHANNEL, channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH,
-    database_config__WALL_E_DB_DBNAME, database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD,
-    database_config__ENABLED, database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE,
-    POSTGRES_PASSWORD, database_config__HOST, database_config__DB_PORT)
+    channel_names__INCIDENT_REPORT_CHANNEL, channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL,
+    channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME,
+    database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__ENABLED,
+    database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE,POSTGRES_PASSWORD, database_config__HOST,
+    database_config__DB_PORT)
 
 
 if basic_config__DOCKERIZED == 1:

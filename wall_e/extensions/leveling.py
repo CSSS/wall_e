@@ -1,7 +1,9 @@
 import asyncio
 import json
+import os
 
 import discord
+import requests
 from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
@@ -29,6 +31,7 @@ class Leveling(commands.Cog):
         self.levels = {}
         self.xp_system_ready = False
         self.council_channel = None
+        self.levelling_website_avatar_channel = None
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -190,6 +193,118 @@ class Leveling(commands.Cog):
         self.logger.debug(
             f"[Leveling create_council_channel()] text channel {self.council_channel} acquired."
         )
+
+    @commands.Cog.listener(name="on_ready")
+    async def get_leveling_avatar_channel(self):
+        """
+        Gets the leveling_avatar_images_channel that will be used to store the user profile pics used by the
+        leveling website
+        :return:
+        """
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.logger.info(
+                "[Leveling get_leveling_avatar_channel()] acquiring text channel for the avatars used on the leveling"
+                " website."
+            )
+            leveling_website_avatar_images_channel_name = wall_e_config.get_config_value(
+                'channel_names', 'LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL'
+            )
+            self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
+                self.guild.channels, name=leveling_website_avatar_images_channel_name
+            )
+            self.logger.debug(f"[Leveling get_leveling_avatar_channel()] bot channel "
+                              f"{self.levelling_website_avatar_channel} acquired.")
+
+    @commands.Cog.listener(name="on_ready")
+    async def save_user_data(self):
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while not self.xp_system_ready or self.levelling_website_avatar_channel is None:
+                await asyncio.sleep(2)
+
+            users_data = list(self.user_points.values())
+            valid_user_data = []
+            for index, user_data in enumerate(users_data):
+                try:
+                    member = await self.guild.fetch_member(user_data.user_id)
+                    user_data = await self.update_user_leaderboard_profile_data(user_data, member)
+                    if user_data is not None:
+                        valid_user_data.append(user_data)
+                except Exception:
+                    pass
+                self.logger.debug(
+                    f"[Leveling save_user_data()] processed record {index}/{len(user_data)} with"
+                    f" {len(valid_user_data)} updated user points so far"
+                )
+            start_index, number_of_user_to_update = 0, 20
+            while start_index < len(valid_user_data):
+                self.logger.debug(
+                    f"[Leveling save_user_data()] updating users {start_index} - "
+                    f"{start_index+number_of_user_to_update}."
+                )
+                await UserPoint.async_bulk_update(valid_user_data[start_index:start_index+number_of_user_to_update])
+                self.logger.debug(
+                    f"[Leveling save_user_data()] updated users {start_index} - "
+                    f"{start_index+number_of_user_to_update}."
+                )
+                start_index += number_of_user_to_update
+
+    @commands.Cog.listener(name="on_member_update")
+    async def on_member_update(self, member_before_update, member_after_update):
+        """
+        ensures that if the user updater any info that is used by the leveling website, the change is
+         immediately saved
+        :param member_before_update:
+        :param member_after_update:
+        :return:
+        """
+        while self.guild is None or self.levelling_website_avatar_channel is None:
+            await asyncio.sleep(2)
+        await self.update_user_profile(member_after_update)
+
+    async def update_user_profile(self, member):
+        """
+        function that takes are of determining if a member was updated and if so, recording the changes both in the
+         database and in the self.user_points dictionary
+        :param member: the member that may have been updated
+        :return:
+        """
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            user_data = await self.update_user_leaderboard_profile_data(self.user_points[member.id], member)
+            if user_data is not None:
+                await user_data.async_save()
+                self.user_points[member.id] = user_data
+
+    async def update_user_leaderboard_profile_data(self, user_data, member):
+        """
+        Determine if any changes need to be applied to the user_data object based on if the info in the member has
+         been updated
+        :param user_data: the instance of UserPoint to check if updates are needed in the database or self.user_points
+        :param member: the update data for the member
+        :return: None if thing was updated, else the updates instance of UserPoint is returned
+        """
+        avatar_file_name = 'levelling-avatar.png'
+        avatar_updated = user_data.avatar_url != member.display_avatar.url
+        user_updated = (
+            user_data.nickname != member.nick or user_data.name != member.name or avatar_updated
+        )
+        user_data.nickname = member.nick
+        user_data.name = member.name
+        if avatar_updated:
+            if user_data.avatar_url_message_id is not None:
+                avatar_msg = await self.levelling_website_avatar_channel.fetch_message(
+                    user_data.avatar_url_message_id
+                )
+                await avatar_msg.delete()
+            with open(avatar_file_name, "wb") as file:
+                file.write(requests.get(member.display_avatar.url).content)
+            avatar_msg = await self.levelling_website_avatar_channel.send(file=discord.File(avatar_file_name))
+            os.remove(avatar_file_name)
+            user_data.avatar_url = member.display_avatar.url
+            user_data.avatar_url_message_id = avatar_msg.id
+            user_data.leveling_message_avatar_url = avatar_msg.attachments[0].url
+        return user_data if user_updated else None
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
@@ -413,6 +528,7 @@ class Leveling(commands.Cog):
                 return
             while not self.xp_system_ready:
                 await asyncio.sleep(2)
+            await self.update_user_profile(member)
             self.logger.info(
                 f"[Leveling re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} "
                 f"points wil get their roles back if they leave and re-join the guild"
