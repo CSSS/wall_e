@@ -12,11 +12,11 @@ from pathlib import Path
 def write_env_variables(basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED,
                         channel_names__BOT_GENERAL_CHANNEL, channel_names__MOD_CHANNEL,
                         channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
-                        channel_names__INCIDENT_REPORT_CHANNEL, channel_names__ANNOUNCEMENTS_CHANNEL,
-                        WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME, database_config__WALL_E_DB_USER,
-                        database_config__WALL_E_DB_PASSWORD, database_config__ENABLED, database_config__TYPE,
-                        COMPOSE_PROJECT_NAME, ORIGIN_IMAGE, POSTGRES_PASSWORD, database_config__HOST,
-                        database_config__DB_PORT):
+                        channel_names__INCIDENT_REPORT_CHANNEL, channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL,
+                        channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME,
+                        database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__ENABLED,
+                        database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE, POSTGRES_PASSWORD,
+                        database_config__HOST, database_config__DB_PORT, launch_wall_e):
     with open("CI/user_scripts/wall_e.env", "r+") as f:
         f.seek(0)
         f.write(
@@ -24,7 +24,7 @@ def write_env_variables(basic_config__TOKEN, basic_config__GUILD_ID, basic_confi
 
 basic_config__TOKEN='{basic_config__TOKEN}'
 basic_config__ENVIRONMENT='LOCALHOST'
-basic_config__COMPOSE_PROJECT_NAME='{COMPOSE_PROJECT_NAME}'
+basic_config__COMPOSE_PROJECT_NAME='{basic_config__COMPOSE_PROJECT_NAME}'
 basic_config__GUILD_ID='{basic_config__GUILD_ID}'
 basic_config__DOCKERIZED='{basic_config__DOCKERIZED}'
 
@@ -33,20 +33,22 @@ channel_names__MOD_CHANNEL='{channel_names__MOD_CHANNEL}'
 channel_names__LEVELLING_CHANNEL='{channel_names__LEVELLING_CHANNEL}'
 channel_names__EMBED_AVATAR_CHANNEL='{channel_names__EMBED_AVATAR_CHANNEL}'
 channel_names__INCIDENT_REPORT_CHANNEL='{channel_names__INCIDENT_REPORT_CHANNEL}'
+channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL='{channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL}'
 channel_names__ANNOUNCEMENTS_CHANNEL='{channel_names__ANNOUNCEMENTS_CHANNEL}'
 
 WALL_E_MODEL_PATH='{WALL_E_MODEL_PATH}'
 
 database_config__ENABLED='{database_config__ENABLED}'
 database_config__TYPE='{database_config__TYPE}'
-database_config__HOST='{COMPOSE_PROJECT_NAME}_wall_e_db'
 database_config__HOST='{database_config__HOST}'
 database_config__DB_PORT='{database_config__DB_PORT}'
 POSTGRES_PASSWORD='{POSTGRES_PASSWORD}'
 database_config__WALL_E_DB_DBNAME='{database_config__WALL_E_DB_DBNAME}'
 database_config__WALL_E_DB_USER='{database_config__WALL_E_DB_USER}'
 database_config__WALL_E_DB_PASSWORD='{database_config__WALL_E_DB_PASSWORD}'
-        """)
+
+launch_wall_e='{launch_wall_e}'
+""")
 
 
 def not_in_venv():
@@ -115,6 +117,7 @@ channel_names__MOD_CHANNEL = 'council-summary'
 channel_names__LEVELLING_CHANNEL = 'council'
 channel_names__EMBED_AVATAR_CHANNEL = 'embed_avatars'
 channel_names__INCIDENT_REPORT_CHANNEL = 'incident_reports'
+channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = 'leveling_website_avatar_images'
 channel_names__ANNOUNCEMENTS_CHANNEL = 'announcements'
 
 WALL_E_MODEL_PATH = args.specify_wall_e_models_location
@@ -122,7 +125,7 @@ WALL_E_MODEL_PATH = args.specify_wall_e_models_location
 database_config__WALL_E_DB_DBNAME = 'csss_discord_db'
 database_config__WALL_E_DB_USER = 'wall_e'
 database_config__WALL_E_DB_PASSWORD = 'wallEPassword'
-database_config__ENABLED = True
+database_config__ENABLED = 1
 
 
 class DatabaseType(Enum):
@@ -172,29 +175,6 @@ def take_user_input(message, variable):
     message += "\n"
     user_input = input(message)
     return user_input if user_input != "s" else variable
-
-
-def install_python_requirements():
-    if not_in_venv():
-        print("please active a python virtual environment before using this script")
-        exit(0)
-    print(subprocess.getstatusoutput(
-        f"wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-1-requirements.txt && "
-        f"wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-2-requirements.txt && "
-        f"python3 -m pip install -r layer-1-requirements.txt && python3 -m pip install -r layer-2-requirements.txt && "
-        f"rm layer-1-requirements.txt layer-2-requirements.txt && cd wall_e && "
-        f"python3 -m pip install -r requirements.txt"
-    )[1])
-
-
-def recreate_database(database_type):
-    if database_type == DatabaseType.sqlite3.value:
-        print(subprocess.getstatusoutput("./recreate_sqlite3.sh")[1])
-    if database_type == DatabaseType.postgreSQL.value:
-        statusoutput = subprocess.getstatusoutput("dpkg -s postgresql-contrib &> /dev/null && echo $?")
-        if statusoutput[0] == 1:
-            raise Exception("please run 'sudo apt-get install postgresql-contrib' and then run this script again.")
-        print(subprocess.getstatusoutput("./recreate_postgresql.sh")[1])
 
 
 if go_through_setup or (env_file_is_specified and overwrite_env_file):
@@ -256,6 +236,14 @@ if go_through_setup or (env_file_is_specified and overwrite_env_file):
         "What name do you want to set for the channel where incident reports are sent? ",
         os.environ.get("channel_names__INCIDENT_REPORT_CHANNEL", channel_names__INCIDENT_REPORT_CHANNEL)
     )
+    channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = take_user_input(
+        "What name do you want to set for the channel where the images used on the levelling website are sent? ",
+        os.environ.get(
+            "channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL",
+            channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL
+        )
+    )
+
 elif env_file_is_specified:
     basic_config__TOKEN = os.environ.get("basic_config__TOKEN", None)
     if basic_config__TOKEN is None:
@@ -339,6 +327,17 @@ elif env_file_is_specified:
             channel_names__INCIDENT_REPORT_CHANNEL
 
         )
+    channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = os.environ.get(
+        "channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL", None
+    )
+    if channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL is None:
+        channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = take_user_input(
+            "What name do you want to set for the channel where the images used on the levelling website are sent? ",
+            os.environ.get(
+                "channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL",
+                channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL
+            )
+        )
 
 if database_config__TYPE != DatabaseType.postgreSQL.value and database_config__TYPE != DatabaseType.sqlite3.value:
     print(f"unrecognized database type of {database_config__TYPE} detected")
@@ -358,14 +357,6 @@ essential_variables_are_null = check_for_null_variables(
 if essential_variables_are_null[0]:
     raise Exception(f"necessary variable {essential_variables_are_null[1]} is None")
 
-write_env_variables(
-    basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED, channel_names__BOT_GENERAL_CHANNEL,
-    channel_names__MOD_CHANNEL, channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
-    channel_names__INCIDENT_REPORT_CHANNEL, channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH,
-    database_config__WALL_E_DB_DBNAME, database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD,
-    database_config__ENABLED, database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE,
-    POSTGRES_PASSWORD, database_config__HOST, database_config__DB_PORT)
-
 
 if basic_config__DOCKERIZED == 1:
     COMPOSE_PROJECT_NAME = basic_config__COMPOSE_PROJECT_NAME
@@ -374,20 +365,17 @@ if basic_config__DOCKERIZED == 1:
     database_config__HOST = f"{basic_config__COMPOSE_PROJECT_NAME}_wall_e_db"
     ORIGIN_IMAGE = 'sfucsssorg/walle'
     POSTGRES_PASSWORD = POSTGRES_PASSWORD
-    subprocess.getstatusoutput(
-        f"./CI/user_scripts/set_env.sh && "
-        f"./CI/user_scripts/set-dev-env.sh && "
-        f"docker logs -f {basic_config__COMPOSE_PROJECT_NAME}_wall_e"
-    )
+
 else:
     if database_config__TYPE == DatabaseType.postgreSQL.value:
         database_config__HOST = "127.0.0.1"
         database_config__DB_PORT = 5432
-    else:
-        database_config__HOST = 'discord_bot_wall_e_db'
-    install_python_requirements()
-    recreate_database(database_config__TYPE)
 
-
-if launch_wall_e:
-    print("if you want to run wall_e, run:\n. ./CI/user_scripts/set_env.sh && pushd wall_e && python3 main.py")
+write_env_variables(
+    basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED, channel_names__BOT_GENERAL_CHANNEL,
+    channel_names__MOD_CHANNEL, channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
+    channel_names__INCIDENT_REPORT_CHANNEL, channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL,
+    channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME,
+    database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__ENABLED,
+    database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE,POSTGRES_PASSWORD,
+    database_config__HOST, database_config__DB_PORT, launch_wall_e)
