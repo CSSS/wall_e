@@ -105,7 +105,7 @@ class Leveling(commands.Cog):
             user_point.leveling_message_avatar_url = None
             user_point.avatar_url_message_id = None
             await user_point.async_save()
-        self.user_points = UserPoint.load_to_dict()
+        self.user_points = await UserPoint.load_to_dict()
 
     # async def load_data_from_mee6_endpoint_and_json(self):
     #     await bot.wait_until_ready()
