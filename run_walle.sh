@@ -8,6 +8,10 @@ fi
 
 ./run_walle.py $@
 
+if [[ "$@" == *"--help"* ]] || [[ "$@" == *" -h"* ]];
+then
+	exit 1
+fi
 . ./CI/user_scripts/set_env.sh
 if [[ "${basic_config__DOCKERIZED}" == "1" ]];
 then
