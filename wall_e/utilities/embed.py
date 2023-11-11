@@ -76,7 +76,9 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     # these are put in place cause of the limits on embed described here
     # https://discordapp.com/developers/docs/resources/channel#embed-limits
     if ctx is not None:
-        reference = ctx.message
+        # added below ternary because of detect_reaction calls this function without context, but rather passes in
+        # a channel object
+        reference = ctx.message if hasattr(ctx, "message") else None
         text_command = True
         send_func = ctx.send
     elif interaction is not None:
