@@ -349,6 +349,7 @@ class BotChannelManager:
             # as such, I am going to make the code keep going over the channels until all the positions are verified
             # as what they should be
             position_edited = False
+            logs_category = discord.utils.get(guild.channels, name=wall_e_category_name)
             for text_channel_name, index in BotChannelManager.log_positioning.items():
                 text_channel = discord.utils.get(guild.channels, name=text_channel_name)
                 while text_channel is None:
@@ -358,6 +359,13 @@ class BotChannelManager:
                     )
                     await asyncio.sleep(5)
                     text_channel = discord.utils.get(guild.channels, name=text_channel_name)
+                if text_channel.category != logs_category:
+                    logger.debug(
+                        f"[bot_channel_manager.py fix_text_channel_positioning()] fixing the category for "
+                        f"{text_channel_name} {logs_category}"
+                    )
+                    position_edited = True
+                    await text_channel.edit(category=logs_category)
                 if text_channel.position != index:
                     logger.debug(
                         f"[bot_channel_manager.py fix_text_channel_positioning()] changing the position for "
