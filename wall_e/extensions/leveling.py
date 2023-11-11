@@ -229,7 +229,9 @@ class Leveling(commands.Cog):
         while len(self.user_points) == 0:
             await asyncio.sleep(2)
         if member_after_update.id in self.user_points:
-            await self.user_points[member_after_update.id].mark_ready_for_levelling_profile_update()
+            await self.user_points[member_after_update.id].mark_ready_for_levelling_profile_update(
+                member_after_update
+            )
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
@@ -251,7 +253,7 @@ class Leveling(commands.Cog):
                     "in the user_points dict"
                 )
                 self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
-            await self.user_points[message_author_id].mark_ready_for_levelling_profile_update()
+            await self.user_points[message_author_id].mark_ready_for_levelling_profile_update(message.author)
             if await self.user_points[message_author_id].increment_points():
                 self.logger.debug(
                     f"[Leveling on_message()] increased points for {message.author}({message_author_id}) "
@@ -450,7 +452,7 @@ class Leveling(commands.Cog):
         if wall_e_config.enabled("database_config", option="ENABLED"):
             if member.id not in self.user_points:
                 return
-            await self.user_points[member.id].mark_ready_for_levelling_profile_update()
+            await self.user_points[member.id].mark_ready_for_levelling_profile_update(member)
             if await BanRecord.user_is_banned(member.id):
                 return
             while not self.xp_system_ready:
