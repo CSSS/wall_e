@@ -92,21 +92,6 @@ class Leveling(commands.Cog):
             self.logger.debug("[Leveling load_points_into_dict()] XP system ready")
             self.xp_system_ready = True
 
-    @commands.Cog.listener(name="on_ready")
-    async def wipe_leveling_profile_data(self):
-        while len(self.user_points) == 0:
-            await asyncio.sleep(3)
-        number_of_users = len(self.user_points)
-        for index, user_point in enumerate(list(self.user_points.values())):
-            print(f"processing user {index}/{number_of_users}")
-            user_point.name = None
-            user_point.nickname = None
-            user_point.avatar_url = None
-            user_point.leveling_message_avatar_url = None
-            user_point.avatar_url_message_id = None
-            await user_point.async_save()
-        self.user_points = await UserPoint.load_to_dict()
-
     # async def load_data_from_mee6_endpoint_and_json(self):
     #     await bot.wait_until_ready()
     #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading XP data")
