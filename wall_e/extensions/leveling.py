@@ -2,6 +2,7 @@ import asyncio
 import json
 
 import discord
+from discord import NotFound
 from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
@@ -29,6 +30,7 @@ class Leveling(commands.Cog):
         self.levels = {}
         self.xp_system_ready = False
         self.council_channel = None
+        self.levelling_website_avatar_channel = None
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -191,6 +193,44 @@ class Leveling(commands.Cog):
             f"[Leveling create_council_channel()] text channel {self.council_channel} acquired."
         )
 
+    @commands.Cog.listener(name="on_ready")
+    async def get_leveling_avatar_channel(self):
+        """
+        Gets the leveling_avatar_images_channel that will be used to store the user profile pics used by the
+        leveling website
+        :return:
+        """
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.logger.info(
+                "[Leveling get_leveling_avatar_channel()] acquiring text channel for the avatars used on the leveling"
+                " website."
+            )
+            leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+                self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+                'leveling_website_avatar_images'
+            )
+            self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
+                self.guild.channels, id=leveling_website_avatar_images_channel_id
+            )
+            self.logger.debug(f"[Leveling get_leveling_avatar_channel()] bot channel "
+                              f"{self.levelling_website_avatar_channel} acquired.")
+
+    @commands.Cog.listener(name="on_member_update")
+    async def on_member_update(self, member_before_update, member_after_update):
+        """
+        ensures that if the user updater any info that is used by the leveling website, the change will be processed
+         soon
+        :param member_before_update:
+        :param member_after_update:
+        :return:
+        """
+        while len(self.user_points) == 0:
+            await asyncio.sleep(2)
+        if member_after_update.id in self.user_points:
+            await self.user_points[member_after_update.id].mark_ready_for_levelling_profile_update()
+
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         """
@@ -199,7 +239,7 @@ class Leveling(commands.Cog):
         :param message: the message that was sent that tripped the function call
         :return:
         """
-        while self.guild is None:
+        while self.guild is None or self.levelling_website_avatar_channel is None:
             await asyncio.sleep(2)
         if not message.author.bot:
             if not self.xp_system_ready:
@@ -211,6 +251,7 @@ class Leveling(commands.Cog):
                     "in the user_points dict"
                 )
                 self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
+            await self.user_points[message_author_id].mark_ready_for_levelling_profile_update()
             if await self.user_points[message_author_id].increment_points():
                 self.logger.debug(
                     f"[Leveling on_message()] increased points for {message.author}({message_author_id}) "
@@ -409,6 +450,7 @@ class Leveling(commands.Cog):
         if wall_e_config.enabled("database_config", option="ENABLED"):
             if member.id not in self.user_points:
                 return
+            await self.user_points[member.id].mark_ready_for_levelling_profile_update()
             if await BanRecord.user_is_banned(member.id):
                 return
             while not self.xp_system_ready:
@@ -460,6 +502,71 @@ class Leveling(commands.Cog):
                 self.logger.error(
                     f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
                 )
+
+    @commands.Cog.listener(name="on_ready")
+    async def process_pending_user_point_profile_changes(self):
+        """
+        Goes through all the UserPoint objects that have been marked indicated their profile has been updated
+         and needs to have wall_e's database updated for the leveling website
+        :return:
+        """
+        while len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
+            await asyncio.sleep(5)
+        while True:
+            seconds_in_a_minute = 60
+            minutes_to_wait_between_processing = 5
+            number_of_users_to_process_per_loop = 20
+            user_ids_of_user_to_update = await UserPoint.get_users_that_need_leveling_info_updated(
+                top=number_of_users_to_process_per_loop
+            )
+            total_number_of_updates_needed = await UserPoint.get_number_of_users_that_need_leveling_info_updated()
+            for index, user_id in enumerate(user_ids_of_user_to_update):
+                member = None
+                error = None
+                try:
+                    member = await self.guild.fetch_member(user_id)
+                    self.logger.debug(
+                        f"[Leveling process_pending_user_point_profile_changes()] attempting to get updated "
+                        f"user_point profile data for member {member} {index + 1}/"
+                        f"{number_of_users_to_process_per_loop} out of {total_number_of_updates_needed} needed "
+                        f"updates"
+                    )
+                except NotFound:
+                    self.user_points[user_id].deleted_member = True
+                except Exception as e:
+                    error = e
+                if member:
+                    try:
+                        await self.user_points[user_id].update_leveling_profile_info(
+                            self.logger, member, self.levelling_website_avatar_channel
+                        )
+                        self.logger.debug(
+                            f"[Leveling process_pending_user_point_profile_changes()] got the updated user_point "
+                            f"profile data for member {member} {index+1}/{number_of_users_to_process_per_loop} out "
+                            f"of {total_number_of_updates_needed} needed updates"
+                        )
+                    except Exception as e:
+                        error = e
+                else:
+                    if not self.user_points[user_id].deleted_member:
+                        self.user_points[user_id].leveling_update_attempt += 1
+                    await self.user_points[user_id].async_save()
+                if error:
+                    self.logger.error(
+                        f"[Leveling process_pending_user_point_profile_changes()] attempt "
+                        f"{self.user_points[user_id].leveling_update_attempt} : experienced following error when"
+                        f" updating leveling info for user {member if member else user_id} {index + 1}/"
+                        f"{number_of_users_to_process_per_loop} out of {total_number_of_updates_needed} needed "
+                        f"updates\n{error}"
+                    )
+                elif self.user_points[user_id].deleted_member:
+                    self.logger.warn(
+                        f"[Leveling process_pending_user_point_profile_changes()] marked member "
+                        f"{member if member else user_id} as deleted. {index + 1}/"
+                        f"{number_of_users_to_process_per_loop} out of {total_number_of_updates_needed} needed"
+                        f" updates"
+                    )
+            await asyncio.sleep(seconds_in_a_minute * minutes_to_wait_between_processing)
 
     @commands.command(
         brief="associates an XP level with the role with the specified name",

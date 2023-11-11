@@ -92,13 +92,20 @@ class BotChannelManager:
                 "PRODUCTION": config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL'),
                 "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_incident_reports",
                 "LOCALHOST": config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
+            },
+            "leveling_website_avatar_images": {
+                "PRODUCTION": config.get_config_value('channel_names', 'LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL'),
+                "TEST": (
+                    f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_leveling_website_avatar_images"
+                ),
+                "LOCALHOST": config.get_config_value('channel_names', 'LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL')
             }
         }
         self.channel_obtained = {
         }
-        incident_report_channel_name = (
-            self.channel_names['incident_reports'][config.get_config_value('basic_config', 'ENVIRONMENT')]
-        )
+        env = config.get_config_value('basic_config', 'ENVIRONMENT')
+        incident_report_channel_name = self.channel_names['incident_reports'][env]
+        leveling_website_avatar_images_channel_name = self.channel_names['leveling_website_avatar_images'][env]
         log_names = [
             incident_report_channel_name,
             "sys_debug",
@@ -139,7 +146,9 @@ class BotChannelManager:
             "role_commands_error",
             "sfu_debug",
             "sfu_warn",
-            "sfu_error"
+            "sfu_error",
+            leveling_website_avatar_images_channel_name
+
         ]
         BotChannelManager.log_positioning = {}
         for index, channel_name in enumerate(log_names):
@@ -254,7 +263,9 @@ class BotChannelManager:
             number_of_retries_to_attempt = 10
             number_of_retries = 0
             while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
-                if channel_purpose == "incident_reports":
+                if channel_purpose in ["incident_reports", 'leveling_website_avatar_images']:
+                    while self.channel_obtained[wall_e_category_name] is None:
+                        await asyncio.sleep(5)
                     logs_category = discord.utils.get(
                         guild.channels, id=int(self.channel_obtained[wall_e_category_name])
                     )
