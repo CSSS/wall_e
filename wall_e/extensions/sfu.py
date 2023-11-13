@@ -427,7 +427,7 @@ class SFU(commands.Cog):
             sec_code = f'[{x["sectionCode"]}]'
             days = x['days']
             tme = f'{x["startTime"]}-{x["endTime"]}'
-            room = f'{x["buildingCode"]} {x["roomNumber"]}'
+            room = f'{x.get("buildingCode", "Room TBD")} {x.get("roomNumber", "")}'
             campus = x['campus']
             crs = f'{crs}{sec_code} {days} {tme}, {room}, {campus}\n'
 
