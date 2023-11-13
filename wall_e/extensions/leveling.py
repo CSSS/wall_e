@@ -515,13 +515,8 @@ class Leveling(commands.Cog):
         while len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
             await asyncio.sleep(5)
         while True:
-            seconds_in_a_minute = 60
-            minutes_to_wait_between_processing = 5
-            number_of_users_to_process_per_loop = 20
-            user_ids_of_user_to_update = await UserPoint.get_users_that_need_leveling_info_updated(
-                top=number_of_users_to_process_per_loop
-            )
-            total_number_of_updates_needed = await UserPoint.get_number_of_users_that_need_leveling_info_updated()
+            user_ids_of_user_to_update = await UserPoint.get_users_that_need_leveling_info_updated()
+            total_number_of_updates_needed = len(user_ids_of_user_to_update)
             for index, user_id in enumerate(user_ids_of_user_to_update):
                 member = None
                 error = None
@@ -529,9 +524,7 @@ class Leveling(commands.Cog):
                     member = await self.guild.fetch_member(user_id)
                     self.logger.debug(
                         f"[Leveling process_pending_user_point_profile_changes()] attempting to get updated "
-                        f"user_point profile data for member {member} {index + 1}/"
-                        f"{number_of_users_to_process_per_loop} out of {total_number_of_updates_needed} needed "
-                        f"updates"
+                        f"user_point profile data for member {member} {index + 1}/{total_number_of_updates_needed} "
                     )
                 except NotFound:
                     self.user_points[user_id].deleted_member = True
@@ -544,8 +537,7 @@ class Leveling(commands.Cog):
                         )
                         self.logger.debug(
                             f"[Leveling process_pending_user_point_profile_changes()] got the updated user_point "
-                            f"profile data for member {member} {index+1}/{number_of_users_to_process_per_loop} out "
-                            f"of {total_number_of_updates_needed} needed updates"
+                            f"profile data for member {member} {index+1}/{total_number_of_updates_needed}"
                         )
                     except Exception as e:
                         error = e
@@ -558,17 +550,15 @@ class Leveling(commands.Cog):
                         f"[Leveling process_pending_user_point_profile_changes()] attempt "
                         f"{self.user_points[user_id].leveling_update_attempt} : experienced following error when"
                         f" updating leveling info for user {member if member else user_id} {index + 1}/"
-                        f"{number_of_users_to_process_per_loop} out of {total_number_of_updates_needed} needed "
-                        f"updates\n{error}"
+                        f"{total_number_of_updates_needed}\n{error}"
                     )
                 elif self.user_points[user_id].deleted_member:
                     self.logger.warn(
                         f"[Leveling process_pending_user_point_profile_changes()] marked member "
                         f"{member if member else user_id} as deleted. {index + 1}/"
-                        f"{number_of_users_to_process_per_loop} out of {total_number_of_updates_needed} needed"
-                        f" updates"
+                        f"{total_number_of_updates_needed}"
                     )
-            await asyncio.sleep(seconds_in_a_minute * minutes_to_wait_between_processing)
+            await asyncio.sleep(2)
 
     @commands.command(
         brief="associates an XP level with the role with the specified name",
