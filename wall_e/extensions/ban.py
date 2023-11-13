@@ -446,21 +446,6 @@ class Ban(commands.Cog):
         if e_obj:
             await self.mod_channel.send(embed=e_obj)
 
-    @unban.error
-    async def unban_error(self, ctx, error):
-        """Catches an error in unban when a non integer is passed in as an argument"""
-
-        self.logger.info("[Ban unban_error] caught non integer ID passed into unban parameter. Handled accordingly")
-        if isinstance(error, commands.BadArgument):
-            e_obj = await embed(
-                self.logger, ctx=ctx, title="Error",
-                content=[("Problem", "Please enter a numerical Discord ID.")],
-                colour=WallEColour.ERROR,
-                footer="Command Error"
-            )
-            if e_obj:
-                await ctx.send(embed=e_obj, reference=ctx.message)
-
     @commands.command(
         brief="Gets all banned users",
         help="Lists the `username` and `user_id` of all banned users from the guild."

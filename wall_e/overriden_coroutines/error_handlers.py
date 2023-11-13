@@ -4,7 +4,6 @@ import re
 import discord
 from discord.ext import commands
 
-
 from utilities.embed import WallEColour, embed
 from utilities.setup_logger import print_wall_e_exception
 
@@ -21,7 +20,8 @@ async def report_text_command_error(ctx, error):
     correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
     if correct_channel:
         handled_errors = (
-            commands.errors.ArgumentParsingError, commands.errors.MemberNotFound, commands.MissingRequiredArgument
+            commands.errors.ArgumentParsingError, commands.errors.MemberNotFound, commands.MissingRequiredArgument,
+            commands.errors.BadArgument
         )
         if isinstance(error, handled_errors):
             message_footer = (
@@ -35,6 +35,8 @@ async def report_text_command_error(ctx, error):
                     f"(https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?"
                     f"highlight=argumentparsingerror#exceptions){message_footer}"
                 )
+            elif ctx.command.name == 'unban' and isinstance(error, commands.errors.BadArgument):
+                description = f'Please enter a numerical Discord ID.{message_footer}'
             else:
                 description = f"{error.args[0]}{message_footer}"
             error_type = f"{type(error)}"[8:-2]
