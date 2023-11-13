@@ -4,7 +4,21 @@ import requests
 
 
 def create_github_issue(error_messages, config):
-    last_message = error_messages[len(error_messages)-1]
+    """
+    Files a wall_e error as an issue under the repo
+
+    :param error_messages: the error stack trace to include in the body of the github issue
+    :param config: used to determine the github csss-admin credentials
+    :return:
+    """
+    last_message = None
+    last_line = len(error_messages)-1
+    while last_line > -1:
+        if error_messages[last_line] != "\n":
+            last_message = error_messages[last_line]
+            last_line = -1
+        else:
+            last_line -= 1
     beginning_of_error_message = re.match(
         r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} = ERROR = \w* = ", last_message
     ).regs[0][1]
@@ -17,6 +31,6 @@ def create_github_issue(error_messages, config):
         },
         json={
             "title": last_message,
-            "body": "```\n" + "\n".join(error_messages) + "\n```"
+            "body": "```\n" + "".join(error_messages) + "\n```"
         }
     )

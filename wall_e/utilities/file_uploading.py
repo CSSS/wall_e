@@ -1,3 +1,4 @@
+from utilities.error_reporter import error_reporter
 from utilities.log_channel import write_to_bot_log_channel
 
 
@@ -20,8 +21,11 @@ async def start_file_uploading(logger, guild, bot, config, file_path, channel_na
     )
     bot.loop.create_task(
         write_to_bot_log_channel(
-            logger, config, bot, file_path, chan_id, 'error' in channel_name
+            logger, config, bot, file_path, chan_id
         )
+    )
+    bot.loop.create_task(
+        error_reporter(logger, config, file_path)
     )
     logger.debug(
         f"[file_uploading.py start_file_uploading()] {file_path} successfully opened and connection to "
