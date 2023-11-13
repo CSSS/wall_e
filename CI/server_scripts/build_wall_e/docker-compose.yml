@@ -24,6 +24,7 @@ services:  #Services that are needed for the wall_e app
             - gmail__USERNAME
             - gmail__PASSWORD
             - gmail__BOT_MANAGER_EMAIL
+            - github__TOKEN
         depends_on:   # used to ensure that docker wont start wall_e until after it has started the database container
             - "db"
         image: "${compose_project_name}_wall_e"
