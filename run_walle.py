@@ -9,22 +9,33 @@ from enum import Enum
 from pathlib import Path
 
 
-ENV_FILE_LOCATION = "./CI/validate_and_deploy/2_deploy/wall_e.env"
+ENV_FILE_LOCATION = "./CI/validate_and_deploy/2_deploy/user_scripts/wall_e.env"
+RUN_ENV_FILE_LOCATION = "./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env"
+
 
 def write_env_variables(basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED,
                         channel_names__BOT_GENERAL_CHANNEL, channel_names__MOD_CHANNEL,
                         channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
                         channel_names__INCIDENT_REPORT_CHANNEL, channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL,
                         channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME,
-                        database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__ENABLED,
+                        database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD,
                         database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE, POSTGRES_PASSWORD,
-                        database_config__HOST, database_config__DB_PORT, launch_wall_e):
-    with open(ENV_FILE_LOCATION, "r+") as f:
-        f.seek(0)
-        f.write(
-            f"""ORIGIN_IMAGE='{ORIGIN_IMAGE}'
+                        database_config__HOST, database_config__DB_PORT, LAUNCH_WALL_E, INSTALL_REQUIREMENTS,
+                        SETUP_DATABASE):
+    database_config = ""
+    if database_config__TYPE == "postgreSQL":
+        if basic_config__DOCKERIZED != 1:
+            database_config += f"""database_config__DB_PORT='{database_config__DB_PORT}'
+database_config__HOST='{database_config__HOST}'
+"""
+        database_config += f"""database_config__WALL_E_DB_DBNAME='{database_config__WALL_E_DB_DBNAME}'
+database_config__WALL_E_DB_USER='{database_config__WALL_E_DB_USER}'
+database_config__WALL_E_DB_PASSWORD='{database_config__WALL_E_DB_PASSWORD}'"""
 
-basic_config__TOKEN='{basic_config__TOKEN}'
+
+    with open(ENV_FILE_LOCATION, "w") as f:
+        f.seek(0)
+        f.write(f"""basic_config__TOKEN='{basic_config__TOKEN}'
 basic_config__ENVIRONMENT='LOCALHOST'
 basic_config__COMPOSE_PROJECT_NAME='{basic_config__COMPOSE_PROJECT_NAME}'
 basic_config__GUILD_ID='{basic_config__GUILD_ID}'
@@ -38,19 +49,18 @@ channel_names__INCIDENT_REPORT_CHANNEL='{channel_names__INCIDENT_REPORT_CHANNEL}
 channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL='{channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL}'
 channel_names__ANNOUNCEMENTS_CHANNEL='{channel_names__ANNOUNCEMENTS_CHANNEL}'
 
-WALL_E_MODEL_PATH='{WALL_E_MODEL_PATH}'
-
-database_config__ENABLED='{database_config__ENABLED}'
 database_config__TYPE='{database_config__TYPE}'
-database_config__HOST='{database_config__HOST}'
-database_config__DB_PORT='{database_config__DB_PORT}'
-POSTGRES_PASSWORD='{POSTGRES_PASSWORD}'
-database_config__WALL_E_DB_DBNAME='{database_config__WALL_E_DB_DBNAME}'
-database_config__WALL_E_DB_USER='{database_config__WALL_E_DB_USER}'
-database_config__WALL_E_DB_PASSWORD='{database_config__WALL_E_DB_PASSWORD}'
+{database_config}""")
 
-launch_wall_e='{launch_wall_e}'
-""")
+    with open(RUN_ENV_FILE_LOCATION, "w") as f:
+        f.seek(0)
+        f.write(f"""LAUNCH_WALL_E='{LAUNCH_WALL_E}'
+WALL_E_MODEL_PATH='{WALL_E_MODEL_PATH}'
+POSTGRES_PASSWORD='{POSTGRES_PASSWORD}'
+ORIGIN_IMAGE='{ORIGIN_IMAGE}'
+HELP_SELECTED='0'
+INSTALL_REQUIREMENTS='{INSTALL_REQUIREMENTS}'
+SETUP_DATABASE='{SETUP_DATABASE}'""")
 
 
 def not_in_venv():
@@ -90,15 +100,30 @@ parser.add_argument('--database_type', action='store', default=None,
                          " --overwrite_env_file flag "
                     )
 parser.add_argument("--specify_wall_e_models_location", action='store', default=None,
-                    help="used to specify the absolute path to the wall_e_models")
+                    help="used to specify the absolute path to the wall_e_models",
+                    metavar="/path/to/wall_e_model/repo")
 parser.add_argument("--launch_wall_e", action='store', default=None,
                     choices=['true', 'false'],
-                    help="in set, script will tell you what command to run to run wall_e once this script sets up the"
-                         " environment for you.")
-
+                    help="script will run wall_e."
+                    )
+parser.add_argument("--install_requirements", action='store', default=None,
+                    choices=['true', 'false'],
+                    help="script will install the required python modules.")
+parser.add_argument("--setup_database", action='store', default=None,
+                    choices=['true', 'false'],
+                    help="script will setup a fresh database.")
 args = parser.parse_args()
 env_file_exists = os.path.exists(ENV_FILE_LOCATION) if args.env_file else False
 overwrite_env_file = False
+
+
+def set_boolean_argument(arg):
+    if arg == 'true':
+        return 'y'
+    elif arg == 'false':
+        return 'n'
+    return None
+
 
 supported_os = platform.system() == "Linux"
 basic_config__TOKEN = None
@@ -106,12 +131,7 @@ basic_config__ENVIRONMENT = 'LOCALHOST'
 basic_config__COMPOSE_PROJECT_NAME = 'discord_bot'
 basic_config__GUILD_ID = None
 
-basic_config__DOCKERIZED = None
-
-if args.dockerized_wall_e == 'true':
-    basic_config__DOCKERIZED = 'y'
-elif args.dockerized_wall_e == 'false':
-    basic_config__DOCKERIZED = 'n'
+basic_config__DOCKERIZED = set_boolean_argument(args.dockerized_wall_e)
 
 channel_names__BOT_GENERAL_CHANNEL = 'bot-commands-and-misc'
 channel_names__MOD_CHANNEL = 'council-summary'
@@ -121,12 +141,9 @@ channel_names__INCIDENT_REPORT_CHANNEL = 'incident_reports'
 channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = 'leveling_website_avatar_images'
 channel_names__ANNOUNCEMENTS_CHANNEL = 'announcements'
 
-WALL_E_MODEL_PATH = args.specify_wall_e_models_location
-
 database_config__WALL_E_DB_DBNAME = 'csss_discord_db'
 database_config__WALL_E_DB_USER = 'wall_e'
 database_config__WALL_E_DB_PASSWORD = 'wallEPassword'
-database_config__ENABLED = 1
 
 
 class DatabaseType(Enum):
@@ -145,11 +162,13 @@ database_config__DB_PORT = 5432
 ORIGIN_IMAGE = 'sfucsssorg/wall_e'
 POSTGRES_PASSWORD = 'postgres_passwd'
 
-launch_wall_e = None
-if args.launch_wall_e == 'true':
-    launch_wall_e = 'y'
-elif args.launch_wall_e == 'false':
-    launch_wall_e = 'f'
+LAUNCH_WALL_E = set_boolean_argument(args.launch_wall_e)
+
+INSTALL_REQUIREMENTS = set_boolean_argument(args.install_requirements)
+
+SETUP_DATABASE = set_boolean_argument(args.setup_database)
+
+WALL_E_MODEL_PATH = args.specify_wall_e_models_location
 
 env_file_is_specified = False
 if env_file_exists:
@@ -158,6 +177,8 @@ if env_file_exists:
 
     dotenv_path = Path(ENV_FILE_LOCATION)
     load_dotenv(dotenv_path=dotenv_path)
+    if os.path.exists(RUN_ENV_FILE_LOCATION):
+        load_dotenv(dotenv_path=RUN_ENV_FILE_LOCATION)
     overwrite_env_file = args.overwrite_env_file
     env_file_is_specified = True
 go_through_setup = not args.skip_setup
@@ -200,10 +221,18 @@ if go_through_setup or (env_file_is_specified and overwrite_env_file):
             "dockerized or not]", os.environ.get("database_config__TYPE", database_config__TYPE)
         ).lower()
         database_config__TYPE = DatabaseType.sqlite3.value if database_config__TYPE == 'y' else DatabaseType.postgreSQL.value
-    launch_wall_e = take_user_input(
-        "Do you you want this script to launch wall_e? [Yn] [the alternative is to use PyCharm]", launch_wall_e
+    LAUNCH_WALL_E = take_user_input(
+        "Do you you want this script to launch wall_e? [Yn] [the alternative is to use PyCharm]", LAUNCH_WALL_E
     ).lower()
-    launch_wall_e = launch_wall_e == 'y'
+    LAUNCH_WALL_E = LAUNCH_WALL_E == 'y'
+    INSTALL_REQUIREMENTS = take_user_input(
+        "Do you you want this script to install the python requirements? [Yn]", INSTALL_REQUIREMENTS
+    ).lower()
+    INSTALL_REQUIREMENTS = INSTALL_REQUIREMENTS == 'y'
+    SETUP_DATABASE = take_user_input(
+        "Do you you want this script to setup the database? [Yn]", SETUP_DATABASE
+    ).lower()
+    SETUP_DATABASE = SETUP_DATABASE == 'y'
     first_time = True
     while WALL_E_MODEL_PATH is None or not os.path.exists(WALL_E_MODEL_PATH):
         if not first_time:
@@ -275,13 +304,25 @@ elif env_file_is_specified:
                 "dockerized or not]", database_config__TYPE
             ).lower()
             database_config__TYPE = DatabaseType.sqlite3.value if database_config__TYPE == 'y' else DatabaseType.postgreSQL.value
-    if launch_wall_e is None:
-        launch_wall_e = take_user_input(
-            "Do you you want this script to launch wall_e? [Yn] [the alternative is to use PyCharm]", launch_wall_e
+    if LAUNCH_WALL_E is None:
+        LAUNCH_WALL_E = take_user_input(
+            "Do you you want this script to launch wall_e? [Yn] [the alternative is to use PyCharm]", LAUNCH_WALL_E
         ).lower()
-    launch_wall_e = launch_wall_e == 'y'
+    LAUNCH_WALL_E = LAUNCH_WALL_E == 'y'
+
+    if INSTALL_REQUIREMENTS is None:
+        INSTALL_REQUIREMENTS = take_user_input(
+            "Do you you want this script to install the python requirements? [Yn]", INSTALL_REQUIREMENTS
+        ).lower()
+    INSTALL_REQUIREMENTS = INSTALL_REQUIREMENTS == 'y'
+
+    if SETUP_DATABASE is None:
+        SETUP_DATABASE = take_user_input(
+            "Do you you want this script to setup the database? [Yn]", SETUP_DATABASE
+        ).lower()
+    SETUP_DATABASE = SETUP_DATABASE == 'y'
+
     first_time = True
-    WALL_E_MODEL_PATH = os.environ.get("WALL_E_MODEL_PATH", None)
     while WALL_E_MODEL_PATH is None or not os.path.exists(WALL_E_MODEL_PATH):
         if not first_time:
             print(f"path {WALL_E_MODEL_PATH} does not exist")
@@ -360,23 +401,17 @@ if essential_variables_are_null[0]:
 
 
 if basic_config__DOCKERIZED == 1:
-    COMPOSE_PROJECT_NAME = basic_config__COMPOSE_PROJECT_NAME
-
     database_config__TYPE = DatabaseType.postgreSQL.value
     database_config__HOST = f"{basic_config__COMPOSE_PROJECT_NAME}_wall_e_db"
-    ORIGIN_IMAGE = 'sfucsssorg/walle'
-    POSTGRES_PASSWORD = POSTGRES_PASSWORD
-
-else:
-    if database_config__TYPE == DatabaseType.postgreSQL.value:
-        database_config__HOST = "127.0.0.1"
-        database_config__DB_PORT = 5432
+elif database_config__TYPE == DatabaseType.postgreSQL.value:
+    database_config__HOST = "127.0.0.1"
+    database_config__DB_PORT = 5432
 
 write_env_variables(
     basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED, channel_names__BOT_GENERAL_CHANNEL,
     channel_names__MOD_CHANNEL, channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
     channel_names__INCIDENT_REPORT_CHANNEL, channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL,
     channel_names__ANNOUNCEMENTS_CHANNEL, WALL_E_MODEL_PATH, database_config__WALL_E_DB_DBNAME,
-    database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__ENABLED,
-    database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE,POSTGRES_PASSWORD,
-    database_config__HOST, database_config__DB_PORT, launch_wall_e)
+    database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__TYPE,
+    basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE,POSTGRES_PASSWORD, database_config__HOST,
+    database_config__DB_PORT, LAUNCH_WALL_E, INSTALL_REQUIREMENTS, SETUP_DATABASE)
