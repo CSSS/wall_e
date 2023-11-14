@@ -29,8 +29,8 @@ export DOCKER_TEST_IMAGE=\${COMPOSE_PROJECT_NAME}_wall_e_pytest;
 export DOCKER_TEST_CONTAINER=\${COMPOSE_PROJECT_NAME}_pytest;
 export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-./CI/test_config_files/validate_line_endings.sh;
-./CI/server_scripts/build_wall_e/validate_formatting.sh;
+./CI/validate_and_deploy/1_validate/test_config_files/validate_line_endings.sh;
+./CI/validate_and_deploy/1_validate/validate_formatting.sh;
                 ''')
             }
         }

@@ -21,7 +21,7 @@ rm ${DISCORD_NOTIFICATION_MESSAGE_FILE} || true
 
 export compose_project_name=$(echo "$COMPOSE_PROJECT_NAME" | awk '{print tolower($0)}')
 
-export docker_compose_file="CI/server_scripts/build_wall_e/docker-compose.yml"
+export docker_compose_file="CI/validate_and_deploy/2_deploy/server_scripts/docker-compose.yml"
 
 export prod_container_name="${COMPOSE_PROJECT_NAME}_wall_e"
 export prod_image_name_lower_case=$(echo "$prod_container_name" | awk '{print tolower($0)}')
@@ -33,7 +33,7 @@ export wall_e_top_base_image="wall_e_base"
 export ORIGIN_IMAGE="${docker_registry}/wall_e"
 export WALL_E_PYTHON_BASE_IMAGE="${docker_registry}/wall_e_python"
 
-export wall_e_top_base_image_dockerfile="CI/server_scripts/build_wall_e/Dockerfile.wall_e_base"
+export wall_e_top_base_image_dockerfile="CI/validate_and_deploy/2_deploy/server_scripts/Dockerfile.wall_e_base"
 
 docker rm -f ${prod_container_name} || true
 docker image rm -f ${prod_image_name_lower_case} || true
