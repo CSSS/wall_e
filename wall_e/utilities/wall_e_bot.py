@@ -166,6 +166,24 @@ class WalleBot(commands.Bot):
                     logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
                     wall_e_config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
                 )
+                await self.bot_channel_manager.create_or_get_channel_id_for_service(
+                    logger, bot_guild, wall_e_config, "member_update_listener_debug"
+                )
+                await self.bot_channel_manager.create_or_get_channel_id_for_service(
+                    logger, bot_guild, wall_e_config, "member_update_listener_warn"
+                )
+                await self.bot_channel_manager.create_or_get_channel_id_for_service(
+                    logger, bot_guild, wall_e_config, "member_update_listener_error"
+                )
+                await self.bot_channel_manager.create_or_get_channel_id_for_service(
+                    logger, bot_guild, wall_e_config, "member_update_listener_discordpy_debug"
+                )
+                await self.bot_channel_manager.create_or_get_channel_id_for_service(
+                    logger, bot_guild, wall_e_config, "member_update_listener_discordpy_warn"
+                )
+                await self.bot_channel_manager.create_or_get_channel_id_for_service(
+                    logger, bot_guild, wall_e_config, "member_update_listener_discordpy_error"
+                )
                 await self.bot_channel_manager.fix_text_channel_positioning(logger, guild=bot_guild)
                 self.uploading = True
             except Exception as e:

@@ -147,6 +147,12 @@ class BotChannelManager:
             "sfu_debug",
             "sfu_warn",
             "sfu_error",
+            "member_update_listener_debug",
+            "member_update_listener_warn",
+            "member_update_listener_error",
+            "member_update_listener_discordpy_debug",
+            "member_update_listener_discordpy_warn",
+            "member_update_listener_discordpy_error",
             leveling_website_avatar_images_channel_name
 
         ]
