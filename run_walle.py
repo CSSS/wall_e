@@ -9,6 +9,8 @@ from enum import Enum
 from pathlib import Path
 
 
+ENV_FILE_LOCATION = "./CI/validate_and_deploy/2_deploy/wall_e.env"
+
 def write_env_variables(basic_config__TOKEN, basic_config__GUILD_ID, basic_config__DOCKERIZED,
                         channel_names__BOT_GENERAL_CHANNEL, channel_names__MOD_CHANNEL,
                         channel_names__LEVELLING_CHANNEL, channel_names__EMBED_AVATAR_CHANNEL,
@@ -17,7 +19,7 @@ def write_env_variables(basic_config__TOKEN, basic_config__GUILD_ID, basic_confi
                         database_config__WALL_E_DB_USER, database_config__WALL_E_DB_PASSWORD, database_config__ENABLED,
                         database_config__TYPE, basic_config__COMPOSE_PROJECT_NAME, ORIGIN_IMAGE, POSTGRES_PASSWORD,
                         database_config__HOST, database_config__DB_PORT, launch_wall_e):
-    with open("CI/user_scripts/wall_e.env", "r+") as f:
+    with open(ENV_FILE_LOCATION, "r+") as f:
         f.seek(0)
         f.write(
             f"""ORIGIN_IMAGE='{ORIGIN_IMAGE}'
@@ -60,7 +62,6 @@ parser = argparse.ArgumentParser(
     description="automates the process for running wall_e"
 )
 
-ENV_FILE_LOCATION = "./CI/user_scripts/wall_e.env"
 
 parser.add_argument(
     "--skip_setup", action='store_true', default=False,
