@@ -58,7 +58,7 @@ export basic_config__MEE6_AUTHORIZATION=${MEE6_AUTHORIZATION};
 export basic_config__TOKEN=${WALL_E_STAGING_DISCORD_BOT_TOKEN};
 export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-./CI/server_scripts/build_wall_e/deploy_to_staging_discord_guild.sh;
+./CI/validate_and_deploy/2_deploy/server_scripts/deploy_to_staging_discord_guild.sh;
                     ''')
                 }
             }
@@ -111,7 +111,7 @@ export github__TOKEN=${GITHUB_ACCESS_TOKEN};
 
 export DISCORD_NOTIFICATION_MESSAGE_FILE=OUTPUT;
 
-./CI/server_scripts/build_wall_e/deploy_to_prod_discord_guild.sh;
+./CI/validate_and_deploy/2_deploy/server_scripts/deploy_to_prod_discord_guild.sh;
                     ''')
                 }
             }
