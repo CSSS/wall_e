@@ -28,7 +28,7 @@ if [ -z "${ORIGIN_IMAGE}" ]; then
 	exit 1
 fi
 
-./CI/destroy-dev-env.sh
+./CI/validate_and_deploy/2_deploy/destroy-dev-env.sh
 
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 ${docker_compose} -f CI/user_scripts/docker-compose-mount.yml up --force-recreate -d

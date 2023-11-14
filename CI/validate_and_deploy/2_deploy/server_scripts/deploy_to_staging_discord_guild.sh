@@ -29,7 +29,7 @@ export wall_e_top_base_image=$(echo "${COMPOSE_PROJECT_NAME}_wall_e_base_image" 
 export wall_e_top_base_image_dockerfile="CI/validate_and_deploy/2_deploy/server_scripts/Dockerfile.wall_e_base"
 
 touch CI/wall_e.env
-./CI/destroy-dev-env.sh
+./CI/validate_and_deploy/2_deploy/destroy-dev-env.sh
 rm CI/wall_e.env
 
 
