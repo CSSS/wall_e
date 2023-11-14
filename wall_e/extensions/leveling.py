@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
 
-from wall_e_models.models import Level, UserPoint, BanRecord
+from wall_e_models.models import Level, UserPoint, BanRecord, UpdatedUser
 
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
@@ -217,22 +217,6 @@ class Leveling(commands.Cog):
             self.logger.debug(f"[Leveling get_leveling_avatar_channel()] bot channel "
                               f"{self.levelling_website_avatar_channel} acquired.")
 
-    @commands.Cog.listener(name="on_member_update")
-    async def on_member_update(self, member_before_update, member_after_update):
-        """
-        ensures that if the user updater any info that is used by the leveling website, the change will be processed
-         soon
-        :param member_before_update:
-        :param member_after_update:
-        :return:
-        """
-        while len(self.user_points) == 0:
-            await asyncio.sleep(2)
-        if member_after_update.id in self.user_points:
-            await self.user_points[member_after_update.id].mark_ready_for_levelling_profile_update(
-                member_after_update
-            )
-
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
         """
@@ -253,7 +237,6 @@ class Leveling(commands.Cog):
                     "in the user_points dict"
                 )
                 self.user_points[message_author_id] = await UserPoint.create_user_point(message_author_id)
-            await self.user_points[message_author_id].mark_ready_for_levelling_profile_update(message.author)
             if await self.user_points[message_author_id].increment_points():
                 self.logger.debug(
                     f"[Leveling on_message()] increased points for {message.author}({message_author_id}) "
@@ -452,7 +435,6 @@ class Leveling(commands.Cog):
         if wall_e_config.enabled("database_config", option="ENABLED"):
             if member.id not in self.user_points:
                 return
-            await self.user_points[member.id].mark_ready_for_levelling_profile_update(member)
             if await BanRecord.user_is_banned(member.id):
                 return
             while not self.xp_system_ready:
@@ -515,25 +497,27 @@ class Leveling(commands.Cog):
         while len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
             await asyncio.sleep(5)
         while True:
-            user_ids_of_user_to_update = await UserPoint.get_users_that_need_leveling_info_updated()
-            total_number_of_updates_needed = len(user_ids_of_user_to_update)
-            for index, user_id in enumerate(user_ids_of_user_to_update):
+            updated_user_logs = await UpdatedUser.get_updated_user_logs()
+            total_number_of_updates_needed = len(updated_user_logs)
+            for index, update_user in enumerate(updated_user_logs):
+                updated_user_log_id = update_user[0]
+                updated_user_id = update_user[1]
                 member = None
                 error = None
                 try:
-                    member = await self.guild.fetch_member(user_id)
+                    member = await self.guild.fetch_member(updated_user_id)
                     self.logger.debug(
                         f"[Leveling process_pending_user_point_profile_changes()] attempting to get updated "
                         f"user_point profile data for member {member} {index + 1}/{total_number_of_updates_needed} "
                     )
                 except NotFound:
-                    self.user_points[user_id].deleted_member = True
+                    self.user_points[updated_user_id].deleted_member = True
                 except Exception as e:
                     error = e
                 if member:
                     try:
-                        await self.user_points[user_id].update_leveling_profile_info(
-                            self.logger, member, self.levelling_website_avatar_channel
+                        await self.user_points[updated_user_id].update_leveling_profile_info(
+                            self.logger, member, self.levelling_website_avatar_channel, updated_user_log_id
                         )
                         self.logger.debug(
                             f"[Leveling process_pending_user_point_profile_changes()] got the updated user_point "
@@ -542,20 +526,20 @@ class Leveling(commands.Cog):
                     except Exception as e:
                         error = e
                 else:
-                    if not self.user_points[user_id].deleted_member:
-                        self.user_points[user_id].leveling_update_attempt += 1
-                    await self.user_points[user_id].async_save()
+                    if not self.user_points[updated_user_id].deleted_member:
+                        self.user_points[updated_user_id].leveling_update_attempt += 1
+                    await self.user_points[updated_user_id].async_save()
                 if error:
                     self.logger.error(
                         f"[Leveling process_pending_user_point_profile_changes()] attempt "
-                        f"{self.user_points[user_id].leveling_update_attempt} : experienced following error when"
-                        f" updating leveling info for user {member if member else user_id} {index + 1}/"
+                        f"{self.user_points[updated_user_id].leveling_update_attempt} : experienced following error"
+                        f" when updating leveling info for user {member if member else updated_user_id} {index + 1}/"
                         f"{total_number_of_updates_needed}\n{error}"
                     )
-                elif self.user_points[user_id].deleted_member:
+                elif self.user_points[updated_user_id].deleted_member:
                     self.logger.warn(
                         f"[Leveling process_pending_user_point_profile_changes()] marked member "
-                        f"{member if member else user_id} as deleted. {index + 1}/"
+                        f"{member if member else updated_user_id} as deleted. {index + 1}/"
                         f"{total_number_of_updates_needed}"
                     )
             await asyncio.sleep(2)
