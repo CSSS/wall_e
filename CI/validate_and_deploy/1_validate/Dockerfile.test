@@ -16,13 +16,13 @@ ENV TEST_RESULT_FILE_NAME=$TEST_RESULT_FILE_NAME
 
 WORKDIR $CONTAINER_HOME_DIR
 
-COPY CI/test_config_files/test-requirements.txt ./
+COPY CI/validate_and_deploy/1_validate/test_config_files/test-requirements.txt ./
 
 COPY wall_e ./
 
-COPY CI/test_config_files/pytest.ini ./
+COPY CI/validate_and_deploy/1_validate/test_config_files/pytest.ini ./
 
-COPY CI/test_config_files/setup.cfg ./
+COPY CI/validate_and_deploy/1_validate/test_config_files/setup.cfg ./
 
 RUN pip install --no-cache-dir -r test-requirements.txt
 

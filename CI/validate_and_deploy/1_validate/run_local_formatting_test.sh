@@ -6,7 +6,9 @@
 docker stop wall_e_py_test || true
 docker rm wall_e_py_test || true
 docker image rm wall_e_py_test || true
-docker build -t wall_e_py_test -f CI/Dockerfile.test --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests --build-arg TEST_RESULT_FILE_NAME=all-unit-tests.xml .
+docker build -t wall_e_py_test -f CI/validate_and_deploy/1_validate/Dockerfile.test \
+ --build-arg CONTAINER_HOME_DIR=/usr/src/app --build-arg UNIT_TEST_RESULTS=/usr/src/app/tests \
+  --build-arg TEST_RESULT_FILE_NAME=all-unit-tests.xml .
 docker run -d --name wall_e_py_test wall_e_py_test
 
 while [ "$(docker inspect -f '{{.State.Running}}' wall_e_py_test)"  = "true" ]
