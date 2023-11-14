@@ -12,16 +12,17 @@ if [[ "$@" == *"--help"* ]] || [[ "$@" == *" -h"* ]];
 then
 	exit 1
 fi
-. ./CI/user_scripts/set_env.sh
+. ./CI/validate_and_deploy/2_deploy/user_scripts/set_env.sh
 if [[ "${basic_config__DOCKERIZED}" == "1" ]];
 then
 	export COMPOSE_PROJECT_NAME="${basic_config__COMPOSE_PROJECT_NAME}"
-	./CI/user_scripts/setup-dev-env.sh
+	./CI/validate_and_deploy/2_deploy/user_scripts/setup-dev-env.sh
 	docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
 else
 	pushd wall_e
 	ln -sn ${WALL_E_MODEL_PATH} wall_e_models || true
 
+	rm layer-1-requirements.txt layer-2-requirements.txt || true
 	wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-1-requirements.txt
 	wget https://raw.githubusercontent.com/CSSS/wall_e_python_base/master/layer-2-requirements.txt
 	python3 -m pip install -r layer-1-requirements.txt
@@ -47,7 +48,7 @@ else
 		--set=WALL_E_DB_PASSWORD="${database_config__WALL_E_DB_PASSWORD}"  \
 		--set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
 		-h "${database_config__HOST}" -p "${database_config__DB_PORT}"  -U "postgres" \
-		-f ../CI/create-database.ddl
+		-f ../CI/validate_and_deploy/2_deploy/create-database.ddl
 	fi
 	python3 django_manage.py migrate
 	rm wall_e.json* || true

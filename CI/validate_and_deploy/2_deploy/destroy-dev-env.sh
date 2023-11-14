@@ -13,8 +13,8 @@ export network_name=$(echo "${COMPOSE_PROJECT_NAME}"_default | awk '{print tolow
 export volume_name="${COMPOSE_PROJECT_NAME}_logs"
 
 
-pushd CI/user_scripts
-cp docker-compose-mount.yml docker-compose.yml
+pushd CI
+cp validate_and_deploy/2_deploy/user_scripts/docker-compose-mount.yml docker-compose.yml
 touch wall_e.env
 docker-compose rm -f -s -v || true
 docker volume rm "${volume_name}" || true

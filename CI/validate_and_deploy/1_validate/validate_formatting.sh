@@ -16,7 +16,7 @@ mkdir -p ${LOCALHOST_TEST_DIR}
 
 
 docker build --no-cache -t ${docker_test_image_lower_case} \
-    -f CI/Dockerfile.test \
+    -f CI/validate_and_deploy/1_validate/Dockerfile.test \
     --build-arg CONTAINER_HOME_DIR=${CONTAINER_HOME_DIR} \
     --build-arg UNIT_TEST_RESULTS=${CONTAINER_TEST_DIR} \
     --build-arg TEST_RESULT_FILE_NAME=${TEST_RESULT_FILE_NAME} .
