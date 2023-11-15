@@ -528,7 +528,9 @@ class Leveling(commands.Cog):
                 else:
                     if not self.user_points[updated_user_id].deleted_member:
                         self.user_points[updated_user_id].leveling_update_attempt += 1
-                    await self.user_points[updated_user_id].async_save()
+                    else:
+                        await self.user_points[updated_user_id].async_save()
+                    await UpdatedUser.async_delete(updated_user_log_id)
                 if error:
                     self.logger.error(
                         f"[Leveling process_pending_user_point_profile_changes()] attempt "
