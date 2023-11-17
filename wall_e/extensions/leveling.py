@@ -486,7 +486,6 @@ class Leveling(commands.Cog):
     @commands.Cog.listener(name='on_ready')
     async def reset_profiles(self):
         self.logger.debug("[Leveling reset_profiles()] starting to reset the user profile data")
-        await UserPoint.reset_profile_info()
         self.logger.debug("[Leveling reset_profiles()] user profiles restarted")
         self.user_points = await UserPoint.load_to_dict()
         self.logger.debug("[Leveling reset_profiles()] user_points data loaded")
