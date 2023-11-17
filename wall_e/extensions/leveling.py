@@ -2,12 +2,11 @@ import asyncio
 import json
 
 import discord
-from discord import NotFound
 from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
 
-from wall_e_models.models import Level, UserPoint, BanRecord, UpdatedUser
+from wall_e_models.models import Level, UserPoint, BanRecord
 
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
@@ -88,10 +87,10 @@ class Leveling(commands.Cog):
             self.logger.debug("[Leveling load_points_into_dict()] loading level from DB into dict")
             self.levels = await Level.load_to_dict()
         self.logger.debug("[Leveling load_points_into_dict()] levels loaded in DB and dict")
-        self.user_points = await UserPoint.load_to_dict()
+        # self.user_points = await UserPoint.load_to_dict()
         self.logger.debug("[Leveling load_points_into_dict()] UserPoints loaded into dict")
         self.logger.debug("[Leveling load_points_into_dict()] XP system ready")
-        self.xp_system_ready = True
+        # self.xp_system_ready = True
 
     # async def load_data_from_mee6_endpoint_and_json(self):
     #     await bot.wait_until_ready()
@@ -484,64 +483,58 @@ class Leveling(commands.Cog):
                 f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
             )
 
-    @commands.Cog.listener(name="on_ready")
-    async def process_pending_user_point_profile_changes(self):
+    @commands.Cog.listener(name='on_ready')
+    async def reset_profiles(self):
+        self.logger.debug("[Leveling reset_profiles()] starting to reset the user profile data")
+        await UserPoint.reset_profile_info()
+        self.logger.debug("[Leveling reset_profiles()] user profiles restarted")
+        self.user_points = await UserPoint.load_to_dict()
+        self.logger.debug("[Leveling reset_profiles()] user_points data loaded")
+        await self.set_null_date_to_checks()
+        self.logger.debug("[Leveling reset_profiles()] dates_to_check set")
+        self.xp_system_ready = True
+
+    async def set_null_date_to_checks(self):
         """
-        Goes through all the UserPoint objects that have been marked indicated their profile has been updated
-         and needs to have wall_e's database updated for the leveling website
+        Takes any [new] UserPoints that dont yet have a date_to_check set
+
+        The logic is implemented by creating a dictionary with a bucket for each day of the month with the lowest
+         number of days so that this algorithm can also work on leap years.
+         The idea is that each user will be set a certain day of the month when it should be updated. And it will only
+          be updated on that date ASSUMING that the user is a lurker who is not regularly sending messages.
+           Because if the user is regular sending messages, chances are any changes in their profile will be caught
+        by get_updated_user_logs
         :return:
         """
-        while len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
-            await asyncio.sleep(5)
-        while True:
-            updated_user_logs = await UpdatedUser.get_updated_user_logs()
-            total_number_of_updates_needed = len(updated_user_logs)
-            for index, update_user in enumerate(updated_user_logs):
-                updated_user_log_id = update_user[0]
-                updated_user_id = update_user[1]
-                member = None
-                error = None
-                try:
-                    member = await self.guild.fetch_member(updated_user_id)
-                    self.logger.debug(
-                        f"[Leveling process_pending_user_point_profile_changes()] attempting to get updated "
-                        f"user_point profile data for member {member} {index + 1}/{total_number_of_updates_needed} "
-                    )
-                except NotFound:
-                    self.user_points[updated_user_id].deleted_member = True
-                except Exception as e:
-                    error = e
-                if member:
-                    try:
-                        await self.user_points[updated_user_id].update_leveling_profile_info(
-                            self.logger, member, self.levelling_website_avatar_channel, updated_user_log_id
-                        )
-                        self.logger.debug(
-                            f"[Leveling process_pending_user_point_profile_changes()] got the updated user_point "
-                            f"profile data for member {member} {index+1}/{total_number_of_updates_needed}"
-                        )
-                    except Exception as e:
-                        error = e
-                else:
-                    if not self.user_points[updated_user_id].deleted_member:
-                        self.user_points[updated_user_id].leveling_update_attempt += 1
-                    else:
-                        await self.user_points[updated_user_id].async_save()
-                    await UpdatedUser.async_delete(updated_user_log_id)
-                if error:
-                    self.logger.error(
-                        f"[Leveling process_pending_user_point_profile_changes()] attempt "
-                        f"{self.user_points[updated_user_id].leveling_update_attempt} : experienced following error"
-                        f" when updating leveling info for user {member if member else updated_user_id} {index + 1}/"
-                        f"{total_number_of_updates_needed}\n{error}"
-                    )
-                elif self.user_points[updated_user_id].deleted_member:
-                    self.logger.warn(
-                        f"[Leveling process_pending_user_point_profile_changes()] marked member "
-                        f"{member if member else updated_user_id} as deleted. {index + 1}/"
-                        f"{total_number_of_updates_needed}"
-                    )
-            await asyncio.sleep(2)
+        user_points = [user_point for user_point in self.user_points.values() if user_point.date_to_check is None]
+        if len(user_points) == 0:
+            return
+        date_buckets = {}
+        for x in range(1, 29):
+            date_buckets[x] = 0
+        for user_id in self.user_points.keys():
+            if self.user_points[user_id].date_to_check is not None:
+                date_buckets[self.user_points[user_id]] += 1
+
+        def get_date_with_lowest_user_points(data_buckets_local):
+            low_load_date = None
+            min_value = None
+            for date_local, number_of_user_to_checks in data_buckets_local.items():
+                if min_value is None:
+                    low_load_date = date_local
+                    min_value = number_of_user_to_checks
+                elif min_value > number_of_user_to_checks:
+                    low_load_date = date_local
+                    min_value = number_of_user_to_checks
+            return low_load_date
+        users_to_update = []
+        for user_id in self.user_points.keys():
+            if self.user_points[user_id].date_to_check is None:
+                date = get_date_with_lowest_user_points(date_buckets)
+                date_buckets[date] += 1
+                self.user_points[user_id].date_to_check = date
+                users_to_update.append(self.user_points[user_id])
+        await UserPoint.async_bulk_update(users_to_update, ["date_to_check"])
 
     @commands.command(
         brief="associates an XP level with the role with the specified name",
