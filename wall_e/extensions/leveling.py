@@ -437,9 +437,15 @@ class Leveling(commands.Cog):
         """
         if self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None:
             return
+        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task starting")
         await self.set_null_date_to_checks()
+        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null date_to_checks has been set")
         updated_user_ids = await UserPoint.get_users_that_need_leveling_info_updated()
         total_number_of_updates_needed = len(updated_user_ids)
+        self.logger.debug(
+            f"[Leveling process_leveling_profile_data_for_lurkers()] {total_number_of_updates_needed} "
+            "necessary updates retrieved"
+        )
         for index, user_id in enumerate(updated_user_ids):
             self.logger.debug(
                 f"[Leveling process_leveling_profile_data_for_lurkers()] attempting to get updated "
