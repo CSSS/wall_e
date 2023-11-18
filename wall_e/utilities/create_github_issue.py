@@ -21,7 +21,8 @@ def create_github_issue(error_messages, config):
             last_line -= 1
     beginning_of_error_message = re.match(
         r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} = ERROR = ", last_message
-    ).regs[0][1]
+    )
+    beginning_of_error_message = beginning_of_error_message.regs[0][1] if beginning_of_error_message else 0
     last_message = last_message[beginning_of_error_message:]
     requests.post(
         url="https://api.github.com/repos/csss/wall_e/issues",
