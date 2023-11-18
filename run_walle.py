@@ -72,8 +72,7 @@ parser = argparse.ArgumentParser(
     description="automates the process for running wall_e"
 )
 
-parser.add_argument("--env_file",
-                    action='store_true', default=False,
+parser.add_argument("--env_file", action='store_true', default=False,
                     help=f"Indicator of whether to pull the environment variables from the file "
                          f"'{ENV_FILE_LOCATION}'. Helpful if the script has already been run and "
                          f"created the CI/user_scripts/wall_e.env file."
@@ -81,32 +80,19 @@ parser.add_argument("--env_file",
 parser.add_argument("--overwrite_env_file", action='store_true',
                     help="indicator to the script that while you are pulling the env variables using --env_file, "
                          "you want to overwrite some of the imported variables")
-parser.add_argument('--dockerized_wall_e', action='store', default=None,
-                    choices=['true', 'false'],
-                    help=(
-                        "indicates whether or not to run wall_e in a docker container. "
-                        "Will not work if --env_file is set and basic_config__DOCKERIZED is already in the env file"
+parser.add_argument('--dockerized_wall_e', action='store', default=None, choices=['true', 'false'],
+                    help="indicates whether or not to run wall_e in a docker container."
                     )
-                    )
-parser.add_argument('--database_type', action='store', default=None,
-                    choices=['sqlite3', 'postgres'],
-                    help=(
-                        "indicates whether you want to use sqlite3 or postgres for the database type. "
-                        "Will not work if --env_file is set and database_config__TYPE is already in the env file"
-                    )
+parser.add_argument('--database_type', action='store', default=None, choices=['sqlite3', 'postgres'],
+                    help="indicates whether you want to use sqlite3 or postgres for the database type."
                     )
 parser.add_argument("--wall_e_models_location", action='store', default=None,
-                    help="used to specify the absolute path to the wall_e_models",
-                    metavar="/path/to/wall_e_model/repo")
-parser.add_argument("--launch_wall_e", action='store', default=None,
-                    choices=['true', 'false'],
-                    help="script will run wall_e."
-                    )
-parser.add_argument("--install_requirements", action='store', default=None,
-                    choices=['true', 'false'],
+                    help="used to specify the absolute path to the wall_e_models", metavar="/path/to/wall_e_model/repo"
+                   )
+parser.add_argument("--launch_wall_e", action='store', default=None, choices=['true', 'false'], help="script will run wall_e.")
+parser.add_argument("--install_requirements", action='store', default=None, choices=['true', 'false'],
                     help="script will install the required python modules.")
-parser.add_argument("--setup_database", action='store', default=None,
-                    choices=['true', 'false'],
+parser.add_argument("--setup_database", action='store', default=None, choices=['true', 'false'],
                     help="script will setup a fresh database.")
 args = parser.parse_args()
 env_file_exists = os.path.exists(ENV_FILE_LOCATION) if args.env_file else False
@@ -127,8 +113,6 @@ basic_config__ENVIRONMENT = 'LOCALHOST'
 basic_config__COMPOSE_PROJECT_NAME = 'discord_bot'
 basic_config__GUILD_ID = None
 
-basic_config__DOCKERIZED = set_boolean_argument(args.dockerized_wall_e)
-
 channel_names__BOT_GENERAL_CHANNEL = 'bot-commands-and-misc'
 channel_names__MOD_CHANNEL = 'council-summary'
 channel_names__LEVELLING_CHANNEL = 'council'
@@ -148,10 +132,6 @@ class DatabaseType(Enum):
 
 
 database_config__TYPE = None
-if args.database_type == DatabaseType.sqlite3.value:
-    database_config__TYPE = DatabaseType.sqlite3.value
-elif args.database_type == DatabaseType.postgreSQL.value:
-    database_config__TYPE = DatabaseType.postgreSQL.value
 
 database_config__HOST = None
 database_config__DB_PORT = 5432
@@ -177,6 +157,18 @@ if env_file_exists:
         load_dotenv(dotenv_path=RUN_ENV_FILE_LOCATION)
     overwrite_env_file = args.overwrite_env_file
     env_file_is_specified = True
+
+basic_config__DOCKERIZED = set_boolean_argument(args.dockerized_wall_e)
+if basic_config__DOCKERIZED is not None:
+    os.environ['basic_config__DOCKERIZED'] = basic_config__DOCKERIZED
+
+if args.database_type == DatabaseType.sqlite3.value:
+    database_config__TYPE = DatabaseType.sqlite3.value
+elif args.database_type == DatabaseType.postgreSQL.value:
+    database_config__TYPE = DatabaseType.postgreSQL.value
+
+if database_config__TYPE is not None:
+    os.environ['database_config__TYPE'] = database_config__TYPE
 
 def check_for_null_variables(**kwargs):
     for key, value in kwargs.items():
