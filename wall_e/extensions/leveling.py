@@ -75,7 +75,7 @@ class Leveling(commands.Cog):
         to quicker read access
         :return:
         """
-        self.logger.info("[Leveling load_points_into_dict()] loading points and level into DB and dict")
+        self.logger.info("[Leveling updating_database_and_cache()] loading UserPoints and level into DB and cache")
         level_names = {
             0: "Hello World",
             5: "Missing Semicolon",
@@ -99,7 +99,7 @@ class Leveling(commands.Cog):
             95: "THE 95"
         }
         if not await Level.level_points_have_been_imported():
-            self.logger.debug("[Leveling load_points_into_dict()] loading levels into DB and dict")
+            self.logger.debug("[Leveling updating_database_and_cache()] loading levels into DB and cache")
             level_xp = 100
             self.levels = {
                 0: await Level.create_level(0, 0, level_xp, role_name=level_names.get(0, None))
@@ -111,13 +111,15 @@ class Leveling(commands.Cog):
                 )
                 level_xp += point_up
                 point_up += 55 + (10*level)
-        elif self.levels is None:
-            self.logger.debug("[Leveling load_points_into_dict()] loading level from DB into dict")
+            self.logger.debug("[Leveling updating_database_and_cache()] levels loaded into DB and cache")
+        else:
+            self.logger.debug("[Leveling updating_database_and_cache()] loading level from DB into cache")
             self.levels = await Level.load_to_dict()
-        self.logger.debug("[Leveling load_points_into_dict()] levels loaded in DB and dict")
+            self.logger.debug("[Leveling updating_database_and_cache()] levels loaded from DB into cache")
+        self.logger.debug("[Leveling updating_database_and_cache()] loading UserPoints into cache")
         self.user_points = await UserPoint.load_to_dict()
-        self.logger.debug("[Leveling load_points_into_dict()] UserPoints loaded into dict")
-        self.logger.debug("[Leveling load_points_into_dict()] XP system ready")
+        self.logger.debug("[Leveling updating_database_and_cache()] UserPoints loaded into cache")
+        self.logger.debug("[Leveling updating_database_and_cache()] XP system ready")
         self.xp_system_ready = True
 
     @commands.Cog.listener(name="on_ready")
