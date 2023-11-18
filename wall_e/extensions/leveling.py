@@ -568,14 +568,20 @@ class Leveling(commands.Cog):
                         f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
                         f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
                     )
-                await self.user_points[member.id].update_leveling_profile_info(
+                user_updated = await self.user_points[member.id].update_leveling_profile_info(
                     self.logger, member, self.levelling_website_avatar_channel,
                     updated_user_log_id=updated_user_log_id
                 )
-                self.logger.debug(
-                    f"[Leveling update_member_profile_data()] updated the member profile data"
-                    f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
-                )
+                if user_updated:
+                    self.logger.debug(
+                        f"[Leveling update_member_profile_data()] updated the member profile data"
+                        f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
+                    )
+                else:
+                    self.logger.debug(
+                        f"[Leveling update_member_profile_data()] no update was deemed necessary for member"
+                        f" {member} {index + 1}/{total_number_of_updates_needed}"
+                    )
             except Exception as e:
                 self.logger.error(
                     f"[Leveling update_member_profile_data()] unable to update the member profile"
