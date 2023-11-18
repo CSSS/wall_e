@@ -20,7 +20,7 @@ def create_github_issue(error_messages, config):
         else:
             last_line -= 1
     beginning_of_error_message = re.match(
-        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} = ERROR = \w* = ", last_message
+        r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} = ERROR = ", last_message
     ).regs[0][1]
     last_message = last_message[beginning_of_error_message:]
     requests.post(
