@@ -11,5 +11,3 @@ WORKDIR $CONTAINER_HOME_DIR
 COPY wall_e/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
-
-RUN pip install wall-e-models==0.24
