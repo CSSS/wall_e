@@ -179,9 +179,10 @@ class Reminders(commands.Cog):
         self.logger.debug(f"[Reminders remindmein()] extracted time is {parsed_time}")
         self.logger.debug(f"[Reminders remindmein()] extracted timezone is {user_specified_timezone}")
         self.logger.debug(f"[Reminders remindmein()] extracted message is {message}")
+        current_time = datetime.datetime.now(tz=user_specified_timezone)
         reminder_date, parse_status = parsedatetime.Calendar().parseDT(
             datetimeString=parsed_time,
-            sourceTime=datetime.datetime.now(tz=user_specified_timezone),
+            sourceTime=current_time,
             tzinfo=user_specified_timezone
         )
         if parse_status == 0:
@@ -205,7 +206,7 @@ class Reminders(commands.Cog):
             self.logger,
             ctx=ctx,
             author=ctx.me,
-            description=reminder_obj.get_countdown()
+            description=reminder_obj.get_countdown(current_time)
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj, reference=ctx.message)
