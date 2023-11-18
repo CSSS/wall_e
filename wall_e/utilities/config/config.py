@@ -58,15 +58,9 @@ class WallEConfig:
 
     def get_extensions(self):
 
-        def extension_can_be_loaded(extension):
-            return (
-                (extension != 'reminders') or
-                (extension == 'reminders' and self.enabled("database_config", option="ENABLED"))
-            )
-
         extensions = [
             extension
             for extension in self.config['extensions']
-            if self.enabled("extensions", extension) == 1 and extension_can_be_loaded(extension)
+            if self.enabled("extensions", extension) == 1
         ]
         return extensions
