@@ -5,7 +5,3 @@ configparser==5.2.0
 # needed for DB interactions
 Django==3.2.23
 asgiref==3.4.1
-
-# needed temporarily for importing data from mee6
-requests==2.31.0
-

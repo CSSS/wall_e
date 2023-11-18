@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-import json
 
 import discord
 import pytz
@@ -28,8 +27,8 @@ class Leveling(commands.Cog):
         self.logger.info("[Leveling __init__()] initializing Leveling")
         self.levels_have_been_changed = False
         self.guild = None
-        self.user_points = {}
-        self.levels = {}
+        self.user_points = None
+        self.levels = None
         self.xp_system_ready = False
         self.council_channel = None
         self.levelling_website_avatar_channel = None
@@ -70,26 +69,49 @@ class Leveling(commands.Cog):
             )
 
     @commands.Cog.listener(name="on_ready")
-    async def load_points_into_dict(self):
+    async def updating_database_and_cache(self):
         """
         Loads the current level info and user points into the self.level and self.user_points dict respectively
         to quicker read access
         :return:
         """
         self.logger.info("[Leveling load_points_into_dict()] loading points and level into DB and dict")
+        level_names = {
+            0: "Hello World",
+            5: "Missing Semicolon",
+            10: "Manual Tester",
+            15: "Javascript Programmer",
+            20: "Syntax Error",
+            25: "Git Gud",
+            30: "Full Stack Developer",
+            35: "Assembly Programmer",
+            40: "Segmentation Fault",
+            45: "Vim User",
+            50: "Kernel",
+            55: "Stallman Follower",
+            60: "Forkbomb",
+            65: "Human Compiler",
+            70: "Gentoo Installer",
+            75: "HolyC",
+            80: "CD level80",
+            85: "THE 85",
+            90: "THE 90",
+            95: "THE 95"
+        }
         if not await Level.level_points_have_been_imported():
             self.logger.debug("[Leveling load_points_into_dict()] loading levels into DB and dict")
-            with open('resources/mee6_levels/levels.json') as f:
-                self.levels = {
-                    int(level_number): await Level.create_level(
-                        int(level_number),
-                        level_info['total_xp_required_for_level'],
-                        level_info['xp_needed_to_level_up_to_next_level'],
-                        role_name=level_info['role_name'] if 'role_name' in level_info else None,
-                    )
-                    for (level_number, level_info) in json.load(f).items()
-                }
-        elif len(self.levels) == 0:
+            level_xp = 100
+            self.levels = {
+                0: await Level.create_level(0, 0, level_xp, role_name=level_names.get(0, None))
+            }
+            point_up = level_xp + 55
+            for level in range(1, 101):
+                self.levels[level] = await Level.create_level(
+                    level, level_xp, point_up, role_name=level_names.get(level, None)
+                )
+                level_xp += point_up
+                point_up += 55 + (10*level)
+        elif self.levels is None:
             self.logger.debug("[Leveling load_points_into_dict()] loading level from DB into dict")
             self.levels = await Level.load_to_dict()
         self.logger.debug("[Leveling load_points_into_dict()] levels loaded in DB and dict")
@@ -97,85 +119,6 @@ class Leveling(commands.Cog):
         self.logger.debug("[Leveling load_points_into_dict()] UserPoints loaded into dict")
         self.logger.debug("[Leveling load_points_into_dict()] XP system ready")
         self.xp_system_ready = True
-
-    # async def load_data_from_mee6_endpoint_and_json(self):
-    #     await bot.wait_until_ready()
-    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading XP data")
-    #     await Level.clear_all_entries()
-    #     await UserPoint.clear_all_entries()
-    #
-    #     if not await Level.level_points_have_been_imported():
-    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading levels into DB and dict")
-    #         with open('resources/mee6_levels/levels.json') as f:
-    #             self.levels = {
-    #                 int(level_number): await Level.create_level(
-    #                     int(level_number),
-    #                     level_info['total_xp_required_for_level'],
-    #                     level_info['xp_needed_to_level_up_to_next_level'],
-    #                     role_name=level_info['role_name'] if 'role_name' in level_info else None,
-    #                 )
-    #                 for (level_number, level_info) in json.load(f).items()
-    #             }
-    #     elif len(self.levels) == 0:
-    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading level from DB into dict")
-    #         self.levels = await Level.load_to_dict()
-    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] levels loaded in DB and dict")
-    #
-    #     if not await UserPoint.user_points_have_been_imported():
-    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading UserPoints into DB and dict")
-    #         page = 0
-    #         all_users_loaded = False
-    #         while not all_users_loaded:
-    #             r = requests.get(
-    #                 f"https://mee6.xyz/api/plugins/levels/leaderboard/228761314644852736?page={page}&limit=1000",
-    #                 headers={
-    #                     'Authorization': wall_e_config.get_config_value('basic_config', 'MEE6_AUTHORIZATION')
-    #                 }
-    #             )
-    #             if r.status_code == 200:
-    #                 data = json.loads(r.text)
-    #                 if len(data['players']) > 0:
-    #                     page += 1
-    #                     for player in data['players']:
-    #                         # player = {
-    #                         #     'avatar': '3fd2cc8fda2a0af3b1a06bb27d5151f0',
-    #                         #     'detailed_xp': [
-    #                         #         8349,  # how much of the "XP needed to level up" I have so far
-    #                         #         11980,  # XP needed to level up
-    #                         #         197219  # Total XP I have so far
-    #                         #     ],
-    #                         #     'discriminator': '6816',
-    #                         #     'guild_id': '228761314644852736',
-    #                         #     'id': '288148680479997963',
-    #                         #     'level': 44,
-    #                         #     'message_count': 9858,  # total messages sent
-    #                         #     'username': 'modernNeo',
-    #                         #     'xp': 197219  # Total XP
-    #                         # }
-    #                         user_id = int(player['id'])
-    #                         message_count = int(player['message_count'])
-    #                         level = int(player['level'])
-    #                         user_xp = int(player['xp'])
-    #                         self.user_points[user_id] = await UserPoint.create_user_point(
-    #                             user_id, points=user_xp, message_count=message_count, level=level
-    #                         )
-    #                 else:
-    #                     all_users_loaded = True
-    #             elif r.status_code == 429:
-    #                 logger.info(
-    #                     "[Leveling load_data_from_mee6_endpoint_and_json()] wall_e is currently rate-limited by the"
-    #                     " mee6 website. exiting now"
-    #                 )
-    #                 await asyncio.sleep(120)
-    #                 exit(0)
-    #             else:
-    #                 await asyncio.sleep(120)
-    #     elif len(self.user_points) == 0:
-    #         logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] loading UserPoints from DB into dict")
-    #         self.user_points = await UserPoint.load_to_dict()
-    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] UserPoints loaded in DB and dict")
-    #     logger.info("[Leveling load_data_from_mee6_endpoint_and_json()] XP data loaded")
-    #     self.xp_system_ready = True
 
     @commands.Cog.listener(name="on_ready")
     async def create_council_channel(self):
@@ -431,12 +374,12 @@ class Leveling(commands.Cog):
         :param member: the member whose join triggered the function call and may need their XP levels re-assigned
         :return:
         """
+        while not self.xp_system_ready:
+            await asyncio.sleep(2)
         if member.id not in self.user_points:
             return
         if await BanRecord.user_is_banned(member.id):
             return
-        while not self.xp_system_ready:
-            await asyncio.sleep(2)
         self.logger.info(
             f"[Leveling re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} "
             f"points wil get their roles back if they leave and re-join the guild"
@@ -492,7 +435,7 @@ class Leveling(commands.Cog):
          and needs to have wall_e's database updated for the leveling website
         :return:
         """
-        if len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
+        if self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None:
             return
         await self.set_null_date_to_checks()
         updated_user_ids = await UserPoint.get_users_that_need_leveling_info_updated()
@@ -561,7 +504,7 @@ class Leveling(commands.Cog):
          and needs to have wall_e's database updated for the leveling website
         :return:
         """
-        if len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
+        if self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None:
             return
         updated_user_logs = await UpdatedUser.get_updated_user_logs()
         total_number_of_updates_needed = len(updated_user_logs)
