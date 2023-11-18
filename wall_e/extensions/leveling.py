@@ -491,7 +491,7 @@ class Leveling(commands.Cog):
         self.logger.debug("[Leveling reset_profiles()] user_points data loaded")
         await self.set_null_date_to_checks()
         self.logger.debug("[Leveling reset_profiles()] dates_to_check set")
-        self.xp_system_ready = True
+        # self.xp_system_ready = True
 
     async def set_null_date_to_checks(self):
         """
