@@ -1,12 +1,15 @@
 import asyncio
+import datetime
 import json
 
 import discord
-from discord.ext import commands
+import pytz
+from discord import NotFound
+from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
 
-from wall_e_models.models import Level, UserPoint, BanRecord
+from wall_e_models.models import Level, UserPoint, BanRecord, UpdatedUser
 
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
@@ -30,6 +33,8 @@ class Leveling(commands.Cog):
         self.xp_system_ready = False
         self.council_channel = None
         self.levelling_website_avatar_channel = None
+        self.process_leveling_profile_data_for_lurkers.start()
+        self.process_leveling_profile_data_for_active_users.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -87,10 +92,10 @@ class Leveling(commands.Cog):
             self.logger.debug("[Leveling load_points_into_dict()] loading level from DB into dict")
             self.levels = await Level.load_to_dict()
         self.logger.debug("[Leveling load_points_into_dict()] levels loaded in DB and dict")
-        # self.user_points = await UserPoint.load_to_dict()
+        self.user_points = await UserPoint.load_to_dict()
         self.logger.debug("[Leveling load_points_into_dict()] UserPoints loaded into dict")
         self.logger.debug("[Leveling load_points_into_dict()] XP system ready")
-        # self.xp_system_ready = True
+        self.xp_system_ready = True
 
     # async def load_data_from_mee6_endpoint_and_json(self):
     #     await bot.wait_until_ready()
@@ -483,15 +488,29 @@ class Leveling(commands.Cog):
                 f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
             )
 
-    @commands.Cog.listener(name='on_ready')
-    async def reset_profiles(self):
-        self.logger.debug("[Leveling reset_profiles()] starting to reset the user profile data")
-        self.logger.debug("[Leveling reset_profiles()] user profiles restarted")
-        self.user_points = await UserPoint.load_to_dict()
-        self.logger.debug("[Leveling reset_profiles()] user_points data loaded")
+    @tasks.loop(time=datetime.time(hour=4, tzinfo=pytz.timezone('Canada/Pacific')))
+    async def process_leveling_profile_data_for_lurkers(self):
+        """
+        Goes through all the UserPoint objects that have been marked indicating their profile has been updated
+         and needs to have wall_e's database updated for the leveling website
+        :return:
+        """
+        if len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
+            return
         await self.set_null_date_to_checks()
-        self.logger.debug("[Leveling reset_profiles()] dates_to_check set")
-        # self.xp_system_ready = True
+        updated_user_ids = await UserPoint.get_users_that_need_leveling_info_updated()
+        total_number_of_updates_needed = len(updated_user_ids)
+        for index, user_id in enumerate(updated_user_ids):
+            self.logger.debug(
+                f"[Leveling process_leveling_profile_data_for_lurkers()] attempting to get updated "
+                f"user_point profile data for member {user_id} "
+                f"{index + 1}/{total_number_of_updates_needed} "
+            )
+            try:
+                member = await self.guild.fetch_member(user_id)
+            except NotFound:
+                member = await bot.fetch_user(user_id)
+            await self.update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
 
     async def set_null_date_to_checks(self):
         """
@@ -533,7 +552,84 @@ class Leveling(commands.Cog):
                 date_buckets[date] += 1
                 self.user_points[user_id].date_to_check = date
                 users_to_update.append(self.user_points[user_id])
+        self.logger.debug(
+            f"[Leveling set_null_date_to_checks()] updating {len(users_to_update)} user_point objects' date_to_check"
+        )
         await UserPoint.async_bulk_update(users_to_update, ["date_to_check"])
+
+    @tasks.loop(seconds=2)
+    async def process_leveling_profile_data_for_active_users(self):
+        """
+        Goes through all the UserPoint objects that have been marked indicated their profile has been updated
+         and needs to have wall_e's database updated for the leveling website
+        :return:
+        """
+        if len(self.user_points) == 0 or self.levelling_website_avatar_channel is None or self.guild is None:
+            return
+        updated_user_logs = await UpdatedUser.get_updated_user_logs()
+        total_number_of_updates_needed = len(updated_user_logs)
+        for index, update_user in enumerate(updated_user_logs):
+            updated_user_log_id = update_user[0]
+            updated_user_id = update_user[1]
+            self.logger.debug(
+                f"[Leveling process_leveling_profile_data_for_active_users()] attempting to get updated "
+                f"user_point profile data for member {updated_user_id} "
+                f"{index + 1}/{total_number_of_updates_needed} "
+            )
+            try:
+                member = await self.guild.fetch_member(updated_user_id)
+            except NotFound:
+                member = await bot.fetch_user(updated_user_id)
+            await self.update_member_profile_data(
+                member, updated_user_id, index, total_number_of_updates_needed,
+                updated_user_log_id=updated_user_log_id
+            )
+
+    async def update_member_profile_data(self, member, updated_user_id, index, total_number_of_updates_needed,
+                                         updated_user_log_id=None):
+        """
+        Attempts to determine if the member's leveling data in the database can be updated and if not, record any of
+         the errors detected as a result
+
+        :param member: the member who's leveling data to extract to the database
+        :param updated_user_id: the ID for the user whose leveling data is being updated, pulled from the database
+        :param index: index of member amongst the current iteration that is being updated
+        :param total_number_of_updates_needed: number of members the code is attempting to update within the
+         current loop
+        :param updated_user_log_id: the ID of the UpdatedUser record to delete if this function was called as a
+         result of member_update_listener's recording any detected changed in UpdatedUser
+        :return:
+        """
+        if member:
+            try:
+                if self.user_points[member.id].leveling_update_attempt >= 5:
+                    self.logger.warn(
+                        f"[Leveling update_member_profile_data()] "
+                        f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
+                        f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
+                    )
+                await self.user_points[member.id].update_leveling_profile_info(
+                    self.logger, member, self.levelling_website_avatar_channel,
+                    updated_user_log_id=updated_user_log_id
+                )
+                self.logger.debug(
+                    f"[Leveling update_member_profile_data()] updated the member profile data"
+                    f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
+                )
+            except Exception as e:
+                self.logger.error(
+                    f"[Leveling update_member_profile_data()] unable to update the member profile"
+                    f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
+                    f"due to error.\n{e}"
+                )
+        else:
+            self.user_points[member.id].leveling_update_attempt += 1
+            self.logger.warn(
+                f"[Leveling update_member_profile_data()] attempt "
+                f"{self.user_points[member.id].leveling_update_attempt}: unable to update the member profile data"
+                f" in the database for member {updated_user_id} {index + 1}/{total_number_of_updates_needed}"
+            )
+            await self.user_points[member.id].async_save()
 
     @commands.command(
         brief="associates an XP level with the role with the specified name",
