@@ -3,7 +3,7 @@ from operator import itemgetter
 
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
 
@@ -36,6 +36,7 @@ class RoleCommands(commands.Cog):
         self.bot_channel = None
         self.exec_role_colour = [3447003, 6533347]
         self.role_change_detected = True
+        self.update_roles_cache.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -127,30 +128,28 @@ class RoleCommands(commands.Cog):
                 await asyncio.sleep(2)
             self.role_change_detected = True
 
-    @commands.Cog.listener(name="on_ready")
+    @tasks.loop(minutes=1)
     async def update_roles_cache(self):
-        while self.guild is None:
-            await asyncio.sleep(2)
-        while True:
-            if self.role_change_detected:
-                self.role_change_detected = False
-                if not RoleCommands.roles_list_being_updated:
-                    self.logger.info("[RoleCommands update_roles_cache()] updating roles cache")
-                    RoleCommands.roles_list_being_updated = True
-                    RoleCommands.roles_with_members = {
-                        role.id: role
-                        for role in list(self.guild.roles)
-                        if len(role.members) > 0 and role.name != "@everyone"
-                    }
-                    self.logger.debug("[RoleCommands update_roles_cache()] roles_with_members updated")
-                    RoleCommands.lowercase_roles = {
-                        role.id: role
-                        for role in list(self.guild.roles)
-                        if role.name[0] == role.name[0].lower() and role.name != "@everyone"
-                    }
-                    self.logger.debug("[RoleCommands update_roles_cache()] all roles caches have been updated")
-                    RoleCommands.roles_list_being_updated = False
-            await asyncio.sleep(2)
+        if self.guild is None:
+            return
+        if self.role_change_detected:
+            self.role_change_detected = False
+            if not RoleCommands.roles_list_being_updated:
+                self.logger.info("[RoleCommands update_roles_cache()] updating roles cache")
+                RoleCommands.roles_list_being_updated = True
+                RoleCommands.roles_with_members = {
+                    role.id: role
+                    for role in list(self.guild.roles)
+                    if len(role.members) > 0 and role.name != "@everyone"
+                }
+                self.logger.debug("[RoleCommands update_roles_cache()] roles_with_members updated")
+                RoleCommands.lowercase_roles = {
+                    role.id: role
+                    for role in list(self.guild.roles)
+                    if role.name[0] == role.name[0].lower() and role.name != "@everyone"
+                }
+                self.logger.debug("[RoleCommands update_roles_cache()] all roles caches have been updated")
+                RoleCommands.roles_list_being_updated = False
 
     @app_commands.command(
         name="sync_roles", description="manually updates the cache of roles for the auto-complete menus"
