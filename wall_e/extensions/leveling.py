@@ -8,7 +8,7 @@ from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
 
-from wall_e_models.models import Level, UserPoint, BanRecord, UpdatedUser
+from wall_e_models.models import Level, UserPoint, BanRecord, UpdatedUser, ProfileBucketInProgress
 
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
@@ -428,7 +428,7 @@ class Leveling(commands.Cog):
                 f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
             )
 
-    @tasks.loop(time=datetime.time(hour=3, tzinfo=pytz.timezone('Canada/Pacific')))
+    @tasks.loop(hours=1)
     async def process_leveling_profile_data_for_lurkers(self):
         """
         Goes through all the UserPoint objects that have been marked indicating their profile has been updated
@@ -438,9 +438,16 @@ class Leveling(commands.Cog):
         if self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None:
             return
         self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task starting")
-        await self.set_null_date_to_checks()
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null date_to_checks has been set")
-        updated_user_ids = await UserPoint.get_users_that_need_leveling_info_updated()
+        await self.set_bucket_numbers()
+        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been set")
+        entry = await ProfileBucketInProgress.retrieve_entry()
+        if entry is None:
+            entry = await ProfileBucketInProgress.create_entry()
+        else:
+            entry.bucket_number_completed += 1
+            if entry.bucket_number_completed > 644:
+                entry.bucket_number_completed = 1
+        updated_user_ids = await UserPoint.get_users_that_need_leveling_info_updated(entry.bucket_number_completed)
         total_number_of_updates_needed = len(updated_user_ids)
         self.logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] {total_number_of_updates_needed} "
@@ -457,51 +464,58 @@ class Leveling(commands.Cog):
             except NotFound:
                 member = await bot.fetch_user(user_id)
             await self.update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
+        await ProfileBucketInProgress.async_save(entry)
 
-    async def set_null_date_to_checks(self):
+    async def set_bucket_numbers(self):
         """
-        Takes any [new] UserPoints that dont yet have a date_to_check set
+        Takes any [new] UserPoints that don't yet have a bucket_number set
 
-        The logic is implemented by creating a dictionary with a bucket for each day of the month with the lowest
+        The logic is implemented by creating a dictionary with a bucket for each hour of the month with the lowest
          number of days so that this algorithm can also work on leap years.
-         The idea is that each user will be set a certain day of the month when it should be updated. And it will only
-          be updated on that date ASSUMING that the user is a lurker who is not regularly sending messages.
+         The idea is that each user will be set a certain hour of the month when it should be updated. And it will
+          only be updated in that time ASSUMING that the user is a lurker who is not regularly sending messages.
            Because if the user is regular sending messages, chances are any changes in their profile will be caught
         by get_updated_user_logs
         :return:
         """
-        user_points = [user_point for user_point in self.user_points.values() if user_point.date_to_check is None]
+        user_points = [user_point for user_point in self.user_points.values() if user_point.bucket_number is None]
         if len(user_points) == 0:
             return
         date_buckets = {}
-        for x in range(1, 29):
-            date_buckets[x] = 0
+        bucket_number = 1
+        for day in range(1, 29):
+            for hour in range(1, 24):
+                date_buckets[bucket_number] = 0
+                bucket_number += 1
         for user_id in self.user_points.keys():
-            if self.user_points[user_id].date_to_check is not None:
+            if self.user_points[user_id].bucket_number is not None:
                 date_buckets[self.user_points[user_id]] += 1
 
-        def get_date_with_lowest_user_points(data_buckets_local):
-            low_load_date = None
+        def get_bucket_number_with_lowest_user_points(data_buckets_local):
+            low_load_bucket_number = None
             min_value = None
-            for date_local, number_of_user_to_checks in data_buckets_local.items():
+            for curr_bucket_number, number_of_user_to_checks in data_buckets_local.items():
                 if min_value is None:
-                    low_load_date = date_local
+                    low_load_bucket_number = curr_bucket_number
                     min_value = number_of_user_to_checks
                 elif min_value > number_of_user_to_checks:
-                    low_load_date = date_local
+                    low_load_bucket_number = curr_bucket_number
                     min_value = number_of_user_to_checks
-            return low_load_date
+            return low_load_bucket_number
         users_to_update = []
         for user_id in self.user_points.keys():
-            if self.user_points[user_id].date_to_check is None:
-                date = get_date_with_lowest_user_points(date_buckets)
-                date_buckets[date] += 1
-                self.user_points[user_id].date_to_check = date
+            if self.user_points[user_id].bucket_number is None:
+                lowest_bucket_number = get_bucket_number_with_lowest_user_points(date_buckets)
+                date_buckets[lowest_bucket_number] += 1
+                self.user_points[user_id].bucket_number = lowest_bucket_number
                 users_to_update.append(self.user_points[user_id])
         self.logger.debug(
-            f"[Leveling set_null_date_to_checks()] updating {len(users_to_update)} user_point objects' date_to_check"
+            f"[Leveling set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
         )
-        await UserPoint.async_bulk_update(users_to_update, ["date_to_check"])
+        await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
+        self.logger.debug(
+            f"[Leveling set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
+        )
 
     @tasks.loop(seconds=2)
     async def process_leveling_profile_data_for_active_users(self):
