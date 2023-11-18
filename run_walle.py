@@ -72,12 +72,6 @@ parser = argparse.ArgumentParser(
     description="automates the process for running wall_e"
 )
 
-
-parser.add_argument(
-    "--skip_setup", action='store_true', default=False,
-    help="intended to be used with --env_file flag so that the setup is not run though when the environment variables"
-         " have already been pulled from the .env file"
-)
 parser.add_argument("--env_file",
                     action='store_true', default=False,
                     help=f"Indicator of whether to pull the environment variables from the file "
@@ -89,17 +83,19 @@ parser.add_argument("--overwrite_env_file", action='store_true',
                          "you want to overwrite some of the imported variables")
 parser.add_argument('--dockerized_wall_e', action='store', default=None,
                     choices=['true', 'false'],
-                    help="indicates whether or not to run wall_e in a docker container. "
-                         "Intended to be used if you are not also using the --skip_setup flag or are using the "
-                         "--overwrite_env_file flag "
+                    help=(
+                        "indicates whether or not to run wall_e in a docker container. "
+                        "Will not work if --env_file is set and basic_config__DOCKERIZED is already in the env file"
+                    )
                     )
 parser.add_argument('--database_type', action='store', default=None,
                     choices=['sqlite3', 'postgres'],
-                    help="indicates whether you want to use sqlite3 or postgres for the database type."
-                         "Intended to be used if you are not also using the --skip_setup flag or are using the"
-                         " --overwrite_env_file flag "
+                    help=(
+                        "indicates whether you want to use sqlite3 or postgres for the database type. "
+                        "Will not work if --env_file is set and database_config__TYPE is already in the env file"
                     )
-parser.add_argument("--specify_wall_e_models_location", action='store', default=None,
+                    )
+parser.add_argument("--wall_e_models_location", action='store', default=None,
                     help="used to specify the absolute path to the wall_e_models",
                     metavar="/path/to/wall_e_model/repo")
 parser.add_argument("--launch_wall_e", action='store', default=None,
@@ -168,7 +164,7 @@ INSTALL_REQUIREMENTS = set_boolean_argument(args.install_requirements)
 
 SETUP_DATABASE = set_boolean_argument(args.setup_database)
 
-WALL_E_MODEL_PATH = args.specify_wall_e_models_location
+WALL_E_MODEL_PATH = args.wall_e_models_location
 
 env_file_is_specified = False
 if env_file_exists:
@@ -181,8 +177,6 @@ if env_file_exists:
         load_dotenv(dotenv_path=RUN_ENV_FILE_LOCATION)
     overwrite_env_file = args.overwrite_env_file
     env_file_is_specified = True
-go_through_setup = not args.skip_setup
-
 
 def check_for_null_variables(**kwargs):
     for key, value in kwargs.items():
@@ -199,7 +193,7 @@ def take_user_input(message, variable):
     return user_input if user_input != "s" else variable
 
 
-if go_through_setup or (env_file_is_specified and overwrite_env_file):
+if not env_file_is_specified or (env_file_is_specified and overwrite_env_file):
     basic_config__TOKEN = take_user_input(
         "What is your discord bot's token? [see https://discord.com/developers/docs/getting-started if "
         "you are not sure how to get it]", os.environ.get("basic_config__TOKEN", basic_config__TOKEN)
@@ -273,7 +267,6 @@ if go_through_setup or (env_file_is_specified and overwrite_env_file):
             channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL
         )
     )
-
 elif env_file_is_specified:
     basic_config__TOKEN = os.environ.get("basic_config__TOKEN", None)
     if basic_config__TOKEN is None:
