@@ -4,7 +4,7 @@ import datetime
 import discord
 import parsedatetime
 import pytz
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
 
@@ -26,6 +26,8 @@ class Reminders(commands.Cog):
         self.error_log_file_absolute_path = log_info[3]
         self.logger.info("[Reminders __init__()] initializing Reminders")
         self.guild = None
+        self.reminder_channel = None
+        self.get_messages.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -60,49 +62,56 @@ class Reminders(commands.Cog):
             )
 
     @commands.Cog.listener(name="on_ready")
+    async def get_reminders_channel(self):
+        """
+        Gets the channel where the reminders are sent on
+        :return:
+        """
+        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+            while self.guild is None:
+                await asyncio.sleep(2)
+            self.logger.info("[Reminders get_reminders_channel()] acquiring text channel for reminders.")
+            reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
+                self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+                "reminders"
+            )
+            self.reminder_channel = discord.utils.get(
+                self.guild.channels, id=reminder_chan_id
+            )
+            self.logger.debug(
+                f"[Reminders get_reminders_channel()] text channel {self.reminder_channel} acquired."
+            )
+
+    @tasks.loop(seconds=2)
     async def get_messages(self):
         """
         Background function that determines if a reminder's time has come to be sent to its channel
         :return:
         """
-        while self.guild is None:
-            await asyncio.sleep(2)
-        self.logger.info("[Reminders get_messages()] acquiring text channel for reminders.")
-        reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
-            "reminders"
-        )
-        reminder_channel = discord.utils.get(
-            self.guild.channels, id=reminder_chan_id
-        )
-        self.logger.debug(
-            f"[Reminders get_messages()] text channel {reminder_channel} acquired."
-        )
-        while True:
-            try:
-                reminders = await Reminder.get_expired_reminders()
-                for reminder in reminders:
-                    reminder_message = reminder.message
-                    author_id = reminder.author_id
-                    self.logger.debug(f'[Reminders get_messages()] obtained the message of [{reminder_message}] for '
-                                      f'author with id [{author_id}] for '
-                                      f'BOT_GENERAL_CHANNEL [{reminder_chan_id}]')
+        if self.reminder_channel is None:
+            return
+        try:
+            reminders = await Reminder.get_expired_reminders()
+            for reminder in reminders:
+                reminder_message = reminder.message
+                author_id = reminder.author_id
+                self.logger.debug(f'[Reminders get_messages()] obtained the message of [{reminder_message}] for '
+                                  f'author with id [{author_id}]')
+                e_obj = await embed(
+                    self.logger,
+                    self.reminder_channel,
+                    author=bot.user,
+                    description=f"This is your reminder to {reminder_message}",
+                    footer='Reminder'
+                )
+                if e_obj is not False:
+                    await self.reminder_channel.send(f'<@{author_id}>', embed=e_obj)
                     self.logger.debug('[Reminders get_messages()] sent off '
                                       f'reminder to {author_id} about \"{reminder_message}\"')
-                    e_obj = await embed(
-                        self.logger,
-                        reminder_channel,
-                        author=bot.user,
-                        description=f"This is your reminder to {reminder_message}",
-                        footer='Reminder'
-                    )
-                    if e_obj is not False:
-                        await reminder_channel.send(f'<@{author_id}>', embed=e_obj)
-                    await Reminder.delete_reminder(reminder)
-            except Exception as error:
-                self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')
-                print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
-            await asyncio.sleep(2)
+                await Reminder.delete_reminder(reminder)
+        except Exception as error:
+            self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')
+            print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
 
     @commands.command(
         brief="create a reminder",

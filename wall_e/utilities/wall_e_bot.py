@@ -50,7 +50,7 @@ class WalleBot(commands.Bot):
         if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             self.tree.on_error = report_slash_command_error
         self.add_listener(reaction_detected, "on_raw_reaction_add")
-        self.add_listener(delete_help_command_messages, "on_ready")
+        delete_help_command_messages.start()
 
         await self.add_custom_extension()
         logger.debug("[wall_e_bot.py] extensions loaded")
