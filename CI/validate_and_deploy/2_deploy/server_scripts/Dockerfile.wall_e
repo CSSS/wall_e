@@ -8,4 +8,6 @@ COPY CI/validate_and_deploy/2_deploy/create-database.ddl .
 
 COPY CI/validate_and_deploy/2_deploy/server_scripts/wait-for-postgres.sh .
 
+COPY CI/validate_and_deploy/2_deploy/server_scripts/wall_e_models_requirement.txt .
+
 CMD ["./wait-for-postgres.sh", "db",  "python", "./main.py" ]
