@@ -55,13 +55,13 @@ async def save_command_stats(ctx):
 
 async def save_command_stat(
         channel_name, command_name, invoked_with, invoked_subcommand=None, ctx=None):
-    database_enabled = wall_e_config.enabled("database_config", option="ENABLED")
+    frequency_command_enabled = wall_e_config.enabled("frequency", option="ENABLED")
     if ctx is None:
         command_in_correct_channel = wall_e_config.enabled("basic_config", option="ENVIRONMENT") != "TEST"
     else:
         command_in_correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
 
-    if database_enabled and command_in_correct_channel:
+    if frequency_command_enabled and command_in_correct_channel:
         await CommandStat.save_command_stat(CommandStat(
             epoch_time=datetime.datetime.now().timestamp(), channel_name=channel_name,
             command=command_name, invoked_with=invoked_with,
@@ -91,7 +91,7 @@ class Administration(commands.Cog):
                 )
                 if type(cog_class_to_load) is commands.cog.CogMeta and cog_class_matches_file_name:
                     extension_mapping[extension] = class_that_match[0]
-        if wall_e_config.enabled("database_config", option="ENABLED"):
+        if wall_e_config.enabled("frequency", option="ENABLED"):
             import matplotlib
             matplotlib.use("agg")
             import matplotlib.pyplot as plt  # noqa
@@ -397,7 +397,7 @@ class Administration(commands.Cog):
     )
     @commands.has_role("Bot_manager")
     async def frequency(self, ctx, *args):
-        if wall_e_config.enabled("database_config", option="ENABLED"):
+        if wall_e_config.enabled("frequency", option="ENABLED"):
             self.logger.info("[Administration frequency()] frequency command "
                              f"detected from {ctx.message.author} with arguments [{args}]")
             column_headers = CommandStat.get_column_headers_from_database()
