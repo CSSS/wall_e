@@ -491,7 +491,7 @@ class Leveling(commands.Cog):
                 bucket_number += 1
         for user_id in self.user_points.keys():
             if self.user_points[user_id].bucket_number is not None:
-                date_buckets[self.user_points[user_id]] += 1
+                date_buckets[self.user_points[user_id].bucket_number] += 1
 
         def get_bucket_number_with_lowest_user_points(data_buckets_local):
             low_load_bucket_number = None
