@@ -1,5 +1,8 @@
 import asyncio
 import datetime
+import math
+import random
+import time
 
 import discord
 import pytz
@@ -32,7 +35,7 @@ class Leveling(commands.Cog):
         self.xp_system_ready = False
         self.council_channel = None
         self.levelling_website_avatar_channel = None
-        self.ensure_roles_exist_and_have_right_users.start()
+        self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
         self.process_leveling_profile_data_for_active_users.start()
 
@@ -220,7 +223,7 @@ class Leveling(commands.Cog):
                 self.logger.debug(f"[Leveling on_message()] message sent to {message.author}({message_author_id})")
 
     @tasks.loop(time=datetime.time(hour=5, tzinfo=pytz.timezone('Canada/Pacific')))
-    async def ensure_roles_exist_and_have_right_users(self):
+    async def ensure_xp_roles_exist_and_have_right_users(self):
         """
         Runs once a day to detect if the levels have been changed and therefore the user's level for their points
         need to be updated
@@ -230,147 +233,182 @@ class Leveling(commands.Cog):
             return
         if self.levels_have_been_changed:
             self.logger.info(
-                "[Leveling ensure_roles_exist_and_have_right_users()] updating user and roles for XP system"
+                "[Leveling ensure_xp_roles_exist_and_have_right_users()] updating user and roles for XP system"
             )
             levels_with_a_role = [level for level in self.levels.values() if level.role_name is not None]
             levels_with_a_role.sort(key=lambda level: level.number)
             # ordering level roles in an ascending order
-
-            guild_roles = []
             self.logger.debug(
-                "[Leveling ensure_roles_exist_and_have_right_users()]"
-                f" ensuring that all {len(levels_with_a_role)} XP roles exist"
+                f"[Leveling ensure_xp_roles_exist_and_have_right_users()] ensuring that all {len(levels_with_a_role)}"
+                f" XP roles exist"
             )
-            xp_roles_that_are_missing = {}
-            for level_with_role in levels_with_a_role:
-                role = discord.utils.get(self.guild.roles, name=level_with_role.role_name)
-                if role is not None:
-                    guild_roles.append(role)
-                    level_with_role.role_id = role.id
-                    await level_with_role.async_save()
-                else:
-                    xp_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
-            if len(xp_roles_that_are_missing) == 0:
-                self.logger.debug(
-                    "[Leveling ensure_roles_exist_and_have_right_users()] all"
-                    f" {len(levels_with_a_role)} XP roles exist"
-                )
-            else:
-                xp_roles_that_are_missing = [
-                    f"{role_name} - {role_number}"
-                    for role_name, role_number in xp_roles_that_are_missing.items()
-                ]
-                xp_roles_that_are_missing = "\n".join(xp_roles_that_are_missing)
-                await self.council_channel.send(
-                    "The following XP roles could not be found. Please call "
-                    "`.remove_level_name <level_number>` to confirm that you want the XP roles deleted or "
-                    "re-create the roles:\n\nRole Name - Linked XP Level\n"
-                    f"{xp_roles_that_are_missing}"
-                )
-                self.logger.debug(
-                    "[Leveling ensure_roles_exist_and_have_right_users()]"
-                    f" Moderators have been informed that {len(xp_roles_that_are_missing)}"
-                    f" XP roles do not exist "
-                )
+            guild_roles = await self._get_level_roles(levels_with_a_role)
             members = await self.guild.fetch_members().flatten()
 
-            # sorts the members in ascending order by their total cls
+            # sorts the members in ascending order by their total
             members_with_points = [member for member in members if member.id in self.user_points]
             members_with_points.sort(key=lambda member: self.user_points[member.id].points)
 
-            role_index = 0
             self.logger.debug(
-                "[Leveling ensure_roles_exist_and_have_right_users()] ensuring that members with XP points"
+                "[Leveling ensure_xp_roles_exist_and_have_right_users()] ensuring that members with XP points"
                 " have the right XP roles"
             )
-            prev_number_of_members_fixed = number_of_members_fixed = 0
-            prev_number_of_members_skipped = number_of_members_skipped = 0
-            number_of_members = len(members_with_points)
-            for member_with_point in members_with_points:
-                while (
-                        len(levels_with_a_role) > (role_index + 1) and
-                        self.user_points[member_with_point.id].points >=
-                        levels_with_a_role[role_index + 1].total_points_required
-                ):
-                    role_index += 1
-                number_of_retries = 0
-                successful = False
-                skip = False
-                while not successful and not skip:
-                    skip = False
-                    successful = False
-                    try:
-                        number_of_retries += 1
-                        await member_with_point.remove_roles(*guild_roles[role_index + 1:])
-                        await member_with_point.add_roles(*guild_roles[:role_index + 1])
-                        successful = True
-                        number_of_retries = 0
-                        number_of_members_fixed += 1
-                    except Exception as e:
-                        self.logger.error(
-                            "[Leveling ensure_roles_exist_and_have_right_users()] encountered "
-                            f"following error when fixing the roles for member {member_with_point}, \n{e}"
-                        )
-                        if number_of_retries == 5:
-                            self.logger.error(
-                                f"[Leveling ensure_roles_exist_and_have_right_users()] "
-                                f"tried to fix the"
-                                f" permissions for member {member_with_point} 5 times, moving onto "
-                                f"next member"
-                            )
-                            skip = True
-                            number_of_retries = 0
-                            number_of_members_skipped += 1
-                        else:
-                            self.logger.error(
-                                "[Leveling ensure_roles_exist_and_have_right_users()] "
-                                "will try again in one minute"
-                            )
-                            await asyncio.sleep(60)
-                if (
-                        (prev_number_of_members_skipped != number_of_members_skipped and
-                         number_of_members_skipped % 10 == 0) or
-                        (prev_number_of_members_fixed != number_of_members_fixed and
-                         number_of_members_fixed % 10 == 0)
-                ):
-                    prev_number_of_members_skipped = number_of_members_skipped
-                    prev_number_of_members_fixed = number_of_members_fixed
-                    self.logger.debug(
-                        f"[Leveling ensure_roles_exist_and_have_right_users()] current_progress so far..."
-                        f" number_of_members_fixed = {number_of_members_fixed}/{number_of_members} || "
-                        f"number_of_members_skipped = {number_of_members_skipped}/{number_of_members}"
-                    )
-                await asyncio.sleep(5)
+            await self._set_xp_roles_for_members_with_xp_points(members_with_points, levels_with_a_role, guild_roles)
 
             self.logger.debug(
-                "[Leveling ensure_roles_exist_and_have_right_users()] ensured that the members with XP points"
-                " have the right XP roles")
+                "[Leveling ensure_xp_roles_exist_and_have_right_users()] ensured that the members with XP points"
+                " have the right XP roles"
+            )
 
             self.logger.debug(
-                "[Leveling ensure_roles_exist_and_have_right_users()] ensuring that members without XP points"
+                "[Leveling ensure_xp_roles_exist_and_have_right_users()] ensuring that members without XP points"
                 " don't have any XP roles "
             )
-            for member_without_points in [member for member in members if member.id not in self.user_points]:
-                try:
-                    await member_without_points.remove_roles(*guild_roles)
-                except Exception as e:
-                    self.logger.error(
-                        "[Leveling ensure_roles_exist_and_have_right_users()] encountered "
-                        f"following error when fixing the roles for member {member_without_points}, \n{e}"
-                    )
-                await asyncio.sleep(5)
+
+            await self._set_xp_roles_for_members_with_no_xp_points(members, guild_roles)
+
             self.logger.debug(
-                "[Leveling ensure_roles_exist_and_have_right_users()] ensured that members without XP points"
+                "[Leveling ensure_xp_roles_exist_and_have_right_users()] ensured that members without XP points"
                 " don't have any XP roles "
             )
             self.levels_have_been_changed = False
             self.logger.debug(
-                "[Leveling ensure_roles_exist_and_have_right_users()] "
-                "users and role are now updated for XP system"
+                "[Leveling ensure_xp_roles_exist_and_have_right_users()] users and role are now updated for XP system"
             )
 
+    async def _get_level_roles(self, levels_with_a_role):
+        """
+        gets a list of all the guild roles that are associated wth an XP level
+        :param levels_with_a_role: a list of Level objects representing an XP level that have role associated with
+         them
+        :return: the list of guild roles
+        """
+        guild_roles = []
+        xp_roles_that_are_missing = {}
+        for level_with_role in levels_with_a_role:
+            role = discord.utils.get(self.guild.roles, name=level_with_role.role_name)
+            if role:
+                guild_roles.append(role)
+                level_with_role.role_id = role.id
+                await level_with_role.async_save()
+            else:
+                xp_roles_that_are_missing[level_with_role.role_name] = level_with_role.number
+        if len(xp_roles_that_are_missing) == 0:
+            self.logger.debug(
+                "[Leveling _get_level_roles()] all"
+                f" {len(levels_with_a_role)} XP roles exist"
+            )
+        else:
+            xp_roles_that_are_missing = [
+                f"{role_name} - {role_number}"
+                for role_name, role_number in xp_roles_that_are_missing.items()
+            ]
+            xp_roles_that_are_missing = "\n".join(xp_roles_that_are_missing)
+            await self.council_channel.send(
+                "The following XP roles could not be found. Please call "
+                "`.remove_level_name <level_number>` to confirm that you want the XP roles deleted or "
+                "re-create the roles:\n\nRole Name - Linked XP Level\n"
+                f"{xp_roles_that_are_missing}"
+            )
+            self.logger.debug(
+                "[Leveling _get_level_roles()]"
+                f" Moderators have been informed that {len(xp_roles_that_are_missing)}"
+                f" XP roles do not exist "
+            )
+        return guild_roles
+
+    async def _set_xp_roles_for_members_with_xp_points(self, members_with_points, levels_with_a_role, guild_roles):
+        """
+        Adjusts what XP associated guild roles are associated with any members that have XP points
+
+        :param members_with_points: a list of members with XP points
+        :param levels_with_a_role: the list of XP levels that are associated with a guild role
+        :param guild_roles: the list of guild roles associated with an XP level
+        :return:
+        """
+        role_index = 0
+        prev_number_of_members_fixed = number_of_members_fixed = 0
+        prev_number_of_members_skipped = number_of_members_skipped = 0
+        number_of_members = len(members_with_points)
+
+        for member_with_point in members_with_points:
+            def member_has_points_required_for_role(current_role_index):
+                return (
+                    len(levels_with_a_role) > (current_role_index + 1) and
+                    self.user_points[member_with_point.id].points >=
+                    levels_with_a_role[current_role_index + 1].total_points_required
+                )
+
+            while member_has_points_required_for_role(role_index):
+                role_index += 1
+            initial_time = time.perf_counter()
+            latest_attempt_time = time.perf_counter()
+            iteration = 0
+            successful = False
+            while (not successful) and ((latest_attempt_time - initial_time) <= 64):
+                try:
+                    await member_with_point.remove_roles(*guild_roles[role_index + 1:])
+                    await member_with_point.add_roles(*guild_roles[:role_index + 1])
+                    number_of_members_fixed += 1
+                    successful = True
+                except Exception as e:
+                    self.logger.warn(
+                        "[Leveling _set_xp_roles_for_members_with_xp_points()] encountered "
+                        f"following error when fixing the roles for member {member_with_point} on iteration "
+                        f"{iteration}.\n{e}"
+                    )
+                    random_number_milliseconds = random.randint(0, 1000) / 1000
+                    await asyncio.sleep(math.pow(2, iteration + random_number_milliseconds))
+                    latest_attempt_time = time.perf_counter()
+                iteration += 1
+            if not successful:
+                number_of_members_skipped += 1
+                self.logger.error(
+                    f"[Leveling _set_xp_roles_for_members_with_xp_points()] "
+                    f"tried to fix the"
+                    f" permissions for member {member_with_point} {iteration} times, moving onto "
+                    f"next member"
+                )
+            new_number_of_member_skipped_or_fixed = (
+                    (
+                        prev_number_of_members_skipped != number_of_members_skipped and
+                        number_of_members_skipped % 10 == 0  # so that the output doesn't get spammed
+                    ) or
+                    (
+                        prev_number_of_members_fixed != number_of_members_fixed and
+                        number_of_members_fixed % 10 == 0  # so that the output doesn't get spammed
+                    )
+            )
+
+            if new_number_of_member_skipped_or_fixed:
+                prev_number_of_members_skipped = number_of_members_skipped
+                prev_number_of_members_fixed = number_of_members_fixed
+                self.logger.debug(
+                    f"[Leveling _set_xp_roles_for_members_with_xp_points()] current_progress so far..."
+                    f" number_of_members_fixed = {number_of_members_fixed}/{number_of_members} || "
+                    f"number_of_members_skipped = {number_of_members_skipped}/{number_of_members}"
+                )
+            await asyncio.sleep(1)
+
+    async def _set_xp_roles_for_members_with_no_xp_points(self, members, guild_roles):
+        """
+        Removes any guild roles from any members that don't have any XP points yet
+        :param members: list of members with no XP points
+        :param guild_roles: the list of guild roles associated with an XP level
+        :return:
+        """
+        for member_without_points in [member for member in members if member.id not in self.user_points]:
+            try:
+                await member_without_points.remove_roles(*guild_roles)
+            except Exception as e:
+                self.logger.error(
+                    "[Leveling _set_xp_roles_for_members_with_no_xp_points()] encountered "
+                    f"following error when fixing the roles for member {member_without_points}, \n{e}"
+                )
+            await asyncio.sleep(1)
+
     @commands.Cog.listener(name='on_member_join')
-    async def re_assign_roles(self, member: discord.Member):
+    async def assign_roles_on_member_join(self, member: discord.Member):
         """
         Set the necessary XP levels to the member that was joined in case they previously were in the guild
         :param member: the member whose join triggered the function call and may need their XP levels re-assigned
@@ -383,7 +421,7 @@ class Leveling(commands.Cog):
         if await BanRecord.user_is_banned(member.id):
             return
         self.logger.info(
-            f"[Leveling re_assign_roles()] ensuring a {member} with {self.user_points[member.id].points} "
+            f"[Leveling assign_roles_on_member_join()] ensuring a {member} with {self.user_points[member.id].points} "
             f"points wil get their roles back if they leave and re-join the guild"
         )
 
@@ -392,11 +430,13 @@ class Leveling(commands.Cog):
             if level.role_name is not None and level.total_points_required <= self.user_points[member.id].points
         ]
         if len(levels_with_a_role) == 0:
-            self.logger.debug(f"[Leveling re_assign_roles()] seems user {member} is entitled to no XP levels")
+            self.logger.debug(
+                f"[Leveling assign_roles_on_member_join()] seems user {member} is entitled to no XP levels"
+            )
             return
         self.logger.debug(
-            f"[Leveling re_assign_roles()] seems user {member} is entitled to the following levels which have"
-            f" a role: {levels_with_a_role}"
+            f"[Leveling assign_roles_on_member_join()] seems user {member} is entitled to the following levels which"
+            f" have a role: {levels_with_a_role}"
         )
 
         guild_roles = [
@@ -406,7 +446,7 @@ class Leveling(commands.Cog):
         guild_roles = [guild_role for guild_role in guild_roles if guild_role]
 
         self.logger.debug(
-            f"[Leveling re_assign_roles()] will get the {guild_roles} roles added back to {member}"
+            f"[Leveling assign_roles_on_member_join()] will get the {guild_roles} roles added back to {member}"
         )
         number_of_retries = 0
         success = False
@@ -417,17 +457,17 @@ class Leveling(commands.Cog):
                 success = True
             except Exception as e:
                 self.logger.debug(
-                    f"[Leveling re_assign_roles()] encountered following error when fixing the roles for "
+                    f"[Leveling assign_roles_on_member_join()] encountered following error when fixing the roles for "
                     f"member {member}, \n{type(e)}\n{e}"
                 )
                 if number_of_retries < 5:
-                    self.logger.debug("[Leveling re_assign_roles()] will try again in one minute")
+                    self.logger.debug("[Leveling assign_roles_on_member_join()] will try again in one minute")
                     await asyncio.sleep(60)
         if success:
-            self.logger.debug(f"[Leveling re_assign_roles()] XP roles fixed for user {member}")
+            self.logger.debug(f"[Leveling assign_roles_on_member_join()] XP roles fixed for user {member}")
         else:
             self.logger.error(
-                f"[Leveling re_assign_roles()] could not fix the XP roles for user {member}"
+                f"[Leveling assign_roles_on_member_join()] could not fix the XP roles for user {member}"
             )
 
     @tasks.loop(hours=1)
@@ -440,20 +480,23 @@ class Leveling(commands.Cog):
         if self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None:
             return
         self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task starting")
-        await self.set_bucket_numbers()
+        await self._set_bucket_numbers()
         self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been set")
         entry = await ProfileBucketInProgress.retrieve_entry()
         if entry is None:
             entry = await ProfileBucketInProgress.create_entry()
         else:
+            bucket_numbers = [user_point.bucket_number for user_point in self.user_points.values()]
+            bucket_numbers.sort(key=lambda x: x, reverse=True)
+            max_bucket_number = bucket_numbers[0]
             entry.bucket_number_completed += 1
-            if entry.bucket_number_completed > 644:
+            if entry.bucket_number_completed > max_bucket_number:
                 entry.bucket_number_completed = 1
         updated_user_ids = await UserPoint.get_users_that_need_leveling_info_updated(entry.bucket_number_completed)
         total_number_of_updates_needed = len(updated_user_ids)
         self.logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] {total_number_of_updates_needed} "
-            "necessary updates retrieved"
+            f"necessary updates retrieved for bucket {entry.bucket_number_completed}"
         )
         for index, user_id in enumerate(updated_user_ids):
             self.logger.debug(
@@ -465,10 +508,10 @@ class Leveling(commands.Cog):
                 member = await self.guild.fetch_member(user_id)
             except NotFound:
                 member = await bot.fetch_user(user_id)
-            await self.update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
+            await self._update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
         await ProfileBucketInProgress.async_save(entry)
 
-    async def set_bucket_numbers(self):
+    async def _set_bucket_numbers(self):
         """
         Takes any [new] UserPoints that don't yet have a bucket_number set
 
@@ -512,11 +555,11 @@ class Leveling(commands.Cog):
                 self.user_points[user_id].bucket_number = lowest_bucket_number
                 users_to_update.append(self.user_points[user_id])
         self.logger.debug(
-            f"[Leveling set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
+            f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
         )
         await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
         self.logger.debug(
-            f"[Leveling set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
+            f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
         )
 
     @tasks.loop(seconds=2)
@@ -542,13 +585,13 @@ class Leveling(commands.Cog):
                 member = await self.guild.fetch_member(updated_user_id)
             except NotFound:
                 member = await bot.fetch_user(updated_user_id)
-            await self.update_member_profile_data(
+            await self._update_member_profile_data(
                 member, updated_user_id, index, total_number_of_updates_needed,
                 updated_user_log_id=updated_user_log_id
             )
 
-    async def update_member_profile_data(self, member, updated_user_id, index, total_number_of_updates_needed,
-                                         updated_user_log_id=None):
+    async def _update_member_profile_data(self, member, updated_user_id, index, total_number_of_updates_needed,
+                                          updated_user_log_id=None):
         """
         Attempts to determine if the member's leveling data in the database can be updated and if not, record any of
          the errors detected as a result
@@ -566,7 +609,7 @@ class Leveling(commands.Cog):
             try:
                 if self.user_points[member.id].leveling_update_attempt >= 5:
                     self.logger.warn(
-                        f"[Leveling update_member_profile_data()] "
+                        f"[Leveling _update_member_profile_data()] "
                         f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
                         f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
                     )
@@ -576,24 +619,24 @@ class Leveling(commands.Cog):
                 )
                 if user_updated:
                     self.logger.debug(
-                        f"[Leveling update_member_profile_data()] updated the member profile data"
+                        f"[Leveling _update_member_profile_data()] updated the member profile data"
                         f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
                     )
                 else:
                     self.logger.debug(
-                        f"[Leveling update_member_profile_data()] no update was deemed necessary for member"
+                        f"[Leveling _update_member_profile_data()] no update was deemed necessary for member"
                         f" {member} {index + 1}/{total_number_of_updates_needed}"
                     )
             except Exception as e:
                 self.logger.error(
-                    f"[Leveling update_member_profile_data()] unable to update the member profile"
-                    f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
-                    f"due to error.\n{e}"
+                    f"[Leveling _update_member_profile_data()] unable to update the member profile"
+                    f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed} "
+                    f"due to error:\n{e}"
                 )
         else:
             self.user_points[member.id].leveling_update_attempt += 1
             self.logger.warn(
-                f"[Leveling update_member_profile_data()] attempt "
+                f"[Leveling _update_member_profile_data()] attempt "
                 f"{self.user_points[member.id].leveling_update_attempt}: unable to update the member profile data"
                 f" in the database for member {updated_user_id} {index + 1}/{total_number_of_updates_needed}"
             )
