@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#set -e -o xtrace
+# https://stackoverflow.com/a/5750463/7734535
+
 if [ -z "${VIRTUAL_ENV}" ]; then
 	echo "please active a python virtual environment before using this script"
 	exit 1
@@ -7,10 +10,10 @@ fi
 
 # need to delete and re-create so that the if statement that tries to detected if the
 # help menu was invoked can work correctly
-rm ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env
-touch ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env
+cat ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env | grep -v HELP_SELECTED > ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2
+mv ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2 ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env
 
-./run_walle.py $@
+./.run_walle.py $@
 
 while [ "$#" -gt 0 ]
 do
