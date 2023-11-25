@@ -22,7 +22,11 @@ docker build --no-cache -t ${docker_test_image_lower_case} \
     --build-arg TEST_RESULT_FILE_NAME=${TEST_RESULT_FILE_NAME} .
 
 docker run -d --name ${DOCKER_TEST_CONTAINER} ${docker_test_image_lower_case}
-sleep 20
+while [ "$(docker inspect -f '{{.State.Running}}' ${DOCKER_TEST_CONTAINER})" == "true" ]
+do
+	echo "waiting for the python formatting validation to finish"
+	sleep 1
+done
 sudo docker cp ${DOCKER_TEST_CONTAINER}:${CONTAINER_TEST_DIR}/${TEST_RESULT_FILE_NAME} ${LOCALHOST_TEST_DIR}/${TEST_RESULT_FILE_NAME}
 
 test_container_failed=$(docker inspect ${DOCKER_TEST_CONTAINER} --format='{{.State.ExitCode}}')
