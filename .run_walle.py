@@ -169,7 +169,8 @@ def get_boolean_variable(message, variable_name, description=None, command_line_
         if overwrite_env:
             # if the variable was in the environment but the user requested to the option of overriding it
             variable = take_user_input_for_boolean_variable(
-                variable_name, message, description=description, default_value=variable, default_is_yes=default_is_yes
+                variable_name, message, description=description, default_value=variable, default_is_yes=default_is_yes,
+                is_default_value=variable == default_value
             )
     return variable == 'y'
 
@@ -231,7 +232,7 @@ def get_string_variables(message, variable_name, description=None, command_line_
         )
     elif overwrite_env:
         variable = take_user_input_for_string_variable(
-            message, description=description, default_value=variable, choices=choices
+            message, description=description, default_value=variable, choices=choices, is_default_value=variable == default_value
         )
     return variable
 
