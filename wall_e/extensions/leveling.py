@@ -107,17 +107,16 @@ class Leveling(commands.Cog):
             self.logger.debug("[Leveling updating_database_and_cache()] levels loaded from DB into cache")
         else:
             self.logger.debug("[Leveling updating_database_and_cache()] loading levels into DB and cache")
-            level_xp = 100
-            self.levels = {
-                0: await Level.create_level(0, 0, level_xp, role_name=level_names.get(0, None))
-            }
-            point_up = level_xp + 55
-            for level in range(1, 101):
+            self.levels = {}
+            total_xp_required = 0
+            for level in range(0, 101):
+                # pulled from
+                # https://web.archive.org/web/20230315031903/https://github.com/Mee6/Mee6-documentation/blob/master/docs/levels_xp.md
+                level_up_required = 5 * int(math.pow(level, 2)) + (50 * level) + 100
                 self.levels[level] = await Level.create_level(
-                    level, level_xp, point_up, role_name=level_names.get(level, None)
+                    level, total_xp_required, level_up_required, role_name=level_names.get(level, None)
                 )
-                level_xp += point_up
-                point_up += 55 + (10*level)
+                total_xp_required += level_up_required
             self.logger.debug("[Leveling updating_database_and_cache()] levels loaded into DB and cache")
         self.logger.debug("[Leveling updating_database_and_cache()] loading UserPoints into cache")
         self.user_points = await UserPoint.load_to_cache()
