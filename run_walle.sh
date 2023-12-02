@@ -69,10 +69,15 @@ else
 			-f ../CI/validate_and_deploy/2_deploy/create-database.ddl
 		fi
 		python3 django_manage.py migrate
-		rm wall_e.json* || true
-		wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
-		python3 django_manage.py loaddata wall_e.json
-		rm wall_e.json* || true
+		rm banrecords.json commandstats.json levels.json profilebucketsinprogress.json reminders.json userpoints.json || true
+  		wget -r --no-parent -nd https://dev.sfucsss.org/wall_e/fixtures/ -A 'json'
+		python3 django_manage.py loaddata banrecords.json
+		python3 django_manage.py loaddata commandstats.json
+		python3 django_manage.py loaddata levels.json
+		python3 django_manage.py loaddata profilebucketsinprogress.json
+		python3 django_manage.py loaddata reminders.json
+		python3 django_manage.py loaddata userpoints.json
+		rm banrecords.json commandstats.json levels.json profilebucketsinprogress.json reminders.json userpoints.json || true
 	fi
 	popd
 
