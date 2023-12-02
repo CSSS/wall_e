@@ -27,9 +27,14 @@ if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
 	-h "$host" -U "postgres" -f "${HOME_DIR}"/create-database.ddl
 	python3 -m pip install -r ../CI/validate_and_deploy/2_deploy/server_scripts/wall_e_models_requirement.txt
 	python3 django_manage.py migrate
-	wget https://dev.sfucsss.org/wall_e/fixtures/wall_e.json
-	python3 django_manage.py loaddata wall_e.json
-
+	wget -r --no-parent -nd https://dev.sfucsss.org/wall_e/fixtures/ -A 'json'
+	python3 django_manage.py loaddata banrecords.json
+	python3 django_manage.py loaddata commandstats.json
+	python3 django_manage.py loaddata levels.json
+	python3 django_manage.py loaddata profilebucketsinprogress.json
+	python3 django_manage.py loaddata reminders.json
+	python3 django_manage.py loaddata userpoints.json
+	rm banrecords.json commandstats.json levels.json profilebucketsinprogress.json reminders.json userpoints.json
 	cd "${HOME_DIR}"
 	rm -r /wall_e || true
 fi
