@@ -119,43 +119,32 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
         errors = []
         msg = None
         if embed_obj is not False:
+            deferred_interaction = interaction.response.type is not None
+            if deferred_interaction:
+                send_func = interaction.followup.send
+            else:
+                send_func = interaction.response.send_message
             try:
-                # first let's see if the interaction was not deferred and if the code is being quick enough that
-                # the interaction can still be responded too
-                await interaction.response.send_message(embed=embed_obj)
-            except Exception as e:
-                if isinstance(e, discord.errors.InteractionResponded):
+                await send_func(embed=embed_obj)
+            except discord.errors.NotFound as e:
+                if isinstance(e, discord.errors.NotFound):
                     errors.append(e)
-                    interaction_was_deferred = e.args[0] == 'This interaction has already been responded to before'
-                    if interaction_was_deferred:
-                        try:
-                            # if the interaction was differed, let's attempt a followup as a result
-                            await interaction.followup.send(embed=embed_obj)
-                        except discord.errors.NotFound as e:
-                            if isinstance(e, discord.errors.NotFound):
-                                errors.append(e)
-                                try:
-                                    logger.error(
-                                        "[error_handlers.py report_command_errors()] experienced below error"
-                                        f" when trying to alert user of error '{description}' when using interaction "
-                                        f"response follow up attempt {type(e)}\n{e}"
-                                    )
-                                    # if responding to the interaction in any way failed, let's try and just send a
-                                    # general message to the channel
-                                    msg = await interaction.channel.send(embed=embed_obj)
-                                except Exception as e:
-                                    errors.append(e)
-                                    logger.error(
-                                        "[error_handlers.py report_command_errors()] unable to send error embed"
-                                        f" to channel due to error {description} via any routes due to"
-                                        f" {type(e)}\n{errors}"
-                                    )
-                            else:
-                                logger.error(
-                                    f"[error_handlers.py report_command_errors()] experienced unexpected error "
-                                    f"below when trying to send a response to the interaction due to "
-                                    f"error {description}: {type(e)}/\n{e}"
-                                )
+                    try:
+                        logger.error(
+                            "[error_handlers.py report_command_errors()] experienced below error"
+                            f" when trying to alert user of error '{description}' when using interaction "
+                            f"response follow up attempt {type(e)}\n{e}"
+                        )
+                        # if responding to the interaction in any way failed, let's try and just send a
+                        # general message to the channel
+                        msg = await interaction.channel.send(embed=embed_obj)
+                    except Exception as e:
+                        errors.append(e)
+                        logger.error(
+                            "[error_handlers.py report_command_errors()] unable to send error embed"
+                            f" to channel due to error {description} via any routes due to"
+                            f" {type(e)}\n{errors}"
+                        )
                 else:
                     logger.error(
                         f"[error_handlers.py report_command_errors()] experienced unexpected error below when trying "
