@@ -248,6 +248,14 @@ class RoleCommands(commands.Cog):
         self.logger.info(f"[RoleCommands deleterole()] {interaction.user} "
                          f"called deleterole with role {empty_role}.")
         if empty_role == "-1":
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description="Invalid input detected. Please try again.",
+                colour=WallEColour.ERROR
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction, delete_response=True)
             return
         try:
             await interaction.response.defer()
@@ -296,6 +304,14 @@ class RoleCommands(commands.Cog):
     async def iam(self, interaction: discord.Interaction, role_to_assign_to_me: str):
         self.logger.info(f"[RoleCommands iam()] {interaction.user} called iam with role {role_to_assign_to_me}")
         if role_to_assign_to_me == "-1":
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description="Invalid input detected. Please try again.",
+                colour=WallEColour.ERROR
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction, delete_response=True)
             return
         try:
             await interaction.response.defer()
@@ -358,6 +374,14 @@ class RoleCommands(commands.Cog):
             f"[RoleCommands iamn()] {interaction.user} called iamn with role {role_to_remove_from_me}"
         )
         if role_to_remove_from_me == "-1":
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description="Invalid input detected. Please try again.",
+                colour=WallEColour.ERROR
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction, delete_response=True)
             return
         try:
             await interaction.response.defer()
@@ -423,6 +447,14 @@ class RoleCommands(commands.Cog):
             f"[RoleCommands whois()] {interaction.user} called whois with role {role}"
         )
         if role == "-1":
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=interaction.client.user,
+                description="Invalid input detected. Please try again.",
+                colour=WallEColour.ERROR
+            )
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction, delete_response=True)
             return
         try:
             await interaction.response.defer()
