@@ -156,7 +156,13 @@ class RoleCommands(commands.Cog):
     )
     async def sync_roles(self, interaction: discord.Interaction):
         self.logger.info(f"[RoleCommands sync_roles()] {interaction.user} called sync_roles")
-        await interaction.response.defer()
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
         if not RoleCommands.roles_list_being_updated:
             RoleCommands.roles_list_being_updated = True
             self.logger.debug("[RoleCommands update_roles_cache()] updating roles cache")
@@ -198,7 +204,13 @@ class RoleCommands(commands.Cog):
                          f"called newrole with following argument: new_role_name={new_role_name}")
         new_role_name = new_role_name.lower()
         guild = interaction.guild
-        await interaction.response.defer()
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
         role_already_exists = len([role for role in guild.roles if role.name == new_role_name]) > 0
         if role_already_exists:
             e_obj = await embed(
@@ -237,7 +249,13 @@ class RoleCommands(commands.Cog):
                          f"called deleterole with role {empty_role}.")
         if empty_role == "-1":
             return
-        await interaction.response.defer()
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
         if not empty_role.isdigit():
             self.logger.debug(f"[RoleCommands deleterole()] invalid empty_role id of {empty_role} exists")
             e_obj = await embed(
@@ -279,7 +297,13 @@ class RoleCommands(commands.Cog):
         self.logger.info(f"[RoleCommands iam()] {interaction.user} called iam with role {role_to_assign_to_me}")
         if role_to_assign_to_me == "-1":
             return
-        await interaction.response.defer()
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
         if not role_to_assign_to_me.isdigit():
             self.logger.debug(f"[RoleCommands iam()] invalid role id of {role_to_assign_to_me} detected")
             e_obj = await embed(
@@ -335,7 +359,13 @@ class RoleCommands(commands.Cog):
         )
         if role_to_remove_from_me == "-1":
             return
-        await interaction.response.defer()
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
         if not role_to_remove_from_me.isdigit():
             self.logger.debug(f"[RoleCommands iamn()] invalid role id of {role_to_remove_from_me} detected")
             e_obj = await embed(
@@ -401,6 +431,9 @@ class RoleCommands(commands.Cog):
                 "Feeling a bit overloaded at the moment...Please try again in a few minutes"
             )
             return
+        if interaction.channel.id != self.bot_channel.id:
+            await self.alert_user_to_use_bot_channel_for_paginated_commands(interaction)
+            return
         if not role.isdigit():
             self.logger.debug(f"[RoleCommands whois()] invalid role id of {role} detected")
             e_obj = await embed(
@@ -430,84 +463,87 @@ class RoleCommands(commands.Cog):
         if role.name == "Muted" and "Minions" not in author_roles:
             await interaction.followup.send("no peaking at the muted folks!")
             return
-        if interaction.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
-        else:
-            number_of_users_per_page = 20
-            self.logger.debug(
-                f"[RoleCommands whois()] {interaction.user} called whois with role "
-                f"{role}"
-            )
-            member_string = [""]
-            log_string = ""
+        number_of_users_per_page = 20
+        self.logger.debug(
+            f"[RoleCommands whois()] {interaction.user} called whois with role "
+            f"{role}"
+        )
+        member_string = [""]
+        log_string = ""
 
-            members_of_role = role.members
-            x, current_index = 0, 0
-            for index, members in enumerate(members_of_role):
-                name = members.display_name
-                member_string[current_index] += f"{name}"
-                exec_role = [
-                    role for role in members.roles
-                    if role.colour.value in self.exec_role_colour and role.name != "Execs"
-                ]
-                if len(exec_role) > 0:
-                    member_string[current_index] += f"- {exec_role[0]}"
-                member_string[current_index] += "\n"
-                x += 1
-                if x == number_of_users_per_page and (index + 1 < len(members_of_role)):
-                    member_string.append("")
-                    current_index += 1
-                    x = 0
-                log_string += f'{name}\t'
-            self.logger.debug(f"[RoleCommands whois()] following members were found in the role: {log_string}")
+        members_of_role = role.members
+        x, current_index = 0, 0
+        for index, members in enumerate(members_of_role):
+            name = members.display_name
+            member_string[current_index] += f"{name}"
+            exec_role = [
+                role for role in members.roles
+                if role.colour.value in self.exec_role_colour and role.name != "Execs"
+            ]
+            if len(exec_role) > 0:
+                member_string[current_index] += f"- {exec_role[0]}"
+            member_string[current_index] += "\n"
+            x += 1
+            if x == number_of_users_per_page and (index + 1 < len(members_of_role)):
+                member_string.append("")
+                current_index += 1
+                x = 0
+            log_string += f'{name}\t'
+        self.logger.debug(f"[RoleCommands whois()] following members were found in the role: {log_string}")
 
-            title = f"Members belonging to role: `{role}`"
-            await paginate_embed(
-                self.logger, bot, member_string, title=title, interaction=interaction
-            )
+        title = f"Members belonging to role: `{role}`"
+        await paginate_embed(
+            self.logger, bot, member_string, title=title, interaction=interaction
+        )
 
     @app_commands.command(
         name="roles_assignable", description="will display all the self-assignable roles that exist"
     )
     async def roles(self, interaction: discord.Interaction):
         self.logger.info(f"[RoleCommands roles()] roles_assignable command detected from user {interaction.user}")
-        if interaction.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
-        else:
+        try:
             await interaction.response.defer()
-            number_of_roles_per_page = 5
-
-            # declares and populates self_assign_roles with all self-assignable roles and
-            # how many people are in each role
-            self_assign_roles = []
-            for role in interaction.guild.roles:
-                if role.name != "@everyone" and role.name[0] == role.name[0].lower():
-                    number_of_members = len(discord.utils.get(interaction.guild.roles, name=str(role.name)).members)
-                    self_assign_roles.append((str(role.name), number_of_members))
-
-            self.logger.debug("[RoleCommands roles()] self_assign_roles array populated with the roles "
-                              "extracted from 'guild.roles'")
-
-            self_assign_roles.sort(key=itemgetter(0))
-            self.logger.debug("[RoleCommands roles()] roles in arrays sorted alphabetically")
-
-            self.logger.debug("[RoleCommands roles()] tranferring array to description array")
-            x, current_index = 0, 0
-            description_to_embed = ["Roles - Number of People in Role\n"]
-            for roles in self_assign_roles:
-                self.logger.debug("[RoleCommands roles()] "
-                                  f"len(description_to_embed)={len(description_to_embed)} "
-                                  f"current_index={current_index}")
-                description_to_embed[current_index] += f"{roles[0]} - {roles[1]}\n"
-                x += 1
-                if x == number_of_roles_per_page:  # this determines how many entries there will be per page
-                    description_to_embed.append("Roles - Number of People in Role\n")
-                    current_index += 1
-                    x = 0
-            self.logger.debug("[RoleCommands roles()] transfer successful")
-            await paginate_embed(
-                self.logger, bot, description_to_embed, "Self-Assignable Roles", interaction=interaction
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
             )
+            return
+        if interaction.channel.id != self.bot_channel.id:
+            await self.alert_user_to_use_bot_channel_for_paginated_commands(interaction)
+            return
+        number_of_roles_per_page = 5
+
+        # declares and populates self_assign_roles with all self-assignable roles and
+        # how many people are in each role
+        self_assign_roles = []
+        for role in interaction.guild.roles:
+            if role.name != "@everyone" and role.name[0] == role.name[0].lower():
+                number_of_members = len(discord.utils.get(interaction.guild.roles, name=str(role.name)).members)
+                self_assign_roles.append((str(role.name), number_of_members))
+
+        self.logger.debug("[RoleCommands roles()] self_assign_roles array populated with the roles "
+                          "extracted from 'guild.roles'")
+
+        self_assign_roles.sort(key=itemgetter(0))
+        self.logger.debug("[RoleCommands roles()] roles in arrays sorted alphabetically")
+
+        self.logger.debug("[RoleCommands roles()] tranferring array to description array")
+        x, current_index = 0, 0
+        description_to_embed = ["Roles - Number of People in Role\n"]
+        for roles in self_assign_roles:
+            self.logger.debug("[RoleCommands roles()] "
+                              f"len(description_to_embed)={len(description_to_embed)} "
+                              f"current_index={current_index}")
+            description_to_embed[current_index] += f"{roles[0]} - {roles[1]}\n"
+            x += 1
+            if x == number_of_roles_per_page:  # this determines how many entries there will be per page
+                description_to_embed.append("Roles - Number of People in Role\n")
+                current_index += 1
+                x = 0
+        self.logger.debug("[RoleCommands roles()] transfer successful")
+        await paginate_embed(
+            self.logger, bot, description_to_embed, "Self-Assignable Roles", interaction=interaction
+        )
 
     @app_commands.command(
         name="roles",
@@ -515,40 +551,46 @@ class RoleCommands(commands.Cog):
     )
     async def Roles(self, interaction: discord.Interaction): # noqa N802
         self.logger.info(f"[RoleCommands Roles()] roles command detected from user {interaction.user}")
-        if interaction.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
-        else:
+        try:
             await interaction.response.defer()
-            number_of_roles_per_page = 5
-            # declares and populates assigned_roles with all self-assignable roles and
-            # how many people are in each role
-            assigned_roles = []
-            for role in interaction.guild.roles:
-                if role.name != "@everyone" and role.name[0] != role.name[0].lower():
-                    number_of_members = len(discord.utils.get(interaction.guild.roles, name=str(role.name)).members)
-                    assigned_roles.append((str(role.name), number_of_members))
-
-            self.logger.debug("[RoleCommands Roles()] assigned_roles array populated with the roles extracted from "
-                              "\"guild.roles\"")
-
-            assigned_roles.sort(key=itemgetter(0))
-            self.logger.debug("[RoleCommands Roles()] roles in arrays sorted alphabetically")
-
-            self.logger.debug("[RoleCommands Roles()] tranferring array to description array")
-
-            x, current_index = 0, 0
-            description_to_embed = ["Roles - Number of People in Role\n"]
-            for roles in assigned_roles:
-                description_to_embed[current_index] += f"{roles[0]} - {roles[1]}\n"
-                x += 1
-                if x == number_of_roles_per_page:
-                    description_to_embed.append("Roles - Number of People in Role\n")
-                    current_index += 1
-                    x = 0
-            self.logger.debug("[RoleCommands Roles()] transfer successful")
-            await paginate_embed(
-                self.logger, bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
             )
+            return
+        if interaction.channel.id != self.bot_channel.id:
+            await self.alert_user_to_use_bot_channel_for_paginated_commands(interaction)
+            return
+        number_of_roles_per_page = 5
+        # declares and populates assigned_roles with all self-assignable roles and
+        # how many people are in each role
+        assigned_roles = []
+        for role in interaction.guild.roles:
+            if role.name != "@everyone" and role.name[0] != role.name[0].lower():
+                number_of_members = len(discord.utils.get(interaction.guild.roles, name=str(role.name)).members)
+                assigned_roles.append((str(role.name), number_of_members))
+
+        self.logger.debug("[RoleCommands Roles()] assigned_roles array populated with the roles extracted from "
+                          "\"guild.roles\"")
+
+        assigned_roles.sort(key=itemgetter(0))
+        self.logger.debug("[RoleCommands Roles()] roles in arrays sorted alphabetically")
+
+        self.logger.debug("[RoleCommands Roles()] tranferring array to description array")
+
+        x, current_index = 0, 0
+        description_to_embed = ["Roles - Number of People in Role\n"]
+        for roles in assigned_roles:
+            description_to_embed[current_index] += f"{roles[0]} - {roles[1]}\n"
+            x += 1
+            if x == number_of_roles_per_page:
+                description_to_embed.append("Roles - Number of People in Role\n")
+                current_index += 1
+                x = 0
+        self.logger.debug("[RoleCommands Roles()] transfer successful")
+        await paginate_embed(
+            self.logger, bot, description_to_embed, "Mod/Exec/XP Assigned Roles", interaction=interaction
+        )
 
     @app_commands.command(name="purgeroles", description="deletes all empty self-assignable roles")
     @app_commands.check(user_can_manage_roles)
@@ -557,89 +599,87 @@ class RoleCommands(commands.Cog):
             "[RoleCommands purgeroles()] "
             f"purgeroles command detected from user {interaction.user}"
         )
-        if interaction.channel.id != self.bot_channel.id:
-            await self.send_error_message_to_user_for_paginated_commands(interaction=interaction)
-        else:
+        try:
             await interaction.response.defer()
-            embed = discord.Embed(type="rich")
-            embed.color = discord.Color.blurple()
-            embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
-
-            # getting member instance of the bot
-            bot_user = interaction.guild.get_member(interaction.client.user.id)
-
-            # determine if bot is able to delete the roles
-            sorted_list_of_authors_roles = sorted(bot_user.roles, key=lambda x: int(x.position), reverse=True)
-            bot_highest_role = sorted_list_of_authors_roles[0]
-
-            if not (bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator):
-                embed.title = "It seems that the bot don't have permissions to delete roles. :("
-                await self.send_message_to_user_or_bot_channel(
-                    embed, interaction=interaction, send_func=interaction.followup.send
-                )
-                return
-            self.logger.debug(
-                "[RoleCommands purgeroles()] bot's "
-                f"highest role is {bot_highest_role} and its ability to delete roles is "
-                f"{bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator}"
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
             )
+            return
+        if interaction.channel.id != self.bot_channel.id:
+            await self.alert_user_to_use_bot_channel_for_paginated_commands(interaction)
+            return
+        embed = discord.Embed(type="rich")
+        embed.color = discord.Color.blurple()
+        embed.set_footer(text="brenfan", icon_url="https://i.imgur.com/vlpCuu2.jpg")
 
-            # determine if user who is calling the command is able to delete the roles
-            sorted_list_of_authors_roles = sorted(interaction.user.roles, key=lambda x: int(x.position), reverse=True)
-            author_highest_role = sorted_list_of_authors_roles[0]
+        # getting member instance of the bot
+        bot_user = interaction.guild.get_member(interaction.client.user.id)
 
-            user_can_delete_roles = (
-                interaction.user.guild_permissions.manage_roles or interaction.user.guild_permissions.administrator
-            )
-            if not user_can_delete_roles:
-                embed.title = "You don't have permissions to delete roles. :("
-                await self.send_message_to_user_or_bot_channel(
-                    embed, interaction=interaction, send_func=interaction.followup.send
-                )
-                return
+        # determine if bot is able to delete the roles
+        sorted_list_of_authors_roles = sorted(bot_user.roles, key=lambda x: int(x.position), reverse=True)
+        bot_highest_role = sorted_list_of_authors_roles[0]
 
-            self.logger.debug(
-                "[RoleCommands purgeroles()] user's "
-                f"highest role is {author_highest_role} and its ability to delete roles is {user_can_delete_roles}"
-            )
+        if not (bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator):
+            embed.title = "It seems that the bot don't have permissions to delete roles. :("
+            await self.send_message_to_user_or_bot_channel(embed, interaction)
+            return
+        self.logger.debug(
+            "[RoleCommands purgeroles()] bot's "
+            f"highest role is {bot_highest_role} and its ability to delete roles is "
+            f"{bot_user.guild_permissions.manage_roles or bot_user.guild_permissions.administrator}"
+        )
 
-            guild = interaction.guild
-            soft_roles = []
-            undeletable_roles = []
-            for role in guild.roles:
-                if role.name != "@everyone" and role.name == role.name.lower():
-                    if author_highest_role >= role and bot_highest_role >= role:
-                        soft_roles.append(role)
-                    else:
-                        undeletable_roles.append(role.name)
-            self.logger.debug(
-                "[RoleCommands purgeroles()] Located all the empty roles that both the user and the bot can "
-                "delete")
-            self.logger.debug(f"[RoleCommands purgeroles()] the ones it can't are: {', '.join(undeletable_roles)}")
+        # determine if user who is calling the command is able to delete the roles
+        sorted_list_of_authors_roles = sorted(interaction.user.roles, key=lambda x: int(x.position), reverse=True)
+        author_highest_role = sorted_list_of_authors_roles[0]
 
-            deleted = []
-            for role in soft_roles:
-                members_in_role = role.members
-                if not members_in_role:
-                    self.logger.debug(f"[RoleCommands purgeroles()] deleting empty role @{role.name}")
-                    deleted.append(role.name)
-                    await role.delete()
-                    self.logger.debug(f"[RoleCommands purgeroles()] deleted empty role @{role.name}")
+        user_can_delete_roles = (
+            interaction.user.guild_permissions.manage_roles or interaction.user.guild_permissions.administrator
+        )
+        if not user_can_delete_roles:
+            embed.title = "You don't have permissions to delete roles. :("
+            await self.send_message_to_user_or_bot_channel(embed, interaction)
+            return
 
-            if not deleted:
-                embed.title = "No empty roles to delete."
-                await self.send_message_to_user_or_bot_channel(
-                    embed, interaction=interaction, send_func=interaction.followup.send
-                )
-                return
-            deleted.sort(key=itemgetter(0))
-            description = "\n".join(deleted)
-            embed.title = f"Purging {len(deleted)} empty roles!"
+        self.logger.debug(
+            "[RoleCommands purgeroles()] user's "
+            f"highest role is {author_highest_role} and its ability to delete roles is {user_can_delete_roles}"
+        )
 
-            embed.description = description
-            await self.send_message_to_user_or_bot_channel(
-                embed, interaction=interaction, send_func=interaction.followup.send
-            )
+        guild = interaction.guild
+        soft_roles = []
+        undeletable_roles = []
+        for role in guild.roles:
+            if role.name != "@everyone" and role.name == role.name.lower():
+                if author_highest_role >= role and bot_highest_role >= role:
+                    soft_roles.append(role)
+                else:
+                    undeletable_roles.append(role.name)
+        self.logger.debug(
+            "[RoleCommands purgeroles()] Located all the empty roles that both the user and the bot can "
+            "delete")
+        self.logger.debug(f"[RoleCommands purgeroles()] the ones it can't are: {', '.join(undeletable_roles)}")
+
+        deleted = []
+        for role in soft_roles:
+            members_in_role = role.members
+            if not members_in_role:
+                self.logger.debug(f"[RoleCommands purgeroles()] deleting empty role @{role.name}")
+                deleted.append(role.name)
+                await role.delete()
+                self.logger.debug(f"[RoleCommands purgeroles()] deleted empty role @{role.name}")
+
+        if not deleted:
+            embed.title = "No empty roles to delete."
+            await self.send_message_to_user_or_bot_channel(embed, interaction)
+            return
+        deleted.sort(key=itemgetter(0))
+        description = "\n".join(deleted)
+        embed.title = f"Purging {len(deleted)} empty roles!"
+
+        embed.description = description
+        await self.send_message_to_user_or_bot_channel(embed, interaction)
 
     async def send_message_to_user_or_bot_channel(self, e_obj, interaction=None, send_func=None):
         send_func = send_func if send_func is not None else interaction.response.send_message
