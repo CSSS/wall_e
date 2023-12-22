@@ -115,7 +115,9 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
             logger=logger, interaction=interaction, title=f"Error {error_type} encountered",
             description=description, colour=WallEColour.ERROR
         )
-        error.command.binding.logger.error(description)
+        error.command.binding.logger.error(
+            'Encountered exception in command %r', interaction.command.name, exc_info=error
+        )
         errors = []
         msg = None
         if embed_obj is not False:
