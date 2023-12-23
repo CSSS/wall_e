@@ -777,7 +777,10 @@ class RoleCommands(commands.Cog):
             if interaction.channel.id == self.bot_channel.id:
                 self.logger.debug("[RoleCommands send_message_to_user_or_bot_channel()] sending result to"
                                   " the bot channel ")
-                await channel_send_func(embed=e_obj)
+                if iamn_role_deleted:
+                    await interaction.channel.send(f'<@{interaction.user.id}>', embed=e_obj)
+                else:
+                    await channel_send_func(embed=e_obj)
                 if delete_response:
                     await asyncio.sleep(10)
                     await interaction.delete_original_response()
