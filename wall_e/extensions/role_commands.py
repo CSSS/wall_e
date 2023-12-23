@@ -218,7 +218,7 @@ class RoleCommands(commands.Cog):
                 interaction=interaction,
                 author=interaction.client.user,
                 description=f"Role '{new_role_name}' exists. Calling "
-                            f".iam {new_role_name} will add you to it.",
+                            f"/iam {new_role_name} will add you to it.",
                 colour=WallEColour.ERROR
             )
             if e_obj is not False:
@@ -236,7 +236,7 @@ class RoleCommands(commands.Cog):
             author=interaction.client.user,
             description=(
                 "You have successfully created role "
-                f"**`{new_role_name}`**.\nCalling `.iam {new_role_name}` will add it to you."
+                f"**`{new_role_name}`**.\nCalling `/iam {new_role_name}` will add it to you."
             )
         )
         await self.send_message_to_user_or_bot_channel(e_obj, interaction)
