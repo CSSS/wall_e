@@ -415,29 +415,21 @@ class RoleCommands(commands.Cog):
             return
         user = interaction.user
         await user.remove_roles(role)
+        message = f"You have successfully been removed from role **`{role}`**."
         if len(role.members) == 0:
             del RoleCommands.roles_with_members[role.id]
+            await role.delete()
+            message += f"\n\nRole **`{role}`** has also been deleted."
         e_obj = await embed(
             self.logger,
             interaction=interaction,
             author=interaction.client.user,
-            description=f"You have successfully been removed from role **`{role}`**."
+            description=message
         )
         if e_obj is not False:
             self.logger.debug(f"[RoleCommands iamn()] {user} has been removed from role {role}")
-        await self.send_message_to_user_or_bot_channel(e_obj, interaction)
-        # delete role if last person
-        members_of_role = role.members
-        if not members_of_role:
-            await role.delete()
             self.logger.debug("[RoleCommands iamn()] no members were detected, role has been deleted.")
-            e_obj = await embed(
-                self.logger,
-                interaction=interaction,
-                author=interaction.client.user,
-                description=f"Role **`{role.name}`** deleted."
-            )
-            await self.send_message_to_user_or_bot_channel(e_obj, interaction, iamn_role_deleted=True)
+            await self.send_message_to_user_or_bot_channel(e_obj, interaction)
 
     @app_commands.command(name="whois", description="list folks in a role")
     @app_commands.describe(role="name of the existing role to return the membership of")
@@ -753,17 +745,12 @@ class RoleCommands(commands.Cog):
             await asyncio.sleep(20)
             await msg.delete()
 
-    async def send_message_to_user_or_bot_channel(self, e_obj, interaction, iamn_role_deleted=False,
-                                                  delete_response=False):
+    async def send_message_to_user_or_bot_channel(self, e_obj, interaction, delete_response=False):
         """
         Responsible for directing the message to the invoking channel [if the channel is the bot_channel] or
          DMing the message to the user otherwise
         :param e_obj: the response embed to send back to the user
         :param interaction:
-        :param iamn_role_deleted: indicator of whether the function call is from the iamn command alerting the user
-         that they let a role which has no members left, so it has been deleted. Necessary to know if this is the
-         second time this function is being called from that command and therefore the original response has
-          already been deleted
         :param delete_response: if the response that this function sends has to be deleted, as there is no reason
          for the error message to stick around
         :return:
@@ -777,10 +764,7 @@ class RoleCommands(commands.Cog):
             if interaction.channel.id == self.bot_channel.id:
                 self.logger.debug("[RoleCommands send_message_to_user_or_bot_channel()] sending result to"
                                   " the bot channel ")
-                if iamn_role_deleted:
-                    await interaction.channel.send(f'<@{interaction.user.id}>', embed=e_obj)
-                else:
-                    await channel_send_func(embed=e_obj)
+                await channel_send_func(embed=e_obj)
                 if delete_response:
                     await asyncio.sleep(10)
                     await interaction.delete_original_response()
@@ -805,8 +789,7 @@ class RoleCommands(commands.Cog):
                     self.logger.debug(
                         "[RoleCommands send_message_to_user_or_bot_channel()] DMing the result to the user")
                     try:
-                        if not iamn_role_deleted:
-                            await interaction.delete_original_response()
+                        await interaction.delete_original_response()
                         if delete_response:
                             await channel_send_func(embed=e_obj)
                             await asyncio.sleep(10)
