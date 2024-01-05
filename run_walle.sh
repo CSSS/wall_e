@@ -33,7 +33,7 @@ if [[ "${basic_config__DOCKERIZED}" == "1" ]]; then
 	docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
 else
 	pushd wall_e
-	if [ -f 'wall_e_models' ]; then
+	if [ ! -f 'wall_e_models' ]; then
 		ln -sn "${WALL_E_MODEL_PATH}/wall_e_models" wall_e_models
 	fi
 
