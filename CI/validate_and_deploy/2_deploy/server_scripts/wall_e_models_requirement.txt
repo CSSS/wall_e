@@ -1,1 +1,1 @@
-wall-e-models==0.33
+wall-e-models==0.35
