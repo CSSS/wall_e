@@ -9,18 +9,19 @@ async def send_func_helper(embed_obj, send_func, text_command, reference):
         return await send_func(embed=embed_obj)
 
 
-async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None, interaction=None):
+async def paginate_embed(logger, bot, description_to_embed=None, content_to_embed=None, title=" ", ctx=None,
+                         interaction=None):
     """
     Creates an interactive paginated embed message
     :param logger: the calling serivce's logger object
     :param bot: the bot which is needed to detect emoji reactions
     :param description_to_embed: a list of string descriptions that will be used in the embed
+    :param content_to_embed:
     :param title: the title of the embed [Optional]
     :param ctx: the ctx object that is in the command's arguments if it was a dot command
      [need to be specified if no interaction is detected]
     :param interaction: the interaction object that is in the command's arguments if it was a slash command
      [need to be specified if no ctx is detected]
-    :param send_func: needed if the calling function is a slash command that deferred the interaction
     :return:
     """
     if ctx is not None:
@@ -38,10 +39,10 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
     else:
         logger.error("did not detect a ctx or interaction method")
         return
-    num_of_pages = len(description_to_embed)
+    num_of_pages = len(description_to_embed) if description_to_embed is not None else len(content_to_embed)
     logger.debug(
         "[paginate.py paginate_embed()] called with following argument: "
-        f"title={title}\n\ndescription_to_embed={description_to_embed}\n\n"
+        f"title={title}\n\ndescription_to_embed={description_to_embed}\n\ncontent_to_embed={content_to_embed}"
     )
     embed_author = ctx.me if interaction is None else interaction.client.user
 
@@ -51,14 +52,18 @@ async def paginate_embed(logger, bot, description_to_embed, title=" ", ctx=None,
 
     while True:
         logger.debug(f"[paginate.py paginate_embed()] loading page {current_page}")
-        logger.debug(f"[paginate.py paginate_embed()] loading roles {description_to_embed[current_page]}")
+        if description_to_embed is not None:
+            logger.debug(f"[paginate.py paginate_embed()] loading roles {description_to_embed[current_page]}")
+        if content_to_embed is not None:
+            logger.debug(f"[paginate.py paginate_embed()] loading roles {content_to_embed[current_page]}")
         embed_obj = await imported_embed(
             logger,
             interaction=interaction,
             ctx=ctx,
             title=title,
             author=embed_author,
-            description=description_to_embed[current_page],
+            description=description_to_embed if description_to_embed is None else description_to_embed[current_page],
+            content=content_to_embed if content_to_embed is None else content_to_embed[current_page],
             footer=f"{current_page + 1}/{num_of_pages}"
         )
         if embed_obj is not None:
