@@ -13,6 +13,9 @@ async def get_banned_users(interaction: discord.Interaction, current: str) -> Li
     :return: an array of the app_commands.Choices to return where the name is the name of the banned username and the
      value is the corresponding user id
     """
+    user_roles = [role.name for role in interaction.user.roles]
+    if not ('Bot_manager' in user_roles or 'Moderator' in user_roles or 'Minions'):
+        return []
     from extensions.ban import Ban
     current = current.lower()
     banned_users = [
