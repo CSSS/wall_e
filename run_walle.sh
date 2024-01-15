@@ -33,9 +33,6 @@ if [[ "${basic_config__DOCKERIZED}" == "1" ]]; then
 	docker logs -f "${COMPOSE_PROJECT_NAME}_wall_e"
 else
 	pushd wall_e
-	if [ ! -f 'wall_e_models' ]; then
-		ln -sn "${WALL_E_MODEL_PATH}/wall_e_models" wall_e_models
-	fi
 
 	if [[ "${INSTALL_REQUIREMENTS}" == "True" ]]; then
 		rm layer-1-requirements.txt layer-2-requirements.txt || true
@@ -46,6 +43,10 @@ else
 		rm layer-1-requirements.txt layer-2-requirements.txt
 		python3 -m pip install -r requirements.txt
 		python3 -m pip install -r ../CI/validate_and_deploy/2_deploy/server_scripts/wall_e_models_requirement.txt
+		python3 -m pip uninstall -y wall_e_models
+	fi
+		if [ ! -f 'wall_e_models' ]; then
+		ln -sn "${WALL_E_MODEL_PATH}/wall_e_models" wall_e_models
 	fi
 
 	if [[ "${SETUP_DATABASE}" == "True" ]]; then
