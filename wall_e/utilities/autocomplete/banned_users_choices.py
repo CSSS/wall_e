@@ -21,7 +21,7 @@ async def get_banned_users(interaction: discord.Interaction, current: str) -> Li
     banned_users = [
         app_commands.Choice(name=f"{banned_user_name}({banned_user_id})", value=f"{banned_user_id}")
         for banned_user_id, banned_user_name in Ban.ban_list.items()
-        if current in banned_user_name or current in f"{banned_user_id}"
+        if current in banned_user_name.lower() or current in f"{banned_user_id}"
     ]
     if len(banned_users) == 0:
         if len(current) > 0:

@@ -1,15 +1,14 @@
 import asyncio
-import datetime
 from typing import Union
 
 import discord
-import pytz
 from discord import app_commands
 from discord.ext import commands, tasks
 
 from utilities.autocomplete.banned_users_choices import get_banned_users
 from utilities.global_vars import bot, wall_e_config
 from utilities.paginate import paginate_embed
+from wall_e_models.customFields import pstdatetime
 
 from wall_e_models.models import BanRecord
 
@@ -34,6 +33,7 @@ class Ban(commands.Cog):
         self.logger.info("[Ban __init__()] initializing Ban")
         self.mod_channel = None
         self.guild: discord.Guild = None
+        self.purge_messages_task.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -81,7 +81,7 @@ class Ban(commands.Cog):
 
         # read in ban_list of banned users
         self.logger.debug('[Ban load()] loading ban list from the database')
-
+        await BanRecord.update_date_format()
         Ban.ban_list = await BanRecord.get_all_active_ban_user_ids()
         count = await BanRecord.get_active_bans_count()
         self.logger.debug(f"[Ban load()] loaded {count} banned users from database")
@@ -109,7 +109,7 @@ class Ban(commands.Cog):
                 ]
             )
             if e_obj:
-                e_obj.timestamp = datetime.datetime.now(pytz.utc)
+                e_obj.timestamp = pstdatetime.now().pst
                 e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
 
                 try:
@@ -144,7 +144,7 @@ class Ban(commands.Cog):
                 title=f'{Ban.embed_title} Error',
                 description=f"{banned_user} already in WALL-E ban system",
                 colour=WallEColour.ERROR,
-                intercepted_moderator_action=True
+                validation=False
             )
             if e_obj:
                 await send_function_for_messages(embed=e_obj)
@@ -165,7 +165,7 @@ class Ban(commands.Cog):
                 title=f'{Ban.embed_title} Error',
                 description=f"{banned_user}'s permission is higher than WALL_E so it can't be kicked",
                 colour=WallEColour.ERROR,
-                intercepted_moderator_action=True
+                validation=False
             )
             if e_obj:
                 await send_function_for_messages(embed=e_obj)
@@ -182,7 +182,7 @@ class Ban(commands.Cog):
             author=bot.user,
             title=f"{Ban.embed_title} Notification",
             description=f"Attempting to ban {banned_user.display_name}({banned_user.name})",
-            intercepted_moderator_action=True
+            validation=False
         )
         invoked_channel_msg = None
         if e_obj:
@@ -196,8 +196,9 @@ class Ban(commands.Cog):
             mod=mod.name+'#'+mod.discriminator,
             mod_id=mod.id,
             reason=reason,
-            epoch_ban_date=ban_date.timestamp(),
-            purge_window_days=purge_window_days
+            ban_date=ban_date.timestamp(),
+            purge_window_days=purge_window_days,
+            is_purged=False
         )
         await BanRecord.insert_record(ban)
 
@@ -215,10 +216,10 @@ class Ban(commands.Cog):
                 ('Reason',
                  f"```{reason}```\n**Please refrain from this kind of behaviour in the future. Thank you.**")
             ],
-            intercepted_moderator_action=True
+            validation=False
         )
         if e_obj:
-            e_obj.timestamp = datetime.datetime.now(pytz.utc)
+            e_obj.timestamp = pstdatetime.now().pst
             e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
 
             try:
@@ -252,7 +253,7 @@ class Ban(commands.Cog):
                 ("Purge Complete", "False")
             ],
             footer="Intercepted Moderator Action" if intercepted_moderator_action else "Moderator Action",
-            intercepted_moderator_action=True
+            validation=False
         )
         if e_obj:
             e_obj.timestamp = ban_date
@@ -411,7 +412,7 @@ class Ban(commands.Cog):
 
                 mod = None
                 mod_id = None
-                epoch_ban_date = None
+                ban_date = None
                 reason = 'No Reason Given!'
 
                 if ban.user.id in ban_logs:
@@ -420,7 +421,7 @@ class Ban(commands.Cog):
                     user_id = banned.target.id
                     mod = banned.user.name + '#' + banned.user.discriminator
                     mod_id = banned.user.id
-                    epoch_ban_date = banned.created_at.timestamp()
+                    ban_date = banned.created_at
                     reason = banned.reason if banned.reason else 'No Reason Given!'
 
                 else:
@@ -432,7 +433,7 @@ class Ban(commands.Cog):
                     user_id=user_id,
                     mod=mod,
                     mod_id=mod_id,
-                    epoch_ban_date=epoch_ban_date,
+                    ban_date=ban_date,
                     reason=reason
                 ))
 
@@ -479,7 +480,7 @@ class Ban(commands.Cog):
         self.logger.debug(f"[Ban ban()] Ban reason '{reason}'")
         await self.wall_e_ban(
             interaction.namespace.user, interaction.user, purge_window_days=purge_window_days, reason=reason,
-            ban_date=datetime.datetime.now(pytz.utc), interaction=interaction
+            ban_date=pstdatetime.now(), interaction=interaction
         )
         try:
             await interaction.delete_original_response()
@@ -576,20 +577,26 @@ class Ban(commands.Cog):
 
         names = ""
         user_ids = ""
+        ban_dates = ""
         content_to_embed = []
         number_of_members_per_page = 20
         number_of_members = 0
         for ban in bans:
             name = ban['username']
             user_id = ban['user_id']
+            ban_date = ban['ban_date']
             names += f"\n{name}"
             user_ids += f"\n{user_id}"
+            ban_dates += f'\n{ban_date.pst.strftime("%Y-%m-%d %I:%M:%S %P")}' if ban_date else f"\n{ban_date}"
             number_of_members += 1
             if number_of_members % number_of_members_per_page == 0 or number_of_members == len(bans):
                 number_of_members = 0
-                content_to_embed.append([["Names", names], ["User IDs", user_ids]])
+                content_to_embed.append(
+                    [["Names", names], ["User IDs", user_ids], ["Ban Date [PST]", ban_dates]]
+                )
                 names = ""
                 user_ids = ""
+                ban_dates = ""
         if len(content_to_embed) == 0:
             e_obj = await embed(
                 self.logger, interaction=interaction, title=f'{Ban.embed_title} Error',
@@ -649,9 +656,13 @@ class Ban(commands.Cog):
         Background function that determines if a reminder's time has come to be sent to its channel
         :return:
         """
+        if not self.guild:
+            return
         try:
             un_purged_ban_records = await BanRecord.get_unpurged_users()
-            for un_purged_ban_record in un_purged_ban_records:
+            number_of_purges = len(un_purged_ban_records)
+            msg = None
+            for indx, un_purged_ban_record in enumerate(un_purged_ban_records):
                 timeframe = un_purged_ban_record.purge_window_days
                 self.logger.debug(f"[Ban purge_messages()] timeframe: {timeframe}")
 
@@ -661,15 +672,20 @@ class Ban(commands.Cog):
 
                 def is_banned_user(msg):
                     return msg.author == un_purged_ban_record.user_id
-
+                import datetime
                 date = discord.utils.utcnow() - datetime.timedelta(timeframe)
                 self.logger.debug(f"[Ban purge_messages()] message from {un_purged_ban_record.user_id} "
                                   f"will be purge starting from date {date}")
                 e_obj = await embed(
-                    self.logger, title=f'{Ban.embed_title} Purging in Progress',
-                    description=f"Currently Purging user {un_purged_ban_record.user_id}",
+                    self.logger, title=f'{Ban.embed_title} [{indx+1}/{number_of_purges}] Purging in Progress',
+                    description=(
+                        f"Currently purging user {un_purged_ban_record.username}({un_purged_ban_record.user_id}) "
+                        f"with a purge day frame of {timeframe}"
+                    ), validation=False
                 )
                 if e_obj:
+                    if msg:
+                        await msg.delete()
                     msg = await self.mod_channel.send(embed=e_obj)
                     for channel in channels:
                         send_perm = channel.overwrites_for(self.guild.default_role).send_messages
@@ -679,12 +695,16 @@ class Ban(commands.Cog):
                         # because the user wouldn't have any messages in these channels
                         if not (view_perm is False or send_perm is False):
                             await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
-                    e_obj = await embed(
-                        self.logger, title=f'{Ban.embed_title} Purge Complete',
-                        description=f"Purging user {un_purged_ban_record.user_id}",
-                    )
-                    if e_obj:
-                        await msg.edit(embed=e_obj)
+                    await BanRecord.marked_user_as_purged(un_purged_ban_record.ban_id)
+            if number_of_purges > 0:
+                e_obj = await embed(
+                    self.logger, title=f'{Ban.embed_title} Purge Complete',
+                    description=f"Succesfully purged {number_of_purges} users", validation=False
+                )
+                if e_obj:
+                    if msg:
+                        await msg.delete()
+                    await self.mod_channel.send(embed=e_obj)
 
         except Exception as error:
             self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')

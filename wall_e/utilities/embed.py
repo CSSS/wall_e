@@ -34,7 +34,7 @@ async def send_func_helper(message, send_func, text_command, reference):
 async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
                 author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
-                footer: str = '', intercepted_moderator_action=False):
+                footer: str = '', intercepted_moderator_action=False, validation=True):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -69,6 +69,10 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     :param thumbnail: the thumbnail to assign to the embed [Optional]
      Url to image to be used in the embed. Thumbnail appears top right corner of the embed.
     :param footer: the footer to assign to the embed [Optional]
+    :param validation: indicator that the method was called from a place that wasn't interested in validation.
+        Cunrrently only happens from the background task in Ban class that purges banned user's messages
+    :param intercepted_moderator_action: indicates that the method was called due to intercepting a guild ban
+        that a moderator invoked and so there is no interaction or context to pass into this method
     :return:
     """
     if content is None:
@@ -94,7 +98,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         else:
             send_func = interaction.response.send_message
     else:
-        if not intercepted_moderator_action:
+        if validation and not intercepted_moderator_action:
             raise Exception("did not detect a ctx or interaction method")
 
     if len(title) > 256:
