@@ -34,7 +34,7 @@ async def send_func_helper(message, send_func, text_command, reference):
 async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
                 author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
-                footer: str = ''):
+                footer: str = '', intercepted_moderator_action=False):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -75,6 +75,10 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         content = []
     # these are put in place cause of the limits on embed described here
     # https://discordapp.com/developers/docs/resources/channel#embed-limits
+
+    reference = None
+    send_func = None
+    text_command = None
     if ctx is not None:
         # added below ternary because of detect_reaction calls this function without context, but rather passes in
         # a channel object
@@ -90,7 +94,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         else:
             send_func = interaction.response.send_message
     else:
-        raise Exception("did not detect a ctx or interaction method")
+        if not intercepted_moderator_action:
+            raise Exception("did not detect a ctx or interaction method")
 
     if len(title) > 256:
         title = f"{title}"
