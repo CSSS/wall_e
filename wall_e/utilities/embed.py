@@ -102,8 +102,14 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         )
         logger.debug(f"[embed.py embed()] length of title [{title}] being added to the field is too big")
         return False
-
-    if len(description) > 2048:
+    if description is None and content is None:
+        await send_func_helper(
+            "Embed Error:\nThere need to be either a description or fields specified",
+            send_func, text_command, reference
+        )
+        logger.debug("[embed.py embed()] There need to be either a description or fields specified")
+        return False
+    if description is not None and len(description) > 2048:
         await send_func_helper(
             f"Embed Error:\nlength of description being added to the "
             f"description field is {len(description) - 2048} characters too big, please cut "
@@ -114,7 +120,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
                      "field is too big")
         return False
 
-    if len(content) > 25:
+    if content is not None and len(content) > 25:
         await send_func_helper(
             "Embed Error:\nlength of content being added to the content field "
             f"is {(len(content) - 25)} indices too big, please cut down to a size of 25",
@@ -122,26 +128,26 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         )
         logger.debug("[embed.py embed()] length of content array will be added to the fields is too big")
         return False
-
-    for idx, record in enumerate(content):
-        if len(record[0]) > 256:
-            await send_func_helper(
-                f"Embed Error:\nlength of record[0] for content index {idx} being added to the name "
-                f"field is {(len(record[0]) - 256)} characters too big, please cut down to a size of 256",
-                send_func, text_command, reference
-            )
-            logger.debug("[embed.py embed()] length of following record being added to the field is too big")
-            logger.debug(f"[embed.py embed()] {record[0]}")
-            return False
-        if len(record[1]) > 1024:
-            await send_func_helper(
-                f"Embed Error:\nlength of record[1] for content index {idx} being added to the value "
-                f"field is {(len(record[1]) - 1024)} characters too big, please cut down to a "
-                "size of 1024", send_func, text_command, reference
-            )
-            logger.debug("[embed.py embed()] length of following record being added to the field is too big")
-            logger.debug(f"[embed.py embed()] {record[1]}")
-            return False
+    if content is not None:
+        for idx, record in enumerate(content):
+            if len(record[0]) > 256:
+                await send_func_helper(
+                    f"Embed Error:\nlength of record[0] for content index {idx} being added to the name "
+                    f"field is {(len(record[0]) - 256)} characters too big, please cut down to a size of 256",
+                    send_func, text_command, reference
+                )
+                logger.debug("[embed.py embed()] length of following record being added to the field is too big")
+                logger.debug(f"[embed.py embed()] {record[0]}")
+                return False
+            if len(record[1]) > 1024:
+                await send_func_helper(
+                    f"Embed Error:\nlength of record[1] for content index {idx} being added to the value "
+                    f"field is {(len(record[1]) - 1024)} characters too big, please cut down to a "
+                    "size of 1024", send_func, text_command, reference
+                )
+                logger.debug("[embed.py embed()] length of following record being added to the field is too big")
+                logger.debug(f"[embed.py embed()] {record[1]}")
+                return False
 
     if len(footer) > 2048:
         await send_func_helper(
@@ -153,7 +159,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         return False
 
     emb_obj = discord.Embed(title=title, type='rich')
-    emb_obj.description = description
+    if description is not None:
+        emb_obj.description = description
     if author is not None:
         author_name = author.display_name
         author_icon_url = author.display_avatar.url
@@ -186,6 +193,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     emb_obj.set_footer(text=footer)
     # emb_obj.url = link
     # parse content to add fields
-    for x in content:
-        emb_obj.add_field(name=x[0], value=x[1], inline=False)
+    if content is not None:
+        for x in content:
+            inline = x[2] if len(x) > 2 else True
+            emb_obj.add_field(name=x[0], value=x[1], inline=inline)
     return emb_obj
