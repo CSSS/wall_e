@@ -21,6 +21,7 @@ if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
 	rm -r /wall_e || true
 	git clone https://github.com/CSSS/wall_e.git /wall_e
 	cd /wall_e/wall_e/
+	git checkout HEAD^^ # temporarily checkout previous commit
 	PGPASSWORD=$POSTGRES_PASSWORD psql --set=WALL_E_DB_USER="${database_config__WALL_E_DB_USER}" \
 	--set=WALL_E_DB_PASSWORD="${database_config__WALL_E_DB_PASSWORD}" \
 	--set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
