@@ -34,7 +34,7 @@ async def send_func_helper(message, send_func, text_command, reference):
 async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
                 author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
-                footer: str = '', intercepted_moderator_action=False, validation=True, channels=None):
+                footer: str = '', channels=None, ban_related_message=False, bot_management_channel=None):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -69,12 +69,12 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     :param thumbnail: the thumbnail to assign to the embed [Optional]
      Url to image to be used in the embed. Thumbnail appears top right corner of the embed.
     :param footer: the footer to assign to the embed [Optional]
-    :param validation: indicator that the method was called from a place that wasn't interested in validation.
-        Cunrrently only happens from the background task in Ban class that purges banned user's messages
-    :param intercepted_moderator_action: indicates that the method was called due to intercepting a guild ban
-        that a moderator invoked and so there is no interaction or context to pass into this method
     :param channels: the channels in the guild, necessary for the embed that are created from the intercept and
      watchdog methods in ban class
+    :param ban_related_message: indicates if the embed function was called from the ban_related messages which have no
+     context or interaction object
+    :param bot_management_channel: provides a way for the non-context and non-interaction classes in the ban class
+     to send their error messages somewhere
     :return:
     """
     if content is None:
@@ -82,9 +82,6 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     # these are put in place cause of the limits on embed described here
     # https://discordapp.com/developers/docs/resources/channel#embed-limits
 
-    reference = None
-    send_func = None
-    text_command = None
     if ctx is not None:
         # added below ternary because of detect_reaction calls this function without context, but rather passes in
         # a channel object
@@ -99,9 +96,14 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
             send_func = interaction.followup.send
         else:
             send_func = interaction.response.send_message
+    elif ban_related_message:
+        reference = False
+        text_command = False
+        send_func = bot_management_channel.send
     else:
-        if validation and not intercepted_moderator_action:
-            raise Exception("did not detect a ctx or interaction method")
+        raise Exception("did not detect a ctx or interaction method")
+    if channels is None and ctx is None and interaction is None:
+        raise Exception("Unable to get the channels on this guild")
 
     if len(title) > 256:
         title = f"{title}"

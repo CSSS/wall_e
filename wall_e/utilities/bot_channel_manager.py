@@ -99,6 +99,11 @@ class BotChannelManager:
                     f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_leveling_website_avatar_images"
                 ),
                 "LOCALHOST": config.get_config_value('channel_names', 'LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL')
+            },
+            "bot_management_channel": {
+                "PRODUCTION": config.get_config_value('channel_names', 'BOT_MANAGEMENT_CHANNEL'),
+                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_management_channel",
+                "LOCALHOST": config.get_config_value('channel_names', 'BOT_MANAGEMENT_CHANNEL')
             }
         }
         self.channel_obtained = {
