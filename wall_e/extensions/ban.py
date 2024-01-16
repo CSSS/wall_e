@@ -587,7 +587,7 @@ class Ban(commands.Cog):
             ban_date = ban['ban_date']
             names += f"\n{name}"
             user_ids += f"\n{user_id}"
-            ban_dates += f'\n{ban_date.pst.strftime("%Y-%m-%d %I:%M:%S %P")}' if ban_date else f"\n{ban_date}"
+            ban_dates += f'\n{ban_date.pst.strftime("%Y-%m-%d %I:%M:%S %p")}' if ban_date else f"\n{ban_date}"
             number_of_members += 1
             if number_of_members % number_of_members_per_page == 0 or number_of_members == len(bans):
                 number_of_members = 0
