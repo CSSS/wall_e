@@ -398,7 +398,9 @@ class Ban(commands.Cog):
                 author=bot.user,
                 title=f'{Ban.embed_title} convertbans',
                 colour=WallEColour.ERROR,
-                description=f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**"
+                description=f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**",
+                validation=False,
+                channels=self.guild.channels
             )
             if e_obj:
                 await ctx.send(embed=e_obj)
@@ -457,7 +459,9 @@ class Ban(commands.Cog):
             self.logger,
             author=bot.user,
             title=f'{Ban.embed_title} convertbans',
-            description=f"Moved `{len(ban_records)}` active bans from guild bans to wall_e bans."
+            description=f"Moved `{len(ban_records)}` active bans from guild bans to wall_e bans.",
+            validation=False,
+            channels=self.guild.channels
         )
         if e_obj:
             await ctx.send(embed=e_obj)
