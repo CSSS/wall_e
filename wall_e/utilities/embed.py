@@ -34,7 +34,7 @@ async def send_func_helper(message, send_func, text_command, reference):
 async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
                 author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
-                footer: str = '', intercepted_moderator_action=False, validation=True):
+                footer: str = '', intercepted_moderator_action=False, validation=True, channels=None):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -73,6 +73,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         Cunrrently only happens from the background task in Ban class that purges banned user's messages
     :param intercepted_moderator_action: indicates that the method was called due to intercepting a guild ban
         that a moderator invoked and so there is no interaction or context to pass into this method
+    :param channels: the channels in the guild, necessary for the embed that are created from the intercept and
+     watchdog methods in ban class
     :return:
     """
     if content is None:
@@ -174,7 +176,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         author_name = author.display_name
         author_icon_url = author.display_avatar.url
     if author_icon_url != "":
-        channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
+        if channels is None:
+            channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
         embed_avatar_chan_name = wall_e_config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
         embed_avatar_chan: discord.TextChannel = discord.utils.get(channels, name=embed_avatar_chan_name)
         if embed_avatar_chan is not None:  # since the TEST guild is the only environment where the channel does

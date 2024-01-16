@@ -101,12 +101,11 @@ class Ban(commands.Cog):
                 author=bot.user,
                 colour=WallEColour.ERROR,
                 content=[
-                    [
                         ("Notice", f"**You are PERMANENTLY BANNED from\n{self.guild}\n\n"
                                    f"You may NOT rejoin the guild!**", False)
-                    ]
                 ],
-                validation=False
+                validation=False,
+                channels=self.guild.channels
             )
             if e_obj:
                 e_obj.timestamp = pstdatetime.now().pst
@@ -121,7 +120,7 @@ class Ban(commands.Cog):
             await member.kick(reason="Not allowed back on server.")
 
     async def wall_e_ban(self, banned_user, mod, purge_window_days=1, reason="No Reason Given.",
-                         ban_date=None, intercepted_moderator_action=False, interaction=None):
+                         ban_date=None, intercepted_moderator_action=False, interaction=None, channels=None):
         """
         Performs the actual ban on the user
 
@@ -144,7 +143,8 @@ class Ban(commands.Cog):
                 title=f'{Ban.embed_title} Error',
                 description=f"{banned_user} already in WALL-E ban system",
                 colour=WallEColour.ERROR,
-                validation=False
+                validation=False,
+                channels=channels
             )
             if e_obj:
                 await send_function_for_messages(embed=e_obj)
@@ -165,7 +165,8 @@ class Ban(commands.Cog):
                 title=f'{Ban.embed_title} Error',
                 description=f"{banned_user}'s permission is higher than WALL_E so it can't be kicked",
                 colour=WallEColour.ERROR,
-                validation=False
+                validation=False,
+                channels=channels
             )
             if e_obj:
                 await send_function_for_messages(embed=e_obj)
@@ -182,7 +183,8 @@ class Ban(commands.Cog):
             author=bot.user,
             title=f"{Ban.embed_title} Notification",
             description=f"Attempting to ban {banned_user.display_name}({banned_user.name})",
-            validation=False
+            validation=False,
+            channels=channels
         )
         invoked_channel_msg = None
         if e_obj:
@@ -216,7 +218,8 @@ class Ban(commands.Cog):
                 ('Reason',
                  f"```{reason}```\n**Please refrain from this kind of behaviour in the future. Thank you.**")
             ],
-            validation=False
+            validation=False,
+            channels=channels
         )
         if e_obj:
             e_obj.timestamp = pstdatetime.now().pst
@@ -225,7 +228,7 @@ class Ban(commands.Cog):
             try:
                 await banned_user.send(embed=e_obj)
                 self.logger.debug("[Ban wall_e_ban()] User notified via dm of their ban")
-            except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
+            except (discord.HTTPException, discord.Forbidden, discord.errors.Forbidden):
                 banned_user_dm_able = False
                 self.logger.debug("[Ban wall_e_ban()] Notification dm to user failed due to user preferences")
 
@@ -253,7 +256,8 @@ class Ban(commands.Cog):
                 ("Purge Complete", "False")
             ],
             footer="Intercepted Moderator Action" if intercepted_moderator_action else "Moderator Action",
-            validation=False
+            validation=False,
+            channels=channels
         )
         if e_obj:
             e_obj.timestamp = ban_date
@@ -277,6 +281,8 @@ class Ban(commands.Cog):
                 title=f'{Ban.embed_title} Guild Ban Intercept',
                 colour=WallEColour.ERROR,
                 description=f"Not converting guild ban for {member} to wall_e ban as user is already wall_e banned",
+                validation=False,
+                channels=guild.channels
             )
             if e_obj:
                 await self.mod_channel.send(embed=e_obj)
@@ -287,10 +293,12 @@ class Ban(commands.Cog):
             title=f'{Ban.embed_title} Guild Ban Intercept',
             colour=WallEColour.ERROR,
             description=f"Attempting to convert Guild ban for {member} into a {bot.user.name} ban",
+            validation=False,
+            channels=guild.channels
         )
         if not e_obj:
             return
-        msg = await self.mod_channel.send(e_obj)
+        msg = await self.mod_channel.send(embed=e_obj)
         # need to read the audit log to grab mod, date, and reason
         self.logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
         # sleep is needed so discord has time to create the audit log
@@ -312,9 +320,11 @@ class Ban(commands.Cog):
                 title=f'{Ban.embed_title} Guild Ban Intercept',
                 colour=WallEColour.ERROR,
                 description=error_message,
+                validation=False,
+                channels=guild.channels
             )
             if e_obj:
-                await msg.edit(e_obj)
+                await msg.edit(embed=e_obj)
             return
 
         if audit_ban is None:
@@ -329,17 +339,19 @@ class Ban(commands.Cog):
                 description=(
                     f"Unable to get guild ban for {member} to convert to wall_e ban. "
                     f"Please use `.convertbans` then `.purgebans` to try and manually convert ban."
-                )
+                ),
+                validation=False,
+                channels=guild.channels
             )
             if e_obj:
                 await msg.edit(embed=e_obj)
             return
 
         self.logger.debug(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
-
+        reason = audit_ban.reason if audit_ban.reason else 'No Reasons Given.'
         await self.wall_e_ban(
-            member, audit_ban.user, reason=audit_ban.reason, ban_date=audit_ban.created_at,
-            intercepted_moderator_action=True
+            member, audit_ban.user, reason=reason, ban_date=audit_ban.created_at,
+            intercepted_moderator_action=True, channels=guild.channels
         )
 
         await guild.unban(member)
@@ -350,7 +362,9 @@ class Ban(commands.Cog):
             author=bot.user,
             title=f'{Ban.embed_title} Guild Ban Intercept',
             colour=WallEColour.ERROR,
-            description=f"{member}'s ban successfully converted to a {bot.user.name} ban"
+            description=f"{member}'s ban successfully converted to a {bot.user.name} ban",
+            validation=False,
+            channels=guild.channels
         )
         if e_obj:
             await msg.edit(embed=e_obj)
