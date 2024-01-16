@@ -387,6 +387,11 @@ channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL = get_string_variables(
     "channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL", overwrite_env=overwrite_env_file,
     default_value='leveling_website_avatar_images'
 )
+channel_names__BOT_MANAGEMENT_CHANNEL = get_string_variables(
+    "What name do you want to set for the channel where errors from the ban interceptions embed creations are sent? ",
+    "channel_names__BOT_MANAGEMENT_CHANNEL", overwrite_env=overwrite_env_file,
+    default_value='bot_management'
+)
 
 
 essential_variables_are_null = check_for_null_variables(
@@ -434,6 +439,7 @@ channel_names__EMBED_AVATAR_CHANNEL='{channel_names__EMBED_AVATAR_CHANNEL}'
 channel_names__INCIDENT_REPORT_CHANNEL='{channel_names__INCIDENT_REPORT_CHANNEL}'
 channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL='{channel_names__LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL}'
 channel_names__ANNOUNCEMENTS_CHANNEL='{channel_names__ANNOUNCEMENTS_CHANNEL}'
+channel_names__BOT_MANAGEMENT_CHANNEL='{channel_names__BOT_MANAGEMENT_CHANNEL}'
 
 database_config__TYPE='{database_config__TYPE}'
 {database_config}""")
