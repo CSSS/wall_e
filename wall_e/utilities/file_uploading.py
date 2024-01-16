@@ -25,7 +25,7 @@ async def start_file_uploading(logger, guild, bot, config, file_path, channel_na
         )
     )
     bot.loop.create_task(
-        error_reporter(logger, config, file_path)
+        error_reporter(config, file_path)
     )
     logger.debug(
         f"[file_uploading.py start_file_uploading()] {file_path} successfully opened and connection to "

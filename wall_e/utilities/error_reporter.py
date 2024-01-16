@@ -2,14 +2,12 @@ import asyncio
 import re
 
 from utilities.create_github_issue import create_github_issue
-from utilities.send_email_alert_about_error import send_email_alert_about_error
 
 
-async def error_reporter(logger, config, file_path):
+async def error_reporter(config, file_path):
     """
     Handles detecting any error stack traces in the sys debug log and reporting them both to github and emailing them
      to the bot-managers
-    :param logger: the logger instance of the calling service
     :param config: used to determine the gmail and github credentials
     :param file_path: the path of the file to scan for errors and upload to the text channel
     :return:
@@ -42,7 +40,6 @@ async def error_reporter(logger, config, file_path):
                     log_issue = False
                     error_encountered = False
                     create_github_issue(error_lines, config)
-                    send_email_alert_about_error(logger, config, error_lines[len(error_lines) - 1], file_path)
                     error_lines.clear()
             if len(lines) == 0 and error_encountered:
                 log_issue = True
@@ -50,6 +47,5 @@ async def error_reporter(logger, config, file_path):
                 log_issue = False
                 error_encountered = False
                 create_github_issue(error_lines, config)
-                send_email_alert_about_error(logger, config, error_lines[len(error_lines)-1], file_path)
                 error_lines.clear()
             await asyncio.sleep(5)
