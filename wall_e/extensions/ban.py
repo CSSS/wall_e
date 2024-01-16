@@ -105,7 +105,8 @@ class Ban(commands.Cog):
                         ("Notice", f"**You are PERMANENTLY BANNED from\n{self.guild}\n\n"
                                    f"You may NOT rejoin the guild!**", False)
                     ]
-                ]
+                ],
+                validation=False
             )
             if e_obj:
                 e_obj.timestamp = pstdatetime.now().pst
