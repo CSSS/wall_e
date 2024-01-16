@@ -1,5 +1,6 @@
 import asyncio
 from operator import itemgetter
+from typing import Union
 
 import discord
 from discord import app_commands
@@ -101,7 +102,7 @@ class RoleCommands(commands.Cog):
             self.role_change_detected = len(member_before_update.roles) != len(member_after_update.roles)
 
     @commands.Cog.listener(name="on_member_ban")
-    async def on_member_ban(self, banned_member):
+    async def on_member_ban(self, guild: discord.Guild, member: Union[discord.User, discord.Member]):
         if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
             while self.guild is None:
                 await asyncio.sleep(2)
