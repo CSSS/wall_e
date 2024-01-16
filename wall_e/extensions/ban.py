@@ -81,7 +81,6 @@ class Ban(commands.Cog):
 
         # read in ban_list of banned users
         self.logger.debug('[Ban load()] loading ban list from the database')
-        await BanRecord.update_date_format()
         Ban.ban_list = await BanRecord.get_all_active_ban_user_ids()
         count = await BanRecord.get_active_bans_count()
         self.logger.debug(f"[Ban load()] loaded {count} banned users from database")
