@@ -64,7 +64,7 @@ async def paginate_embed(logger, bot, description_to_embed=None, content_to_embe
             author=embed_author,
             description=description_to_embed if description_to_embed is None else description_to_embed[current_page],
             content=content_to_embed if content_to_embed is None else content_to_embed[current_page],
-            footer=f"{current_page + 1}/{num_of_pages}"
+            footer_text=f"{current_page + 1}/{num_of_pages}"
         )
         if embed_obj is not None:
             logger.debug(

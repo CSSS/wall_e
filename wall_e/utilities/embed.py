@@ -34,7 +34,8 @@ async def send_func_helper(message, send_func, text_command, reference):
 async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
                 author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
-                footer: str = '', channels=None, ban_related_message=False, bot_management_channel=None):
+                footer_text: str = '', footer_icon=None, timestamp=None, channels=None, ban_related_message=False,
+                bot_management_channel=None):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -68,7 +69,9 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
      Used to set the coloured strip on the left side of the embed, by default set to a nice blue colour.
     :param thumbnail: the thumbnail to assign to the embed [Optional]
      Url to image to be used in the embed. Thumbnail appears top right corner of the embed.
-    :param footer: the footer to assign to the embed [Optional]
+    :param footer_text: the footer text to assign to the embed [Optional]
+    :param footer_icon: the icon to assign to the footer [Optional]
+    :param timestamp: the timestamp to assign to the footer [Optional]
     :param channels: the channels in the guild, necessary for the embed that are created from the intercept and
      watchdog methods in ban class
     :param ban_related_message: indicates if the embed function was called from the ban_related messages which have no
@@ -162,13 +165,13 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
                 logger.debug(f"[embed.py embed()] {record[1]}")
                 return False
 
-    if len(footer) > 2048:
+    if len(footer_text) > 2048:
         await send_func_helper(
             f"Embed Error:\nlength of footer being added to the footer field is "
-            f"{len(footer) - 2048} characters too big, please cut down to a size of 2048", send_func, text_command,
-            reference
+            f"{len(footer_text) - 2048} characters too big, please cut down to a size of 2048", send_func,
+            text_command, reference
         )
-        logger.debug(f"[embed.py embed()] length of footer [{footer}] being added to the field is too big")
+        logger.debug(f"[embed.py embed()] length of footer [{footer_text}] being added to the field is too big")
         return False
 
     emb_obj = discord.Embed(title=title, type='rich')
@@ -204,7 +207,15 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     emb_obj.set_author(name=author_name, icon_url=author_icon_url)
     emb_obj.colour = COLOUR_MAPPING[colour]
     emb_obj.set_thumbnail(url=thumbnail)
-    emb_obj.set_footer(text=footer)
+    if footer_text or footer_icon:
+        if footer_icon is None:
+            emb_obj.set_footer(text=footer_text)
+        elif footer_text is None:
+            emb_obj.set_footer(icon_url=footer_icon)
+        else:
+            emb_obj.set_footer(text=footer_text, icon_url=footer_icon)
+    if timestamp:
+        emb_obj.timestamp = timestamp
     # emb_obj.url = link
     # parse content to add fields
     if content is not None:

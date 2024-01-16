@@ -76,7 +76,7 @@ class SFU(commands.Cog):
                 author=ctx.me,
                 colour=WallEColour.ERROR,
                 content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
-                footer='SFU Error'
+                footer_text='SFU Error'
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj, reference=ctx.message)
@@ -109,7 +109,7 @@ class SFU(commands.Cog):
                     author=ctx.me,
                     colour=WallEColour.ERROR,
                     content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
-                    footer='SFU Error'
+                    footer_text='SFU Error'
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj, reference=ctx.message)
@@ -150,7 +150,7 @@ class SFU(commands.Cog):
                         f'/{course_num}/\nMake sure you entered all the arguments '
                         'correctly'
                     ),
-                    footer='SFU Error'
+                    footer_text='SFU Error'
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj, reference=ctx.message)
@@ -174,7 +174,7 @@ class SFU(commands.Cog):
             author=ctx.me,
             content=fields,
             colour=WallEColour.ERROR,
-            footer=footer
+            footer_text=footer
         )
         if embed_obj is not False:
             await ctx.send(embed=embed_obj, reference=ctx.message)
@@ -222,7 +222,7 @@ class SFU(commands.Cog):
                 author=ctx.me,
                 colour=WallEColour.ERROR,
                 content=usage,
-                footer='SFU Outline Error'
+                footer_text='SFU Outline Error'
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj, reference=ctx.message)
@@ -266,7 +266,7 @@ class SFU(commands.Cog):
                     author=ctx.me,
                     colour=WallEColour.ERROR,
                     content=usage,
-                    footer='SFU Outline Error'
+                    footer_text='SFU Outline Error'
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj, reference=ctx.message)
@@ -312,7 +312,7 @@ class SFU(commands.Cog):
                             '<term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section'
                             ' are optional args'
                         ),
-                        footer='SFU Outline Error'
+                        footer_text='SFU Outline Error'
                     )
                     if e_obj is not False:
                         await ctx.send(embed=e_obj, reference=ctx.message)
@@ -348,7 +348,7 @@ class SFU(commands.Cog):
                         f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
                         'Maybe the course doesn\'t exist? Or isn\'t offered right now.'
                     ),
-                    footer='SFU Outline Error'
+                    footer_text='SFU Outline Error'
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj, reference=ctx.message)
@@ -379,7 +379,7 @@ class SFU(commands.Cog):
                     f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`'
                     f'\n Maybe the course doesn\'t exist? Or isn\'t offered right now.'
                 ),
-                footer='SFU Outline Error'
+                footer_text='SFU Outline Error'
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj, reference=ctx.message)
@@ -403,7 +403,7 @@ class SFU(commands.Cog):
                 description=(
                     f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
                     f'Maybe the course doesn\'t exist? Or isn\'t offered right now.'),
-                footer='SFU Outline Error')
+                footer_text='SFU Outline Error')
             if e_obj is not False:
                 await ctx.send(embed=e_obj, reference=ctx.message)
             return
@@ -500,7 +500,7 @@ class SFU(commands.Cog):
             colour=WallEColour.ERROR,
             thumbnail=img,
             content=fields,
-            footer='Written by VJ'
+            footer_text='Written by VJ'
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj, reference=ctx.message)

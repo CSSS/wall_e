@@ -102,7 +102,7 @@ class Reminders(commands.Cog):
                     self.reminder_channel,
                     author=bot.user,
                     description=f"This is your reminder to {reminder_message}",
-                    footer='Reminder'
+                    footer_text='Reminder'
                 )
                 if e_obj is not False:
                     await self.reminder_channel.send(f'<@{author_id}>', embed=e_obj)

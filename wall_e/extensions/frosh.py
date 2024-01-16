@@ -71,7 +71,7 @@ class Frosh(commands.Cog):
                 author=ctx.me,
                 colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help team` for how to use the command')],
-                footer='Team Error'
+                footer_text='Team Error'
             )
             await ctx.send(embed=e_obj)
             self.logger.debug('[Frosh froshteam()] Missing arguments, command ended')
@@ -89,7 +89,7 @@ class Frosh(commands.Cog):
                 ('Contact', ctx.author.mention),
                 ('Team Members', '\n'.join(list(map(lambda str: str.strip(), info[2].split(',')))))
             ],
-            footer='Frosh 2020'
+            footer_text='Frosh 2020'
         )
 
         try:
@@ -126,7 +126,7 @@ class Frosh(commands.Cog):
                 author=ctx.me,
                 colour=WallEColour.ERROR,
                 content=[('Error', 'You are missing arguments. Call `.help reportwin` for how to use the command')],
-                footer='ReportWin Error'
+                footer_text='ReportWin Error'
             )
             await ctx.send(embed=e_obj)
             self.logger.debug('[Frosh reportwin()] Missing arguments, command ended')
@@ -142,7 +142,7 @@ class Frosh(commands.Cog):
                 ('Team Name', info[0]),
                 ('Team Members', '\n'.join(list(map(lambda str: str.strip(), info[1].split(',')))))
             ],
-            footer='Frosh 2020'
+            footer_text='Frosh 2020'
         )
 
         self.logger.debug(f'[Frosh reportwin()] winner announcement embed made with following fields: {e_obj.fields}')

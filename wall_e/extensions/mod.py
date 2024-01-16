@@ -159,7 +159,7 @@ class Mod(commands.Cog):
 
         e_obj = await embed(
             self.logger, ctx=ctx, title='ATTENTION:', author=ctx.author, colour=WallEColour.ERROR,
-            description=msg, footer='Moderator Warning'
+            description=msg, footer_text='Moderator Warning'
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj)

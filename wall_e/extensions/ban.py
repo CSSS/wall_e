@@ -115,12 +115,12 @@ class Ban(commands.Cog):
                 ],
                 channels=self.guild.channels,
                 bot_management_channel=self.bot_management_channel,
-                ban_related_message=True
+                ban_related_message=True,
+                footer_text=self.guild,
+                footer_icon=self.guild.icon,
+                timestamp=pstdatetime.now().pst
             )
             if e_obj:
-                e_obj.timestamp = pstdatetime.now().pst
-                e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
-
                 try:
                     await member.send(embed=e_obj)
                 except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
@@ -341,12 +341,12 @@ class Ban(commands.Cog):
             ],
             channels=self.guild.channels,
             bot_management_channel=self.bot_management_channel,
-            ban_related_message=True
+            ban_related_message=True,
+            timestamp=pstdatetime.now().pst,
+            footer_text=self.guild,
+            footer_icon=self.guild.icon
         )
         if e_obj:
-            e_obj.timestamp = pstdatetime.now().pst
-            e_obj.set_footer(icon_url=self.guild.icon, text=self.guild)
-
             try:
                 await banned_user.send(embed=e_obj)
                 self.logger.debug("[Ban wall_e_ban()] User notified via dm of their ban")
@@ -377,13 +377,13 @@ class Ban(commands.Cog):
                 ("Days of Messages to Purge", f"{purge_window_days}"),
                 ("Purge Complete", "False")
             ],
-            footer="Intercepted Moderator Action" if intercepted_moderator_action else "Moderator Action",
+            footer_text="Intercepted Moderator Action" if intercepted_moderator_action else "Moderator Action",
             channels=self.guild.channels,
             bot_management_channel=self.bot_management_channel,
-            ban_related_message=True
+            ban_related_message=True,
+            timestamp=ban_date
         )
         if e_obj:
-            e_obj.timestamp = ban_date
             await asyncio.sleep(5)
             if invoked_channel_msg:
                 await invoked_channel_msg.delete()
@@ -467,7 +467,7 @@ class Ban(commands.Cog):
                      f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user.")
                 ],
                 colour=WallEColour.ERROR,
-                footer="Command Error"
+                footer_text="Command Error"
             )
             if e_obj:
                 await interaction.followup.send(embed=e_obj)
