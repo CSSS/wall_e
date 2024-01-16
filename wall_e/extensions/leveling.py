@@ -11,7 +11,7 @@ from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
 
-from wall_e_models.models import Level, UserPoint, BanRecord, UpdatedUser, ProfileBucketInProgress
+from wall_e_models.models import Level, UserPoint, UpdatedUser, ProfileBucketInProgress
 
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
@@ -417,7 +417,8 @@ class Leveling(commands.Cog):
             await asyncio.sleep(2)
         if member.id not in self.user_points:
             return
-        if await BanRecord.user_is_banned(member.id):
+        from extensions.ban import Ban
+        if member.id in Ban.ban_list:
             return
         self.logger.info(
             f"[Leveling assign_roles_on_member_join()] ensuring a {member} with {self.user_points[member.id].points} "
