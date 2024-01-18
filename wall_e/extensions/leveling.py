@@ -622,11 +622,6 @@ class Leveling(commands.Cog):
                         f"[Leveling _update_member_profile_data()] updated the member profile data"
                         f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
                     )
-                else:
-                    self.logger.debug(
-                        f"[Leveling _update_member_profile_data()] no update was deemed necessary for member"
-                        f" {member} {index + 1}/{total_number_of_updates_needed}"
-                    )
             except Exception as e:
                 self.logger.error(
                     f"[Leveling _update_member_profile_data()] unable to update the member profile"
