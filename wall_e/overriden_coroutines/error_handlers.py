@@ -158,6 +158,15 @@ async def report_command_errors(error, logger, interaction=None, ctx=None):
                 await msg.delete()
     elif isinstance(error, commands.errors.CommandNotFound):
         return
+    elif isinstance(error, discord.errors.NotFound):
+        try:
+            error.command.binding.logger.warn(
+                'Encountered exception in command %r', interaction.command.name, exc_info=error
+            )
+        except Exception:
+            logger.warn(
+                'Encountered exception in command %r', interaction.command.name, exc_info=error
+            )
     else:
         # only prints out an error to the log if the string that was entered doesnt contain just "."
         pattern = r'[^\.]'
