@@ -496,7 +496,7 @@ class Leveling(commands.Cog):
         total_number_of_updates_needed = len(updated_user_ids)
         self.logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] {total_number_of_updates_needed} "
-            f"necessary updates retrieved for bucket {entry.bucket_number_completed}"
+            f"potential updates retrieved for bucket {entry.bucket_number_completed}"
         )
         for index, user_id in enumerate(updated_user_ids):
             self.logger.debug(
