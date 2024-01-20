@@ -116,7 +116,7 @@ class Ban(commands.Cog):
                 channels=self.guild.channels,
                 bot_management_channel=self.bot_management_channel,
                 ban_related_message=True,
-                footer_text=self.guild,
+                footer_text=f"{self.guild}",
                 footer_icon=self.guild.icon,
                 timestamp=pstdatetime.now().pst
             )
@@ -343,7 +343,7 @@ class Ban(commands.Cog):
             bot_management_channel=self.bot_management_channel,
             ban_related_message=True,
             timestamp=pstdatetime.now().pst,
-            footer_text=self.guild,
+            footer_text=f"{self.guild}",
             footer_icon=self.guild.icon
         )
         if e_obj:
