@@ -4,6 +4,7 @@
 import asyncio
 
 import discord
+from discord import Thread
 from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
@@ -55,7 +56,7 @@ class Here(commands.Cog):
                 self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "here_error"
             )
 
-    def build_embed(self, members, channel):
+    def build_embed(self, members, channel, thread=False):
         # build response
 
         title = f"Users in **#{channel.name}**"
@@ -79,15 +80,16 @@ class Here(commands.Cog):
             embed.add_field(name="Name", value=nicks, inline=True)
             embed.add_field(name="Account", value=names, inline=True)
 
-        # comma separated list of role names for each role in the channel
-        # if they can read messages
-        # like how it says...
-        roles = ", ".join([role.name
-                           for role in channel.changed_roles
-                           if role.permissions.read_messages])
-        roles += "\n*This message will self-destruct in 5 minutes*\n"
+        if not thread:
+            # comma separated list of role names for each role in the channel
+            # if they can read messages
+            # like how it says...
+            roles = ", ".join([role.name
+                               for role in channel.changed_roles
+                               if role.permissions.read_messages])
+            roles += "\n*This message will self-destruct in 5 minutes*\n"
 
-        embed.add_field(name="Channel Specific Roles", value=roles, inline=False)
+            embed.add_field(name="Channel Specific Roles", value=roles, inline=False)
         embed.description = string
         return embed
 
@@ -111,7 +113,16 @@ class Here(commands.Cog):
 
         # find people in the channel
         channel = ctx.channel
-        members = channel.members
+        if isinstance(channel, Thread):
+            thread = True
+            members = await channel.fetch_members()
+            members = [
+                await ctx.guild.fetch_member(member.id)
+                for member in members
+            ]
+        else:
+            thread = False
+            members = channel.members
 
         # optional filtering
         if len(search) > 0:
@@ -123,7 +134,7 @@ class Here(commands.Cog):
 
         self.logger.debug(f"[Here here()] found {len(members)} users in {channel.name}")
 
-        embed = self.build_embed(members, channel)
+        embed = self.build_embed(members, channel, thread=thread)
 
         await ctx.send(embed=embed, delete_after=300, reference=ctx.message)
 
