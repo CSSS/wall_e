@@ -1,8 +1,10 @@
 import asyncio
+
 import discord
 
 from utilities.bot_channel_manager import wall_e_category_name
 from utilities.embed import embed
+from wall_e_models.customFields import pstdatetime
 
 
 async def get_message_after_up_arrow_emoji(channel, message_with_up_arrow_emoji):
@@ -110,9 +112,33 @@ async def reaction_detected(reaction):
         )
     ]
     number_of_messages_deleted = len(messages_to_delete)
+    todays_date = pstdatetime.now()
+    messages_that_cant_be_bulk_deleted = []
     while len(messages_to_delete) > 0:
-        await channel.delete_messages(messages_to_delete[:100], reason="issue fixed")
+        number_of_messages = len(messages_to_delete)
+        messages_that_can_be_deleted = [
+            message_to_delete
+            for message_to_delete in messages_to_delete[:100]
+            if (todays_date - message_to_delete.created_at).days < 14
+        ]
+        messages_that_cant_be_bulk_deleted.extend([
+            message_to_delete
+            for message_to_delete in messages_to_delete[:100]
+            if (todays_date - message_to_delete.created_at).days >= 14
+        ])
+        logger.info(
+            f"[detect_reactions.py reaction_detected()] bulk deleting "
+            f"{len(messages_that_can_be_deleted)}/{number_of_messages} messages "
+        )
+        await channel.delete_messages(messages_that_can_be_deleted, reason="issue fixed")
         messages_to_delete = messages_to_delete[100:]
+    if len(messages_that_cant_be_bulk_deleted) > 0:
+        logger.info(
+            f"[detect_reactions.py reaction_detected()] attempting to manually delete "
+            f"{len(messages_that_cant_be_bulk_deleted)} messages "
+        )
+        for message_that_cant_be_bulk_deleted in messages_that_cant_be_bulk_deleted:
+            await message_that_cant_be_bulk_deleted.delete()
     message = (
         'Last' +
         (f" {number_of_messages_deleted} messages" if number_of_messages_deleted > 1 else " message") +
