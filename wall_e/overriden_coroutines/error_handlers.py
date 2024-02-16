@@ -16,47 +16,44 @@ async def report_text_command_error(ctx, error):
     :return:
     """
     from utilities.global_vars import logger
-    from extensions.manage_test_guild import ManageTestGuild
-    correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
-    if correct_channel:
-        handled_errors = (
-            commands.errors.ArgumentParsingError, commands.errors.MemberNotFound, commands.MissingRequiredArgument,
-            commands.errors.BadArgument
+    handled_errors = (
+        commands.errors.ArgumentParsingError, commands.errors.MemberNotFound, commands.MissingRequiredArgument,
+        commands.errors.BadArgument
+    )
+    if isinstance(error, handled_errors):
+        message_footer = (
+            "\n\n**You have 20 seconds to copy your input to do a retry before I ensure it is wiped from the"
+            " channel**"
         )
-        if isinstance(error, handled_errors):
-            message_footer = (
-                "\n\n**You have 20 seconds to copy your input to do a retry before I ensure it is wiped from the"
-                " channel**"
+        if isinstance(error, commands.errors.ArgumentParsingError):
+            description = (
+                f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"
+                f"\n'{error.args[0]}'\n\n[Technical Details link if you care to look]"
+                f"(https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?"
+                f"highlight=argumentparsingerror#exceptions){message_footer}"
             )
-            if isinstance(error, commands.errors.ArgumentParsingError):
-                description = (
-                    f"Uh-oh, seem like you have entered a badly formed string and wound up with error:"
-                    f"\n'{error.args[0]}'\n\n[Technical Details link if you care to look]"
-                    f"(https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?"
-                    f"highlight=argumentparsingerror#exceptions){message_footer}"
-                )
-            elif ctx.command.name == 'unban' and isinstance(error, commands.errors.BadArgument):
-                description = f'Please enter a numerical Discord ID.{message_footer}'
-            else:
-                description = f"{error.args[0]}{message_footer}"
-            error_type = f"{type(error)}"[8:-2]
-            embed_obj = await embed(
-                logger=ctx.cog.logger, ctx=ctx, title=f"Error {error_type} encountered",
-                description=description, colour=WallEColour.ERROR
-            )
-            if embed_obj is not False:
-                message = await ctx.channel.send(embed=embed_obj, reference=ctx.message)
-                await asyncio.sleep(20)
-                try:
-                    await ctx.message.delete()
-                except discord.errors.NotFound:
-                    pass
-                try:
-                    await message.delete()
-                except discord.errors.NotFound:
-                    pass
+        elif ctx.command.name == 'unban' and isinstance(error, commands.errors.BadArgument):
+            description = f'Please enter a numerical Discord ID.{message_footer}'
         else:
-            await report_command_errors(error, logger, ctx=ctx)
+            description = f"{error.args[0]}{message_footer}"
+        error_type = f"{type(error)}"[8:-2]
+        embed_obj = await embed(
+            logger=ctx.cog.logger, ctx=ctx, title=f"Error {error_type} encountered",
+            description=description, colour=WallEColour.ERROR
+        )
+        if embed_obj is not False:
+            message = await ctx.channel.send(embed=embed_obj, reference=ctx.message)
+            await asyncio.sleep(20)
+            try:
+                await ctx.message.delete()
+            except discord.errors.NotFound:
+                pass
+            try:
+                await message.delete()
+            except discord.errors.NotFound:
+                pass
+    else:
+        await report_command_errors(error, logger, ctx=ctx)
 
 
 async def report_slash_command_error(interaction: discord.Interaction, error):
