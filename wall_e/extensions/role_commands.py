@@ -45,33 +45,30 @@ class RoleCommands(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
-                "role_commands_debug"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
+            "role_commands_debug"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_warn_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
-                "role_commands_warn"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
+            "role_commands_warn"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
-                "role_commands_error"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
+            "role_commands_error"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def get_bot_general_channel(self):
@@ -89,45 +86,39 @@ class RoleCommands(commands.Cog):
 
     @commands.Cog.listener(name="on_raw_member_remove")
     async def on_raw_member_remove(self, payload):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.role_change_detected = True
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.role_change_detected = True
 
     @commands.Cog.listener(name="on_member_update")
     async def on_member_update(self, member_before_update, member_after_update):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.role_change_detected = len(member_before_update.roles) != len(member_after_update.roles)
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.role_change_detected = len(member_before_update.roles) != len(member_after_update.roles)
 
     @commands.Cog.listener(name="on_member_ban")
     async def on_member_ban(self, guild: discord.Guild, member: Union[discord.User, discord.Member]):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.role_change_detected = True
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.role_change_detected = True
 
     @commands.Cog.listener(name="on_guild_role_create")
     async def on_guild_role_create(self, created_role):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.role_change_detected = True
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.role_change_detected = True
 
     @commands.Cog.listener(name="on_guild_role_delete")
     async def on_guild_role_delete(self, deleted_role):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.role_change_detected = True
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.role_change_detected = True
 
     @commands.Cog.listener(name="on_guild_role_update")
     async def on_guild_role_update(self, role_before_update, role_after_update):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.role_change_detected = True
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.role_change_detected = True
 
     @tasks.loop(minutes=1)
     async def update_roles_cache(self):

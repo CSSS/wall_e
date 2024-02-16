@@ -185,25 +185,22 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
             channels = interaction.guild.channels if interaction is not None else ctx.guild.channels
         embed_avatar_chan_name = wall_e_config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
         embed_avatar_chan: discord.TextChannel = discord.utils.get(channels, name=embed_avatar_chan_name)
-        if embed_avatar_chan is not None:  # since the TEST guild is the only environment where the channel does
-            # not exist this is currently the best way to ensure that embed avatars aren't preserved for longevity
-            # on the TEST guild since there's really no point to that on a TEST environment
-            from wall_e_models.models import EmbedAvatar
-            # the below is needed in case the avatar url that was passed in to this function is deleted at some point
-            # in the future, which will result in an embed that has a broken avatar
-            avatar_obj = await EmbedAvatar.get_avatar_by_url(author_icon_url)
-            if avatar_obj is None:
-                avatar_file_name = f'avatar-{time.time()*1000}.png'
-                with open(avatar_file_name, "wb") as file:
-                    file.write(requests.get(author_icon_url).content)
-                avatar_msg = await embed_avatar_chan.send(file=discord.File(avatar_file_name))
-                os.remove(avatar_file_name)
-                avatar_obj = EmbedAvatar(
-                    avatar_discord_url=author_icon_url,
-                    avatar_discord_permanent_url=avatar_msg.attachments[0].url
-                )
-                await EmbedAvatar.insert_record(avatar_obj)
-            author_icon_url = avatar_obj.avatar_discord_permanent_url
+        from wall_e_models.models import EmbedAvatar
+        # the below is needed in case the avatar url that was passed in to this function is deleted at some point
+        # in the future, which will result in an embed that has a broken avatar
+        avatar_obj = await EmbedAvatar.get_avatar_by_url(author_icon_url)
+        if avatar_obj is None:
+            avatar_file_name = f'avatar-{time.time()*1000}.png'
+            with open(avatar_file_name, "wb") as file:
+                file.write(requests.get(author_icon_url).content)
+            avatar_msg = await embed_avatar_chan.send(file=discord.File(avatar_file_name))
+            os.remove(avatar_file_name)
+            avatar_obj = EmbedAvatar(
+                avatar_discord_url=author_icon_url,
+                avatar_discord_permanent_url=avatar_msg.attachments[0].url
+            )
+            await EmbedAvatar.insert_record(avatar_obj)
+        author_icon_url = avatar_obj.avatar_discord_permanent_url
     emb_obj.set_author(name=author_name, icon_url=author_icon_url)
     emb_obj.colour = COLOUR_MAPPING[colour]
     emb_obj.set_thumbnail(url=thumbnail)

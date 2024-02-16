@@ -4,7 +4,6 @@ import configparser
 
 
 config_file_location_local = "utilities/config/local.ini"
-config_file_location_dev = "utilities/config/dev.ini"
 config_file_location_production = "utilities/config/production.ini"
 
 
@@ -17,8 +16,6 @@ class WallEConfig:
         self.config.optionxform = str
         if environment == "LOCALHOST":
             self.config.read(config_file_location_local)
-        elif environment == 'TEST':
-            self.config.read(config_file_location_dev)
         elif environment == "PRODUCTION":
             self.config.read(config_file_location_production)
         else:

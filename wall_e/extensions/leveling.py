@@ -45,31 +45,28 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "leveling_debug"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "leveling_debug"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_warn_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
-                "leveling_warn"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
+            "leveling_warn"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "leveling_error"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "leveling_error"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def updating_database_and_cache(self):
@@ -151,22 +148,22 @@ class Leveling(commands.Cog):
         leveling website
         :return:
         """
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.logger.info(
-                "[Leveling get_leveling_avatar_channel()] acquiring text channel for the avatars used on the leveling"
-                " website."
-            )
-            leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
-                self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
-                'leveling_website_avatar_images'
-            )
-            self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
-                self.guild.channels, id=leveling_website_avatar_images_channel_id
-            )
-            self.logger.debug(f"[Leveling get_leveling_avatar_channel()] bot channel "
-                              f"{self.levelling_website_avatar_channel} acquired.")
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.logger.info(
+            "[Leveling get_leveling_avatar_channel()] acquiring text channel for the avatars used on the leveling"
+            " website."
+        )
+        leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+            'leveling_website_avatar_images'
+        )
+        self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
+            self.guild.channels, id=leveling_website_avatar_images_channel_id
+        )
+        self.logger.debug(
+            f"[Leveling get_leveling_avatar_channel()] bot channel {self.levelling_website_avatar_channel} acquired."
+        )
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):

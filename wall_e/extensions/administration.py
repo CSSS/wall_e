@@ -14,8 +14,6 @@ from utilities.autocomplete.extensions_load_choices import get_extension_that_ca
     get_extension_that_can_be_unloaded
 from utilities.global_vars import wall_e_config, bot
 
-from extensions.manage_test_guild import ManageTestGuild
-
 from utilities.bot_channel_manager import BotChannelManager
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
@@ -56,12 +54,8 @@ async def save_command_stats(ctx):
 async def save_command_stat(
         channel_name, command_name, invoked_with, invoked_subcommand=None, ctx=None):
     frequency_command_enabled = wall_e_config.enabled("frequency", option="ENABLED")
-    if ctx is None:
-        command_in_correct_channel = wall_e_config.enabled("basic_config", option="ENVIRONMENT") != "TEST"
-    else:
-        command_in_correct_channel = ManageTestGuild.check_text_command_test_environment(ctx)
 
-    if frequency_command_enabled and command_in_correct_channel:
+    if frequency_command_enabled:
         await CommandStat.save_command_stat(CommandStat(
             epoch_time=datetime.datetime.now().timestamp(), channel_name=channel_name,
             command=command_name, invoked_with=invoked_with,
@@ -119,33 +113,30 @@ class Administration(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
-                "administration_debug"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
+            "administration_debug"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_warn_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
-                "administration_warn"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
+            "administration_warn"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
-                "administration_error"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
+            "administration_error"
+        )
 
     @commands.command()
     async def exit(self, ctx):
@@ -334,9 +325,7 @@ class Administration(commands.Cog):
         await self.sync_helper(ctx=ctx)
 
     async def sync_helper(self, ctx=None, interaction=None):
-        message = "Testing guild does not provide support for Slash Commands" \
-            if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") == 'TEST' \
-            else 'Commands Synced!'
+        message = 'Commands Synced!'
         e_obj = await embed(
             self.logger,
             ctx=ctx,
@@ -344,8 +333,7 @@ class Administration(commands.Cog):
             description=message,
             author=ctx.me if interaction is None else interaction.client.user,
         )
-        if wall_e_config.get_config_value("basic_config", "ENVIRONMENT") != 'TEST':
-            await bot.tree.sync(guild=self.guild)
+        await bot.tree.sync(guild=self.guild)
         if e_obj is not False:
             send_func = ctx.send if interaction is None else interaction.channel.send
             message = await send_func(embed=e_obj)

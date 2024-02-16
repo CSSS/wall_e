@@ -2,38 +2,7 @@ import asyncio
 
 import discord
 
-test_guild_log_positioning = {
-    "sys_debug": 0,
-    "sys_error": 1,
-    "wall_e_debug": 2,
-    "wall_e_error": 3,
-    "discordpy_debug": 4,
-    "discordpy_error": 5,
-    "administration_debug": 6,
-    "administration_error": 7,
-    "ban_debug": 8,
-    "ban_error": 9,
-    "frosh_debug": 10,
-    "frosh_error": 11,
-    "health_checks_debug": 12,
-    "health_checks_error": 13,
-    "here_debug": 14,
-    "here_error": 15,
-    "leveling_debug": 16,
-    "leveling_error": 17,
-    "manage_test_guild_debug": 18,
-    "manage_test_guild_error": 19,
-    "misc_debug": 20,
-    "misc_error": 21,
-    "mod_debug": 22,
-    "mod_error": 23,
-    "reminders_debug": 24,
-    "reminders_error": 25,
-    "role_commands_debug": 26,
-    "role_commands_error": 27,
-    "sfu_debug": 28,
-    "sfu_error": 29
-}
+
 wall_e_category_name = "WALL-E LOGS"
 
 
@@ -43,66 +12,51 @@ class BotChannelManager:
         """
         Initialized the BotChannelManager service which is responsible for creating any discord text channels
         or category channels need by wall_e
-        :param config: an instance of WALLEConfig that is used to determine what name to assign to the channels
-        since the channel names in the TEST environment are BRANCH_NAME dependent.
+        :param config: an instance of WALLEConfig that is used to determine what name to assign to the channels.
         :param bot: Used by the methods to make sure the service only tries to interact with discord API when
         bot.wait_until_ready() indicates the bot is ready
         """
         self.bot = bot
         self.channel_names = {
-            "general_channel": {
-                "TEST": config.get_config_value('basic_config', 'BRANCH_NAME').lower(),
-            },
+            "general_channel": {},
             "role_commands": {
                 "PRODUCTION": config.get_config_value('channel_names', 'BOT_GENERAL_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel",
                 "LOCALHOST": config.get_config_value('channel_names', 'BOT_GENERAL_CHANNEL')
             },
             "reminders": {
                 "PRODUCTION": config.get_config_value('channel_names', 'BOT_GENERAL_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_channel",
                 "LOCALHOST": config.get_config_value('channel_names', 'BOT_GENERAL_CHANNEL')
             },
             "ban": {
                 "PRODUCTION": config.get_config_value('channel_names', 'MOD_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_mod_channel",
                 "LOCALHOST": config.get_config_value('channel_names', 'MOD_CHANNEL')
             },
             "council": {
                 "PRODUCTION": config.get_config_value('channel_names', 'MOD_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_mod_channel",
                 "LOCALHOST": config.get_config_value('channel_names', 'MOD_CHANNEL')
             },
             "leveling": {
                 "PRODUCTION": config.get_config_value('channel_names', 'LEVELLING_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_council",
                 "LOCALHOST": config.get_config_value('channel_names', 'LEVELLING_CHANNEL')
             },
             "announcements": {
                 "PRODUCTION": config.get_config_value('channel_names', 'ANNOUNCEMENTS_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_announcements",
                 "LOCALHOST": config.get_config_value('channel_names', 'ANNOUNCEMENTS_CHANNEL')
             },
             "embed_avatars": {
                 "PRODUCTION": config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_embed_avatar",
                 "LOCALHOST": config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
             },
             "incident_reports": {
                 "PRODUCTION": config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_incident_reports",
                 "LOCALHOST": config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
             },
             "leveling_website_avatar_images": {
                 "PRODUCTION": config.get_config_value('channel_names', 'LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL'),
-                "TEST": (
-                    f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_leveling_website_avatar_images"
-                ),
                 "LOCALHOST": config.get_config_value('channel_names', 'LEVELLING_WEBSITE_AVATAR_IMAGE_CHANNEL')
             },
             "bot_management_channel": {
                 "PRODUCTION": config.get_config_value('channel_names', 'BOT_MANAGEMENT_CHANNEL'),
-                "TEST": f"{config.get_config_value('basic_config', 'BRANCH_NAME').lower()}_bot_management_channel",
                 "LOCALHOST": config.get_config_value('channel_names', 'BOT_MANAGEMENT_CHANNEL')
             }
         }
@@ -170,7 +124,7 @@ class BotChannelManager:
         used to create or get the text channels where log files entries will be uploaded to
         :param logger: the service's instant of logger
         :param guild: the guild on which to create or get the text channel
-        :param config: used to determine the name of the text channels if the environment is TEST
+        :param config: used to determine the name of the text channels
         :param service: the service that is calling this method to get the necessary channel id
         :return: the ID of the channel
         """
@@ -178,8 +132,6 @@ class BotChannelManager:
         service = service.lower()
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
         text_channel_position = BotChannelManager.log_positioning[service]
-        if environment == 'TEST':
-            service = f"{service}_{config.get_config_value('basic_config', 'BRANCH_NAME')}"
         logger.debug(
             f"[BotChannelManager create_or_get_channel_id_for_service()] getting channel {service} for {environment}"
         )

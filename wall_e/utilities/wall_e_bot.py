@@ -47,8 +47,7 @@ class WalleBot(commands.Bot):
 
     async def setup_hook(self) -> None:
         self.add_listener(report_text_command_error, "on_command_error")
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            self.tree.on_error = report_slash_command_error
+        self.tree.on_error = report_slash_command_error
         self.add_listener(reaction_detected, "on_raw_reaction_add")
         delete_help_command_messages.start()
 
@@ -129,7 +128,7 @@ class WalleBot(commands.Bot):
         """
         bot_guild = self.guilds[0]
         # tries to open log file in prep for write_to_bot_log_channel function
-        if self.uploading is False and wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
+        if self.uploading is False:
             try:
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, sys_debug_log_file_absolute_path, "sys_debug"

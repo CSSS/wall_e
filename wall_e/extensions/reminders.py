@@ -35,31 +35,28 @@ class Reminders(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "reminders_debug"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "reminders_debug"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_warn_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
-                "reminders_warn"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
+            "reminders_warn"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "reminders_error"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "reminders_error"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def get_reminders_channel(self):
@@ -67,20 +64,19 @@ class Reminders(commands.Cog):
         Gets the channel where the reminders are sent on
         :return:
         """
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            self.logger.info("[Reminders get_reminders_channel()] acquiring text channel for reminders.")
-            reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
-                self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
-                "reminders"
-            )
-            self.reminder_channel = discord.utils.get(
-                self.guild.channels, id=reminder_chan_id
-            )
-            self.logger.debug(
-                f"[Reminders get_reminders_channel()] text channel {self.reminder_channel} acquired."
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.logger.info("[Reminders get_reminders_channel()] acquiring text channel for reminders.")
+        reminder_chan_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+            "reminders"
+        )
+        self.reminder_channel = discord.utils.get(
+            self.guild.channels, id=reminder_chan_id
+        )
+        self.logger.debug(
+            f"[Reminders get_reminders_channel()] text channel {self.reminder_channel} acquired."
+        )
 
     @tasks.loop(seconds=2)
     async def get_messages(self):

@@ -31,31 +31,28 @@ class SFU(commands.Cog):
 
     @commands.Cog.listener(name="on_ready")
     async def upload_debug_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "sfu_debug"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "sfu_debug"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_warn_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
-                "sfu_warn"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.warn_log_file_absolute_path,
+            "sfu_warn"
+        )
 
     @commands.Cog.listener(name="on_ready")
     async def upload_error_logs(self):
-        if wall_e_config.get_config_value('basic_config', 'ENVIRONMENT') != 'TEST':
-            while self.guild is None:
-                await asyncio.sleep(2)
-            await start_file_uploading(
-                self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "sfu_error"
-            )
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "sfu_error"
+        )
 
     @commands.command(
         brief="Show calendar description from the specified course's current semester",
