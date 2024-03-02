@@ -781,12 +781,20 @@ class RoleCommands(commands.Cog):
                     self.logger.debug(
                         "[RoleCommands send_message_to_user_or_bot_channel()] DMing the result to the user")
                     try:
-                        await interaction.delete_original_response()
                         if delete_response:
+                            # code comes here when any of the role commands are called with a bad input
+                            # I decided to send an error response to the original message before deleting both with
+                            # delete_original_response
                             await channel_send_func(embed=e_obj)
                             await asyncio.sleep(10)
                             await interaction.delete_original_response()
                         else:
+                            # I decided that if the user calls the role commands with a good input but from a wrong
+                            # channel, it makes more sense to preserve the successful message, which requires deleting
+                            # the invoking command and just sending an isolated success message in the bot channel
+                            if deferred_interaction:
+                                await interaction.delete_original_response()  # used to delete the "Is Thinking"
+                                # deferral message
                             send_func = await RoleCommands._obtain_dm_channel(interaction)
                             await send_func(embed=e_obj)
                     except discord.errors.Forbidden:
