@@ -14,7 +14,7 @@ async def get_banned_users(interaction: discord.Interaction, current: str) -> Li
      value is the corresponding user id
     """
     user_roles = [role.name for role in interaction.user.roles]
-    if not ('Bot_manager' in user_roles or 'Moderator' in user_roles or 'Minions'):
+    if not ('Bot_manager' in user_roles or 'Moderator' in user_roles or 'Minions' in user_roles):
         return []
     from extensions.ban import Ban
     current = current.lower()
