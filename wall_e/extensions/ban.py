@@ -99,7 +99,7 @@ class Ban(commands.Cog):
 
         if member.id in Ban.ban_list:
             self.logger.info(
-                f"[Ban watchdog()] banned member, {member}, detected. Promply will notify and kick them."
+                "[Ban watchdog()] banned member detected. Promply will notify and kick them."
             )
             e_obj = await embed(
                 self.logger,
@@ -159,7 +159,7 @@ class Ban(commands.Cog):
             return
         msg = await self.mod_channel.send(embed=e_obj)
         # need to read the audit log to grab mod, date, and reason
-        self.logger.info(f"[Ban intercept()] guild ban detected and intercepted for user='{member}'")
+        self.logger.info("[Ban intercept()] guild ban detected and intercepted for a user")
         # sleep is needed so discord has time to create the audit log
         await asyncio.sleep(1)
 
@@ -170,7 +170,7 @@ class Ban(commands.Cog):
                 get_audit_log, self.guild.audit_logs(action=BanAction, oldest_first=False)
             )
         except Exception as e:
-            error_message = (f"Encountered following error while intercepting a ban for {member}: \n{e}\n"
+            error_message = (f"Encountered following error while intercepting a ban for a member: \n{e}\n"
                              f"**Most likely need view audit log perms.**")
             self.logger.warn(f'[Ban intercept()] {error_message}')
             e_obj = await embed(
@@ -216,7 +216,7 @@ class Ban(commands.Cog):
         )
 
         await guild.unban(member)
-        self.logger.debug(f"[Ban intercept()] ban for {member} moved into db and guild ban was removed")
+        self.logger.debug("[Ban intercept()] ban for member moved into db and guild ban was removed")
 
         e_obj = await embed(
             self.logger,
@@ -231,7 +231,7 @@ class Ban(commands.Cog):
         if e_obj:
             await msg.edit(embed=e_obj)
         self.logger.debug(
-            f"[Ban intercept()] Message sent to mod channel [{self.mod_channel}] for ban of [{member}]."
+            f"[Ban intercept()] Message sent to mod channel [{self.mod_channel}] for a ban."
         )
 
     async def wall_e_ban(self, banned_user, mod, purge_window_days=1, reason="No Reason Given.",
@@ -290,7 +290,7 @@ class Ban(commands.Cog):
                 await asyncio.sleep(5)
             return
 
-        self.logger.debug(f"[Ban wall_e_ban()] User to ban: {banned_user}")
+        self.logger.debug("[Ban wall_e_ban()] User being banned")
         self.logger.debug(f"[Ban wall_e_ban()] Ban reason '{reason}'")
 
         Ban.ban_list[banned_user.id] = banned_user.name
@@ -322,7 +322,7 @@ class Ban(commands.Cog):
         )
         await BanRecord.insert_record(ban)
 
-        self.logger.debug(f"[Ban wall_e_ban()] Created BanRecord {ban.username} with id {ban.user_id}")
+        self.logger.debug("[Ban wall_e_ban()] Created BanRecord")
 
         # dm banned user
         e_obj = await embed(
@@ -386,7 +386,7 @@ class Ban(commands.Cog):
                 await invoked_channel_msg.delete()
             await self.mod_channel.send(embed=e_obj)
             self.logger.debug(
-                f"[Ban wall_e_ban()] Message sent to mod channel,{self.mod_channel}, of the ban for {ban.username}."
+                f"[Ban wall_e_ban()] Message sent to mod channel,{self.mod_channel}, of the ban."
             )
 
     @app_commands.command(name="ban", description="Bans a user from the guild")
@@ -395,7 +395,7 @@ class Ban(commands.Cog):
     async def ban(self, interaction: discord.Interaction, user: discord.Member, purge_window_days: int = 1,
                   reason: str = "No Reason Given."):
         self.logger.info(
-            f"[Ban ban()] Ban command detected from {interaction.user} with args: user={user}, "
+            f"[Ban ban()] Ban command detected from {interaction.user} with args: "
             f"purge_window_days={purge_window_days}, reason={reason}"
         )
         try:
@@ -513,7 +513,7 @@ class Ban(commands.Cog):
             return
 
         bans = await BanRecord.get_all_active_bans(search_query)
-        self.logger.debug(f"[Ban bans()] retrieved all banned users: {bans}")
+        self.logger.debug("[Ban bans()] retrieved all banned users")
 
         names = ""
         user_ids = ""
@@ -590,8 +590,8 @@ class Ban(commands.Cog):
             await interaction.followup.send("There are no bans to migrate from the guild to the wall_e ban system.")
             return
 
-        self.logger.debug(f"[Ban convertbans()] retrieved audit log data for ban actions: {ban_logs}")
-        self.logger.debug(f"[Ban convertbans()] retrieved ban list from guild: {guild_ban_list}")
+        self.logger.debug("[Ban convertbans()] retrieved audit log data for ban actions")
+        self.logger.debug("[Ban convertbans()] retrieved ban list from guild")
 
         self.logger.debug("[Ban convertbans()] Starting process to move all guild bans into db")
 
@@ -649,7 +649,7 @@ class Ban(commands.Cog):
         await interaction.response.defer()
 
         bans = [ban async for ban in self.guild.bans()]
-        self.logger.debug(f"[Ban purgebans()] Retrieved list of banned users from guild: {bans}")
+        self.logger.debug("[Ban purgebans()] Retrieved list of banned users from guild")
 
         if not bans:
             self.logger.debug("[Ban purgebans()] Ban list is empty. Sending message and ending command.")
@@ -664,7 +664,7 @@ class Ban(commands.Cog):
             return
 
         for ban in bans:
-            self.logger.debug(f"[Ban purgebans()] Unbanning user: {ban}")
+            self.logger.debug("[Ban purgebans()] Unbanning user")
             await self.guild.unban(ban.user)
 
         e_obj = await embed(
@@ -700,7 +700,7 @@ class Ban(commands.Cog):
                     return msg.author == un_purged_ban_record.user_id
                 import datetime
                 date = discord.utils.utcnow() - datetime.timedelta(timeframe)
-                self.logger.debug(f"[Ban purge_messages()] message from {un_purged_ban_record.user_id} "
+                self.logger.debug(f"[Ban purge_messages()] message from banned user "
                                   f"will be purge starting from date {date}")
                 e_obj = await embed(
                     self.logger, title=(
