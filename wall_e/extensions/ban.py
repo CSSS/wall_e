@@ -498,10 +498,10 @@ class Ban(commands.Cog):
             await asyncio.sleep(10)
             await interaction.delete_original_response()
 
-    @app_commands.command(name="bans", description="Gets all banned users")
-    @app_commands.describe(search_query="username to search for")
-    @app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
-    @app_commands.autocomplete(search_query=get_banned_users)
+    #@app_commands.command(name="bans", description="Gets all banned users")
+    #@app_commands.describe(search_query="username to search for")
+    #@app_commands.checks.has_any_role("Bot_manager", "Minions", "Moderator")
+    #@app_commands.autocomplete(search_query=get_banned_users)
     async def bans(self, interaction: discord.Interaction, search_query: str = None):
         self.logger.info(f"[Ban bans()] bans command detected from {interaction.user}")
         try:
