@@ -62,11 +62,7 @@ class BotChannelManager:
         }
         self.channel_obtained = {
         }
-        env = config.get_config_value('basic_config', 'ENVIRONMENT')
-        incident_report_channel_name = self.channel_names['incident_reports'][env]
-        leveling_website_avatar_images_channel_name = self.channel_names['leveling_website_avatar_images'][env]
         log_names = [
-            incident_report_channel_name,
             "sys_debug",
             "sys_warn",
             "sys_error",
@@ -112,7 +108,6 @@ class BotChannelManager:
             "member_update_listener_discordpy_debug",
             "member_update_listener_discordpy_warn",
             "member_update_listener_discordpy_error",
-            leveling_website_avatar_images_channel_name
 
         ]
         BotChannelManager.log_positioning = {}
@@ -226,18 +221,7 @@ class BotChannelManager:
             number_of_retries_to_attempt = 10
             number_of_retries = 0
             while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
-                if channel_purpose in ["incident_reports", 'leveling_website_avatar_images']:
-                    while self.channel_obtained[wall_e_category_name] is None:
-                        await asyncio.sleep(5)
-                    logs_category = discord.utils.get(
-                        guild.channels, id=int(self.channel_obtained[wall_e_category_name])
-                    )
-                    text_channel_position = BotChannelManager.log_positioning[channel_purpose]
-                    bot_chan = await guild.create_text_channel(
-                        channel_purpose, category=logs_category, position=text_channel_position
-                    )
-                else:
-                    bot_chan = await guild.create_text_channel(channel_name)
+                bot_chan = await guild.create_text_channel(channel_name)
                 logger.debug(
                     f"[BotChannelManager create_or_get_channel_id()] got channel \"{bot_chan}\" for {environment}"
                     f" {channel_purpose}"

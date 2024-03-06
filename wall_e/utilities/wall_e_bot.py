@@ -159,11 +159,12 @@ class WalleBot(commands.Bot):
                 )
                 await start_file_uploading(
                     logger, bot_guild, self, wall_e_config, incident_report_debug_log_file_absolute_path,
-                    wall_e_config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
+                    wall_e_config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL'),
+                    categorized_channel=False
                 )
                 await self.bot_channel_manager.create_or_get_channel_id(
                     logger, bot_guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
-                    wall_e_config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL')
+                    wall_e_config.get_config_value('channel_names', 'EMBED_AVATAR_CHANNEL'),
                 )
                 await self.bot_channel_manager.create_or_get_channel_id_for_service(
                     logger, bot_guild, wall_e_config, "member_update_listener_debug"
