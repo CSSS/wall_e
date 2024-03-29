@@ -6,7 +6,7 @@ import time
 
 import discord
 import pytz
-from discord import NotFound
+from discord import NotFound, app_commands
 from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
@@ -35,6 +35,7 @@ class Leveling(commands.Cog):
         self.xp_system_ready = False
         self.council_channel = None
         self.levelling_website_avatar_channel = None
+        self.bucket_update_in_progress = False
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
         self.process_leveling_profile_data_for_active_users.start()
@@ -483,7 +484,10 @@ class Leveling(commands.Cog):
         if entry is None:
             entry = await ProfileBucketInProgress.create_entry()
         else:
-            bucket_numbers = [user_point.bucket_number for user_point in self.user_points.values()]
+            bucket_numbers = [
+                user_point.bucket_number for user_point in self.user_points.values()
+                if user_point.bucket_number is not None
+            ]
             bucket_numbers.sort(key=lambda x: x, reverse=True)
             max_bucket_number = bucket_numbers[0]
             entry.bucket_number_completed += 1
@@ -523,6 +527,9 @@ class Leveling(commands.Cog):
         user_points = [user_point for user_point in self.user_points.values() if user_point.bucket_number is None]
         if len(user_points) == 0:
             return
+        if self.bucket_update_in_progress:
+            return
+        self.bucket_update_in_progress = True
         date_buckets = {}
         bucket_number = 1
         for day in range(1, 14):  # discord CDN links apparently expire after 2 weeks and need to be re-retrieved
@@ -555,6 +562,7 @@ class Leveling(commands.Cog):
             f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
         )
         await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
+        self.bucket_update_in_progress = False
         self.logger.debug(
             f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
         )
@@ -633,6 +641,36 @@ class Leveling(commands.Cog):
                 f" in the database for member {updated_user_id} {index + 1}/{total_number_of_updates_needed}"
             )
             await self.user_points[member.id].async_save()
+
+    @app_commands.command(name="reset_bucket_number")
+    @app_commands.checks.has_any_role("Bot_manager")
+    async def reset_bucket_number(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        if self.bucket_update_in_progress:
+            e_obj = await embed(
+                self.logger, interaction=interaction,
+                description='Another process is already updating the bucket numbers'
+            )
+            if e_obj:
+                await interaction.followup.send(embed=e_obj)
+                await asyncio.sleep(5)
+                await interaction.delete_original_response()
+            return
+        self.bucket_update_in_progress = True
+        users_to_update = []
+        for user_id in self.user_points.keys():
+            self.user_points[user_id].bucket_number = None
+            users_to_update.append(self.user_points[user_id])
+        await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
+        e_obj = await embed(
+            self.logger, interaction=interaction,
+            description=f'{len(users_to_update)} bucket_numbers reset to None'
+        )
+        if e_obj:
+            await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(5)
+            await interaction.delete_original_response()
+        self.bucket_update_in_progress = False
 
     @commands.command(
         brief="associates an XP level with the role with the specified name",
