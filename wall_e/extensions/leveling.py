@@ -525,7 +525,7 @@ class Leveling(commands.Cog):
             return
         date_buckets = {}
         bucket_number = 1
-        for day in range(1, 29):
+        for day in range(1, 14):  # discord CDN links apparently expire after 2 weeks and need to be re-retrieved
             for hour in range(1, 24):
                 date_buckets[bucket_number] = 0
                 bucket_number += 1
