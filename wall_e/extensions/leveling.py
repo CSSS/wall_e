@@ -7,6 +7,7 @@ import time
 import discord
 import pytz
 from discord import NotFound, app_commands
+from discord.errors import DiscordServerError
 from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
@@ -507,7 +508,7 @@ class Leveling(commands.Cog):
             )
             try:
                 member = await self.guild.fetch_member(user_id)
-            except NotFound:
+            except (NotFound, DiscordServerError):
                 member = await bot.fetch_user(user_id)
             await self._update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
         await ProfileBucketInProgress.async_save(entry)
