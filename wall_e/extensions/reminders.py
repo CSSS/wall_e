@@ -167,7 +167,7 @@ class Reminders(commands.Cog):
                 ctx=ctx,
                 title='RemindMeIn Error',
                 author=ctx.me,
-                description="unable to extract a string"
+                description="Could not detect any reminder message"
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj, reference=ctx.message)
