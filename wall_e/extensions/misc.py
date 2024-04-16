@@ -16,6 +16,7 @@ from utilities.global_vars import bot, wall_e_config
 
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
+from utilities.send import send
 from utilities.setup_logger import Loggers
 
 
@@ -340,7 +341,7 @@ class Misc(commands.Cog):
         self.logger.debug(f"[Misc emojispeak()] deleting {ctx.message}")
         await ctx.message.delete()
         self.logger.debug(f"[Misc emojispeak()] sending {ctx.author.mention} says {output}")
-        await ctx.send(f"{ctx.author.mention} says {output}")
+        await send(self.logger, ctx, content=f"{ctx.author.mention} says {output}")
 
     @app_commands.command(name="tex", description="Draws a mathematical formula using latex markdown")
     @app_commands.describe(formula="formula to draw out")
