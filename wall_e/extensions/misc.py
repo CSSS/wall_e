@@ -6,6 +6,7 @@ from io import BytesIO
 
 import aiohttp
 import discord
+import pyparsing
 import wolframalpha
 from discord import app_commands
 from discord.ext import commands
@@ -351,10 +352,13 @@ class Misc(commands.Cog):
         # https://stackoverflow.com/a/57472241
         self.logger.info("[Misc tex()] tex command detected "
                          f"from user {interaction.user} with formula =\"{formula}\"")
-        image_bytes = render_latex(formula, fontsize=10, dpi=200, format_='png')
-        with open('formula.png', 'wb') as image_file:
-            image_file.write(image_bytes)
-        await interaction.response.send_message(file=discord.File('formula.png'))
+        try:
+            image_bytes = render_latex(formula, fontsize=10, dpi=200, format_='png')
+            with open('formula.png', 'wb') as image_file:
+                image_file.write(image_bytes)
+            await interaction.response.send_message(file=discord.File('formula.png'))
+        except pyparsing.ParseException:
+            await interaction.response.send_message("Looks like you entered something that wasn't parseable")
         self.logger.debug(f"[Misc tex()] formula created and send for [{formula}]")
 
     @app_commands.command(name="examples", description="show examples of how to call various wall_e slash commands")
