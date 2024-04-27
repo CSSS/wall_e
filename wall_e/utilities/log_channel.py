@@ -64,4 +64,5 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id):
                         f'[log_channel.py write_to_bot_log_channel()] write to channel failed\n{exc_str}'
                     )
             line = f.readline()
+            await asyncio.sleep(1)
         await asyncio.sleep(1)
