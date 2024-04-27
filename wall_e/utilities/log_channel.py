@@ -3,7 +3,7 @@ import aiohttp
 import discord
 
 
-async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id):
+async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, channel_name):
     """
     Takes care of opening a file and keeping it opening while reading from it and uploading it's contents
      to the specified channel
@@ -13,8 +13,7 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id):
      while loop only runs while bot.is_closed() is False
     :param file_path: the path of the log file to upload to the text channel
     :param chan_id: the ID of the channel that the log file lines will be uploaded to
-    :param error_channel: indicator of whether chan_id is for an error channel and therefore error emails
-     may need to be sent
+    :param channel_name: the name set for the file log channel
     :return:
     """
     channel = discord.utils.get(
@@ -64,5 +63,8 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id):
                         f'[log_channel.py write_to_bot_log_channel()] write to channel failed\n{exc_str}'
                     )
             line = f.readline()
-            await asyncio.sleep(1)
+            if channel_name == 'leveling_debug':
+                # adding a sleep cause the amount of debug logs that I print due to the wall_e_models module can
+                # trigger a Rate Limit exception if done too fast
+                await asyncio.sleep(1)
         await asyncio.sleep(1)
