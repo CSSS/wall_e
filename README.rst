@@ -6,10 +6,7 @@ CSSS Discord Bot (Wall-E)
    :target: http://discord.sfucsss.org
    :alt: Discord server invite
 
-- `wall_e's Services and Functionality <https://github.com/CSSS/wall_e/wiki/1.-wall_e's-Services-and-Functionality>`_
-- `Creating Bot and Attaching it to a Development Server <https://github.com/CSSS/wall_e/wiki/2.-Creating-Bot-and-Attaching-it-to-a-Development-Server>`_
-- `How to work on the bot <https://github.com/CSSS/wall_e/wiki/3.-Working-on-the-Bot>`_
-- `Software Engineering and Process Document <https://github.com/CSSS/wall_e/wiki/6.-Software-Engineering-and-Process-Document>`_
+- `Documentation <https://github.com/CSSS/wall_e/wiki>`_
 
 .. image:: wall_e_pic.jpg
    :alt: The One and Only, Lovable Wall-E
