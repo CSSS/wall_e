@@ -1,6 +1,5 @@
-====
 CSSS Discord Bot (Wall-E)
-====
+============================
 
 .. image:: https://discord.com/api/guilds/228761314644852736/embed.png
    :target: http://discord.sfucsss.org
