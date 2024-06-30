@@ -268,27 +268,29 @@ class Ban(commands.Cog):
             return
 
         # determine if bot is able to kick the user
-        sorted_list_of_banner_user_roles = sorted(banned_user.roles, key=lambda x: int(x.position), reverse=True)
-        banned_user_highest_role = sorted_list_of_banner_user_roles[0]
-        bot_guild_member = await self.guild.fetch_member(bot.user.id)
-        sorted_list_of_bot_roles = sorted(bot_guild_member.roles, key=lambda x: int(x.position), reverse=True)
-        bot_highest_role = sorted_list_of_bot_roles[0]
-        if banned_user_highest_role > bot_highest_role:
-            e_obj = await embed(
-                self.logger,
-                interaction=interaction,
-                author=bot.user,
-                title=f'{Ban.embed_title} Error',
-                description=f"{banned_user}'s permission is higher than WALL_E so it can't be kicked",
-                colour=WallEColour.ERROR,
-                channels=self.guild.channels,
-                bot_management_channel=self.bot_management_channel,
-                ban_related_message=True
-            )
-            if e_obj:
-                await send_function_for_messages(embed=e_obj)
-                await asyncio.sleep(5)
-            return
+        if type(banned_user) is discord.Member:
+            # making sure that the banned_user is of type member since User has no roles
+            sorted_list_of_banner_user_roles = sorted(banned_user.roles, key=lambda x: int(x.position), reverse=True)
+            banned_user_highest_role = sorted_list_of_banner_user_roles[0]
+            bot_guild_member = await self.guild.fetch_member(bot.user.id)
+            sorted_list_of_bot_roles = sorted(bot_guild_member.roles, key=lambda x: int(x.position), reverse=True)
+            bot_highest_role = sorted_list_of_bot_roles[0]
+            if banned_user_highest_role > bot_highest_role:
+                e_obj = await embed(
+                    self.logger,
+                    interaction=interaction,
+                    author=bot.user,
+                    title=f'{Ban.embed_title} Error',
+                    description=f"{banned_user}'s permission is higher than WALL_E so it can't be kicked",
+                    colour=WallEColour.ERROR,
+                    channels=self.guild.channels,
+                    bot_management_channel=self.bot_management_channel,
+                    ban_related_message=True
+                )
+                if e_obj:
+                    await send_function_for_messages(embed=e_obj)
+                    await asyncio.sleep(5)
+                return
 
         self.logger.debug("[Ban wall_e_ban()] User being banned")
         self.logger.debug(f"[Ban wall_e_ban()] Ban reason '{reason}'")
@@ -352,8 +354,9 @@ class Ban(commands.Cog):
                 self.logger.debug("[Ban wall_e_ban()] Notification dm to user failed due to user preferences")
 
         # kick
-        await banned_user.kick(reason=reason)
-        self.logger.debug(f"[Ban wall_e_ban()] User kicked from guild at {ban_date}.")
+        if type(banned_user) is discord.Member:
+            await banned_user.kick(reason=reason)
+            self.logger.debug(f"[Ban wall_e_ban()] member kicked from guild at {ban_date}.")
 
         # report to council
         e_obj = await embed(
