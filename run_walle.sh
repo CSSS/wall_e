@@ -53,10 +53,10 @@ else
 		if [[ "${database_config__TYPE}" == "sqlite3" ]]; then
 			rm ../db.sqlite3 || true
 		else
-			dpkg -s postgresql-contrib &> /dev/null
+			dpkg -s postgresql-client &> /dev/null
 			if [[ $? -eq 1 ]];
 			then
-				sudo apt-get install postgresql-contrib
+				sudo apt-get install postgresql-client
 			fi
 			docker rm -f "${basic_config__COMPOSE_PROJECT_NAME}_wall_e_db"
 			sleep 4
