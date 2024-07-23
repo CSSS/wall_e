@@ -1,5 +1,5 @@
 flake8==3.9.2
-pytest
-pytest-flake8
-pep8-naming
-flake8-sfs
+pytest==8.2.2
+pytest-flake8==1.1.1
+pep8-naming==0.14.1
+flake8-sfs==1.0.0
