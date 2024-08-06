@@ -83,7 +83,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     if content is None:
         content = []
     # these are put in place cause of the limits on embed described here
-    # https://discordapp.com/developers/docs/resources/channel#embed-limits
+    # https://discord.com/developers/docs/resources/message#embed-object-embed-limits
 
     if ctx is not None:
         # added below ternary because of detect_reaction calls this function without context, but rather passes in
