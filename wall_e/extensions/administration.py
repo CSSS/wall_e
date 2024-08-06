@@ -17,7 +17,7 @@ from utilities.global_vars import wall_e_config, bot
 from utilities.bot_channel_manager import BotChannelManager
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
-from utilities.send import send as helper_send
+from utilities.send import helper_send
 from utilities.setup_logger import Loggers
 from wall_e_models.models import CommandStat
 

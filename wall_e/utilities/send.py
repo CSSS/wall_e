@@ -30,8 +30,8 @@ def get_last_index(logger, content, index, reserved_space):
         return last_index
 
 
-async def send(logger, ctx, content=None, tts=False, embed=None, file=None, files=None,
-               delete_after=None, nonce=None, prefix=None, suffix=None, reference=None):
+async def helper_send(logger, ctx, content=None, tts=False, embed=None, file=None, files=None,
+                      delete_after=None, nonce=None, prefix=None, suffix=None, reference=None):
     """
     send helper function that helps when dealing with a message that has too many characters
     :param logger: the calling service's logger object
