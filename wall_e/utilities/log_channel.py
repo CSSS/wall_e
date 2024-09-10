@@ -63,7 +63,7 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, chan
                         f'[log_channel.py write_to_bot_log_channel()] write to channel failed\n{exc_str}'
                     )
             line = f.readline()
-            if channel_name == 'leveling_debug':
+            if channel_name in ['leveling_debug', 'role_commands_debug']:
                 # adding a sleep cause the amount of debug logs that I print due to the wall_e_models module can
                 # trigger a Rate Limit exception if done too fast
                 await asyncio.sleep(1)
