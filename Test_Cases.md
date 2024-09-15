@@ -14,17 +14,17 @@
      ![](.documentation_pictures/test_cases/.announce%20follow-up%20input.png)  
      Result:  
      ![](.documentation_pictures/test_cases/.announce%20follow-up%20result.png)
-  1. `.unload reminders`  
+  1. `/unload reminders`  
      ![](.documentation_pictures/test_cases/.unload%20reminders.png)
-  1. `.unload nothing`  
+  1. `/unload nothing`  
      ![](.documentation_pictures/test_cases/.unload%20nothing.png)
-  1. `.load reminders`  
+  1. `/load reminders`  
      ![](.documentation_pictures/test_cases/.load%20reminders.png)
-  1. `.load nothing`  
+  1. `/load nothing`  
      ![](.documentation_pictures/test_cases/.load%20nothing.png)
-  1. `.reload reminders`  
+  1. `/reload reminders`  
      ![](.documentation_pictures/test_cases/.reload%20reminders.png)
-  1. `.reload nothing`  
+  1. `/reload nothing`  
      ![](.documentation_pictures/test_cases/.reload%20nothing.png)
   1. `.exc ls -l`  
      ![](.documentation_pictures/test_cases/.exc%20ls%20-l.png)
@@ -33,14 +33,14 @@
   1. `.frequency command`  
      ![](.documentation_pictures/test_cases/.frequency%20command.png)
 ## Ban
-   1. `.convertbans`
-   1. `.ban @user reason for my ban`
-   1. `.ban @user "reason for my ban"`
-   1. `.unban <id of banned user>`
-   1. `.unban <id of not banned user>`
-   1. `.unban <non integer something>`
-   1. `.bans`
-   1. `.purgebans`
+   1. `/convertbans`
+   1. `/ban @user reason for my ban`
+   1. `/ban @user "reason for my ban"`
+   1. `/unban <id of banned user>`
+   1. `/unban <id of not banned user>`
+   1. `/unban <non integer something>`
+   1. `/bans`
+   1. `/purgebans`
 ## Frosh
    1. `.team`
    1. `.team "JL" "Super Tag" "Jon, Bruce, Clark, Diana, Barry"`
