@@ -5,6 +5,9 @@ import re
 import time
 
 import aiohttp
+
+import discord
+from discord import app_commands
 from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
@@ -12,6 +15,7 @@ from utilities.global_vars import bot, wall_e_config
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
+from utilities.paginate import paginate_embed
 
 
 class SFU(commands.Cog):
@@ -501,6 +505,79 @@ class SFU(commands.Cog):
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj, reference=ctx.message)
+
+    @app_commands.command(name="courses", description="Gets all courses")
+    @app_commands.describe(department="department to search")
+    @app_commands.describe(level="the level of courses to filter for, ex: 100, 200, 300, 400")
+    @app_commands.describe(term="the semester to search for, ex: spring, summer, fall")
+    async def courses(self, interaction: discord.Interaction, department: str = "cmpt", level: int = 0,
+                  term: str = "registration", year: str = "registration"):
+        self.logger.info(
+            f'[SFU courses()] courses command detected from user {interaction.user} with arguments: '
+            f'department {department}, level {level}, term {term}, year {year}'
+        )
+
+        terms = ['registration', 'current', 'spring', 'summer', 'fall']
+        if term not in terms:
+            # error message
+            pass
+
+        url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
+        self.logger.debug(f'[SFU courses()] url for get constructed: {url}')
+
+        res = await self.req.get(url)
+
+        if res.status == 200:
+            self.logger.debug('[SFU courses()] get request successful')
+            data = ''
+            while not res.content.at_eof():
+                chunk = await res.content.readchunk()
+                data += str(chunk[0].decode())
+
+            data = json.loads(data)
+        else:
+            # error message
+            return
+
+        self.logger.debug('[SFU courses()] parsing data from get request')
+
+        course_numbers = ""
+        course_titles = ""
+        content_to_embed = []
+        number_of_courses_per_page = 20
+        number_of_courses = 0
+        total_course = 0
+
+        for course in data:
+
+            # determine what level course this is, if it fits criteria, append it
+            course_number = course['text']
+            course_level = int(course_number[0]) # makes a couple assumptions
+            if level == 0 or level == course_level:
+                course_title = course['title']
+                course_numbers += f"\n{course_number}"
+                course_titles += f"\n{course_title}"
+                total_course += 1
+                number_of_courses += 1
+            if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is data[-1]):
+                number_of_courses = 0
+                content_to_embed.append(
+                    [["Code", course_numbers], ["Title", course_titles]]
+                )
+                course_titles = ""
+                course_numbers = ""
+
+        if len(content_to_embed) == 0:
+            self.logger.debug('[SFU course()] no content!')
+            # error message
+            pass
+        else:
+            await paginate_embed(
+                self.logger, bot, content_to_embed=content_to_embed,
+                title=f"{department}: {total_course} courses",
+                interaction=interaction
+            )
+
 
     async def cog_unload(self) -> None:
         await self.req.close()
