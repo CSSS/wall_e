@@ -510,34 +510,50 @@ class SFU(commands.Cog):
     @app_commands.describe(department="department to search")
     @app_commands.describe(level="the level of courses to filter for, ex: 100, 200, 300, 400")
     @app_commands.describe(term="the semester to search for, ex: spring, summer, fall")
-    async def courses(self, interaction: discord.Interaction, department: str = "cmpt", level: int = 0,
+    async def courses(self, interaction: discord.Interaction, department: str = "", level: int = 0,
                   term: str = "registration", year: str = "registration"):
         self.logger.info(
             f'[SFU courses()] courses command detected from user {interaction.user} with arguments: '
             f'department {department}, level {level}, term {term}, year {year}'
         )
 
+        # if they did not select a department, default to the list below
+        departments = ['cmpt', 'math', 'macm'] # maybe include stat
+        if department:
+            departments = [department]
+
+        # error check for level
+
         terms = ['registration', 'current', 'spring', 'summer', 'fall']
         if term not in terms:
             # error message
             pass
 
-        url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
-        self.logger.debug(f'[SFU courses()] url for get constructed: {url}')
+        courses = []
+        for department in departments:
+            url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
+            res = await self.req.get(url)
+            if res.status == 200:
+                self.logger.debug(f'[SFU courses()] get request for {department} successful')
+                res_json = await res.json()
+                for course in res_json:
+                    course['text'] = f"{department.upper()}{course['text']}"
 
-        res = await self.req.get(url)
+                    # determine what level course this is, if it fits criteria, append it
+                    # this may be a very dumb approach
+                    # assume that there is only 3 digits
+                    if len(course['value']) == 4:
+                        course['value'] = course['value'][:3]
 
-        if res.status == 200:
-            self.logger.debug('[SFU courses()] get request successful')
-            data = ''
-            while not res.content.at_eof():
-                chunk = await res.content.readchunk()
-                data += str(chunk[0].decode())
+                    course['value'] = int(course['value'])
+                    if level == 0 or (course['value']//100 == level//100):
+                        courses.append(course)
+            else:
+                # error message
+                pass
 
-            data = json.loads(data)
-        else:
-            # error message
-            return
+
+        courses = sorted(courses, key=lambda k: k['value'])
 
         self.logger.debug('[SFU courses()] parsing data from get request')
 
@@ -548,18 +564,14 @@ class SFU(commands.Cog):
         number_of_courses = 0
         total_course = 0
 
-        for course in data:
-
-            # determine what level course this is, if it fits criteria, append it
+        for course in courses:
+            course_title = course['title']
             course_number = course['text']
-            course_level = int(course_number[0]) # makes a couple assumptions
-            if level == 0 or level == course_level:
-                course_title = course['title']
-                course_numbers += f"\n{course_number}"
-                course_titles += f"\n{course_title}"
-                total_course += 1
-                number_of_courses += 1
-            if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is data[-1]):
+            course_numbers += f"\n{course_number}"
+            course_titles += f"\n{course_title}"
+            total_course += 1
+            number_of_courses += 1
+            if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is courses[-1]):
                 number_of_courses = 0
                 content_to_embed.append(
                     [["Code", course_numbers], ["Title", course_titles]]
@@ -567,14 +579,60 @@ class SFU(commands.Cog):
                 course_titles = ""
                 course_numbers = ""
 
+        # course_numbers = ""
+        # course_titles = ""
+        # content_to_embed = []
+        # number_of_courses_per_page = 20
+        # number_of_courses = 0
+        # total_course = 0
+        #
+        # # potential problems with output
+        # # different departments are separated
+        # # maybe sort courses by their code
+        # for department in departments:
+        #     url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
+        #     res = await self.req.get(url)
+        #     courses = []
+        #     if res.status == 200:
+        #         self.logger.debug(f'[SFU courses()] get request for {department} successful')
+        #         courses = await res.json()
+        #     else:
+        #         self.logger.debug(f'[SFU courses()] get request for {department} unsuccessful')
+        #         # error message
+        #
+        #     # maybe error message if courses is empty
+        #
+        #     self.logger.debug(f'[SFU courses()] parsing data from {department} get request')
+        #
+        #     for course in courses:
+        #
+        #         # determine what level course this is, if it fits criteria, append it
+        #         # TODO: default level check to hundreds
+        #         course_number = course['text']
+        #         course_level = int(course_number[0])  # makes a couple assumptions
+        #         if level == 0 or level == course_level:
+        #             course_title = course['title']
+        #             course_numbers += f"\n{department.upper()}{course_number}"
+        #             course_titles += f"\n{course_title}"
+        #             total_course += 1
+        #             number_of_courses += 1
+        #         if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is courses[-1]):
+        #             number_of_courses = 0
+        #             content_to_embed.append(
+        #                 [["Code", course_numbers], ["Title", course_titles]]
+        #             )
+        #             course_titles = ""
+        #             course_numbers = ""
+
         if len(content_to_embed) == 0:
             self.logger.debug('[SFU course()] no content!')
             # error message
             pass
         else:
             await paginate_embed(
+                # TODO: rename title
                 self.logger, bot, content_to_embed=content_to_embed,
-                title=f"{department}: {total_course} courses",
+                title=f"{','.join(departments)}: {total_course} courses",
                 interaction=interaction
             )
 
