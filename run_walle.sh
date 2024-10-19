@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -e -o xtrace
+set -e -o xtrace
 # https://stackoverflow.com/a/5750463/7734535
 
 if [ -z "${VIRTUAL_ENV}" ]; then
@@ -46,7 +46,7 @@ else
 		python3 -m pip uninstall -y wall_e_models
 	fi
 		if [ ! -f 'wall_e_models' ]; then
-		ln -sn "${WALL_E_MODEL_PATH}/wall_e_models" wall_e_models
+		ln -sn "${WALL_E_MODEL_PATH}/wall_e_models" wall_e_models || true
 	fi
 
 	if [[ "${SETUP_DATABASE}" == "True" ]]; then
