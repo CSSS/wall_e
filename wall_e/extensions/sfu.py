@@ -517,27 +517,29 @@ class SFU(commands.Cog):
             f'department {department}, level {level}, term {term}, year {year}'
         )
 
-        # if they did not select a department, default to the list below
-        departments = ['cmpt', 'math', 'macm'] # maybe include stat
+        departments = ['CMPT', 'MATH', 'MACM'] # maybe include stat
         if department:
-            departments = [department]
+            departments = [department.upper()]
 
         # error check for level
+        # currently we expect level to be in the hundreds
 
         terms = ['registration', 'current', 'spring', 'summer', 'fall']
-        if term not in terms:
+        if term.lower() not in terms:
             # error message
-            pass
+            return
 
         courses = []
         for department in departments:
             url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
+            self.logger.debug(f'[SFU outline()] url for get constructed: {url}')
+
             res = await self.req.get(url)
             if res.status == 200:
                 self.logger.debug(f'[SFU courses()] get request for {department} successful')
                 res_json = await res.json()
                 for course in res_json:
-                    course['text'] = f"{department.upper()}{course['text']}"
+                    course['text'] = f"{department}{course['text']}"
 
                     # determine what level course this is, if it fits criteria, append it
                     # this may be a very dumb approach
@@ -549,90 +551,58 @@ class SFU(commands.Cog):
                     if level == 0 or (course['value']//100 == level//100):
                         courses.append(course)
             else:
-                # error message
-                pass
+                self.logger.debug(f'[SFU courses()] get request for {department} resulted in {res.status}')
 
-
-        courses = sorted(courses, key=lambda k: k['value'])
+        if len(departments) > 1:
+            courses = sorted(courses, key=lambda k: k['value'])
 
         self.logger.debug('[SFU courses()] parsing data from get request')
 
-        course_numbers = ""
-        course_titles = ""
         content_to_embed = []
         number_of_courses_per_page = 20
         number_of_courses = 0
         total_course = 0
+        content = ""
 
         for course in courses:
             course_title = course['title']
             course_number = course['text']
-            course_numbers += f"\n{course_number}"
-            course_titles += f"\n{course_title}"
+            content += f"\n{course_number} - {course_title}"
+
             total_course += 1
             number_of_courses += 1
             if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is courses[-1]):
                 number_of_courses = 0
                 content_to_embed.append(
-                    [["Code", course_numbers], ["Title", course_titles]]
+                    [["Code - Title", content]]
                 )
-                course_titles = ""
-                course_numbers = ""
+                content = ""
 
-        # course_numbers = ""
-        # course_titles = ""
-        # content_to_embed = []
-        # number_of_courses_per_page = 20
-        # number_of_courses = 0
-        # total_course = 0
-        #
-        # # potential problems with output
-        # # different departments are separated
-        # # maybe sort courses by their code
-        # for department in departments:
-        #     url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
-        #     res = await self.req.get(url)
-        #     courses = []
-        #     if res.status == 200:
-        #         self.logger.debug(f'[SFU courses()] get request for {department} successful')
-        #         courses = await res.json()
-        #     else:
-        #         self.logger.debug(f'[SFU courses()] get request for {department} unsuccessful')
-        #         # error message
-        #
-        #     # maybe error message if courses is empty
-        #
-        #     self.logger.debug(f'[SFU courses()] parsing data from {department} get request')
-        #
-        #     for course in courses:
-        #
-        #         # determine what level course this is, if it fits criteria, append it
-        #         # TODO: default level check to hundreds
-        #         course_number = course['text']
-        #         course_level = int(course_number[0])  # makes a couple assumptions
-        #         if level == 0 or level == course_level:
-        #             course_title = course['title']
-        #             course_numbers += f"\n{department.upper()}{course_number}"
-        #             course_titles += f"\n{course_title}"
-        #             total_course += 1
-        #             number_of_courses += 1
-        #         if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is courses[-1]):
-        #             number_of_courses = 0
-        #             content_to_embed.append(
-        #                 [["Code", course_numbers], ["Title", course_titles]]
-        #             )
-        #             course_titles = ""
-        #             course_numbers = ""
+        title = (f"{', '.join(departments)} {f'{level} level -' if level != 0 else '-'}"
+                 f" {f'{term.title()}' if term != 'registration' and term != 'current' else f'{term} term'}"
+                 f" {f'{year.title()}' if year != 'registration' and year != 'current' else f'{year} year'}"
+                 f"\n(Total Courses: {total_course})\n")
 
         if len(content_to_embed) == 0:
-            self.logger.debug('[SFU course()] no content!')
+            self.logger.debug(f'[SFU course()] resulted in no content')
             # error message
-            pass
+            # e_obj = await embed(
+            #     self.logger, interaction=interaction, title='SFU Courses Error',
+            #     description=(
+            #         f'Couldn\'t find anything for `{", ".join(departments)}, level {level}, term {term}, year {year}`'
+            #         f'\n Maybe the course doesn\'t exist? Or isn\'t offered right now.'
+            #     ),
+            #     colour=WallEColour.ERROR,
+            # )
+            # if e_obj:
+            #     msg = await interaction.followup.send(embed=e_obj)
+            #     # await asyncio.sleep(10)
+            #     # await msg.delete()
+            return
         else:
             await paginate_embed(
-                # TODO: rename title
                 self.logger, bot, content_to_embed=content_to_embed,
-                title=f"{','.join(departments)}: {total_course} courses",
+                title=title,
                 interaction=interaction
             )
 
