@@ -523,7 +523,7 @@ class SFU(commands.Cog):
         if department:
             departments = [department.upper()]
 
-        if level != 0 and (level < 100 or level > 1000):
+        if level != 0 and (level < 100 or level >= 1000):
             self.logger.debug(f'[SFU courses()] incorrect level arguments, defaulting to 0')
             level = 0
 
@@ -575,7 +575,7 @@ class SFU(commands.Cog):
                 )
                 content = ""
 
-        title = (f"{', '.join(departments)} {f'{level} level -' if level != 0 else '-'}"
+        title = (f"{', '.join(departments)} {f'{(level//100)*100} level -' if level != 0 else '-'}"
                  f" {f'{term.title()}' if term != 'registration' and term != 'current' else f'{term} term'}"
                  f" {f'{year.title()}' if year != 'registration' and year != 'current' else f'{year} year'}"
                  f"\n(Total Courses: {total_course})\n")
@@ -585,7 +585,7 @@ class SFU(commands.Cog):
             e_obj = await embed(
                 self.logger, interaction=interaction, title='SFU Courses Error',
                 description=(
-                    f'Couldn\'t find anything for `{", ".join(departments)}'
+                    f'Couldn\'t find anything for `department: {", ".join(departments)}'
                     f', level: {level if level != 0 else "all"}, term: {term}, year: {year}`'
                     f'\n Maybe no courses are being offered at that time.'
                 ),
