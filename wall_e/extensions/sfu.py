@@ -506,10 +506,11 @@ class SFU(commands.Cog):
         if e_obj is not False:
             await ctx.send(embed=e_obj, reference=ctx.message)
 
-    @app_commands.command(name="courses", description="Gets all courses")
-    @app_commands.describe(department="department to search")
-    @app_commands.describe(level="the level of courses to filter for, ex: 100, 200, 300, 400")
-    @app_commands.describe(term="the semester to search for, ex: spring, summer, fall")
+    @app_commands.command(name="courses", description="Gets all offered courses")
+    @app_commands.describe(department="Specify the department to search. Examples: STAT, PHYS, MATH")
+    @app_commands.describe(level="Specifies the level of courses to filter for. Examples: 100, 200, 400")
+    @app_commands.describe(term="Specify the specific semester to search for. Examples: Spring, Summer, Fall")
+    @app_commands.describe(year="Specify the specific year to search for. Examples: 2020, 2024, 2025")
     async def courses(self, interaction: discord.Interaction, department: str = "", level: int = 0,
                   term: str = "registration", year: str = "registration"):
         self.logger.info(
@@ -517,33 +518,30 @@ class SFU(commands.Cog):
             f'department {department}, level {level}, term {term}, year {year}'
         )
 
-        departments = ['CMPT', 'MATH', 'MACM'] # maybe include stat
+        # The default course selection if not specified
+        departments = ['CMPT', 'MATH', 'MACM']
         if department:
             departments = [department.upper()]
 
-        # error check for level
-        # currently we expect level to be in the hundreds
-
-        terms = ['registration', 'current', 'spring', 'summer', 'fall']
-        if term.lower() not in terms:
-            # error message
-            return
+        if level != 0 and (level < 100 or level > 1000):
+            self.logger.debug(f'[SFU courses()] incorrect level arguments, defaulting to 0')
+            level = 0
 
         courses = []
         for department in departments:
             url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
-            self.logger.debug(f'[SFU outline()] url for get constructed: {url}')
+            self.logger.debug(f'[SFU courses()] url for get constructed: {url}')
 
             res = await self.req.get(url)
             if res.status == 200:
-                self.logger.debug(f'[SFU courses()] get request for {department} successful')
+                self.logger.debug(f'[SFU courses()] get request for {department} successful, parsing data')
                 res_json = await res.json()
+
+                # parse data for displaying, sorting, and filtering
                 for course in res_json:
                     course['text'] = f"{department}{course['text']}"
 
-                    # determine what level course this is, if it fits criteria, append it
-                    # this may be a very dumb approach
-                    # assume that there is only 3 digits
+                    # we assume all courses have 3 digits
                     if len(course['value']) == 4:
                         course['value'] = course['value'][:3]
 
@@ -557,7 +555,6 @@ class SFU(commands.Cog):
             courses = sorted(courses, key=lambda k: k['value'])
 
         self.logger.debug('[SFU courses()] parsing data from get request')
-
         content_to_embed = []
         number_of_courses_per_page = 20
         number_of_courses = 0
@@ -584,20 +581,20 @@ class SFU(commands.Cog):
                  f"\n(Total Courses: {total_course})\n")
 
         if len(content_to_embed) == 0:
-            self.logger.debug(f'[SFU course()] resulted in no content')
-            # error message
-            # e_obj = await embed(
-            #     self.logger, interaction=interaction, title='SFU Courses Error',
-            #     description=(
-            #         f'Couldn\'t find anything for `{", ".join(departments)}, level {level}, term {term}, year {year}`'
-            #         f'\n Maybe the course doesn\'t exist? Or isn\'t offered right now.'
-            #     ),
-            #     colour=WallEColour.ERROR,
-            # )
-            # if e_obj:
-            #     msg = await interaction.followup.send(embed=e_obj)
-            #     # await asyncio.sleep(10)
-            #     # await msg.delete()
+            self.logger.debug(f'[SFU courses()] resulted in no content')
+            e_obj = await embed(
+                self.logger, interaction=interaction, title='SFU Courses Error',
+                description=(
+                    f'Couldn\'t find anything for `{", ".join(departments)}'
+                    f', level: {level if level != 0 else "all"}, term: {term}, year: {year}`'
+                    f'\n Maybe no courses are being offered at that time.'
+                ),
+                colour=WallEColour.ERROR,
+            )
+            if e_obj:
+                await interaction.response.send_message(embed=e_obj)
+                await asyncio.sleep(10)
+                await interaction.delete_original_response()
             return
         else:
             await paginate_embed(
