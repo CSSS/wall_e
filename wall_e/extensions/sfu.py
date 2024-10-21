@@ -517,6 +517,13 @@ class SFU(commands.Cog):
             f'[SFU courses()] courses command detected from user {interaction.user} with arguments: '
             f'department {department}, level {level}, term {term}, year {year}'
         )
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
 
         # The default course selection if not specified
         departments = ['CMPT', 'MATH', 'MACM']
@@ -592,9 +599,9 @@ class SFU(commands.Cog):
                 colour=WallEColour.ERROR,
             )
             if e_obj:
-                await interaction.response.send_message(embed=e_obj)
+                msg = await interaction.followup.send(embed=e_obj)
                 await asyncio.sleep(10)
-                await interaction.delete_original_response()
+                await msg.delete()
             return
         else:
             await paginate_embed(
