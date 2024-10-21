@@ -5,6 +5,9 @@ import re
 import time
 
 import aiohttp
+
+import discord
+from discord import app_commands
 from discord.ext import commands
 
 from utilities.global_vars import bot, wall_e_config
@@ -12,6 +15,7 @@ from utilities.global_vars import bot, wall_e_config
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
+from utilities.paginate import paginate_embed
 
 
 class SFU(commands.Cog):
@@ -501,6 +505,111 @@ class SFU(commands.Cog):
         )
         if e_obj is not False:
             await ctx.send(embed=e_obj, reference=ctx.message)
+
+    @app_commands.command(name="courses", description="Gets all offered courses")
+    @app_commands.describe(department="Specify the department to search. Examples: STAT, PHYS, MATH")
+    @app_commands.describe(level="Specifies the level of courses to filter for. Examples: 100, 200, 400")
+    @app_commands.describe(term="Specify the specific semester to search for. Examples: Spring, Summer, Fall")
+    @app_commands.describe(year="Specify the specific year to search for. Examples: 2020, 2024, 2025")
+    async def courses(self, interaction: discord.Interaction, department: str = "", level: int = 0,
+                  term: str = "registration", year: str = "registration"):
+        self.logger.info(
+            f'[SFU courses()] courses command detected from user {interaction.user} with arguments: '
+            f'department {department}, level {level}, term {term}, year {year}'
+        )
+        try:
+            await interaction.response.defer()
+        except discord.errors.NotFound:
+            await interaction.channel.send(
+                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
+            )
+            return
+
+        # The default course selection if not specified
+        departments = ['CMPT', 'MATH', 'MACM']
+        if department:
+            departments = [department.upper()]
+
+        if level != 0 and (level < 100 or level >= 1000):
+            self.logger.debug(f'[SFU courses()] incorrect level arguments, defaulting to 0')
+            level = 0
+
+        courses = []
+        for department in departments:
+            url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
+            self.logger.debug(f'[SFU courses()] url for get constructed: {url}')
+
+            res = await self.req.get(url)
+            if res.status == 200:
+                self.logger.debug(f'[SFU courses()] get request for {department} successful, parsing data')
+                res_json = await res.json()
+
+                # parse data for displaying, sorting, and filtering
+                for course in res_json:
+                    course['text'] = f"{department}{course['text']}"
+
+                    # we assume all courses have 3 digits
+                    if len(course['value']) == 4:
+                        course['value'] = course['value'][:3]
+
+                    course['value'] = int(course['value'])
+                    if level == 0 or (course['value']//100 == level//100):
+                        courses.append(course)
+            else:
+                self.logger.debug(f'[SFU courses()] get request for {department} resulted in {res.status}')
+
+        if len(departments) > 1:
+            courses = sorted(courses, key=lambda k: k['value'])
+
+        self.logger.debug('[SFU courses()] parsing data from get request')
+        content_to_embed = []
+        number_of_courses_per_page = 20
+        number_of_courses = 0
+        total_course = 0
+        content = ""
+
+        for course in courses:
+            course_title = course['title']
+            course_number = course['text']
+            content += f"\n{course_number} - {course_title}"
+
+            total_course += 1
+            number_of_courses += 1
+            if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is courses[-1]):
+                number_of_courses = 0
+                content_to_embed.append(
+                    [["Code - Title", content]]
+                )
+                content = ""
+
+        title = (f"{', '.join(departments)} {f'{(level//100)*100} level -' if level != 0 else '-'}"
+                 f" {f'{term.title()}' if term != 'registration' and term != 'current' else f'{term} term'}"
+                 f" {f'{year.title()}' if year != 'registration' and year != 'current' else f'{year} year'}"
+                 f"\n(Total Courses: {total_course})\n")
+
+        if len(content_to_embed) == 0:
+            self.logger.debug(f'[SFU courses()] resulted in no content')
+            e_obj = await embed(
+                self.logger, interaction=interaction, title='SFU Courses Error',
+                description=(
+                    f'Couldn\'t find anything for `department: {", ".join(departments)}'
+                    f', level: {level if level != 0 else "all"}, term: {term}, year: {year}`'
+                    f'\n Maybe no courses are being offered at that time.'
+                ),
+                colour=WallEColour.ERROR,
+            )
+            if e_obj:
+                msg = await interaction.followup.send(embed=e_obj)
+                await asyncio.sleep(10)
+                await msg.delete()
+            return
+        else:
+            await paginate_embed(
+                self.logger, bot, content_to_embed=content_to_embed,
+                title=title,
+                interaction=interaction
+            )
+
 
     async def cog_unload(self) -> None:
         await self.req.close()
