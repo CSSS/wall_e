@@ -512,10 +512,10 @@ class SFU(commands.Cog):
     @app_commands.describe(term="Specify the specific semester to search for. Examples: Spring, Summer, Fall")
     @app_commands.describe(year="Specify the specific year to search for. Examples: 2020, 2024, 2025")
     async def courses(self, interaction: discord.Interaction, department: str = "", level: int = 0,
-                  term: str = "registration", year: str = "registration"):
+                      term: str = "registration", year: str = "registration"):
         self.logger.info(
-            f'[SFU courses()] courses command detected from user {interaction.user} with arguments: '
-            f'department {department}, level {level}, term {term}, year {year}'
+            f"[SFU courses()] courses command detected from user {interaction.user} with arguments: "
+            f"department {department}, level {level}, term {term}, year {year}"
         )
         try:
             await interaction.response.defer()
@@ -526,42 +526,42 @@ class SFU(commands.Cog):
             return
 
         # The default course selection if not specified
-        departments = ['CMPT', 'MATH', 'MACM']
+        departments = ["CMPT", "MATH", "MACM"]
         if department:
             departments = [department.upper()]
 
         if level != 0 and (level < 100 or level >= 1000):
-            self.logger.debug(f'[SFU courses()] incorrect level arguments, defaulting to 0')
+            self.logger.debug("[SFU courses()] incorrect level arguments, defaulting to 0")
             level = 0
 
         courses = []
         for department in departments:
-            url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/'
-            self.logger.debug(f'[SFU courses()] url for get constructed: {url}')
+            url = f"http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{department}/"
+            self.logger.debug(f"[SFU courses()] url for get constructed: {url}")
 
             res = await self.req.get(url)
             if res.status == 200:
-                self.logger.debug(f'[SFU courses()] get request for {department} successful, parsing data')
+                self.logger.debug(f"[SFU courses()] get request for {department} successful, parsing data")
                 res_json = await res.json()
 
                 # parse data for displaying, sorting, and filtering
                 for course in res_json:
-                    course['text'] = f"{department}{course['text']}"
+                    course["text"] = f"{department}{course['text']}"
 
                     # we assume all courses have 3 digits
-                    if len(course['value']) == 4:
-                        course['value'] = course['value'][:3]
+                    if len(course["value"]) == 4:
+                        course["value"] = course["value"][:3]
 
-                    course['value'] = int(course['value'])
-                    if level == 0 or (course['value']//100 == level//100):
+                    course["value"] = int(course["value"])
+                    if level == 0 or (course["value"]//100 == level//100):
                         courses.append(course)
             else:
-                self.logger.debug(f'[SFU courses()] get request for {department} resulted in {res.status}')
+                self.logger.debug(f"[SFU courses()] get request for {department} resulted in {res.status}")
 
         if len(departments) > 1:
-            courses = sorted(courses, key=lambda k: k['value'])
+            courses = sorted(courses, key=lambda k: k["value"])
 
-        self.logger.debug('[SFU courses()] parsing data from get request')
+        self.logger.debug("[SFU courses()] parsing data from get request")
         content_to_embed = []
         number_of_courses_per_page = 20
         number_of_courses = 0
@@ -569,8 +569,8 @@ class SFU(commands.Cog):
         content = ""
 
         for course in courses:
-            course_title = course['title']
-            course_number = course['text']
+            course_title = course["title"]
+            course_number = course["text"]
             content += f"\n{course_number} - {course_title}"
 
             total_course += 1
@@ -588,13 +588,13 @@ class SFU(commands.Cog):
                  f"\n(Total Courses: {total_course})\n")
 
         if len(content_to_embed) == 0:
-            self.logger.debug(f'[SFU courses()] resulted in no content')
+            self.logger.debug("[SFU courses()] resulted in no content")
             e_obj = await embed(
-                self.logger, interaction=interaction, title='SFU Courses Error',
+                self.logger, interaction=interaction, title="SFU Courses Error",
                 description=(
-                    f'Couldn\'t find anything for `department: {", ".join(departments)}'
-                    f', level: {level if level != 0 else "all"}, term: {term}, year: {year}`'
-                    f'\n Maybe no courses are being offered at that time.'
+                    f"Couldn't find anything for `department: {', '.join(departments)}"
+                    f", level: {level if level != 0 else 'all'}, term: {term}, year: {year}`"
+                    f"\n Maybe no courses are being offered at that time."
                 ),
                 colour=WallEColour.ERROR,
             )
@@ -609,7 +609,6 @@ class SFU(commands.Cog):
                 title=title,
                 interaction=interaction
             )
-
 
     async def cog_unload(self) -> None:
         await self.req.close()
