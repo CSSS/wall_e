@@ -552,6 +552,23 @@ class SFU(commands.Cog):
             else:
                 self.logger.debug(f"[SFU courses()] get request for {department} resulted in {res.status}")
 
+        if len(courses) == 0:
+            self.logger.debug("[SFU courses()] resulted in no content")
+            e_obj = await embed(
+                self.logger, interaction=interaction, title="SFU Courses Error",
+                description=(
+                    f"Couldn't find anything for `department: {', '.join(departments)}"
+                    f", level: {level if level != 0 else 'all'}, term: {term}, year: {year}`"
+                    f"\n Maybe no courses are being offered at that time."
+                ),
+                colour=WallEColour.ERROR,
+            )
+            if e_obj:
+                msg = await interaction.followup.send(embed=e_obj)
+                await asyncio.sleep(10)
+                await msg.delete()
+            return
+
         if len(departments) > 1:
             courses = sorted(courses, key=lambda k: k["value"])
 
@@ -581,28 +598,11 @@ class SFU(commands.Cog):
                  f" {f'{year.title()}' if year != 'registration' and year != 'current' else f'{year} year'}"
                  f"\n(Total Courses: {total_course})\n")
 
-        if len(content_to_embed) == 0:
-            self.logger.debug("[SFU courses()] resulted in no content")
-            e_obj = await embed(
-                self.logger, interaction=interaction, title="SFU Courses Error",
-                description=(
-                    f"Couldn't find anything for `department: {', '.join(departments)}"
-                    f", level: {level if level != 0 else 'all'}, term: {term}, year: {year}`"
-                    f"\n Maybe no courses are being offered at that time."
-                ),
-                colour=WallEColour.ERROR,
-            )
-            if e_obj:
-                msg = await interaction.followup.send(embed=e_obj)
-                await asyncio.sleep(10)
-                await msg.delete()
-            return
-        else:
-            await paginate_embed(
-                self.logger, bot, content_to_embed=content_to_embed,
-                title=title,
-                interaction=interaction
-            )
+        await paginate_embed(
+            self.logger, bot, content_to_embed=content_to_embed,
+            title=title,
+            interaction=interaction
+        )
 
     async def cog_unload(self) -> None:
         await self.req.close()
