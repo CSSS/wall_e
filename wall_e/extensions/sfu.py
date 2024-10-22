@@ -517,13 +517,7 @@ class SFU(commands.Cog):
             f"[SFU courses()] courses command detected from user {interaction.user} with arguments: "
             f"department {department}, level {level}, term {term}, year {year}"
         )
-        try:
-            await interaction.response.defer()
-        except discord.errors.NotFound:
-            await interaction.channel.send(
-                "Feeling a bit overloaded at the moment...Please try again in a few minutes"
-            )
-            return
+        await interaction.response.defer()
 
         # The default course selection if not specified
         departments = ["CMPT", "MATH", "MACM"]
@@ -568,14 +562,14 @@ class SFU(commands.Cog):
         total_course = 0
         content = ""
 
-        for course in courses:
+        for i, course in enumerate(courses):
             course_title = course["title"]
             course_number = course["text"]
             content += f"\n{course_number} - {course_title}"
 
             total_course += 1
             number_of_courses += 1
-            if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or course is courses[-1]):
+            if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or i == len(courses) - 1):
                 number_of_courses = 0
                 content_to_embed.append(
                     [["Code - Title", content]]
