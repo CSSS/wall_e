@@ -3,6 +3,7 @@ import html
 import json  # dont need since requests has built in json encoding and decoding
 import re
 import time
+from typing import Optional
 
 import aiohttp
 
@@ -506,27 +507,74 @@ class SFU(commands.Cog):
         if e_obj is not False:
             await ctx.send(embed=e_obj, reference=ctx.message)
 
+    async def _embed_followup_error_message(self, interaction: discord.Interaction, title, desc):
+        e_obj = await embed(
+            self.logger, interaction=interaction,
+            title=title,
+            description=desc,
+            colour=WallEColour.ERROR,
+        )
+        if e_obj:
+            msg = await interaction.followup.send(embed=e_obj)
+            await asyncio.sleep(10)
+            await msg.delete()
+
+    def _parse_courses_to_embed(self, courses: list) -> list:
+        content_to_embed = []
+        number_of_courses_per_page = 20
+        number_of_courses = 0
+        content = ""
+
+        for i, course in enumerate(courses):
+            course_title = course["title"]
+            course_number = course["text"]
+            content += f"\n{course_number} - {course_title}"
+
+            number_of_courses += 1
+            if i >= 0 and (number_of_courses % number_of_courses_per_page == 0 or i == len(courses) - 1):
+                number_of_courses = 0
+                content_to_embed.append(
+                    [["Code - Title", content]]
+                )
+                content = ""
+
+        return content_to_embed
+
     @app_commands.command(name="courses", description="Gets all offered courses")
     @app_commands.describe(department="Specify the department to search. Examples: STAT, PHYS, MATH")
-    @app_commands.describe(level="Specifies the level of courses to filter for. Examples: 100, 200, 400")
-    @app_commands.describe(term="Specify the specific semester to search for. Examples: Spring, Summer, Fall")
-    @app_commands.describe(year="Specify the specific year to search for. Examples: 2020, 2024, 2025")
-    async def courses(self, interaction: discord.Interaction, department: str = "", level: int = 0,
+    @app_commands.describe(level="Specify the level of courses to filter for. Examples: 100, 200, 400")
+    @app_commands.describe(term="Specify the semester to search for. Requires year to be specified. "
+                                "Examples: Spring, Summer, Fall")
+    @app_commands.describe(year="Specify the year to search for. Requires term to be specified. "
+                                "Examples: 2020, 2024, 2025")
+    async def courses(self, interaction: discord.Interaction, department: str = "", level: Optional[int] = None,
                       term: str = "registration", year: str = "registration"):
         self.logger.info(
             f"[SFU courses()] courses command detected from user {interaction.user} with arguments: "
             f"department {department}, level {level}, term {term}, year {year}"
         )
         await interaction.response.defer()
+        err_msg_title = "SFU Courses Error"
 
         # The default course selection if not specified
         departments = ["CMPT", "MATH", "MACM"]
         if department:
             departments = [department.upper()]
 
-        if level != 0 and (level < 100 or level >= 1000):
-            self.logger.debug("[SFU courses()] incorrect level arguments, defaulting to 0")
-            level = 0
+        if level and (level < 100 or level >= 1000):
+            self.logger.debug("[SFU courses()] invalid level argument")
+            desc = ("Invalid level argument. Level must be within 100 and 999.\n"
+                    "Example: `/courses level:200`")
+            await self._embed_followup_error_message(interaction, err_msg_title, desc)
+            return
+
+        if (term == "registration" and year != "registration") or (term != "registration" and year == "registration"):
+            self.logger.debug("[SFU courses()] invalid term/year arguments")
+            desc = ("Both term and year arguments must be either set or unset.\n"
+                    "Example: `/courses term:summer year:2021` # set\n"
+                    "Example: `/courses` # unset")
+            await self._embed_followup_error_message(interaction, err_msg_title, desc)
+            return
 
         courses = []
         for department in departments:
@@ -543,60 +591,29 @@ class SFU(commands.Cog):
                     course["text"] = f"{department}{course['text']}"
 
                     # we assume all courses have 3 digits
-                    if len(course["value"]) == 4:
-                        course["value"] = course["value"][:3]
-
-                    course["value"] = int(course["value"])
-                    if level == 0 or (course["value"]//100 == level//100):
+                    course["value"] = int(course["value"][:3])
+                    if not level or (course["value"]//100 == level//100):
                         courses.append(course)
             else:
                 self.logger.debug(f"[SFU courses()] get request for {department} resulted in {res.status}")
 
         if len(courses) == 0:
             self.logger.debug("[SFU courses()] resulted in no content")
-            e_obj = await embed(
-                self.logger, interaction=interaction, title="SFU Courses Error",
-                description=(
-                    f"Couldn't find anything for `department: {', '.join(departments)}"
-                    f", level: {level if level != 0 else 'all'}, term: {term}, year: {year}`"
-                    f"\n Maybe no courses are being offered at that time."
-                ),
-                colour=WallEColour.ERROR,
-            )
-            if e_obj:
-                msg = await interaction.followup.send(embed=e_obj)
-                await asyncio.sleep(10)
-                await msg.delete()
+            desc = (f"Couldn't find anything for `department: {', '.join(departments)}`, "
+                    f"`level: {level if level is not None else 'all'}`, `term: {term}`, `year: {year}`\n"
+                    f"Maybe no courses are being offered at that time.")
+            await self._embed_followup_error_message(interaction, err_msg_title, desc)
             return
 
         if len(departments) > 1:
             courses = sorted(courses, key=lambda k: k["value"])
 
-        self.logger.debug("[SFU courses()] parsing data from get request")
-        content_to_embed = []
-        number_of_courses_per_page = 20
-        number_of_courses = 0
-        total_course = 0
-        content = ""
+        self.logger.debug("[SFU courses()] parsing data from GET request")
+        content_to_embed = self._parse_courses_to_embed(courses)
 
-        for i, course in enumerate(courses):
-            course_title = course["title"]
-            course_number = course["text"]
-            content += f"\n{course_number} - {course_title}"
-
-            total_course += 1
-            number_of_courses += 1
-            if total_course > 0 and (number_of_courses % number_of_courses_per_page == 0 or i == len(courses) - 1):
-                number_of_courses = 0
-                content_to_embed.append(
-                    [["Code - Title", content]]
-                )
-                content = ""
-
-        title = (f"{', '.join(departments)} {f'{(level//100)*100} level -' if level != 0 else '-'}"
-                 f" {f'{term.title()}' if term != 'registration' and term != 'current' else f'{term} term'}"
-                 f" {f'{year.title()}' if year != 'registration' and year != 'current' else f'{year} year'}"
-                 f"\n(Total Courses: {total_course})\n")
+        title = (f"{', '.join(departments)} {f'{(level // 100) * 100} level -' if level is not None else '-'} "
+                 f"{'Next term' if term == 'registration' and year == 'registration' else f'{term.title()} {year}'}"
+                 f"\n(Total Courses: {len(courses)})\n")
 
         await paginate_embed(
             self.logger, bot, content_to_embed=content_to_embed,
