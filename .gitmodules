@@ -1,0 +1,3 @@
+[submodule "wall_e_models"]
+	path = .wall_e_models
+	url = https://github.com/CSSS/wall_e_models.git

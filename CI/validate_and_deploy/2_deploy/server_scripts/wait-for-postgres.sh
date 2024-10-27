@@ -26,7 +26,6 @@ if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
 	--set=WALL_E_DB_PASSWORD="${database_config__WALL_E_DB_PASSWORD}" \
 	--set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
 	-h "$host" -U "postgres" -f "${HOME_DIR}"/create-database.ddl
-	python3 -m pip install -r ../CI/validate_and_deploy/2_deploy/server_scripts/wall_e_models_requirement.txt
 	python3 django_manage.py migrate
  	wget https://dev.sfucsss.org/wall_e/fixtures/banrecords.json
   	wget https://dev.sfucsss.org/wall_e/fixtures/commandstats.json
@@ -45,7 +44,6 @@ if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
 	rm -r /wall_e || true
 fi
 
-python3 -m pip install -r wall_e_models_requirement.txt
 python3 django_manage.py migrate
 
 exec $cmd

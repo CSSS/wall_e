@@ -42,11 +42,6 @@ else
 		python3 -m pip install -r layer-2-requirements.txt
 		rm layer-1-requirements.txt layer-2-requirements.txt
 		python3 -m pip install -r requirements.txt
-		python3 -m pip install -r ../CI/validate_and_deploy/2_deploy/server_scripts/wall_e_models_requirement.txt
-		python3 -m pip uninstall -y wall_e_models
-	fi
-		if [ ! -f 'wall_e_models' ]; then
-		ln -sn "${WALL_E_MODEL_PATH}/wall_e_models" wall_e_models || true
 	fi
 
 	if [[ "${SETUP_DATABASE}" == "True" ]]; then
