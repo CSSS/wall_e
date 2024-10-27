@@ -44,7 +44,7 @@ else
 		python3 -m pip install -r layer-2-requirements.txt
 		rm layer-1-requirements.txt layer-2-requirements.txt
 		python3 -m pip install -r requirements.txt
-		python3 -m pip install -r .wall_e_models/requirements.txt
+		python3 -m pip install -r ../.wall_e_models/requirements.txt
 	fi
 
 	if [[ "${SETUP_DATABASE}" == "True" ]]; then
