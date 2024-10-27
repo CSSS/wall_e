@@ -561,7 +561,7 @@ class SFU(commands.Cog):
         if department:
             departments = [department.upper()]
 
-        if level and (level < 100 or level >= 1000):
+        if level is not None and (level < 100 or level >= 1000):
             self.logger.debug("[SFU courses()] invalid level argument")
             desc = ("Invalid level argument. Level must be within 100 and 999.\n"
                     "Example: `/courses level:200`")
@@ -592,7 +592,7 @@ class SFU(commands.Cog):
 
                     # we assume all courses have 3 digits
                     course["value"] = int(course["value"][:3])
-                    if not level or (course["value"]//100 == level//100):
+                    if level is None or (course["value"]//100 == level//100):
                         courses.append(course)
             else:
                 self.logger.debug(f"[SFU courses()] get request for {department} resulted in {res.status}")
