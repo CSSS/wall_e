@@ -10,8 +10,10 @@ fi
 
 # need to delete and re-create so that the if statement that tries to detected if the
 # help menu was invoked can work correctly
-cat ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env | grep -v HELP_SELECTED > ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2
-mv ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2 ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env
+if [ -f "CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env" ]; then
+  cat ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env | grep -v HELP_SELECTED > ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2
+  mv ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2 ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env
+fi
 
 ./.run_walle.py $@
 
@@ -42,11 +44,7 @@ else
 		python3 -m pip install -r layer-2-requirements.txt
 		rm layer-1-requirements.txt layer-2-requirements.txt
 		python3 -m pip install -r requirements.txt
-		python3 -m pip install -r ../CI/validate_and_deploy/2_deploy/server_scripts/wall_e_models_requirement.txt
-		python3 -m pip uninstall -y wall_e_models
-	fi
-		if [ ! -f 'wall_e_models' ]; then
-		ln -sn "${WALL_E_MODEL_PATH}/wall_e_models" wall_e_models || true
+		python3 -m pip install -r ../.wall_e_models/requirements.txt
 	fi
 
 	if [[ "${SETUP_DATABASE}" == "True" ]]; then
