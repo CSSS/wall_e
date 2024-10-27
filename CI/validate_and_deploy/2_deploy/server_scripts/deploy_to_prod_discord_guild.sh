@@ -39,6 +39,7 @@ docker rm -f ${prod_container_name} || true
 docker image rm -f ${prod_image_name_lower_case} || true
 docker volume create --name="${COMPOSE_PROJECT_NAME}_logs"
 
+git submodule update --init --recursive
 
 re_create_top_base_image () {
     docker image rm -f "${prod_image_name_lower_case}" "${wall_e_top_base_image}" "${ORIGIN_IMAGE}"

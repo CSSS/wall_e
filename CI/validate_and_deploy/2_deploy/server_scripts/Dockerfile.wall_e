@@ -4,6 +4,8 @@ FROM $ORIGIN_IMAGE
 
 COPY wall_e ./
 
+COPY .wall_e_models/wall_e_models wall_e_models
+
 COPY CI/validate_and_deploy/2_deploy/create-database.ddl .
 
 COPY CI/validate_and_deploy/2_deploy/server_scripts/wait-for-postgres.sh .

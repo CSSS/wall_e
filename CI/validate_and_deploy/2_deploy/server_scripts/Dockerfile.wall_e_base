@@ -11,3 +11,7 @@ WORKDIR $CONTAINER_HOME_DIR
 COPY wall_e/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+COPY .wall_e_models/requirements.txt wall_e_models_requirements.txt
+
+RUN pip install --no-cache-dir -r wall_e_models_requirements.txt
