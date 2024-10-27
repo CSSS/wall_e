@@ -10,8 +10,10 @@ fi
 
 # need to delete and re-create so that the if statement that tries to detected if the
 # help menu was invoked can work correctly
-cat ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env | grep -v HELP_SELECTED > ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2
-mv ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2 ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env
+if [ -f "CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env" ]; then
+  cat ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env | grep -v HELP_SELECTED > ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2
+  mv ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env.2 ./CI/validate_and_deploy/2_deploy/user_scripts/run_wall_e.env
+fi
 
 ./.run_walle.py $@
 
