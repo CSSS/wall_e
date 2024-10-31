@@ -59,62 +59,41 @@ class SFU(commands.Cog):
             self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "sfu_error"
         )
 
-    @commands.command(
-        brief="Show calendar description from the specified course's current semester",
-        help=(
-            "Arguments:\n"
-            "---course: semester to get the calendar description for"
-        ),
-        usage='course'
-    )
-    async def sfu(self, ctx, *course):
-        self.logger.info(f'[SFU sfu()] sfu command detected from user {ctx.message.author} with arguments: {course}')
-
-        if(not course):
-            e_obj = await embed(
-                self.logger,
-                ctx=ctx,
-                title='Missing Arguments',
-                author=ctx.me,
-                colour=WallEColour.ERROR,
-                content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
-                footer_text='SFU Error'
-            )
-            if e_obj is not False:
-                await ctx.send(embed=e_obj, reference=ctx.message)
-            self.logger.debug('[SFU sfu()] missing arguments, command ended')
-            return
+    @app_commands.command(name="sfu",
+                          description="Show calendar description from the specified course's current semester",
+                          )
+    @app_commands.describe(course="The course to get the calendar description for")
+    async def sfu(self, interaction: discord.Interaction, course: str):
+        self.logger.info(f'[SFU sfu()] sfu command detected from user {interaction.user} with arguments: {course}')
 
         year = time.localtime()[0]
         term = time.localtime()[1]
 
-        if(term <= 4):
+        if term <= 4:
             term = 'spring'
-        elif(term >= 5 and term <= 8):
+        elif 5 <= term <= 8:
             term = 'summer'
         else:
             term = 'fall'
 
         # Check if arg needs to be manually split
-        if(len(course) == 1):
+        course = course.split(" ")
+        if len(course) == 1:
             # split
             crs = re.findall(r'(\d*\D+)', course[0])
-            if(len(crs) < 2):
+            if len(crs) < 2:
                 crs = re.split(r'(\d+)', course[0])
 
-            if(len(crs) < 2):
+            if len(crs) < 2:
                 # Bad args
                 e_obj = await embed(
-                    self.logger,
-                    ctx=ctx,
-                    title='Bad Arguments',
-                    author=ctx.me,
-                    colour=WallEColour.ERROR,
+                    self.logger, interaction=interaction, title='Bad Arguments',
                     content=[['Usage', '`.sfu <arg>`'], ['Example', '`.sfu cmpt300`']],
+                    colour=WallEColour.ERROR,
                     footer_text='SFU Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj, reference=ctx.message)
+                    await interaction.response.send_message(embed=e_obj)
                 self.logger.debug('[SFU sfu()] bad arguments, command ended')
                 return
 
@@ -130,7 +109,7 @@ class SFU(commands.Cog):
         async with aiohttp.ClientSession() as req:
             res = await req.get(url)
             data = ''
-            if(res.status == 200):
+            if res.status == 200:
                 self.logger.debug('[SFU sfu()] get request successful')
                 while True:
                     chunk = await res.content.read(10)
@@ -142,20 +121,16 @@ class SFU(commands.Cog):
             if not data:
                 self.logger.debug(f'[SFU sfu()] get resulted in {res.status}')
                 e_obj = await embed(
-                    self.logger,
-                    ctx=ctx,
-                    title='Results from SFU',
-                    author=ctx.me,
-                    colour=WallEColour.ERROR,
+                    self.logger, interaction=interaction, title='Results from SFU',
                     description=(
                         f'Couldn\'t find anything for:\n{year}/{term.upper()}/{course_code.upper()}'
-                        f'/{course_num}/\nMake sure you entered all the arguments '
-                        'correctly'
+                        f'/{course_num}/\nMake sure you entered the argument correctly'
                     ),
+                    colour=WallEColour.ERROR,
                     footer_text='SFU Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj, reference=ctx.message)
+                    await interaction.response.send_message(embed=e_obj)
                 return
 
         self.logger.debug('[SFU sfu()] parsing json data returned from get request')
@@ -169,43 +144,28 @@ class SFU(commands.Cog):
             ["URL", link]
         ]
 
-        embed_obj = await embed(
-            self.logger,
-            ctx=ctx,
-            title='Results from SFU',
-            author=ctx.me,
+        e_obj = await embed(
+            self.logger, interaction=interaction, title='Results from SFU',
             content=fields,
             colour=WallEColour.ERROR,
             footer_text=footer
         )
-        if embed_obj is not False:
-            await ctx.send(embed=embed_obj, reference=ctx.message)
+        if e_obj is not False:
+            await interaction.response.send_message(embed=e_obj)
         self.logger.debug('[SFU sfu()] out sent to server')
+        return
 
-    @commands.command(
-        brief="Returns outline details of the specified course",
-        help=(
-            "Optionally, you may specify term in with the first parameter and/or section with second parameter.\n"
-            "Added keyword [next] will look at next semesters outline for [course]; Note [next] will return error if "
-            "it is not registration time.\n\n"
-            "Arguments:\n"
-            "---course: the course to get the outline for\n"
-            "---[term|section]\n"
-            "------term: the course's term to get the outline for\n"
-            "------section: a way to specify a course's specific section\n"
-            "---next: will look at the next semester's outline. This will return error if it is not registration time"
-            "\n\n"
-            "Example:\n"
-            "---.outline cmpt300\n"
-            "---.outline cmpt300 spring d200\n"
-            "---.outline cmpt300 next\n"
-            "---.outline cmpt300 summer d200 next\n\n"
-        ),
-        usage='course [spring|summer|fall] [section] [next]'
-    )
-    async def outline(self, ctx, *course):
+    @app_commands.command(name="outline", description="Returns outline details of the specified course")
+    @app_commands.describe(course="the course to get the outline for")
+    @app_commands.describe(term="the course's term to get the outline for")
+    @app_commands.describe(section="a way to specify a course's specific section")
+    @app_commands.describe(arg="will look at the next semester's outline. "
+                               "This will return error if it is not registration time")
+    async def outline(self, interaction: discord.Interaction, course: str, term: Optional[str] = None,
+                      section: Optional[str] = None, arg: Optional[str] = None):
         self.logger.info(
-            f'[SFU outline()] outline command detected from user {ctx.message.author} with arguments: {course}'
+            f'[SFU outline()] outline command detected from user {interaction.user} with arguments: '
+            f'course: {course}, term: {term}, section: {section}, arg: {arg}'
         )
 
         usage = [
@@ -216,118 +176,58 @@ class SFU(commands.Cog):
                 ['Example', '`.outline cmpt300\n .outline cmpt300 fall\n .outline cmpt300 d200\n .outline cmpt300'
                  ' spring d200\n .outline cmpt300 next`']]
 
-        if not course:
-            e_obj = await embed(
-                self.logger,
-                ctx=ctx,
-                title='Missing Arguments',
-                author=ctx.me,
-                colour=WallEColour.ERROR,
-                content=usage,
-                footer_text='SFU Outline Error'
-            )
-            if e_obj is not False:
-                await ctx.send(embed=e_obj, reference=ctx.message)
-            self.logger.debug('[SFU outline()] missing arguments, command ended')
-            return
-        course = list(course)
-        if 'next' in course:
+        if arg == 'next':
             year = 'registration'
             term = 'registration'
-            course.remove('next')
         else:
             year = 'current'
-            term = 'current'
+            if term is None or term.lower() not in ['fall', 'spring', 'summer']:
+                term = 'current'
+            else:
+                term = term.lower()
 
         course_code = ''
         course_num = ''
-        section = ''
 
         self.logger.debug('[SFU outline()] parsing args')
+        course = course.split(' ')
         arg_num = len(course)
 
-        if(arg_num > 1 and course[1][:len(course[1]) - 1].isdigit()):
+        if arg_num > 1 and course[1][:len(course[1]) - 1].isdigit():
             # User gave course in two parts
             course_code = course[0].lower()
             course_num = course[1].lower()
-            course = course[:1] + course[2:]
-            arg_num = len(course)
         else:
             # Split course[0] into parts
             crs = re.findall(r'(\d*\D+)', course[0])
-            if(len(crs) < 2):
+            if len(crs) < 2:
                 crs = re.split(r'(\d+)', course[0])  # this incase the course num doesnt end in a letter, need to
                 # split with different regex
 
-            if(len(crs) < 2):
+            if len(crs) < 2:
                 # Bad args
                 e_obj = await embed(
-                    self.logger,
-                    ctx=ctx,
-                    title='Bad Arguments',
-                    author=ctx.me,
-                    colour=WallEColour.ERROR,
+                    self.logger, interaction=interaction, title='Bad Arguments',
                     content=usage,
+                    colour=WallEColour.ERROR,
                     footer_text='SFU Outline Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj, reference=ctx.message)
+                    await interaction.response.send_message(embed=e_obj)
                 self.logger.debug('[SFU outline()] bad arguments, command ended')
                 return
 
             course_code = crs[0].lower()
             course_num = crs[1]
 
-        # Course and term or section is specified
-        if(arg_num == 2):
-            # Figure out if section or term was given
-            temp = course[1].lower()
-            if temp[3].isdigit():
-                section = temp
-            elif term != 'registration':
-                if(temp == 'fall'):
-                    term = temp
-                elif(temp == 'summer'):
-                    term = temp
-                elif(temp == 'spring'):
-                    term = temp
-
-        # Course, term, and section is specified
-        elif(arg_num == 3):
-            # Check if last arg is section
-            if course[2][3].isdigit():
-                section = course[2].lower()
-            if term != 'registration':
-                if course[1] == 'fall' or course[1] == 'spring' or course[1] == 'summer':
-                    term = course[1].lower()
-                else:
-                    # Send something saying be in this order
-                    self.logger.debug('[SFU outline()] args out of order or wrong')
-                    e_obj = await embed(
-                        self.logger,
-                        ctx=ctx,
-                        title='Bad Arguments',
-                        author=ctx.me,
-                        colour=WallEColour.ERROR,
-                        description=(
-                            'Make sure your arguments are in the following order:\n<course> '
-                            '<term> <section>\nexample: `.outline cmpt300 fall d200`\n term and section'
-                            ' are optional args'
-                        ),
-                        footer_text='SFU Outline Error'
-                    )
-                    if e_obj is not False:
-                        await ctx.send(embed=e_obj, reference=ctx.message)
-                    return
-
         # Set up url for get
-        if section == '':
+        if section is None:
             # get req the section
             self.logger.debug('[SFU outline()] getting section')
             res = await self.req.get(
                 f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{course_code}/{course_num}'
             )
-            if(res.status == 200):
+            if res.status == 200:
                 data = ''
                 while not res.content.at_eof():
                     chunk = await res.content.readchunk()
@@ -341,19 +241,16 @@ class SFU(commands.Cog):
             else:
                 self.logger.debug(f'[SFU outline()] section get resulted in {res.status}')
                 e_obj = await embed(
-                    self.logger,
-                    ctx=ctx,
-                    title='SFU Course Outlines',
-                    author=ctx.me,
-                    colour=WallEColour.ERROR,
+                    self.logger, interaction=interaction, title='SFU Course Outlines',
                     description=(
                         f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
                         'Maybe the course doesn\'t exist? Or isn\'t offered right now.'
                     ),
+                    colour=WallEColour.ERROR,
                     footer_text='SFU Outline Error'
                 )
                 if e_obj is not False:
-                    await ctx.send(embed=e_obj, reference=ctx.message)
+                    await interaction.response.send_message(embed=e_obj)
                 return
 
         url = f'http://www.sfu.ca/bin/wcm/course-outlines?{year}/{term}/{course_code}/{course_num}/{section}'
@@ -361,7 +258,7 @@ class SFU(commands.Cog):
 
         res = await self.req.get(url)
 
-        if(res.status == 200):
+        if res.status == 200:
             self.logger.debug('[SFU outline()] get request successful')
             data = ''
             while not res.content.at_eof():
@@ -370,21 +267,18 @@ class SFU(commands.Cog):
 
             data = json.loads(data)
         else:
-            self.logger.debug(f'[SFU outline()] full outline get resulted in {res.status}')
+            self.logger.debug(f'[SFU outline()] section get resulted in {res.status}')
             e_obj = await embed(
-                self.logger,
-                ctx=ctx,
-                title='SFU Course Outlines',
-                author=ctx.me,
-                colour=WallEColour.ERROR,
+                self.logger, interaction=interaction, title='SFU Course Outlines',
                 description=(
-                    f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`'
-                    f'\n Maybe the course doesn\'t exist? Or isn\'t offered right now.'
+                    f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
+                    'Maybe the course doesn\'t exist? Or isn\'t offered right now.'
                 ),
+                colour=WallEColour.ERROR,
                 footer_text='SFU Outline Error'
             )
             if e_obj is not False:
-                await ctx.send(embed=e_obj, reference=ctx.message)
+                await interaction.response.send_message(embed=e_obj)
             return
 
         self.logger.debug('[SFU outline()] parsing data from get request')
@@ -397,17 +291,16 @@ class SFU(commands.Cog):
         except Exception:
             self.logger.debug('[SFU outline()] info keys didn\'t exist')
             e_obj = await embed(
-                self.logger,
-                ctx=ctx,
-                title='SFU Course Outlines',
-                author=ctx.me,
-                colour=WallEColour.ERROR,
+                self.logger, interaction=interaction, title='SFU Course Outlines',
                 description=(
                     f'Couldn\'t find anything for `{course_code.upper()} {f"{course_num}".upper()}`\n '
-                    f'Maybe the course doesn\'t exist? Or isn\'t offered right now.'),
-                footer_text='SFU Outline Error')
+                    'Maybe the course doesn\'t exist? Or isn\'t offered right now.'
+                ),
+                colour=WallEColour.ERROR,
+                footer_text='SFU Outline Error'
+            )
             if e_obj is not False:
-                await ctx.send(embed=e_obj, reference=ctx.message)
+                await interaction.response.send_message(embed=e_obj)
             return
 
         outline = info['outlinePath'].upper()
@@ -462,7 +355,7 @@ class SFU(commands.Cog):
         try:
             details = html.unescape(data['info']['courseDetails'])
             details = re.sub('<[^<]+?>', '', details)
-            if(len(details) > 200):
+            if len(details) > 200:
                 details = f'{details[:200]}\n(...)'
         except Exception:
             details = 'None'
@@ -494,18 +387,17 @@ class SFU(commands.Cog):
             fields.append(['Corequisites', corequisites])
         fields.append(['URL', f'[here]({url})'])
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
+
         e_obj = await embed(
-            self.logger,
-            ctx=ctx,
-            title='SFU Outline Results',
-            author=ctx.me,
-            colour=WallEColour.ERROR,
+            self.logger, interaction=interaction, title='SFU Outline Results',
             thumbnail=img,
             content=fields,
+            colour=WallEColour.ERROR,
             footer_text='Written by VJ'
         )
         if e_obj is not False:
-            await ctx.send(embed=e_obj, reference=ctx.message)
+            await interaction.response.send_message(embed=e_obj)
+        return
 
     async def _embed_followup_error_message(self, interaction: discord.Interaction, title, desc):
         e_obj = await embed(
