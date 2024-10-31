@@ -140,8 +140,8 @@ class SFU(commands.Cog):
         footer = 'Written by VJ'
 
         fields = [
-            [data['title'], data['description']],
-            ["URL", link]
+            [data['title'], data['description'], False],
+            ["URL", link, False]
         ]
 
         e_obj = await embed(
@@ -373,14 +373,14 @@ class SFU(commands.Cog):
         self.logger.debug(f"[SFU outline()] finished parsing data for: {data['info']['outlinePath']}")
         # Make tuple of the data for the fields
         fields = [
-            ['Outline', outline],
-            ['Title', title],
-            ['Instructor', instructor],
-            ['Class Times', class_times],
-            ['Exam Times', exam_times],
-            ['Description', description],
-            ['Details', details],
-            ['Prerequisites', prerequisites]
+            ['Outline', outline, False],
+            ['Title', title, False],
+            ['Instructor', instructor, False],
+            ['Class Times', class_times, False],
+            ['Exam Times', exam_times, False],
+            ['Description', description, False],
+            ['Details', details, False],
+            ['Prerequisites', prerequisites, False]
         ]
 
         if corequisites:

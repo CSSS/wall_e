@@ -10,6 +10,6 @@ do
   read forked_repo_https_clone_url
 done
 
-git clone "${forked_repo_https_clone_url}"
+git clone --recurse-submodules "${forked_repo_https_clone_url}"
 cd wall_e/
 ./run_walle.sh

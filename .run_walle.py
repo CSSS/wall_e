@@ -47,10 +47,6 @@ def create_argument_parser():
         help="indicates whether you want to use sqlite3 or postgres for the database type."
     )
     parser_obj.add_argument(
-        "--wall_e_models_location", action='store', default=None,
-        help="used to specify the absolute path to the wall_e_models", metavar="/path/to/wall_e_model/repo"
-    )
-    parser_obj.add_argument(
         "--launch_wall_e", action='store', default=None, choices=['true', 'false'], help="script will run wall_e."
     )
     parser_obj.add_argument(
@@ -84,7 +80,6 @@ def pull_variable_from_command_line_arguments(argparser):
     :return: (
         the dockerized_wall_e command-line flag
         the database type command-line flag
-        the wall_e_models location
         the launch_wall_e command-line flag
         the install_requirements command-line flag
         the setup_database command-line flag
@@ -97,7 +92,7 @@ def pull_variable_from_command_line_arguments(argparser):
         database_type = DatabaseType.postgreSQL.value
     return (
         convert_command_line_argument_to_menu_format(argparser.dockerized_wall_e), database_type,
-        argparser.wall_e_models_location, convert_command_line_argument_to_menu_format(argparser.launch_wall_e),
+        convert_command_line_argument_to_menu_format(argparser.launch_wall_e),
         convert_command_line_argument_to_menu_format(argparser.install_requirements),
         convert_command_line_argument_to_menu_format(argparser.setup_database)
 
@@ -280,7 +275,7 @@ args = parser.parse_args()
 
 (
     basic_config__DOCKERIZED_CMD_LINE_ARGUMENT, database_config__TYPE_CMD_LINE_ARGUMENT,
-    WALL_E_MODEL_PATH_CMD_LINE_ARGUMENT, LAUNCH_WALL_E_CMD_LINE_ARGUMENT, INSTALL_REQUIREMENTS_CMD_LINE_ARGUMENT,
+    LAUNCH_WALL_E_CMD_LINE_ARGUMENT, INSTALL_REQUIREMENTS_CMD_LINE_ARGUMENT,
     SETUP_DATABASE_CMD_LINE_ARGUMENT
 ) = pull_variable_from_command_line_arguments(args)
 
@@ -329,16 +324,6 @@ if (database_config__TYPE == DatabaseType.postgreSQL.value) and (platform.system
     print("Feel free to add that feature in or revert to using db.sqlite3")
     exit(1)
 
-WALL_E_MODEL_PATH = WALL_E_MODEL_PATH_CMD_LINE_ARGUMENT
-while WALL_E_MODEL_PATH is None or not os.path.exists(WALL_E_MODEL_PATH):
-    WALL_E_MODEL_PATH = get_string_variables(
-        "Please specify the relative/absolute path for the wall_e_model in the form /path/to/wall_e_model/repo",
-        "WALL_E_MODEL_PATH",
-        command_line_argument=WALL_E_MODEL_PATH, overwrite_env=overwrite_env_file,
-        default_value=WALL_E_MODEL_PATH
-    )
-    if WALL_E_MODEL_PATH is not None and not os.path.exists(WALL_E_MODEL_PATH):
-        print(f"path {WALL_E_MODEL_PATH} does not exist")
 LAUNCH_WALL_E = get_boolean_variable(
     "Do you you want this script to launch wall_e? [the alternative is to use PyCharm]", "LAUNCH_WALL_E",
     command_line_argument=LAUNCH_WALL_E_CMD_LINE_ARGUMENT, overwrite_env=overwrite_env_file
@@ -396,7 +381,7 @@ channel_names__BOT_MANAGEMENT_CHANNEL = get_string_variables(
 
 essential_variables_are_null = check_for_null_variables(
     basic_config__TOKEN=basic_config__TOKEN, basic_config__GUILD_ID=basic_config__GUILD_ID,
-    basic_config__DOCKERIZED=basic_config__DOCKERIZED, WALL_E_MODEL_PATH=WALL_E_MODEL_PATH
+    basic_config__DOCKERIZED=basic_config__DOCKERIZED
 )
 if essential_variables_are_null[0]:
     raise Exception(f"necessary variable {essential_variables_are_null[1]} is None")
@@ -447,7 +432,6 @@ database_config__TYPE='{database_config__TYPE}'
 with open(RUN_ENV_FILE_LOCATION, "w") as f:
     f.seek(0)
     f.write(f"""LAUNCH_WALL_E='{LAUNCH_WALL_E}'
-WALL_E_MODEL_PATH='{WALL_E_MODEL_PATH}'
 POSTGRES_PASSWORD='postgres_passwd'
 ORIGIN_IMAGE='sfucsssorg/wall_e'
 HELP_SELECTED='0'

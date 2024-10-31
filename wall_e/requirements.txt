@@ -3,5 +3,5 @@ wolframalpha==5.0.0
 configparser==5.2.0
 
 # needed for DB interactions
-Django==3.2.25
-asgiref==3.4.1
+Django==4.2.16
+asgiref==3.6.0
