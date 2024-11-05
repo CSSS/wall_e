@@ -155,7 +155,7 @@ class SFU(commands.Cog):
 
         self.logger.debug('[SFU sfu()] parsing json data returned from get request')
 
-        sfu_url = f'http://www.sfu.ca/students/calendar/{year}/{term}/courses/{course_code}/{course_num}.html'
+        sfu_url = f'https://www.sfu.ca/students/calendar/{year}/{term}/courses/{course_code}/{course_num}.html'
         link = f'[here]({sfu_url})'
         footer = 'Written by VJ'
 
@@ -471,7 +471,7 @@ class SFU(commands.Cog):
         except Exception:
             corequisites = ''
 
-        url = f"http://www.sfu.ca/outlines.html?{data['info']['outlinePath']}"
+        url = f"https://www.sfu.ca/outlines.html?{data['info']['outlinePath']}"
         self.logger.debug(f"[SFU outline()] finished parsing data for: {data['info']['outlinePath']}")
         # Make tuple of the data for the fields
         fields = [
