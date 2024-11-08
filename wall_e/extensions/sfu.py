@@ -156,12 +156,12 @@ class SFU(commands.Cog):
         self.logger.debug('[SFU sfu()] parsing json data returned from get request')
 
         sfu_url = f'https://www.sfu.ca/students/calendar/{year}/{term}/courses/{course_code}/{course_num}.html'
-        link = f'[here]({sfu_url})'
+        link = f'[{course_code.upper()} {course_num.upper()}]({sfu_url})'
         footer = 'Written by VJ'
 
         fields = [
             [data['title'], data['description'], False],
-            ["URL", link, False]
+            ["Calendar Link", link, False]
         ]
 
         embed_obj = await embed(
@@ -487,7 +487,8 @@ class SFU(commands.Cog):
 
         if corequisites:
             fields.append(['Corequisites', corequisites])
-        fields.append(['URL', f'[here]({url})'])
+        link = f'[{course_code.upper()} {course_num.upper()} {section.upper()}]({url})'
+        fields.append(['Outline Link', link])
         img = 'http://www.sfu.ca/content/sfu/clf/jcr:content/main_content/image_0.img.1280.high.jpg/1468454298527.jpg'
         e_obj = await embed(
             self.logger,
