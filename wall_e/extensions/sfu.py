@@ -59,7 +59,7 @@ class SFU(commands.Cog):
         )
 
     async def _embed_message(self, interaction: discord.Interaction, title, footer,
-                                   content: Optional[list] = None, desc: Optional[str] = None):
+                             content: Optional[list] = None, desc: Optional[str] = None):
         e_obj = await embed(
             self.logger, interaction=interaction,
             title=title,
@@ -99,7 +99,7 @@ class SFU(commands.Cog):
             while not res.content.at_eof():
                 chunk = await res.content.readchunk()
                 data += str(chunk[0].decode())
-            res = json.loads(data) # TODO: do not need json anymore
+            res = json.loads(data)  # TODO: do not need json anymore
         return res, status
 
     @app_commands.command(name="sfu",
@@ -337,7 +337,6 @@ class SFU(commands.Cog):
         await self._embed_message(interaction, 'SFU Outline Results', 'Written by VJ',
                                   content=fields)
         return
-
 
     async def cog_unload(self) -> None:
         await self.req.close()
