@@ -16,7 +16,6 @@ from utilities.global_vars import bot, wall_e_config
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
-from utilities.paginate import paginate_embed
 
 
 class SFU(commands.Cog):
