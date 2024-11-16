@@ -12,7 +12,8 @@ def create_github_issue(error_messages, config):
     :return:
     """
     last_message = None
-    if "/usr/src/app/" in error_messages:  # if the directory that contains the WALL_E code is in the stacktrace
+    error_message_body = "".join(error_messages)
+    if "/usr/src/app/" in error_message_body:  # if the directory that contains the WALL_E code is in the stacktrace
         # then it is probably a guarantee that the issue is due to WALL_E and not a problem with discord.py or
         # a network glitch
         last_line = len(error_messages)-1
@@ -35,6 +36,6 @@ def create_github_issue(error_messages, config):
             },
             json={
                 "title": last_message,
-                "body": "```\n" + "".join(error_messages) + "\n```"
+                "body": f"```\n{error_message_body}\n```"
             }
         )
