@@ -1,6 +1,6 @@
 import asyncio
 import html
-import json  # dont need since requests has built in json encoding and decoding
+import json
 import re
 import time
 from typing import Optional
@@ -99,7 +99,7 @@ class SFU(commands.Cog):
             while not res.content.at_eof():
                 chunk = await res.content.readchunk()
                 data += str(chunk[0].decode())
-            res = json.loads(data)  # TODO: do not need json anymore
+            res = json.loads(data)
         return res, status
 
     @app_commands.command(name="sfu",
@@ -175,9 +175,8 @@ class SFU(commands.Cog):
             sec_code = f'[{x["sectionCode"]}]'
             days = x['days']
             tme = f'{x["startTime"]}-{x["endTime"]}'
-            room = f'{x.get("buildingCode", "Room TBD")} {x.get("roomNumber", "")}'
             campus = x['campus']
-            crs = f'{crs}{sec_code} {days} {tme}, {room}, {campus}\n'
+            crs = f'{crs}{sec_code} {days} {tme}, {campus}\n'
 
         class_times = crs
 
@@ -243,28 +242,30 @@ class SFU(commands.Cog):
         return fields
 
     @app_commands.command(name="outline", description="Returns outline details of the specified course")
-    @app_commands.describe(course="the course to get the outline for")
-    @app_commands.describe(term="the course's term to get the outline for")
-    @app_commands.describe(section="a way to specify a course's specific section")
-    @app_commands.describe(arg="will look at the next semester's outline. "
-                               "This will return error if it is not registration time")
+    @app_commands.describe(course="The course to get the outline for")
+    @app_commands.describe(term="The course's term to get the outline for")
+    @app_commands.describe(section="A way to specify a course's specific section")
+    @app_commands.describe(next_term="Will look at the next semester's outline. "
+                                     "This will return error if it is not registration time")
     async def outline(self, interaction: discord.Interaction, course: str, term: Optional[str] = None,
-                      section: Optional[str] = None, arg: Optional[str] = None):
+                      section: Optional[str] = None, next_term: Optional[bool] = None):
         self.logger.info(
             f'[SFU outline()] outline command detected from user {interaction.user} with arguments: '
-            f'course: {course}, term: {term}, section: {section}, arg: {arg}'
+            f'course: {course}, term: {term}, section: {section}, next_term: {next_term}'
         )
 
         usage = [
-                ['Usage', '`/outline course:<course> [term:<term> section:<section> arg:next]`\n*<term>, <section>, '
-                          'and next are optional arguments*\nInclude the keyword `next` to look at the next '
-                          'semester\'s outline. Note: `next` is used for course registration purposes and if '
+                ['Usage', '`/outline course:<course> [term:<term> section:<section> next_term:<next>]`\n'
+                          '*<term>, <section>, and <next> are optional arguments*\n'
+                          'Note: `next_term` is used for course registration purposes and if '
                           'the next semester info isn\'t available it\'ll return an error.', False],
-                ['Example', '`/outline course:cmpt300\n/outline course:cmpt300 term:fall\n'
-                            '/outline course:cmpt300 sectin:d200\n/outline course:cmpt300 term:spring section:d200\n'
-                            '/outline course:cmpt300 arg:next`', False]]
+                ['Example', '`/outline course:cmpt310`\n'
+                            '`/outline course:cmpt310 term:fall`\n'
+                            '`/outline course:cmpt310 section:d200`\n'
+                            '`/outline course:cmpt310 term:spring section:d200`\n'
+                            '`/outline course:cmpt310 next_term:True`', False]]
 
-        if arg == 'next':
+        if next_term:
             year = 'registration'
             term = 'registration'
         else:
