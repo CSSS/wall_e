@@ -693,8 +693,17 @@ class Leveling(commands.Cog):
         for user_id in self.user_points.keys():
             self.user_points[user_id].bucket_number = None
             self.user_points[user_id].leveling_update_attempt = 0
+            self.user_points[user_id].avatar_url = None
+            self.user_points[user_id].avatar_url_message_id = None
+            self.user_points[user_id].leveling_message_avatar_url = None
+            self.user_points[user_id].discord_avatar_link_expiry_date = None
             users_to_update.append(self.user_points[user_id])
-        await UserPoint.async_bulk_update(users_to_update, ["bucket_number", "leveling_update_attempt"])
+        await UserPoint.async_bulk_update(
+            users_to_update,
+            ["bucket_number", "leveling_update_attempt", "avatar_url", "avatar_url_message_id",
+             "leveling_message_avatar_url", "discord_avatar_link_expiry_date"
+             ]
+        )
         e_obj = await embed(
             self.logger, interaction=interaction,
             description=f'{len(users_to_update)} bucket_numbers reset to None'
