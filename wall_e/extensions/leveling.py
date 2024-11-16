@@ -506,11 +506,16 @@ class Leveling(commands.Cog):
                 f"user_point profile data for member {user_id} "
                 f"{index + 1}/{total_number_of_updates_needed} "
             )
+            member = None
             try:
                 member = await self.guild.fetch_member(user_id)
-            except (NotFound, DiscordServerError):
-                member = await bot.fetch_user(user_id)
-            await self._update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
+            except NotFound:
+                try:
+                    member = await bot.fetch_user(user_id)
+                except DiscordServerError:
+                    pass
+            if member:
+                await self._update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
         await ProfileBucketInProgress.async_save(entry)
 
     async def _set_bucket_numbers(self):
