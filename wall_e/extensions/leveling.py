@@ -476,15 +476,16 @@ class Leveling(commands.Cog):
         Goes through all the UserPoint objects whose avatar CDN link has expired or who don't yet have a bucket number
         and ensure their information has been updated for the leveling website
         """
+        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task starting")
         not_ready_to_process_lurkers = (
                 self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None or
                 self.bucket_update_in_progress
         )
         if not_ready_to_process_lurkers:
             return
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task starting")
+        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task proceeding")
+
         await self._set_bucket_numbers()
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been set")
 
         entry = await self._get_current_bucket_number()
 
@@ -524,6 +525,7 @@ class Leveling(commands.Cog):
             f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
         )
         await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
+        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been updated")
         self.bucket_update_in_progress = False
         self.logger.debug(
             f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
