@@ -714,9 +714,9 @@ class Leveling(commands.Cog):
             )
             await self.user_points[member.id].async_save()
 
-    @app_commands.command(name="reset_bucket_number")
+    @app_commands.command(name="reset_user_profiles")
     @app_commands.checks.has_any_role("Bot_manager")
-    async def reset_bucket_number(self, interaction: discord.Interaction):
+    async def reset_user_profiles(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if self.bucket_update_in_progress:
             e_obj = await embed(
@@ -752,6 +752,18 @@ class Leveling(commands.Cog):
             await interaction.followup.send(embed=e_obj)
             await asyncio.sleep(5)
             await interaction.delete_original_response()
+        if self.levelling_website_avatar_channel is not None:
+            await self.levelling_website_avatar_channel.delete()
+        leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+            'leveling_website_avatar_images'
+        )
+        self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
+            self.guild.channels, id=leveling_website_avatar_images_channel_id
+        )
+        self.logger.debug(
+            f"[Leveling get_leveling_avatar_channel()] bot channel {self.levelling_website_avatar_channel} acquired."
+        )
         self.bucket_update_in_progress = False
 
     @commands.command(
