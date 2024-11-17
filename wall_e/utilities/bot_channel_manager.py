@@ -127,13 +127,14 @@ class BotChannelManager:
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
         text_channel_position = BotChannelManager.log_positioning[service]
         logger.debug(
-            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] getting channel {service} for {environment}"
+            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] getting channel {service} for"
+            f" {environment}"
         )
         logger.debug(
-            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] attempting to get  channel '{service}' for "
-            f"{environment} "
+            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] attempting to get  channel '{service}'"
+            f" for {environment} "
         )
-        bot_chan : discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=service)
+        bot_chan: discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=service)
         if wall_e_category_name not in self.channel_obtained:
             self.channel_obtained[wall_e_category_name] = None
             logs_category = discord.utils.get(guild.channels, name=wall_e_category_name)
@@ -211,7 +212,7 @@ class BotChannelManager:
                 f"[BotChannelManager create_or_get_channel_id()] attempting to get  channel '{channel_name}' "
                 f"for {environment} {channel_purpose} "
             )
-            bot_chan : discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=channel_name)
+            bot_chan: discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=channel_name)
             if bot_chan is None:
                 logger.debug(
                     f"[BotChannelManager create_or_get_channel_id()] channel \"{channel_name}\" for {environment} "
