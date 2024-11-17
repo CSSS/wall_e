@@ -165,8 +165,8 @@ class SFU(commands.Cog):
             schedule = data['courseSchedule']
         except Exception:
             self.logger.debug('[SFU outline()] info keys didn\'t exist')
-            err_desc = (f'There were some problems with the request.`\n'
-                        f'Maybe the course doesn\'t exist? Or isn\'t offered right now.')
+            err_desc = ('There were some problems with the request.`\n'
+                        'Maybe the course doesn\'t exist? Or isn\'t offered right now.')
             await self._embed_message(interaction, 'SFU Course Outlines', 'SFU Outline Error',
                                       desc=err_desc)
             return
