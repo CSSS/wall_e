@@ -724,7 +724,8 @@ class Leveling(commands.Cog):
             return
         self.bucket_update_in_progress = True
         users_to_update = []
-        for user_id in self.user_points.keys():
+        number_of_user_points = len(self.user_points)
+        for indx, user_id in enumerate(self.user_points.keys()):
             self.user_points[user_id].bucket_number = None
             self.user_points[user_id].leveling_update_attempt = 0
             self.user_points[user_id].avatar_url = None
@@ -732,12 +733,25 @@ class Leveling(commands.Cog):
             self.user_points[user_id].leveling_message_avatar_url = None
             self.user_points[user_id].discord_avatar_link_expiry_date = None
             users_to_update.append(self.user_points[user_id])
-        await UserPoint.async_bulk_update(
-            users_to_update,
-            ["bucket_number", "leveling_update_attempt", "avatar_url", "avatar_url_message_id",
-             "leveling_message_avatar_url", "discord_avatar_link_expiry_date"
-             ]
-        )
+            self.logger.debug(f"[Leveling reset_user_profiles()] {indx}/ {number_of_user_points} UserPoints reset")
+
+        user_lower_bound = 0
+        number_of_users_per_update = 50
+        user_upper_bound = number_of_users_per_update
+        number_of_users_to_update = len(users_to_update)
+        while user_lower_bound < number_of_users_to_update:
+            await UserPoint.async_bulk_update(
+                users_to_update[user_lower_bound:user_upper_bound],
+                ["bucket_number", "leveling_update_attempt", "avatar_url", "avatar_url_message_id",
+                 "leveling_message_avatar_url", "discord_avatar_link_expiry_date"
+                 ]
+            )
+            self.logger.debug(
+                f"[Leveling reset_user_profiles()] users between [{user_lower_bound},{user_upper_bound}) "
+                f"updated out of {number_of_users_to_update}"
+            )
+            user_lower_bound = user_upper_bound
+            user_upper_bound += number_of_users_per_update
         e_obj = await embed(
             self.logger, interaction=interaction,
             description=f'{len(users_to_update)} bucket_numbers reset to None'
