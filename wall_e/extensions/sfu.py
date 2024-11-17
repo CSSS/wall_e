@@ -155,7 +155,22 @@ class SFU(commands.Cog):
         self.logger.debug('[SFU sfu()] out sent to server')
         return
 
-    async def _construct_fields(self, data, info, schedule):
+    async def _construct_fields(self, interaction, data):
+        self.logger.debug('[SFU outline()] parsing data from get request')
+        try:
+            # Main course information
+            info = data['info']
+
+            # Course schedule information
+            schedule = data['courseSchedule']
+        except Exception:
+            self.logger.debug('[SFU outline()] info keys didn\'t exist')
+            err_desc = (f'There were some problems with the request.`\n'
+                        f'Maybe the course doesn\'t exist? Or isn\'t offered right now.')
+            await self._embed_message(interaction, 'SFU Course Outlines', 'SFU Outline Error',
+                                      desc=err_desc)
+            return
+
         outline = info['outlinePath'].upper()
         title = info['title']
         try:
@@ -320,20 +335,7 @@ class SFU(commands.Cog):
                                       desc=err_desc)
             return
 
-        self.logger.debug('[SFU outline()] parsing data from get request')
-        try:
-            # Main course information
-            info = data['info']
-
-            # Course schedule information
-            schedule = data['courseSchedule']
-        except Exception:
-            self.logger.debug('[SFU outline()] info keys didn\'t exist')
-            await self._embed_message(interaction, 'SFU Course Outlines', 'SFU Outline Error',
-                                      desc=err_desc)
-            return
-
-        fields = await self._construct_fields(data, info, schedule)
+        fields = await self._construct_fields(interaction, data)
 
         await self._embed_message(interaction, 'SFU Outline Results', 'Written by VJ',
                                   content=fields)
