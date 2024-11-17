@@ -488,20 +488,14 @@ class Leveling(commands.Cog):
 
         entry = await self._get_current_bucket_number()
 
-        all_users_have_avatar_link_expiry_date = await UserPoint.all_users_have_avatar_link_expiry_date()
-        user_ids_to_update = []
-        if not all_users_have_avatar_link_expiry_date:
-            users_with_current_bucket_number_ids = await UserPoint.get_users_with_current_bucket_number(
-                entry.bucket_number_completed
-            )
-            self.logger.debug(
-                f"[Leveling process_leveling_profile_data_for_lurkers()] {users_with_current_bucket_number_ids} "
-                f"potential updates retrieved for bucket {entry.bucket_number_completed}"
-            )
-            user_ids_to_update.extend(users_with_current_bucket_number_ids)
+        user_ids_to_update = set()
+        user_ids_to_update.update(await UserPoint.get_users_with_current_bucket_number(entry.bucket_number_completed))
 
-        user_ids_to_update.extend(await UserPoint.get_users_with_expired_images())
-
+        user_ids_to_update.update(await UserPoint.get_users_with_expired_images())
+        self.logger.debug(
+            f"[Leveling process_leveling_profile_data_for_lurkers()] {user_ids_to_update} "
+            f"potential updates retrieved for bucket {entry.bucket_number_completed}"
+        )
         await self._update_users(user_ids_to_update)
         await ProfileBucketInProgress.async_save(entry)
 

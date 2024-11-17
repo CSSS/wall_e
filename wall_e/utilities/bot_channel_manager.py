@@ -2,11 +2,12 @@ import asyncio
 
 import discord
 
-
 wall_e_category_name = "WALL-E LOGS"
 
 
 class BotChannelManager:
+
+    log_positioning = {}
 
     def __init__(self, config, bot):
         """
@@ -108,13 +109,11 @@ class BotChannelManager:
             "member_update_listener_discordpy_debug",
             "member_update_listener_discordpy_warn",
             "member_update_listener_discordpy_error",
-
         ]
-        BotChannelManager.log_positioning = {}
         for index, channel_name in enumerate(log_names):
             BotChannelManager.log_positioning[channel_name] = index
 
-    async def create_or_get_channel_id_for_service(self, logger, guild, config, service):
+    async def create_or_get_channel_id_for_service_logs(self, logger, guild, config, service):
         """
         used to create or get the text channels where log files entries will be uploaded to
         :param logger: the service's instant of logger
@@ -128,13 +127,13 @@ class BotChannelManager:
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
         text_channel_position = BotChannelManager.log_positioning[service]
         logger.debug(
-            f"[BotChannelManager create_or_get_channel_id_for_service()] getting channel {service} for {environment}"
+            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] getting channel {service} for {environment}"
         )
         logger.debug(
-            f"[BotChannelManager create_or_get_channel_id_for_service()] attempting to get  channel '{service}' for "
+            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] attempting to get  channel '{service}' for "
             f"{environment} "
         )
-        bot_chan = discord.utils.get(guild.channels, name=service)
+        bot_chan : discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=service)
         if wall_e_category_name not in self.channel_obtained:
             self.channel_obtained[wall_e_category_name] = None
             logs_category = discord.utils.get(guild.channels, name=wall_e_category_name)
@@ -144,14 +143,14 @@ class BotChannelManager:
         else:
             while self.channel_obtained[wall_e_category_name] is None:
                 logger.debug(
-                    f"[BotChannelManager create_or_get_channel_id_for_service()] waiting to get category "
+                    f"[BotChannelManager create_or_get_channel_id_for_service_logs()] waiting to get category "
                     f"WALL-E Logs for in {environment}."
                 )
                 await asyncio.sleep(8)
         logs_category = discord.utils.get(guild.channels, id=int(self.channel_obtained[wall_e_category_name]))
         if bot_chan is None:
             logger.debug(
-                f"[BotChannelManager create_or_get_channel_id_for_service()] channel \"{service}\" for "
+                f"[BotChannelManager create_or_get_channel_id_for_service_logs()] channel \"{service}\" for "
                 f"{environment} does not exist will attempt to create it now."
             )
         number_of_retries_to_attempt = 10
@@ -161,18 +160,18 @@ class BotChannelManager:
                 service, category=logs_category, position=text_channel_position
             )
             logger.debug(
-                f"[BotChannelManager create_or_get_channel_id_for_service()] got channel \"{bot_chan}\" for "
+                f"[BotChannelManager create_or_get_channel_id_for_service_logs()] got channel \"{bot_chan}\" for "
                 f"{environment}"
             )
             logger.debug(
-                f"[BotChannelManager create_or_get_channel_id_for_service()] attempt ({number_of_retries}/"
+                f"[BotChannelManager create_or_get_channel_id_for_service_logs()] attempt ({number_of_retries}/"
                 f"{number_of_retries_to_attempt}) for getting {service}"
             )
             await asyncio.sleep(10)
             number_of_retries += 1
         if bot_chan is None:
             logger.debug(
-                f"[BotChannelManager create_or_get_channel_id_for_service()] the channel {service} "
+                f"[BotChannelManager create_or_get_channel_id_for_service_logs()] the channel {service} "
                 f"in {environment}  does not exist and I was unable to create it, exiting now...."
             )
             await asyncio.sleep(20)  # this is just here so that the above log line
@@ -180,11 +179,11 @@ class BotChannelManager:
             exit(1)
 
         logger.debug(
-            f"[BotChannelManager create_or_get_channel_id_for_service()] the channel {service} for "
+            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] the channel {service} for "
             f"in {environment} acquired."
         )
         logger.debug(
-            f"[BotChannelManager create_or_get_channel_id_for_service()] returning channel id for {service} for "
+            f"[BotChannelManager create_or_get_channel_id_for_service_logs()] returning channel id for {service} for "
             f"{environment}"
         )
         return bot_chan.id
@@ -212,7 +211,7 @@ class BotChannelManager:
                 f"[BotChannelManager create_or_get_channel_id()] attempting to get  channel '{channel_name}' "
                 f"for {environment} {channel_purpose} "
             )
-            bot_chan = discord.utils.get(guild.channels, name=channel_name)
+            bot_chan : discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=channel_name)
             if bot_chan is None:
                 logger.debug(
                     f"[BotChannelManager create_or_get_channel_id()] channel \"{channel_name}\" for {environment} "
