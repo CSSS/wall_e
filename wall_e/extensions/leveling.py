@@ -473,9 +473,8 @@ class Leveling(commands.Cog):
     @tasks.loop(hours=1)
     async def process_leveling_profile_data_for_lurkers(self):
         """
-        Goes through all the UserPoint objects that have been marked indicating their profile has been updated
-         and needs to have wall_e's database updated for the leveling website
-        :return:
+        Goes through all the UserPoint objects whose avatar CDN link has expired or who don't yet have a bucket number
+        and ensure their information has been updated for the leveling website
         """
         not_ready_to_process_lurkers = (
                 self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None or
@@ -487,39 +486,28 @@ class Leveling(commands.Cog):
         await self._set_bucket_numbers()
         self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been set")
 
-        # determine the bucket number to work on in this iteration
-        entry = await ProfileBucketInProgress.retrieve_entry()
-        if entry is None:
-            entry = await ProfileBucketInProgress.create_entry()
-        else:
-            bucket_numbers = [
-                user_point.bucket_number for user_point in self.user_points.values()
-                if user_point.bucket_number is not None
-            ]
-            bucket_numbers.sort(key=lambda x: x, reverse=True)
-            max_bucket_number = bucket_numbers[0]
-            entry.bucket_number_completed += 1
-            if entry.bucket_number_completed > max_bucket_number:
-                entry.bucket_number_completed = 1
+        entry = await self._get_current_bucket_number()
 
-        # process users whose images have expired
-        users_with_expired_images_ids = await UserPoint.get_users_with_expired_images()
-        await self.update_users(users_with_expired_images_ids)
+        all_users_have_avatar_link_expiry_date = await UserPoint.all_users_have_avatar_link_expiry_date()
+        user_ids_to_update = []
+        if not all_users_have_avatar_link_expiry_date:
+            users_with_current_bucket_number_ids = await UserPoint.get_users_with_current_bucket_number(
+                entry.bucket_number_completed
+            )
+            self.logger.debug(
+                f"[Leveling process_leveling_profile_data_for_lurkers()] {users_with_current_bucket_number_ids} "
+                f"potential updates retrieved for bucket {entry.bucket_number_completed}"
+            )
+            user_ids_to_update.extend(users_with_current_bucket_number_ids)
 
-        # processing users for the bucket number that has to be processed in this iteration.
-        users_with_current_bucket_number_ids = await UserPoint.get_users_with_current_bucket_number(
-            entry.bucket_number_completed
-        )
-        self.logger.debug(
-            f"[Leveling process_leveling_profile_data_for_lurkers()] {users_with_current_bucket_number_ids} "
-            f"potential updates retrieved for bucket {entry.bucket_number_completed}"
-        )
-        await self.update_users(users_with_current_bucket_number_ids)
+        user_ids_to_update.extend(await UserPoint.get_users_with_expired_images())
+
+        await self._update_users(user_ids_to_update)
         await ProfileBucketInProgress.async_save(entry)
 
     async def _set_bucket_numbers(self):
         """
-        Takes any [new] UserPoints that don't yet have a bucket_number set
+        Assigns a bucket_number to any new UserPoints that don't yet have one
 
         The logic is implemented by creating a dictionary with a bucket for each hour of the month with the lowest
          number of days so that this algorithm can also work on leap years.
@@ -536,38 +524,8 @@ class Leveling(commands.Cog):
         if len(user_points) == 0:
             return
 
-        # determine the number of slots/buckets within a 2-week period, represented by the keys that exist in
-        # date_buckets
-        date_buckets = {}
-        bucket_number = 1
-        for day in range(1, 14):  # discord CDN links apparently expire after 2 weeks and need to be re-retrieved
-            for hour in range(1, 24):
-                date_buckets[bucket_number] = 0
-                bucket_number += 1
+        users_to_update = self._setup_bucket_number_for_new_users()
 
-        # populate the date_buckets values with the number of users that currently exist in those buckets
-        for user_id in self.user_points.keys():
-            if self.user_points[user_id].bucket_number is not None:
-                date_buckets[self.user_points[user_id].bucket_number] += 1
-
-        def get_bucket_number_with_lowest_number_of_users(data_buckets_local):
-            low_load_bucket_number = None
-            min_value = None
-            for curr_bucket_number, number_of_user_to_checks in data_buckets_local.items():
-                if min_value is None:
-                    low_load_bucket_number = curr_bucket_number
-                    min_value = number_of_user_to_checks
-                elif min_value > number_of_user_to_checks:
-                    low_load_bucket_number = curr_bucket_number
-                    min_value = number_of_user_to_checks
-            return low_load_bucket_number
-        users_to_update = []
-        for user_id in self.user_points.keys():
-            if self.user_points[user_id].bucket_number is None:
-                lowest_bucket_number = get_bucket_number_with_lowest_number_of_users(date_buckets)
-                date_buckets[lowest_bucket_number] += 1
-                self.user_points[user_id].bucket_number = lowest_bucket_number
-                users_to_update.append(self.user_points[user_id])
         self.logger.debug(
             f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
         )
@@ -577,7 +535,89 @@ class Leveling(commands.Cog):
             f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
         )
 
-    async def update_users(self, updated_user_ids):
+    def _setup_bucket_number_for_new_users(self) -> list:
+        """
+        :return: the users who need to have their bucket_number updated
+        """
+        date_buckets = self._initialize_bucket_with_number_of_current_users()
+        users_to_update = []
+        for user_id in self.user_points.keys():
+            if self.user_points[user_id].bucket_number is None:
+                lowest_bucket_number = self._get_bucket_number_with_lowest_number_of_users(date_buckets)
+                date_buckets[lowest_bucket_number] += 1
+                self.user_points[user_id].bucket_number = lowest_bucket_number
+                users_to_update.append(self.user_points[user_id])
+        return users_to_update
+
+    def _initialize_bucket_with_number_of_current_users(self) -> dict:
+        """
+        :return: the bucket dict with the users that currently have a bucket_number attached
+         already reflected on it
+        """
+        date_buckets = Leveling._initialize_blank_bucket()
+
+        # populate the date_buckets values with the number of users that currently exist in those buckets
+        for user_id in self.user_points.keys():
+            if self.user_points[user_id].bucket_number is not None:
+                date_buckets[self.user_points[user_id].bucket_number] += 1
+        return date_buckets
+
+    @staticmethod
+    def _initialize_blank_bucket() -> dict:
+        """
+        :return: a blank bucket dict that has the slots necessary to determine when people should be divided into
+         slots/buckets within a 2-week period
+        """
+        date_buckets = {}
+        bucket_number = 1
+        for day in range(1, 14):  # discord CDN links apparently expire after 2 weeks and need to be re-retrieved
+            for hour in range(1, 24):
+                date_buckets[bucket_number] = 0
+                bucket_number += 1
+        return date_buckets
+
+    @staticmethod
+    def _get_bucket_number_with_lowest_number_of_users(data_buckets):
+        """
+        :param data_buckets:
+        :return: the bucket_number which has the lowest number of users
+        """
+        low_load_bucket_number = None
+        min_value = None
+        for curr_bucket_number, number_of_user_to_checks in data_buckets.items():
+            if min_value is None:
+                low_load_bucket_number = curr_bucket_number
+                min_value = number_of_user_to_checks
+            elif min_value > number_of_user_to_checks:
+                low_load_bucket_number = curr_bucket_number
+                min_value = number_of_user_to_checks
+        return low_load_bucket_number
+
+    async def _get_current_bucket_number(self) -> ProfileBucketInProgress:
+        """
+        :return: the bucket_number to work on in the current iteration
+        """
+        entry = await ProfileBucketInProgress.retrieve_entry()
+        if entry is None:
+            entry = await ProfileBucketInProgress.create_entry()
+        else:
+            bucket_numbers = [
+                user_point.bucket_number for user_point in self.user_points.values()
+                if user_point.bucket_number is not None
+            ]
+            bucket_numbers.sort(key=lambda x: x, reverse=True)
+            max_bucket_number = bucket_numbers[0]
+            entry.bucket_number_completed += 1
+            if entry.bucket_number_completed > max_bucket_number:
+                entry.bucket_number_completed = 1
+        return entry
+
+    async def _update_users(self, updated_user_ids):
+        """
+        iterates through the given list of user_ids and updates them
+        :param updated_user_ids:
+        :return:
+        """
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
             self.logger.debug(
