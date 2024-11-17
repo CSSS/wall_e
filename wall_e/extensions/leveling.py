@@ -525,7 +525,9 @@ class Leveling(commands.Cog):
             f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
         )
         await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been updated")
+        self.logger.debug(
+            "[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been updated"
+        )
         self.bucket_update_in_progress = False
         self.logger.debug(
             f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
