@@ -39,6 +39,7 @@ class Leveling(commands.Cog):
         self.bucket_update_in_progress = False
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
+        self.process_outdated_profile_pics.start()
         # self.process_leveling_profile_data_for_active_users.start() # will re-enable when all the current users have
         # buckets again
 
@@ -495,10 +496,8 @@ class Leveling(commands.Cog):
 
         entry = await self._get_current_bucket_number()
 
-        user_ids_to_update = set()
-        user_ids_to_update.update(await UserPoint.get_users_with_current_bucket_number(entry.bucket_number_completed))
+        user_ids_to_update = await UserPoint.get_users_with_current_bucket_number(entry.bucket_number_completed)
 
-        user_ids_to_update.update(await UserPoint.get_users_with_expired_images())
         self.logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] {user_ids_to_update} "
             f"potential updates retrieved for bucket {entry.bucket_number_completed}"
@@ -667,6 +666,15 @@ class Leveling(commands.Cog):
                 member, updated_user_id, index, total_number_of_updates_needed,
                 updated_user_log_id=updated_user_log_id
             )
+
+    @tasks.loop(seconds=5)
+    async def process_outdated_profile_pics(self):
+        user_ids_to_update = await UserPoint.get_users_with_expired_images()
+        self.logger.debug(
+            f"[Leveling process_outdated_profile_pics()] {len(user_ids_to_update)} users with outdated CND links"
+            f" to update"
+        )
+        await self._update_users(user_ids_to_update)
 
     async def _update_member_profile_data(self, member, updated_user_id, index, total_number_of_updates_needed,
                                           updated_user_log_id=None):
