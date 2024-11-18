@@ -517,13 +517,13 @@ class Leveling(commands.Cog):
         by get_updated_user_logs
         :return:
         """
-        if self.bucket_update_in_progress:
-            return
-        self.bucket_update_in_progress = True
         user_points = [user_point for user_point in self.user_points.values() if user_point.bucket_number is None]
         if len(user_points) == 0:
             return
 
+        if self.bucket_update_in_progress:
+            return
+        self.bucket_update_in_progress = True
         users_to_update = self._setup_bucket_number_for_new_users()
 
         self.logger.debug(
