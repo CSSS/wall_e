@@ -476,10 +476,16 @@ class Leveling(commands.Cog):
         Goes through all the UserPoint objects whose avatar CDN link has expired or who don't yet have a bucket number
         and ensure their information has been updated for the leveling website
         """
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task starting")
         not_ready_to_process_lurkers = (
                 self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None or
                 self.bucket_update_in_progress
+        )
+        self.logger.debug(
+            f"[Leveling process_leveling_profile_data_for_lurkers()] background task starting "
+            f"self.user_points is None = {self.user_points is None} | self.levelling_website_avatar_channel is None "
+            f"= {self.levelling_website_avatar_channel is None} | self.guild is None = {self.guild is None} | "
+            f"self.bucket_update_in_progress = {self.bucket_update_in_progress} | not_ready_to_process_lurkers = "
+            f"{not_ready_to_process_lurkers}"
         )
         if not_ready_to_process_lurkers:
             return
