@@ -672,8 +672,11 @@ class Leveling(commands.Cog):
         if self.guild is None:
             return
         user_ids_to_update = await UserPoint.get_users_with_expired_images()
+        number_of_users_to_update = len(user_ids_to_update)
+        if number_of_users_to_update == 0:
+            return
         self.logger.debug(
-            f"[Leveling process_outdated_profile_pics()] {len(user_ids_to_update)} users with outdated CND links"
+            f"[Leveling process_outdated_profile_pics()] {number_of_users_to_update} users with outdated CND links"
             f" to update"
         )
         await self._update_users(user_ids_to_update)
