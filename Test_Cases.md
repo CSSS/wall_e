@@ -212,3 +212,27 @@
      ![](.documentation_pictures/test_cases/.outline%20blah.png)
    1. `.outline`  
      ![](.documentation_pictures/test_cases/.outline.png)
+   1. `/courses`  
+     ![](.documentation_pictures/test_cases/courses.png)
+   1. `/courses department:<existing department>`  
+     ![](.documentation_pictures/test_cases/courses_department_math.png)
+   1. `/courses department:<non existent department>`  
+     ![](.documentation_pictures/test_cases/courses_department_blah.png)
+   1. `/courses level:<number between 100-999>`  
+     ![](.documentation_pictures/test_cases/courses_level_200.png)
+   1. `/courses level:<number outside 100-999>`  
+     ![](.documentation_pictures/test_cases/courses_level_1.png)
+   1. `/courses term:<valid term> year:<valid year>`  
+     ![](.documentation_pictures/test_cases/courses_term_and_year_set.png)
+   1. `/courses term:<invalid term> year:<valid year>`  
+     ![](.documentation_pictures/test_cases/courses_term_blah.png)
+   1. `/courses term:<set> year:<unset>` OR `/courses term:<unset> year:<set>`  
+     ![](.documentation_pictures/test_cases/courses_term_or_year_unset.png)
+   1. `/courses department:<existent department> level:<valid number>`  
+     ![](.documentation_pictures/test_cases/courses_department_math_level_200.png)
+   1. `/courses department:<existent department> term:<valid term> year:<valid year>`  
+     ![](.documentation_pictures/test_cases/courses_department_phys_term_summer_year_2020.png)
+   1. `/courses level:<valid number> term:<valid term> year:<valid year>`  
+     ![](.documentation_pictures/test_cases/courses_level_300_term_spring_year_2021.png)
+   1. `/courses department:<existent department> level:<valid number> term:<valid term> year:<valid year>`  
+     ![](.documentation_pictures/test_cases/courses_department_stat_level_300_term_fall_year_2024.png)
