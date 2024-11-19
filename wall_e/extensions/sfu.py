@@ -526,8 +526,12 @@ class SFU(commands.Cog):
         content = ""
 
         for i, course in enumerate(courses):
-            course_title = course["title"]
-            course_number = course["text"]
+            try:
+                course_title = course["title"]
+                course_number = course["text"]
+            except:
+                self.logger.debug("[SFU courses()] cannot find course title or number, skipping")
+                continue
             content += f"\n{course_number} - {course_title}"
 
             number_of_courses += 1
