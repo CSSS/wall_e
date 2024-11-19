@@ -121,7 +121,7 @@ class SFU(commands.Cog):
 
         course_code, course_num, error = await self._split_course(course)
         if error is not None:
-            content = [['Usage', '`/sfu course:<arg>`', False], ['Example', '`.sfu course:cmpt300`', False]]
+            content = [['Usage', '`/sfu course:<arg>`', False], ['Example', '`/sfu course:cmpt300`', False]]
             await self._embed_message(interaction, 'Bad Arguments', 'SFU Error', content=content)
             self.logger.debug('[SFU sfu()] bad arguments, command ended')
             return
