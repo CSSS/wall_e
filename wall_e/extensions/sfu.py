@@ -529,7 +529,7 @@ class SFU(commands.Cog):
             try:
                 course_title = course["title"]
                 course_number = course["text"]
-            except:
+            except Exception:
                 self.logger.debug("[SFU courses()] cannot find course title or number, skipping")
                 continue
             content += f"\n{course_number} - {course_title}"
