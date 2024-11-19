@@ -532,15 +532,22 @@ class SFU(commands.Cog):
             except Exception:
                 self.logger.debug("[SFU courses()] cannot find course title or number, skipping")
                 continue
+
             content += f"\n{course_number} - {course_title}"
 
             number_of_courses += 1
-            if i >= 0 and (number_of_courses % number_of_courses_per_page == 0 or i == len(courses) - 1):
+            if number_of_courses % number_of_courses_per_page == 0:
                 number_of_courses = 0
                 content_to_embed.append(
                     [["Code - Title", content]]
                 )
                 content = ""
+
+        # Needed in the off chance that a course title cannot be found and that course is the last on the list
+        if content:
+            content_to_embed.append(
+                [["Code - Title", content]]
+            )
 
         return content_to_embed
 
