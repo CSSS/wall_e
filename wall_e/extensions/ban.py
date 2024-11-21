@@ -33,7 +33,7 @@ class Ban(commands.Cog):
         self.logger.info("[Ban __init__()] initializing Ban")
         self.mod_channel = None
         self.bot_management_channel = None
-        self.guild: discord.Guild = None
+        self.guild: discord.Guild | None = None
         self.purge_messages_task.start()
 
     @commands.Cog.listener(name="on_ready")
