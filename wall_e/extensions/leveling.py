@@ -511,7 +511,7 @@ class Leveling(commands.Cog):
                 self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None or
                 self.bucket_update_in_progress
         )
-        self.update_outdated_profile_pics_logger.debug(
+        self.process_lurkers_logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] background task starting "
             f"self.user_points is None = {self.user_points is None} | self.levelling_website_avatar_channel is None "
             f"= {self.levelling_website_avatar_channel is None} | self.guild is None = {self.guild is None} | "
@@ -520,21 +520,21 @@ class Leveling(commands.Cog):
         )
         if not_ready_to_process_lurkers:
             return
-        self.update_outdated_profile_pics_logger.debug(
+        self.process_lurkers_logger.debug(
             "[Leveling process_leveling_profile_data_for_lurkers()] background task proceeding"
         )
 
-        await self._set_bucket_numbers(self.update_outdated_profile_pics_logger)
+        await self._set_bucket_numbers(self.process_lurkers_logger)
 
         entry = await self._get_current_bucket_number()
 
         user_ids_to_update = await UserPoint.get_users_with_current_bucket_number(entry.bucket_number_completed)
 
-        self.update_outdated_profile_pics_logger.debug(
+        self.process_lurkers_logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] {user_ids_to_update} "
             f"potential updates retrieved for bucket {entry.bucket_number_completed}"
         )
-        await self._update_users(self.update_outdated_profile_pics_logger, user_ids_to_update)
+        await self._update_users(self.process_lurkers_logger, user_ids_to_update)
         await ProfileBucketInProgress.async_save(entry)
 
     async def _set_bucket_numbers(self, logger):
