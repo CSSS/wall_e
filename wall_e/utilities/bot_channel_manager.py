@@ -85,6 +85,8 @@ class BotChannelManager:
             "here_debug",
             "here_warn",
             "here_error",
+            "upload_processing_lurkers",
+            "upload_outdated_profile_pics",
             "leveling_debug",
             "leveling_warn",
             "leveling_error",

@@ -6,7 +6,7 @@ import time
 
 import discord
 import pytz
-from discord import NotFound, app_commands
+from discord import NotFound, app_commands, Guild
 from discord.errors import DiscordServerError
 from discord.ext import commands, tasks
 
@@ -29,8 +29,17 @@ class Leveling(commands.Cog):
         self.warn_log_file_absolute_path = log_info[2]
         self.error_log_file_absolute_path = log_info[3]
         self.logger.info("[Leveling __init__()] initializing Leveling")
+
+        processing_lurkers_log_info = Loggers.get_logger(logger_name="Leveling_processing_lurkers")
+        self.processing_lurkers_logger = processing_lurkers_log_info[0]
+        self.processing_lurkers_debug_log_file_absolute_path = processing_lurkers_log_info[1]
+
+        outdated_profile_pics_log_info = Loggers.get_logger(logger_name="Leveling_outdated_profile_pics")
+        self.outdated_profile_pics_logger = outdated_profile_pics_log_info[0]
+        self.outdated_profile_pics_debug_log_file_absolute_path = outdated_profile_pics_log_info[1]
+
         self.levels_have_been_changed = False
-        self.guild = None
+        self.guild: Guild | None = None
         self.user_points = None
         self.levels = None
         self.xp_system_ready = False
@@ -70,6 +79,24 @@ class Leveling(commands.Cog):
             await asyncio.sleep(2)
         await start_file_uploading(
             self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "leveling_error"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_processing_lurkers_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.processing_lurkers_debug_log_file_absolute_path,
+            "upload_processing_lurkers"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_outdated_profile_pics_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.outdated_profile_pics_debug_log_file_absolute_path,
+            "upload_outdated_profile_pics"
         )
 
     @commands.Cog.listener(name="on_ready")
@@ -139,7 +166,7 @@ class Leveling(commands.Cog):
             "leveling"
         )
         self.council_channel = discord.utils.get(
-            self.guild.channels, id=council_channel_id
+            self.guild.channels if self.guild else None, id=council_channel_id
         )
         self.logger.debug(
             f"[Leveling create_council_channel()] text channel {self.council_channel} acquired."
@@ -163,7 +190,7 @@ class Leveling(commands.Cog):
             'leveling_website_avatar_images'
         )
         self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
-            self.guild.channels, id=leveling_website_avatar_images_channel_id
+            self.guild.channels if self.guild else None, id=leveling_website_avatar_images_channel_id
         )
         self.logger.debug(
             f"[Leveling get_leveling_avatar_channel()] bot channel {self.levelling_website_avatar_channel} acquired."
@@ -481,7 +508,7 @@ class Leveling(commands.Cog):
                 self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None or
                 self.bucket_update_in_progress
         )
-        self.logger.debug(
+        self.processing_lurkers_logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] background task starting "
             f"self.user_points is None = {self.user_points is None} | self.levelling_website_avatar_channel is None "
             f"= {self.levelling_website_avatar_channel is None} | self.guild is None = {self.guild is None} | "
@@ -490,22 +517,24 @@ class Leveling(commands.Cog):
         )
         if not_ready_to_process_lurkers:
             return
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task proceeding")
+        self.processing_lurkers_logger.debug(
+            "[Leveling process_leveling_profile_data_for_lurkers()] background task proceeding"
+        )
 
-        await self._set_bucket_numbers()
+        await self._set_bucket_numbers(self.processing_lurkers_logger)
 
         entry = await self._get_current_bucket_number()
 
         user_ids_to_update = await UserPoint.get_users_with_current_bucket_number(entry.bucket_number_completed)
 
-        self.logger.debug(
+        self.processing_lurkers_logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] {user_ids_to_update} "
             f"potential updates retrieved for bucket {entry.bucket_number_completed}"
         )
-        await self._update_users(user_ids_to_update)
+        await self._update_users(self.processing_lurkers_logger, user_ids_to_update)
         await ProfileBucketInProgress.async_save(entry)
 
-    async def _set_bucket_numbers(self):
+    async def _set_bucket_numbers(self, logger):
         """
         Assigns a bucket_number to any new UserPoints that don't yet have one
 
@@ -526,15 +555,15 @@ class Leveling(commands.Cog):
         self.bucket_update_in_progress = True
         users_to_update = self._setup_bucket_number_for_new_users()
 
-        self.logger.debug(
+        logger.debug(
             f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
         )
         await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
-        self.logger.debug(
+        logger.debug(
             "[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been updated"
         )
         self.bucket_update_in_progress = False
-        self.logger.debug(
+        logger.debug(
             f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
         )
 
@@ -615,7 +644,7 @@ class Leveling(commands.Cog):
                 entry.bucket_number_completed = 1
         return entry
 
-    async def _update_users(self, updated_user_ids):
+    async def _update_users(self, logger, updated_user_ids):
         """
         iterates through the given list of user_ids and updates them
         :param updated_user_ids:
@@ -623,7 +652,7 @@ class Leveling(commands.Cog):
         """
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
-            self.logger.debug(
+            logger.debug(
                 f"[Leveling process_leveling_profile_data_for_lurkers()] attempting to get updated "
                 f"user_point profile data for member {user_id} "
                 f"{index + 1}/{total_number_of_updates_needed} "
@@ -637,7 +666,7 @@ class Leveling(commands.Cog):
                 except DiscordServerError:
                     pass
             if member:
-                await self._update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
+                await self._update_member_profile_data(logger, member, user_id, index, total_number_of_updates_needed)
 
     @tasks.loop(seconds=2)
     async def process_leveling_profile_data_for_active_users(self):
@@ -651,7 +680,7 @@ class Leveling(commands.Cog):
         updated_user_logs = await UpdatedUser.get_updated_user_logs()
         total_number_of_updates_needed = len(updated_user_logs)
         for index, update_user in enumerate(updated_user_logs):
-            updated_user_log_id = update_user[0]
+            updated_user_log_id = update_user[0]  # noqa: F841
             updated_user_id = update_user[1]
             self.logger.debug(
                 f"[Leveling process_leveling_profile_data_for_active_users()] attempting to get updated "
@@ -659,13 +688,13 @@ class Leveling(commands.Cog):
                 f"{index + 1}/{total_number_of_updates_needed} "
             )
             try:
-                member = await self.guild.fetch_member(updated_user_id)
+                member = await self.guild.fetch_member(updated_user_id)  # noqa: F841
             except NotFound:
-                member = await bot.fetch_user(updated_user_id)
-            await self._update_member_profile_data(
-                member, updated_user_id, index, total_number_of_updates_needed,
-                updated_user_log_id=updated_user_log_id
-            )
+                member = await bot.fetch_user(updated_user_id)  # noqa: F841
+            # await self._update_member_profile_data(
+            #     logger, member, updated_user_id, index, total_number_of_updates_needed,
+            #     updated_user_log_id=updated_user_log_id
+            # )
 
     @tasks.loop(seconds=5)
     async def process_outdated_profile_pics(self):
@@ -675,14 +704,14 @@ class Leveling(commands.Cog):
         number_of_users_to_update = len(user_ids_to_update)
         if number_of_users_to_update == 0:
             return
-        self.logger.debug(
+        self.outdated_profile_pics_logger.debug(
             f"[Leveling process_outdated_profile_pics()] {number_of_users_to_update} users with outdated CND links"
             f" to update"
         )
-        await self._update_users(user_ids_to_update)
+        await self._update_users(self.outdated_profile_pics_logger, user_ids_to_update)
 
-    async def _update_member_profile_data(self, member, updated_user_id, index, total_number_of_updates_needed,
-                                          updated_user_log_id=None):
+    async def _update_member_profile_data(self, logger, member, updated_user_id, index,
+                                          total_number_of_updates_needed, updated_user_log_id=None):
         """
         Attempts to determine if the member's leveling data in the database can be updated and if not, record any of
          the errors detected as a result
@@ -699,7 +728,7 @@ class Leveling(commands.Cog):
         if member:
             try:
                 if self.user_points[member.id].leveling_update_attempt >= 5:
-                    self.logger.error(
+                    logger.error(
                         f"[Leveling _update_member_profile_data()] "
                         f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
                         f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
@@ -708,23 +737,23 @@ class Leveling(commands.Cog):
                     # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
                     # updated THIS time
                     user_updated = await self.user_points[member.id].update_leveling_profile_info(
-                        self.logger, member, self.levelling_website_avatar_channel,
+                        logger, member, self.levelling_website_avatar_channel,
                         updated_user_log_id=updated_user_log_id
                     )
                     if user_updated:
-                        self.logger.debug(
+                        logger.debug(
                             f"[Leveling _update_member_profile_data()] updated the member profile data"
                             f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
                         )
             except Exception as e:
-                self.logger.error(
+                logger.error(
                     f"[Leveling _update_member_profile_data()] unable to update the member profile"
                     f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed} "
                     f"due to error:\n{e}"
                 )
         else:
             self.user_points[member.id].leveling_update_attempt += 1
-            self.logger.warn(
+            logger.warn(
                 f"[Leveling _update_member_profile_data()] attempt "
                 f"{self.user_points[member.id].leveling_update_attempt}: unable to update the member profile data"
                 f" in the database for member {updated_user_id} {index + 1}/{total_number_of_updates_needed}"
