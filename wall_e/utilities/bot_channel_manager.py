@@ -291,14 +291,41 @@ class BotChannelManager:
 
     @classmethod
     async def fix_text_channel_positioning(cls, logger, guild):
-        position_edited = True
-        while position_edited:
+        duplicate_channels = {}  # used to find and report text log channels that share the same name
+
+        logs_category = discord.utils.get(guild.channels, name=wall_e_category_name)
+        channels_under_category = [
+            channel for channel in guild.channels
+            if type(channel) == discord.channel.TextChannel and channel.category == logs_category
+        ]
+
+        for channel_under_category in channels_under_category:
+            if channel_under_category.name not in duplicate_channels:
+                duplicate_channels[channel_under_category.name] = 1
+            else:
+                duplicate_channels[channel_under_category.name] += 1
+
+            # ensure that there are no channels that should not exist
+            if channel_under_category.name not in BotChannelManager.log_positioning:
+                await channel_under_category.delete()
+        duplicate_channels = [
+            channel_name
+            for channel_name, number_of_occurrences in duplicate_channels.items()
+            if number_of_occurrences > 1
+        ]
+        if len(duplicate_channels) > 0:
+            duplicate_channels = ", ".join(duplicate_channels)
+            logger.error(
+                f"[bot_channel_manager.py fix_text_channel_positioning()] following duplicate text log channels"
+                f" detected: {duplicate_channels}"
+            )
+        number_of_clean_passes = 0
+        while number_of_clean_passes < 3:
             # encapsulating the whole thing in a while loop cause sometimes a channel might erroneously get pushed to
             # the bottom while the repositioning is happening, which necessitates another sweep-through
             # as such, I am going to make the code keep going over the channels until all the positions are verified
             # as what they should be
             position_edited = False
-            logs_category = discord.utils.get(guild.channels, name=wall_e_category_name)
             for text_channel_name, index in BotChannelManager.log_positioning.items():
                 text_channel = discord.utils.get(guild.channels, name=text_channel_name)
                 while text_channel is None:
@@ -323,10 +350,13 @@ class BotChannelManager:
                     position_edited = True
                     await text_channel.edit(position=index)
             if position_edited:
+                number_of_clean_passes = 0
                 logger.warn(
                     "[bot_channel_manager.py fix_text_channel_positioning()] doing another sweep of the log text "
                     "channels positioning"
                 )
+            else:
+                number_of_clean_passes += 1
         logger.debug(
             "[bot_channel_manager.py fix_text_channel_positioning()] done with sweep of the log text channels "
             "positioning"
