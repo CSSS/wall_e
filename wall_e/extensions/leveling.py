@@ -704,6 +704,11 @@ class Leveling(commands.Cog):
     async def process_outdated_profile_pics(self):
         if self.guild is None:
             return
+        self.update_outdated_profile_pics_logger.debug(
+            f"[Leveling process_outdated_profile_pics()] [starting task] "
+            f"self.number_of_process_outdated_profile_pics_in_progress ="
+            f" {self.number_of_process_outdated_profile_pics_in_progress}"
+        )
         if self.number_of_process_outdated_profile_pics_in_progress > 0:
             return
         self.number_of_process_outdated_profile_pics_in_progress += 1
@@ -717,6 +722,11 @@ class Leveling(commands.Cog):
         )
         await self._update_users(self.update_outdated_profile_pics_logger, user_ids_to_update)
         self.number_of_process_outdated_profile_pics_in_progress -= 1
+        self.update_outdated_profile_pics_logger.debug(
+            f"[Leveling process_outdated_profile_pics()] [exiting task] "
+            f"self.number_of_process_outdated_profile_pics_in_progress ="
+            f" {self.number_of_process_outdated_profile_pics_in_progress}"
+        )
 
     async def _update_member_profile_data(self, logger, member, updated_user_id, index,
                                           total_number_of_updates_needed, updated_user_log_id=None):
