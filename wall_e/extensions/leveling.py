@@ -664,7 +664,7 @@ class Leveling(commands.Cog):
             member = None
             try:
                 member = await self.guild.fetch_member(user_id)
-            except NotFound:
+            except (NotFound, DiscordServerError):
                 try:
                     member = await bot.fetch_user(user_id)
                 except DiscordServerError:
