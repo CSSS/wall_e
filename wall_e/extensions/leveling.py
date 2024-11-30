@@ -37,7 +37,7 @@ class Leveling(commands.Cog):
         update_outdated_profile_pics_log_info = Loggers.get_logger(
             logger_name="Leveling_update_outdated_profile_pics"
         )
-        self.number_of_process_outdated_profile_pics_in_progress = 0
+        self.process_outdated_profile_pics_in_progress = False
         self.update_outdated_profile_pics_logger = update_outdated_profile_pics_log_info[0]
         self.update_outdated_profile_pics_debug_log_file_absolute_path = update_outdated_profile_pics_log_info[1]
 
@@ -704,35 +704,20 @@ class Leveling(commands.Cog):
     async def process_outdated_profile_pics(self):
         if self.guild is None:
             return
-        self.update_outdated_profile_pics_logger.debug(
-            f"[Leveling process_outdated_profile_pics()] [starting task] "
-            f"self.number_of_process_outdated_profile_pics_in_progress ="
-            f" {self.number_of_process_outdated_profile_pics_in_progress}"
-        )
-        if self.number_of_process_outdated_profile_pics_in_progress > 0:
+        if self.process_outdated_profile_pics_in_progress:
             return
-        self.number_of_process_outdated_profile_pics_in_progress += 1
+        self.process_outdated_profile_pics_in_progress = True
         user_ids_to_update = await UserPoint.get_users_with_expired_images()
         number_of_users_to_update = len(user_ids_to_update)
         if number_of_users_to_update == 0:
-            self.number_of_process_outdated_profile_pics_in_progress -= 1
-            self.update_outdated_profile_pics_logger.debug(
-                f"[Leveling process_outdated_profile_pics()] [exiting task] "
-                f"self.number_of_process_outdated_profile_pics_in_progress ="
-                f" {self.number_of_process_outdated_profile_pics_in_progress}"
-            )
+            self.process_outdated_profile_pics_in_progress = False
             return
         self.update_outdated_profile_pics_logger.debug(
             f"[Leveling process_outdated_profile_pics()] {number_of_users_to_update} users with outdated CDN links"
             f" to update"
         )
         await self._update_users(self.update_outdated_profile_pics_logger, user_ids_to_update)
-        self.number_of_process_outdated_profile_pics_in_progress -= 1
-        self.update_outdated_profile_pics_logger.debug(
-            f"[Leveling process_outdated_profile_pics()] [exiting task] "
-            f"self.number_of_process_outdated_profile_pics_in_progress ="
-            f" {self.number_of_process_outdated_profile_pics_in_progress}"
-        )
+        self.process_outdated_profile_pics_in_progress = False
 
     async def _update_member_profile_data(self, logger, member, updated_user_id, index,
                                           total_number_of_updates_needed, updated_user_log_id=None):
