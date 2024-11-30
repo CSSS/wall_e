@@ -739,7 +739,8 @@ class Leveling(commands.Cog):
                     logger.error(
                         f"[Leveling _update_member_profile_data()] "
                         f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
-                        f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
+                        f" data in the database for member {member} with id {member.id} "
+                        f"{index + 1}/{total_number_of_updates_needed}"
                     )
                 else:
                     # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
