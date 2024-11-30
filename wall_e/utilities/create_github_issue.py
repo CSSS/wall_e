@@ -13,9 +13,9 @@ def create_github_issue(error_messages, config):
     """
     last_message = None
     error_message_body = "".join(error_messages)
-    if "/usr/src/app/" in error_message_body:  # if the directory that contains the WALL_E code is in the stacktrace
-        # then it is probably a guarantee that the issue is due to WALL_E and not a problem with discord.py or
-        # a network glitch
+    if "/usr/src/app/" in error_message_body or '= REPORTABLE =' in error_message_body:  # if the directory that
+        # contains the WALL_E code is in the stacktrace then it is probably a guarantee that the issue is due
+        # to WALL_E and not a problem with discord.py or a network glitch
         last_line = len(error_messages)-1
         while last_line > -1:
             if error_messages[last_line] != "\n":
