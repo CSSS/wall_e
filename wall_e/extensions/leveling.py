@@ -746,7 +746,7 @@ class Leveling(commands.Cog):
                     # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
                     # updated THIS time
                     user_updated = await self.user_points[member.id].update_leveling_profile_info(
-                        logger, member, self.levelling_website_avatar_channel,
+                        logger, self.guild.id, member, self.levelling_website_avatar_channel,
                         updated_user_log_id=updated_user_log_id
                     )
                     if user_updated:
