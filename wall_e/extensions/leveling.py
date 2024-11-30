@@ -52,8 +52,7 @@ class Leveling(commands.Cog):
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
         self.process_outdated_profile_pics.start()
-        # self.process_leveling_profile_data_for_active_users.start() # will re-enable when all the current users have
-        # buckets again
+        self.process_leveling_profile_data_for_active_users.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -692,13 +691,13 @@ class Leveling(commands.Cog):
                 f"{index + 1}/{total_number_of_updates_needed} "
             )
             try:
-                member = await self.guild.fetch_member(updated_user_id)  # noqa: F841
+                member = await self.guild.fetch_member(updated_user_id)
             except NotFound:
-                member = await bot.fetch_user(updated_user_id)  # noqa: F841
-            # await self._update_member_profile_data(
-            #     logger, member, updated_user_id, index, total_number_of_updates_needed,
-            #     updated_user_log_id=updated_user_log_id
-            # )
+                member = await bot.fetch_user(updated_user_id)
+            await self._update_member_profile_data(
+                self.logger, member, updated_user_id, index, total_number_of_updates_needed,
+                updated_user_log_id=updated_user_log_id
+            )
 
     @tasks.loop(seconds=5)
     async def process_outdated_profile_pics(self):
