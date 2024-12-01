@@ -774,7 +774,6 @@ class Leveling(commands.Cog):
                     f"due to error:\n{e}"
                 )
         else:
-            self.user_points[member.id].leveling_update_attempt += 1
             logger.warn(
                 f"[Leveling _update_member_profile_data()] attempt "
                 f"{self.user_points[member.id].leveling_update_attempt}: unable to update the member profile data"
