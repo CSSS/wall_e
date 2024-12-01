@@ -746,8 +746,8 @@ class Leveling(commands.Cog):
                         f"[Leveling _update_member_profile_data()] "
                         f"attempt {user_point.leveling_update_attempt} to update the member profile"
                         f" data in the database for member {member} with id [{member.id}], expiry_date of "
-                        f"[{user_point.discord_avatar_link_expiry_date.pst}] and a CDN link of"
-                        f"{user_point.leveling_message_avatar_url} "
+                        f"[{user_point.discord_avatar_link_expiry_date.pst}] and a CDN link of "
+                        f"<{user_point.leveling_message_avatar_url}> "
                         f"{index + 1}/{total_number_of_updates_needed}"
                     )
                 else:
