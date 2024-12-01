@@ -563,7 +563,7 @@ class Leveling(commands.Cog):
         )
         await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
         logger.debug(
-            "[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been updated"
+            "[Leveling _set_bucket_numbers()] null bucket_number has been updated"
         )
         self.bucket_update_in_progress = False
         logger.debug(
@@ -656,7 +656,7 @@ class Leveling(commands.Cog):
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
             logger.debug(
-                f"[Leveling process_leveling_profile_data_for_lurkers()] attempting to get updated "
+                f"[Leveling _update_users()] attempting to get updated "
                 f"user_point profile data for member {user_id} "
                 f"{index + 1}/{total_number_of_updates_needed} "
             )
@@ -831,7 +831,7 @@ class Leveling(commands.Cog):
             self.guild.channels, id=leveling_website_avatar_images_channel_id
         )
         self.logger.debug(
-            f"[Leveling get_leveling_avatar_channel()] bot channel {self.levelling_website_avatar_channel} acquired."
+            f"[Leveling reset_user_profiles()] bot channel {self.levelling_website_avatar_channel} acquired."
         )
         self.bucket_update_in_progress = False
 
