@@ -663,11 +663,16 @@ class Leveling(commands.Cog):
             member = None
             try:
                 member = await self.guild.fetch_member(user_id)
-            except (NotFound, DiscordServerError):
+            except (NotFound, DiscordServerError) as e:
                 try:
+                    logger.warn(
+                        f"[Leveling _update_users()] got following error when fetching guild member {user_id}\n{e}"
+                    )
                     member = await bot.fetch_user(user_id)
-                except DiscordServerError:
-                    pass
+                except DiscordServerError as e:
+                    logger.error(
+                        f"[Leveling _update_users()] got the following error when fetching member {user_id}\n{e}."
+                    )
             if member:
                 await self._update_member_profile_data(logger, member, user_id, index, total_number_of_updates_needed)
 
