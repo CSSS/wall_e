@@ -754,8 +754,9 @@ class Leveling(commands.Cog):
                     # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
                     # updated THIS time
                     logger.debug(
-                        f"[Leveling _update_member_profile_data()] attempting to update the member profile data"
-                        f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
+                        f"[Leveling _update_member_profile_data()] attempt {user_point.leveling_update_attempt} to"
+                        f" update the member profile data in the database for member {member} "
+                        f"{index + 1}/{total_number_of_updates_needed}"
                     )
                     user_updated = await user_point.update_leveling_profile_info(
                         logger, self.guild.id, member, self.levelling_website_avatar_channel,
