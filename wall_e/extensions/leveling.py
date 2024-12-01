@@ -14,7 +14,7 @@ from utilities.global_vars import bot, wall_e_config
 
 from wall_e_models.models import Level, UserPoint, UpdatedUser, ProfileBucketInProgress
 
-from utilities.embed import embed
+from utilities.embed import embed, COLOUR_MAPPING, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.paginate import paginate_embed
 from utilities.setup_logger import Loggers
@@ -773,6 +773,29 @@ class Leveling(commands.Cog):
                 f" in the database for member {updated_user_id} {index + 1}/{total_number_of_updates_needed}"
             )
             await self.user_points[member.id].async_save()
+
+    @app_commands.command(name="reset_attempts")
+    @app_commands.checks.has_any_role("Bot_manager")
+    async def reset_attempts(self, interaction: discord.Interaction):
+        message_author = interaction.message.mentions[0]
+        message_author_id = message_author.id
+        if message_author_id not in self.user_points:
+            e_obj = await embed(
+                self.logger, interaction=interaction,
+                description=f'No user with ID {message_author_id}',
+                colour=COLOUR_MAPPING[WallEColour.ERROR]
+            )
+        else:
+            self.user_points[message_author_id].leveling_update_attempt = 0
+            await self.user_points[message_author_id].async_save()
+            e_obj = await embed(
+                self.logger, interaction=interaction,
+                description=f'<@{message_author_id}> attempts set to 0'
+            )
+        if e_obj:
+            await interaction.response.send_message(embed=e_obj)
+            await asyncio.sleep(5)
+            await interaction.delete_original_response()
 
     @app_commands.command(name="reset_user_profiles")
     @app_commands.checks.has_any_role("Bot_manager")
