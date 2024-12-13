@@ -40,6 +40,8 @@ class Leveling(commands.Cog):
         self.process_outdated_profile_pics_in_progress = False
         self.update_outdated_profile_pics_logger = update_outdated_profile_pics_log_info[0]
         self.update_outdated_profile_pics_debug_log_file_absolute_path = update_outdated_profile_pics_log_info[1]
+        self.update_outdated_profile_pics_warn_log_file_absolute_path = update_outdated_profile_pics_log_info[2]
+        self.update_outdated_profile_pics_error_log_file_absolute_path = update_outdated_profile_pics_log_info[3]
 
         self.levels_have_been_changed = False
         self.guild: Guild | None = None
@@ -108,7 +110,7 @@ class Leveling(commands.Cog):
             await asyncio.sleep(2)
         await start_file_uploading(
             self.logger, self.guild, bot, wall_e_config,
-            self.update_outdated_profile_pics_debug_log_file_absolute_path,
+            self.update_outdated_profile_pics_warn_log_file_absolute_path,
             "update_outdated_profile_pics_warn"
         )
 
@@ -118,7 +120,7 @@ class Leveling(commands.Cog):
             await asyncio.sleep(2)
         await start_file_uploading(
             self.logger, self.guild, bot, wall_e_config,
-            self.update_outdated_profile_pics_debug_log_file_absolute_path,
+            self.update_outdated_profile_pics_error_log_file_absolute_path,
             "update_outdated_profile_pics_error"
         )
 
