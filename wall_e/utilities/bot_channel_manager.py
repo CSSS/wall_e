@@ -87,6 +87,8 @@ class BotChannelManager:
             "here_error",
             "process_lurkers",
             "update_outdated_profile_pics",
+            "update_outdated_profile_pics_warn",
+            "update_outdated_profile_pics_error",
             "leveling_debug",
             "leveling_warn",
             "leveling_error",

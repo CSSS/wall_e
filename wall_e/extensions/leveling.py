@@ -103,6 +103,26 @@ class Leveling(commands.Cog):
         )
 
     @commands.Cog.listener(name="on_ready")
+    async def upload_outdated_profile_pics_warn_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config,
+            self.update_outdated_profile_pics_debug_log_file_absolute_path,
+            "update_outdated_profile_pics_warn"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_outdated_profile_pics_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config,
+            self.update_outdated_profile_pics_debug_log_file_absolute_path,
+            "update_outdated_profile_pics_error"
+        )
+
+    @commands.Cog.listener(name="on_ready")
     async def updating_database_and_cache(self):
         """
         Loads the current level info and user points into the self.levels and self.user_points dict respectively
