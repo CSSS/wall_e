@@ -50,7 +50,7 @@ class Leveling(commands.Cog):
         self.levelling_website_avatar_channel = None
         self.bucket_update_in_progress = False
         self.ensure_xp_roles_exist_and_have_right_users.start()
-        self.process_leveling_profile_data_for_lurkers.start()
+        # self.process_leveling_profile_data_for_lurkers.start()
         self.process_outdated_profile_pics.start()
         self.process_leveling_profile_data_for_active_users.start()
 
@@ -656,8 +656,7 @@ class Leveling(commands.Cog):
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
             logger.debug(
-                f"[Leveling _update_users()] attempting to get updated "
-                f"user_point profile data for member {user_id} "
+                f"[Leveling _update_users()] attempting to get updated user_point profile data for member {user_id} "
                 f"{index + 1}/{total_number_of_updates_needed} "
             )
             member = None
@@ -739,39 +738,40 @@ class Leveling(commands.Cog):
         :return:
         """
         if member:
-            user_point = self.user_points[member.id]
             try:
-                if user_point.leveling_update_attempt >= 5:
+                if self.user_points[member.id].leveling_update_attempt >= 5:
                     logger.error(
                         f"[Leveling _update_member_profile_data()] "
-                        f"attempt {user_point.leveling_update_attempt} to update the member profile"
+                        f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
                         f" data in the database for member {member} with id [{member.id}], expiry_date of "
-                        f"[{user_point.discord_avatar_link_expiry_date.pst}] and a CDN link of "
-                        f"<{user_point.leveling_message_avatar_url}> "
+                        f"[{self.user_points[member.id].discord_avatar_link_expiry_date.pst}] and a CDN link of "
+                        f"<{self.user_points[member.id].leveling_message_avatar_url}> "
                         f"{index + 1}/{total_number_of_updates_needed}"
                     )
                 else:
                     # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
                     # updated THIS time
                     logger.debug(
-                        f"[Leveling _update_member_profile_data()] attempt {user_point.leveling_update_attempt} to"
-                        f" update the member profile data in the database for member {member} "
-                        f"{index + 1}/{total_number_of_updates_needed}"
+                        f"[Leveling _update_member_profile_data()] attempt"
+                        f" {self.user_points[member.id].leveling_update_attempt} to"
+                        f" update the member profile data in the database for member {member} with"
+                        f" id [{updated_user_id}] {index + 1}/{total_number_of_updates_needed}"
                     )
-                    user_updated = await user_point.update_leveling_profile_info(
+                    user_updated = await self.user_points[member.id].update_leveling_profile_info(
                         logger, self.guild.id, member, self.levelling_website_avatar_channel,
                         updated_user_log_id=updated_user_log_id
                     )
                     if user_updated:
                         logger.debug(
                             f"[Leveling _update_member_profile_data()] updated the member profile data"
-                            f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
+                            f" in the database for member {member} with id [{updated_user_id}] "
+                            f"{index + 1}/{total_number_of_updates_needed}"
                         )
             except Exception as e:
                 logger.error(
                     f"[Leveling _update_member_profile_data()] unable to update the member profile"
-                    f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed} "
-                    f"due to error:\n{e}"
+                    f" data in the database for member {member} with id [{updated_user_id}]"
+                    f" {index + 1}/{total_number_of_updates_needed} due to error:\n{e}"
                 )
         else:
             logger.warn(
