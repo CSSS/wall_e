@@ -56,7 +56,7 @@ sys_stream_formatting = PSTFormatter(
 # creates an easy way for create_github_issue to tell when an issue that does not have a stacktrace still needs
 # to have  github issue created
 reportable_error_formatting = PSTFormatter(
-    '%(asctime)s = %(levelname)s = %(name)s = %(message)s', date_formatting_in_log, tz=date_timezone
+    '%(asctime)s = %(levelname)s = REPORTABLE = %(name)s = %(message)s', date_formatting_in_log, tz=date_timezone
 )
 
 

@@ -11,12 +11,22 @@ def create_github_issue(error_messages, config):
     :param config: used to determine the github csss-admin credentials
     :return:
     """
+    open_issues = requests.get(
+        url="https://api.github.com/repos/csss/wall_e/issues?state=open&creator=csss-admin",
+        headers={
+            "Accept": "application/vnd.github+json"
+        }
+    ).json()
+    if len(open_issues) > 0:
+        # exiting the function so that multiple identical issues don't get created by the bot everytime.
+        # this once led to 1500 issues being created on the wall_e repo for the exact same problem
+        return
     last_message = None
     error_message_body = "".join(error_messages)
     if "/usr/src/app/" in error_message_body or '= REPORTABLE =' in error_message_body:  # if the directory that
         # contains the WALL_E code is in the stacktrace then it is probably a guarantee that the issue is due
         # to WALL_E and not a problem with discord.py or a network glitch
-        last_line = len(error_messages)-1
+        last_line = len(error_messages) - 1
         while last_line > -1:
             if error_messages[last_line] != "\n":
                 last_message = error_messages[last_line]
