@@ -686,7 +686,7 @@ class Leveling(commands.Cog):
                 member = await self.guild.fetch_member(user_id)
             except (NotFound, DiscordServerError) as e:
                 try:
-                    logger.warn(
+                    logger.info(
                         f"[Leveling _update_users()] got following error when fetching guild member {user_id}\n{e}"
                     )
                     member = await bot.fetch_user(user_id)
