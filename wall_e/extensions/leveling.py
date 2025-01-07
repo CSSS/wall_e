@@ -20,6 +20,15 @@ from utilities.paginate import paginate_embed
 from utilities.setup_logger import Loggers
 
 
+DELETED_USER_IDS = [
+    816213728994918441, 880292731879039026, 1163876426764800070, 212033361915543552, 148237201790992384,
+    1082918429687816314, 783596160480051202, 1060460544538198096, 907074794833473586, 937810182031966228,
+    859173757512187915, 766494386988515368, 864627989001273364, 788583705224413204, 955590275395379211,
+    345010233468256256, 214901957033197568, 551495708016902144, 264614588832677888, 533272554144792586,
+    1145843682541572097, 688892410478067753
+]
+
+
 class Leveling(commands.Cog):
 
     def __init__(self):
@@ -677,6 +686,12 @@ class Leveling(commands.Cog):
         """
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
+            if user_id in DELETED_USER_IDS:
+                logger.debug(
+                    f"[Leveling _update_users()] skipping user with id [{user_id}] as its been marked as deleted "
+                    f"{index + 1}/{total_number_of_updates_needed} "
+                )
+                continue
             logger.debug(
                 f"[Leveling _update_users()] attempting to get updated user_point profile data for member {user_id} "
                 f"{index + 1}/{total_number_of_updates_needed} "
