@@ -20,9 +20,6 @@ from utilities.paginate import paginate_embed
 from utilities.setup_logger import Loggers
 
 
-
-
-
 class Leveling(commands.Cog):
 
     def __init__(self):
