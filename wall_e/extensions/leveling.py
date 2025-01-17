@@ -7,7 +7,7 @@ import time
 import discord
 import pytz
 from discord import NotFound, app_commands, Guild
-from discord.errors import DiscordServerError
+from discord.errors import DiscordServerError, HTTPException
 from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
@@ -694,6 +694,10 @@ class Leveling(commands.Cog):
                     logger.error(
                         f"[Leveling _update_users()] got the following error when fetching member {user_id}\n{e}."
                     )
+            except HTTPException as e:
+                logger.warn(
+                    f"[Leveling _update_users()] got the following error when fetching member {user_id}\n{e}."
+                )
             if member:
                 await self._update_member_profile_data(logger, member, user_id, index, total_number_of_updates_needed)
 
