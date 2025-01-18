@@ -309,11 +309,9 @@ class Ban(commands.Cog):
         banned_user_dm_able = True
 
         ban = BanRecord(
-            # todo: use user.global_name, discriminators have been phased out. str(user) will return name#discrim if
-            # the user account isn't updated
-            username=banned_user.name + '#' + banned_user.discriminator,
+            username=banned_user.global_name,
             user_id=banned_user.id,
-            mod=mod.name+'#'+mod.discriminator,
+            mod=mod.global_name,
             mod_id=mod.id,
             reason=reason,
             ban_date=ban_date.timestamp(),
@@ -375,7 +373,7 @@ class Ban(commands.Cog):
                 ("Days of Messages to Purge", f"{purge_window_days}"),
                 ("Purge Complete", "False")
             ],
-            footer_text="Intercepted Moderator Action" if intercepted_moderator_action else "Moderator Action",
+            footer_text="Intercepted Moderator Action" if intercept_ban else "Moderator Action",
             channels=self.guild.channels,
             bot_management_channel=self.bot_management_channel,
             ban_related_message=True,
@@ -610,15 +608,15 @@ class Ban(commands.Cog):
 
                 if ban.user.id in ban_logs:
                     banned = ban_logs[ban.user.id]
-                    username = banned.target.name + '#' + banned.target.discriminator
+                    username = banned.global_name
                     user_id = banned.target.id
-                    mod = banned.user.name + '#' + banned.user.discriminator
+                    mod = banned.user.global_name
                     mod_id = banned.user.id
                     ban_date = banned.created_at
                     reason = banned.reason if banned.reason else 'No Reason Given!'
 
                 else:
-                    username = ban.user.name + '#' + ban.user.discriminator
+                    username = ban.user.global_name
                     user_id = ban.user.id
 
                 ban_records.append(BanRecord(
