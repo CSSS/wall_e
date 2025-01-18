@@ -145,24 +145,11 @@ class Ban(commands.Cog):
             if e_obj:
                 await self.mod_channel.send(embed=e_obj)
             return
-        e_obj = await embed(
-            self.logger,
-            author=bot.user,
-            title=f'{Ban.embed_title} Guild Ban Intercept',
-            colour=WallEColour.ERROR,
-            description=f"Attempting to convert Guild ban for {member} into a {bot.user.name} ban",
-            channels=self.guild.channels,
-            bot_management_channel=self.bot_management_channel,
-            ban_related_message=True
-        )
-        if not e_obj:
-            return
-        msg = await self.mod_channel.send(embed=e_obj)
-        # need to read the audit log to grab mod, date, and reason
         self.logger.info("[Ban intercept()] guild ban detected and intercepted for a user")
         # sleep is needed so discord has time to create the audit log
         await asyncio.sleep(1)
 
+        # need to read the audit log to grab mod, date, and reason
         try:
             def get_audit_log(ban: discord.AuditLogEntry):
                 return member.id == ban.target.id
@@ -184,7 +171,7 @@ class Ban(commands.Cog):
                 ban_related_message=True
             )
             if e_obj:
-                await msg.edit(embed=e_obj)
+                await self.mod_channel.send(embed=e_obj)
             return
 
         if audit_ban is None:
@@ -205,7 +192,7 @@ class Ban(commands.Cog):
                 ban_related_message=True
             )
             if e_obj:
-                await msg.edit(embed=e_obj)
+                await self.mod_channel.send(embed=e_obj)
             return
 
         self.logger.debug(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
@@ -217,22 +204,6 @@ class Ban(commands.Cog):
 
         await guild.unban(member)
         self.logger.debug("[Ban intercept()] ban for member moved into db and guild ban was removed")
-
-        e_obj = await embed(
-            self.logger,
-            author=bot.user,
-            title=f'{Ban.embed_title} Guild Ban Intercept',
-            colour=WallEColour.ERROR,
-            description=f"{member}'s ban successfully converted to a {bot.user.name} ban",
-            channels=self.guild.channels,
-            bot_management_channel=self.bot_management_channel,
-            ban_related_message=True
-        )
-        if e_obj:
-            await msg.edit(embed=e_obj)
-        self.logger.debug(
-            f"[Ban intercept()] Message sent to mod channel [{self.mod_channel}] for a ban."
-        )
 
     async def wall_e_ban(self, banned_user, mod, purge_window_days=1, reason="No Reason Given.",
                          ban_date=None, intercept_ban: bool=False, interaction=None):
@@ -292,20 +263,6 @@ class Ban(commands.Cog):
         self.logger.debug(f"[Ban wall_e_ban()] Ban reason '{reason}'")
 
         Ban.ban_list[banned_user.id] = banned_user.name
-        e_obj = await embed(
-            self.logger,
-            interaction=interaction,
-            author=bot.user,
-            title=f"{Ban.embed_title} Notification",
-            description=f"Attempting to ban {banned_user.display_name}({banned_user.name})",
-            channels=self.guild.channels,
-            bot_management_channel=self.bot_management_channel,
-            ban_related_message=True
-        )
-        invoked_channel_msg = None
-        if e_obj:
-            invoked_channel_msg = await send_fn(embed=e_obj)
-
         banned_user_dm_able = True
 
         ban = BanRecord(
@@ -380,9 +337,6 @@ class Ban(commands.Cog):
             timestamp=ban_date
         )
         if e_obj:
-            await asyncio.sleep(5)
-            if invoked_channel_msg:
-                await invoked_channel_msg.delete()
             await self.mod_channel.send(embed=e_obj)
             self.logger.debug(
                 f"[Ban wall_e_ban()] Message sent to mod channel,{self.mod_channel}, of the ban."
@@ -405,15 +359,7 @@ class Ban(commands.Cog):
             )
             return
         if purge_window_days <= 0 or purge_window_days > 14:
-            e_obj = await embed(
-                self.logger, interaction=interaction, title=f'{Ban.embed_title} Invalid Purge Specified',
-                description=f'Window to purge message must be between 1 - 14 days instead of {purge_window_days}. '
-                            f'Using default of `1 day`'
-            )
-            if e_obj:
-                await interaction.followup.send(embed=e_obj)
-                await asyncio.sleep(5)
-            purge_window_days = 1
+           purge_window_days = 1
         self.logger.debug(f"[Ban ban()] Purge window days set to {purge_window_days}")
 
         self.logger.debug(f"[Ban ban()] Ban reason '{reason}'")
