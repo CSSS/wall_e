@@ -52,9 +52,9 @@ class Leveling(commands.Cog):
         self.levelling_website_avatar_channel = None
         self.bucket_update_in_progress = False
         self.ensure_xp_roles_exist_and_have_right_users.start()
-        # self.process_leveling_profile_data_for_lurkers.start()
-        self.process_outdated_profile_pics.start()
-        self.process_leveling_profile_data_for_active_users.start()
+        self.process_leveling_profile_data_for_lurkers.start()
+        # self.process_outdated_profile_pics.start()
+        # self.process_leveling_profile_data_for_active_users.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -523,7 +523,7 @@ class Leveling(commands.Cog):
                 f"[Leveling assign_roles_on_member_join()] could not fix the XP roles for user {member}"
             )
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=30)
     async def process_leveling_profile_data_for_lurkers(self):
         """
         Goes through all the UserPoint objects whose avatar CDN link has expired or who don't yet have a bucket number
@@ -627,8 +627,8 @@ class Leveling(commands.Cog):
         """
         date_buckets = {}
         bucket_number = 1
-        for day in range(1, 14):  # discord CDN links apparently expire after 2 weeks and need to be re-retrieved
-            for hour in range(1, 24):
+        for day in range(1, 24):  # discord CDN links apparently expire after 1 day and need to be re-retrieved
+            for minute in range(1, 2):  # decided to setup the buckets to be every half hour
                 date_buckets[bucket_number] = 0
                 bucket_number += 1
         return date_buckets
