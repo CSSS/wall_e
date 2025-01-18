@@ -235,7 +235,7 @@ class Ban(commands.Cog):
         )
 
     async def wall_e_ban(self, banned_user, mod, purge_window_days=1, reason="No Reason Given.",
-                         ban_date=None, intercepted_moderator_action=False, interaction=None):
+                         ban_date=None, intercept_ban: bool=False, interaction=None):
         """
         Performs the actual ban on the user
 
@@ -248,9 +248,11 @@ class Ban(commands.Cog):
         :param interaction: the interaction object the function got from the ban slash command
         :return:
         """
-        send_function_for_messages = self.mod_channel.send if interaction is None else \
-            interaction.edit_original_response
+        send_fn = self.mod_channel.send if interaction is None else interaction.edit_original_response
         if banned_user.id in Ban.ban_list:
+            if intercept_ban:
+                await self.guild.unban(banned_user.id)
+
             e_obj = await embed(
                 self.logger,
                 interaction=interaction,
@@ -263,34 +265,28 @@ class Ban(commands.Cog):
                 ban_related_message=True
             )
             if e_obj:
-                await send_function_for_messages(embed=e_obj)
+                await send_fn(embed=e_obj)
                 await asyncio.sleep(5)
             return
 
-        # determine if bot is able to kick the user
-        if type(banned_user) is discord.Member:
-            # making sure that the banned_user is of type member since User has no roles
-            sorted_list_of_banner_user_roles = sorted(banned_user.roles, key=lambda x: int(x.position), reverse=True)
-            banned_user_highest_role = sorted_list_of_banner_user_roles[0]
-            bot_guild_member = await self.guild.fetch_member(bot.user.id)
-            sorted_list_of_bot_roles = sorted(bot_guild_member.roles, key=lambda x: int(x.position), reverse=True)
-            bot_highest_role = sorted_list_of_bot_roles[0]
-            if banned_user_highest_role > bot_highest_role:
-                e_obj = await embed(
-                    self.logger,
-                    interaction=interaction,
-                    author=bot.user,
-                    title=f'{Ban.embed_title} Error',
-                    description=f"{banned_user}'s permission is higher than WALL_E so it can't be kicked",
-                    colour=WallEColour.ERROR,
-                    channels=self.guild.channels,
-                    bot_management_channel=self.bot_management_channel,
-                    ban_related_message=True
-                )
-                if e_obj:
-                    await send_function_for_messages(embed=e_obj)
-                    await asyncio.sleep(5)
-                return
+        # determine if bot is able to ban the user
+        bot_member = await self.guild.fetch_member(bot.user.id)
+        if not intercept_ban and bot_member.top_role <= banned_user.top_role:
+            e_obj = await embed(
+                self.logger,
+                interaction=interaction,
+                author=bot.user,
+                title=f'{Ban.embed_title} Error',
+                description=f"{banned_user}'s permission is higher than WALL_E so it can't be banned",
+                colour=WallEColour.ERROR,
+                channels=self.guild.channels,
+                bot_management_channel=self.bot_management_channel,
+                ban_related_message=True
+            )
+            if e_obj:
+                await send_fn(embed=e_obj)
+                await asyncio.sleep(5)
+            return
 
         self.logger.debug("[Ban wall_e_ban()] User being banned")
         self.logger.debug(f"[Ban wall_e_ban()] Ban reason '{reason}'")
@@ -308,11 +304,13 @@ class Ban(commands.Cog):
         )
         invoked_channel_msg = None
         if e_obj:
-            invoked_channel_msg = await send_function_for_messages(embed=e_obj)
+            invoked_channel_msg = await send_fn(embed=e_obj)
 
         banned_user_dm_able = True
 
         ban = BanRecord(
+            # todo: use user.global_name, discriminators have been phased out. str(user) will return name#discrim if
+            # the user account isn't updated
             username=banned_user.name + '#' + banned_user.discriminator,
             user_id=banned_user.id,
             mod=mod.name+'#'+mod.discriminator,
