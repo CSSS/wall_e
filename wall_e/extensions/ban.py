@@ -728,7 +728,7 @@ class Ban(commands.Cog):
                         # because the user wouldn't have any messages in these channels
                         if not (view_perm is False or send_perm is False):
                             await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
-                    await BanRecord.marked_user_as_purged(un_purged_ban_record.ban_id)
+                    await BanRecord.marked_user_as_purged(un_purged_ban_record.id)
             if number_of_purges > 0:
                 e_obj = await embed(
                     self.logger, title=f'{Ban.embed_title} Banned User Messages Purge Complete',
