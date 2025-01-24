@@ -217,9 +217,9 @@ class Ban(commands.Cog):
     async def create_ban(self, banned_user, mod, reason="No Reason Given", ban_date=None, purge_window_days=1):
         Ban.ban_list[banned_user.id] = banned_user.name
         ban = BanRecord(
-            username=banned_user.global_name,
+            username=banned_user.name,
             user_id=banned_user.id,
-            mod=mod.global_name,
+            mod=mod.name,
             mod_id=mod.id,
             reason=reason,
             ban_date=ban_date.timestamp(),
@@ -534,15 +534,15 @@ class Ban(commands.Cog):
 
                 if ban.user.id in ban_logs:
                     banned = ban_logs[ban.user.id]
-                    username = banned.global_name
+                    username = banned.name
                     user_id = banned.target.id
-                    mod = banned.user.global_name
+                    mod = banned.user.name
                     mod_id = banned.user.id
                     ban_date = banned.created_at
                     reason = banned.reason if banned.reason else 'No Reason Given!'
 
                 else:
-                    username = ban.user.global_name
+                    username = ban.user.name
                     user_id = ban.user.id
 
                 ban_records.append(BanRecord(
