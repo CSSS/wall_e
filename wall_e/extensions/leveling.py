@@ -766,14 +766,23 @@ class Leveling(commands.Cog):
         if member:
             try:
                 if self.user_points[member.id].leveling_update_attempt >= 5:
-                    logger.error(
-                        f"[Leveling _update_member_profile_data()] "
-                        f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
-                        f" data in the database for member {member} with id [{member.id}], expiry_date of "
-                        f"[{self.user_points[member.id].discord_avatar_link_expiry_date.pst}] and a CDN link of "
-                        f"<{self.user_points[member.id].leveling_message_avatar_url}> "
-                        f"{index + 1}/{total_number_of_updates_needed}"
-                    )
+                    if updated_user_log_id is None:
+                        # wil print out this log line only if its not part of the code that attempts to update active users
+                        # returned by UpdatedUser.get_updated_user_logs()
+                        # I am doing this only cause if you happen to have a backlog of users to work through, you will
+                        # mistakenly get alerted about attempts to update the user info not being successful when in
+                        # actuality what is happening is just the first process was all that was necessary and the
+                        # rest of superfluous but I don't want to update the database to take in just 1 log for each
+                        # user for the times when the task is active and therefore one log for each update would
+                        # actually be useful
+                        logger.error(
+                            f"[Leveling _update_member_profile_data()] "
+                            f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
+                            f" data in the database for member {member} with id [{member.id}], expiry_date of "
+                            f"[{self.user_points[member.id].discord_avatar_link_expiry_date.pst}] and a CDN link of "
+                            f"<{self.user_points[member.id].leveling_message_avatar_url}> "
+                            f"{index + 1}/{total_number_of_updates_needed}"
+                        )
                 else:
                     # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
                     # updated THIS time
