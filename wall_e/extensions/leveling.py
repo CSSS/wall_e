@@ -54,7 +54,7 @@ class Leveling(commands.Cog):
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
         self.process_outdated_profile_pics.start()
-        # self.process_leveling_profile_data_for_active_users.start()
+        self.process_leveling_profile_data_for_active_users.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
