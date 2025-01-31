@@ -195,12 +195,16 @@ class Ban(commands.Cog):
 
     async def mod_report(self, ban: BanRecord, dm_sent, ban_date, intercept_ban):
         # report to council
+        if intercept_ban:
+            dm_status = "NO"
+        else:
+            dm_status = "YES" if dm_sent else "NO\nUSER HAS DM's DISABLED or NO COMMON GUILD"
+
         e_obj = discord.Embed(title="Ban Hammer Deployed", color=discord.Color.red())
         e_obj.add_field(name="Banned User", value=f"**{ban.username}**")
         e_obj.add_field(name="Moderator", value=f"**{ban.mod}**")
         e_obj.add_field(name="Reason", value=f"```{ban.reason}```", inline=False)
-        e_obj.add_field(name="User Notified via DM",
-                        value="YES" if dm_sent else "*NO*\n*USER HAS DM's DISABLED or NO COMMON GUILD*", inline=False)
+        e_obj.add_field(name="User Notified via DM", value=dm_status, inline=False)
         e_obj.set_footer(text="Intercepted Moderator Action" if intercept_ban else "Moderator Action")
         e_obj.timestamp = ban_date
         await self.mod_channel.send(embed=e_obj)
