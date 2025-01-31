@@ -3,7 +3,7 @@ from typing import Union
 
 import discord
 from discord import app_commands
-from discord.ext import commands, tasks
+from discord.ext import commands
 
 from utilities.autocomplete.banned_users_choices import get_banned_users
 from utilities.global_vars import bot, wall_e_config
@@ -18,6 +18,7 @@ from utilities.setup_logger import Loggers
 
 BanAction = discord.AuditLogAction.ban
 DEFAULT_REASON = "Broke the rules."
+
 
 class Ban(commands.Cog):
 
@@ -143,7 +144,9 @@ class Ban(commands.Cog):
                 except Exception as e:
                     self.logger.debug(f'[Ban intercept()] error encountered: {e}')
                     e_obj = discord.Embed(title="Intercept Ban Error", color=discord.Color.red())
-                    e_obj.description=("Error while getting audit log data\n**Most likely need view audit log perms.**")
+                    e_obj.description = (
+                        "Error while getting audit log data\n**Most likely need view audit log perms.**"
+                        )
                     await self.mod_channel.send(embed=e_obj)
                     return
                 count += 1
@@ -151,7 +154,7 @@ class Ban(commands.Cog):
             if audit_ban is None:
                 self.logger.debug("[Ban intercept()] No audit data, aborting and notifying mod channel")
                 e_obj = discord.Embed(title="Intercept Ban Error", color=discord.Color.red())
-                e_obj.description=(
+                e_obj.description = (
                         f"Unable to get guild ban for {member} to convert to wall_e ban.\n"
                         f"Please use `.convertbans` then `.purgebans` to try and manually convert ban."
                     )
@@ -173,7 +176,7 @@ class Ban(commands.Cog):
     async def already_banned(self, banned_user):
         if banned_user.id in Ban.ban_list:
             e_obj = discord.Embed(title="Duplicate Ban Error", color=discord.Color.red())
-            e_obj.description=f"{banned_user} is already banned"
+            e_obj.description = f"{banned_user} is already banned"
             await self.mod_channel.send(embed=e_obj)
             self.logger.debug(f"[Ban already_banned()] user={banned_user} is already in ban system")
             return True
@@ -232,14 +235,14 @@ class Ban(commands.Cog):
 
         mod = interaction.user
         if delete_message_days <= 0 or delete_message_days > 7:
-           delete_message_days = 1
+            delete_message_days = 1
         self.logger.debug(f"[Ban ban()] Delete message set to {delete_message_days} day(s)")
 
         # determine if bot is able to ban the user
         bot_member = await self.guild.fetch_member(bot.user.id)
         if bot_member.top_role <= user.top_role:
             e_obj = discord.Embed(title="Ban Error", color=discord.Color.red())
-            e_obj.description=f"{user}'s permissions are higher than WALL_E, so WALL-E cannot kick them."
+            e_obj.description = f"{user}'s permissions are higher than WALL_E, so WALL-E cannot kick them."
             await self.mod_channel.send(embed=e_obj)
             return
         self.logger.debug(f"[Ban ban()] Banning user {user} with id={user.id}")
@@ -307,7 +310,7 @@ class Ban(commands.Cog):
         if user_id not in Ban.ban_list:
             self.logger.debug(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
             e_obj = discord.Embed(title="Unban Error", color=discord.Color.red())
-            e_obj.description=f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user"
+            e_obj.description = f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user"
             await interaction.followup.send(embed=e_obj)
             return
 
