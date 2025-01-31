@@ -7,7 +7,7 @@ import time
 import discord
 import pytz
 from discord import NotFound, app_commands, Guild
-from discord.errors import DiscordServerError
+from discord.errors import DiscordServerError, HTTPException
 from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
@@ -52,9 +52,9 @@ class Leveling(commands.Cog):
         self.levelling_website_avatar_channel = None
         self.bucket_update_in_progress = False
         self.ensure_xp_roles_exist_and_have_right_users.start()
-        # self.process_leveling_profile_data_for_lurkers.start()
+        self.process_leveling_profile_data_for_lurkers.start()
         self.process_outdated_profile_pics.start()
-        self.process_leveling_profile_data_for_active_users.start()
+        # self.process_leveling_profile_data_for_active_users.start()
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -523,7 +523,7 @@ class Leveling(commands.Cog):
                 f"[Leveling assign_roles_on_member_join()] could not fix the XP roles for user {member}"
             )
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=30)
     async def process_leveling_profile_data_for_lurkers(self):
         """
         Goes through all the UserPoint objects whose avatar CDN link has expired or who don't yet have a bucket number
@@ -627,8 +627,8 @@ class Leveling(commands.Cog):
         """
         date_buckets = {}
         bucket_number = 1
-        for day in range(1, 14):  # discord CDN links apparently expire after 2 weeks and need to be re-retrieved
-            for hour in range(1, 24):
+        for day in range(1, 24):  # discord CDN links apparently expire after 1 day and need to be re-retrieved
+            for minute in range(1, 2):  # decided to setup the buckets to be every half hour
                 date_buckets[bucket_number] = 0
                 bucket_number += 1
         return date_buckets
@@ -694,6 +694,10 @@ class Leveling(commands.Cog):
                     logger.error(
                         f"[Leveling _update_users()] got the following error when fetching member {user_id}\n{e}."
                     )
+            except HTTPException as e:
+                logger.warn(
+                    f"[Leveling _update_users()] got the following error when fetching member {user_id}\n{e}."
+                )
             if member:
                 await self._update_member_profile_data(logger, member, user_id, index, total_number_of_updates_needed)
 
@@ -762,7 +766,16 @@ class Leveling(commands.Cog):
         if member:
             try:
                 if self.user_points[member.id].leveling_update_attempt >= 5:
-                    logger.error(
+                    log_level = logger.error if updated_user_log_id is None else logger.debug
+                    # wil print out this log line at ERROR only if its not part of the code that attempts to update
+                    # active users returned by UpdatedUser.get_updated_user_logs()
+                    # I am doing this only cause if you happen to have a backlog of users to work through, you will
+                    # mistakenly get alerted about attempts to update the user info not being successful when in
+                    # actuality what is happening is just the first process was all that was necessary and the
+                    # rest of superfluous but I don't want to update the database to take in just 1 log for each
+                    # user for the times when the task is active and therefore one log for each update would
+                    # actually be useful
+                    log_level(
                         f"[Leveling _update_member_profile_data()] "
                         f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
                         f" data in the database for member {member} with id [{member.id}], expiry_date of "
