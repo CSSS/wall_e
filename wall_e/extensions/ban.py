@@ -127,20 +127,26 @@ class Ban(commands.Cog):
             self.logger.info("[Ban intercept()] guild ban detected and intercepted for a user")
 
             # need to read the audit log to grab mod, date, and reason
-            # sleep is needed so discord has time to create the audit log
-            await asyncio.sleep(1)
-            try:
-                def get_audit_log(ban: discord.AuditLogEntry):
-                    return member.id == ban.target.id
-                audit_ban = await discord.utils.find(
-                    get_audit_log, self.guild.audit_logs(action=BanAction, oldest_first=False)
-                )
-            except Exception as e:
-                self.logger.debug(f'[Ban intercept()] error encountered: {e}')
-                e_obj = discord.Embed(title="Intercept Ban Error", color=discord.Color.red())
-                e_obj.description=("Error while getting audit log data\n**Most likely need view audit log perms.**")
-                await self.mod_channel.send(embed=e_obj)
-                return
+            # use halt problem with sleep to ensure getting audit log data
+            audit_ban = None
+            count = 0
+            while audit_ban is None:
+                await asyncio.sleep(1)
+                if count > 60:
+                    break
+                try:
+                    def get_audit_log(ban: discord.AuditLogEntry):
+                        return member.id == ban.target.id
+                    audit_ban = await discord.utils.find(
+                        get_audit_log, self.guild.audit_logs(action=BanAction, oldest_first=False)
+                    )
+                except Exception as e:
+                    self.logger.debug(f'[Ban intercept()] error encountered: {e}')
+                    e_obj = discord.Embed(title="Intercept Ban Error", color=discord.Color.red())
+                    e_obj.description=("Error while getting audit log data\n**Most likely need view audit log perms.**")
+                    await self.mod_channel.send(embed=e_obj)
+                    return
+                count += 1
 
             if audit_ban is None:
                 self.logger.debug("[Ban intercept()] No audit data, aborting and notifying mod channel")
