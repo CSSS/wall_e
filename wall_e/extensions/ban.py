@@ -17,7 +17,7 @@ from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 
 BanAction = discord.AuditLogAction.ban
-
+DEFAULT_REASON = "Broke the rules."
 
 class Ban(commands.Cog):
 
@@ -152,7 +152,7 @@ class Ban(commands.Cog):
                 await self.mod_channel.send(embed=e_obj)
                 return
             self.logger.debug(f"[Ban intercept()] audit log data retrieved for intercepted ban: {audit_ban}")
-            reason = audit_ban.reason if audit_ban.reason else 'No Reasons Given.'
+            reason = audit_ban.reason if audit_ban.reason else DEFAULT_REASON
 
             # create ban
             ban = await self.create_ban(member, audit_ban.user, reason, audit_ban.created_at)
@@ -173,7 +173,7 @@ class Ban(commands.Cog):
             return True
         return False
 
-    async def create_ban(self, banned_user, mod, reason="No Reason Given", ban_date=None):
+    async def create_ban(self, banned_user, mod, reason, ban_date):
         Ban.ban_list[banned_user.id] = banned_user.name
         ban = BanRecord(
             username=banned_user.name,
@@ -204,7 +204,7 @@ class Ban(commands.Cog):
     @app_commands.describe(user="user to unban")
     @app_commands.checks.has_any_role("Minions", "Moderator")
     async def ban(self, interaction: discord.Interaction, user: discord.Member, delete_message_days: int = 1,
-                  reason: str = "No Reason Given."):
+                  reason: str = DEFAULT_REASON):
         self.logger.info(
             f"[Ban ban()] Ban command detected from {interaction.user} with args: "
             f"delete_message_days={delete_message_days}, reason={reason}"
@@ -428,7 +428,7 @@ class Ban(commands.Cog):
                 mod = None
                 mod_id = None
                 ban_date = None
-                reason = 'No Reason Given!'
+                reason = DEFAULT_REASON
 
                 if ban.user.id in ban_logs:
                     banned = ban_logs[ban.user.id]
@@ -437,7 +437,7 @@ class Ban(commands.Cog):
                     mod = banned.user.name
                     mod_id = banned.user.id
                     ban_date = banned.created_at
-                    reason = banned.reason if banned.reason else 'No Reason Given!'
+                    reason = banned.reason if banned.reason else DEFAULT_REASON
 
                 else:
                     username = ban.user.name
