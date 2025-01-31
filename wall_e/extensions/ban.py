@@ -14,7 +14,7 @@ from wall_e_models.models import BanRecord
 
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
-from utilities.setup_logger import Loggers, print_wall_e_exception
+from utilities.setup_logger import Loggers
 
 BanAction = discord.AuditLogAction.ban
 
@@ -34,7 +34,7 @@ class Ban(commands.Cog):
         self.mod_channel = None
         self.bot_management_channel = None
         self.guild: discord.Guild | None = None
-        self.purge_messages_task.start()
+        self.processing = []
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -119,6 +119,10 @@ class Ban(commands.Cog):
         while self.guild is None and self.bot_management_channel is None:
             await asyncio.sleep(2)
 
+        # don't intercept when Wall-E does a guild.ban()
+        if member.id in self.processing:
+            return
+
         if not await self.already_banned(member):
             self.logger.info("[Ban intercept()] guild ban detected and intercepted for a user")
 
@@ -155,7 +159,7 @@ class Ban(commands.Cog):
             self.logger.debug("[Ban intercept()] ban for member moved into db")
 
             # report to council
-            await self.mod_report(ban, 1, False, audit_ban.created_at, True)
+            await self.mod_report(ban, False, audit_ban.created_at, True)
         # unban the user
         self.logger.debug("[Ban intercept()] guild ban removed")
         await guild.unban(member)
@@ -169,7 +173,7 @@ class Ban(commands.Cog):
             return True
         return False
 
-    async def create_ban(self, banned_user, mod, reason="No Reason Given", ban_date=None, purge_window_days=1):
+    async def create_ban(self, banned_user, mod, reason="No Reason Given", ban_date=None):
         Ban.ban_list[banned_user.id] = banned_user.name
         ban = BanRecord(
             username=banned_user.name,
@@ -177,15 +181,13 @@ class Ban(commands.Cog):
             mod=mod.name,
             mod_id=mod.id,
             reason=reason,
-            ban_date=ban_date.timestamp(),
-            purge_window_days=purge_window_days,
-            is_purged=False
+            ban_date=ban_date.timestamp()
         )
         await BanRecord.insert_record(ban)
         self.logger.debug("[Ban create_ban()] Created BanRecord")
         return ban
 
-    async def mod_report(self, ban: BanRecord, purge_window_days, dm_sent, ban_date, intercept_ban):
+    async def mod_report(self, ban: BanRecord, dm_sent, ban_date, intercept_ban):
         # report to council
         e_obj = discord.Embed(title="Ban Hammer Deployed", color=discord.Color.red())
         e_obj.add_field(name="Banned User", value=f"**{ban.username}**")
@@ -193,8 +195,6 @@ class Ban(commands.Cog):
         e_obj.add_field(name="Reason", value=f"```{ban.reason}```", inline=False)
         e_obj.add_field(name="User Notified via DM",
                         value="YES" if dm_sent else "*NO*\n*USER HAS DM's DISABLED or NO COMMON GUILD*", inline=False)
-        e_obj.add_field(name="Days of Messages to Purge", value=f"{purge_window_days}")
-        e_obj.add_field(name="Purge Complete", value="False")
         e_obj.set_footer(text="Intercepted Moderator Action" if intercept_ban else "Moderator Action")
         e_obj.timestamp = ban_date
         await self.mod_channel.send(embed=e_obj)
@@ -203,11 +203,11 @@ class Ban(commands.Cog):
     @app_commands.command(name="ban", description="Bans a user from the guild")
     @app_commands.describe(user="user to unban")
     @app_commands.checks.has_any_role("Minions", "Moderator")
-    async def ban(self, interaction: discord.Interaction, user: discord.Member, purge_window_days: int = 1,
+    async def ban(self, interaction: discord.Interaction, user: discord.Member, delete_message_days: int = 1,
                   reason: str = "No Reason Given."):
         self.logger.info(
             f"[Ban ban()] Ban command detected from {interaction.user} with args: "
-            f"purge_window_days={purge_window_days}, reason={reason}"
+            f"delete_message_days={delete_message_days}, reason={reason}"
         )
         try:
             await interaction.response.defer()
@@ -221,9 +221,9 @@ class Ban(commands.Cog):
             return
 
         mod = interaction.user
-        if purge_window_days <= 0 or purge_window_days > 14:
-           purge_window_days = 1
-        self.logger.debug(f"[Ban ban()] Purge window days set to {purge_window_days}")
+        if delete_message_days <= 0 or delete_message_days > 7:
+           delete_message_days = 1
+        self.logger.debug(f"[Ban ban()] Delete message set to {delete_message_days} day(s)")
 
         # determine if bot is able to ban the user
         bot_member = await self.guild.fetch_member(bot.user.id)
@@ -234,8 +234,9 @@ class Ban(commands.Cog):
             return
         self.logger.debug(f"[Ban ban()] Banning user {user} with id={user.id}")
 
+        self.processing.append(user.id)
         ban_date = pstdatetime.now()
-        ban = await self.create_ban(user, mod, reason, ban_date, purge_window_days)
+        ban = await self.create_ban(user, mod, reason, ban_date)
 
         # dm banned user
         dm_sent = True
@@ -255,13 +256,17 @@ class Ban(commands.Cog):
             dm_sent = False
             self.logger.debug("[Ban ban()] Notification dm to user failed due to user preferences")
 
-        # kick
-        if type(user) is discord.Member:
-            await user.kick(reason=reason)
-            self.logger.debug(f"[Ban ban()] member kicked from guild at {pstdatetime.now()}.")
+        # Ban to remove messages and remove them from guild
+        await self.guild.ban(user, reason=reason, delete_message_days=delete_message_days)
+
+        # Unbanning too fast can cause issues
+        await asyncio.sleep(2)
+        await self.guild.unban(user)
+        self.processing.remove(user.id)
+        self.logger.debug(f"[Ban ban()] member removed from guild at {pstdatetime.now()}")
 
         # report to council
-        await self.mod_report(ban, purge_window_days, dm_sent, ban_date, False)
+        await self.mod_report(ban, dm_sent, ban_date, False)
         try:
             await interaction.delete_original_response()
         except Exception:
@@ -493,74 +498,6 @@ class Ban(commands.Cog):
             msg = await interaction.followup.send(embed=e_obj)
             await asyncio.sleep(10)
             await msg.delete()
-
-    @tasks.loop(seconds=20)
-    async def purge_messages_task(self):
-        """
-        Background function that determines if a reminder's time has come to be sent to its channel
-        :return:
-        """
-        if self.guild is None and self.bot_management_channel is None:
-            return
-        try:
-            un_purged_ban_records = await BanRecord.get_unpurged_users()
-            number_of_purges = len(un_purged_ban_records)
-            msg = None
-            for indx, un_purged_ban_record in enumerate(un_purged_ban_records):
-                timeframe = un_purged_ban_record.purge_window_days
-                self.logger.debug(f"[Ban purge_messages()] timeframe: {timeframe}")
-
-                # begin purging messages
-                # get list of all channels
-                channels = self.guild.text_channels
-
-                def is_banned_user(msg):
-                    return msg.author == un_purged_ban_record.user_id
-                import datetime
-                date = discord.utils.utcnow() - datetime.timedelta(timeframe)
-                self.logger.debug(f"[Ban purge_messages()] message from banned user "
-                                  f"will be purge starting from date {date}")
-                e_obj = await embed(
-                    self.logger, title=(
-                        f'{Ban.embed_title} [{indx+1}/{number_of_purges}] Banned User Messages Purging in Progress'
-                    ),
-                    description=(
-                        f"Currently purging messages from banned user "
-                        f"{un_purged_ban_record.username}({un_purged_ban_record.user_id}) with a purge day"
-                        f" frame of {timeframe}"
-                    ), channels=self.guild.channels, bot_management_channel=self.bot_management_channel,
-                    ban_related_message=True
-                )
-                if e_obj:
-                    if msg:
-                        await msg.delete()
-                    msg = await self.mod_channel.send(embed=e_obj)
-                    for channel in channels:
-                        send_perm = channel.overwrites_for(self.guild.default_role).send_messages
-                        view_perm = channel.overwrites_for(self.guild.default_role).view_channel
-
-                        # skip private channels and read-only channels
-                        # because the user wouldn't have any messages in these channels
-                        if not (view_perm is False or send_perm is False):
-                            await channel.purge(limit=100, check=is_banned_user, after=date, bulk=True)
-                    await BanRecord.marked_user_as_purged(un_purged_ban_record.ban_id)
-            if number_of_purges > 0:
-                e_obj = await embed(
-                    self.logger, title=f'{Ban.embed_title} Banned User Messages Purge Complete',
-                    description=(
-                        f"Successfully purged messages from {number_of_purges} banned users within their purge days"
-                    ),
-                    channels=self.guild.channels,
-                    bot_management_channel=self.bot_management_channel, ban_related_message=True
-                )
-                if e_obj:
-                    if msg:
-                        await msg.delete()
-                    await self.mod_channel.send(embed=e_obj)
-
-        except Exception as error:
-            self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')
-            print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
 
     def cog_unload(self):
         self.logger.info('[Ban cog_unload()] Removing listeners for ban cog: on_ready, on_member_join, on_member_ban')
