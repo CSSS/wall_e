@@ -357,7 +357,7 @@ class Misc(commands.Cog):
             with open('formula.png', 'wb') as image_file:
                 image_file.write(image_bytes)
             await interaction.response.send_message(file=discord.File('formula.png'))
-        except pyparsing.ParseException:
+        except (pyparsing.ParseException, ValueError):
             await interaction.response.send_message("Looks like you entered something that wasn't parseable")
         self.logger.debug(f"[Misc tex()] formula created and send for [{formula}]")
 
