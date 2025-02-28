@@ -818,22 +818,22 @@ class Leveling(commands.Cog):
 
     @app_commands.command(name="reset_attempts")
     @app_commands.checks.has_any_role("Bot_manager")
-    async def reset_attempts(self, interaction: discord.Interaction, member: discord.Member):
+    async def reset_attempts(self, interaction: discord.Interaction, member_id: int):
         self.update_outdated_profile_pics_logger.debug(
-            f"[Leveling reset_user_profiles()] resetting attempts for [{member.id}] to 0"
+            f"[Leveling reset_user_profiles()] resetting attempts for [{member_id}] to 0"
         )
-        if member.id not in self.user_points:
+        if member_id not in self.user_points:
             e_obj = await embed(
                 self.logger, interaction=interaction,
-                description=f'No user with ID {member.id}',
+                description=f'No user with ID {member_id}',
                 colour=COLOUR_MAPPING[WallEColour.ERROR]
             )
         else:
-            self.user_points[member.id].leveling_update_attempt = 0
-            await self.user_points[member.id].async_save()
+            self.user_points[member_id].leveling_update_attempt = 0
+            await self.user_points[member_id].async_save()
             e_obj = await embed(
                 self.logger, interaction=interaction,
-                description=f'<@{member.id}> attempts set to 0'
+                description=f'<@{member_id}> attempts set to 0'
             )
         if e_obj:
             await interaction.response.send_message(embed=e_obj)
