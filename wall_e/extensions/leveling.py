@@ -765,7 +765,9 @@ class Leveling(commands.Cog):
          result of member_update_listener's recording any detected changed in UpdatedUser
         :return:
         """
-        if member and member.id not in BUGGY_USER:
+        if member:
+            if member.id in BUGGY_USER:
+                return
             try:
                 if self.user_points[member.id].leveling_update_attempt >= 5:
                     log_level = logger.error if updated_user_log_id is None else logger.debug
