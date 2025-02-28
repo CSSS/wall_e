@@ -19,6 +19,7 @@ from utilities.file_uploading import start_file_uploading
 from utilities.paginate import paginate_embed
 from utilities.setup_logger import Loggers
 
+BUGGY_USER = [234501345749630976]
 
 class Leveling(commands.Cog):
 
@@ -763,7 +764,7 @@ class Leveling(commands.Cog):
          result of member_update_listener's recording any detected changed in UpdatedUser
         :return:
         """
-        if member:
+        if member and member.id not in BUGGY_USER:
             try:
                 if self.user_points[member.id].leveling_update_attempt >= 5:
                     log_level = logger.error if updated_user_log_id is None else logger.debug
