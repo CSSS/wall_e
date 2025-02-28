@@ -21,6 +21,7 @@ from utilities.setup_logger import Loggers
 
 BUGGY_USER = [234501345749630976]
 
+
 class Leveling(commands.Cog):
 
     def __init__(self):
