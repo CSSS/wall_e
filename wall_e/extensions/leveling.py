@@ -822,7 +822,7 @@ class Leveling(commands.Cog):
         try:
             logger.debug(
                 f"[Leveling _update_member_profile_data()] "
-                f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
+                f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile "
                 f"data in the database for member {member} with id [{member.id}], "
                 f"updated_user_log_id = {updated_user_log_id}, expiry_date of "
                 f"[{self.user_points[member.id].discord_avatar_link_expiry_date.pst}] and a CDN link of "
