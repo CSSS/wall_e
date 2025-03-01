@@ -173,7 +173,7 @@ class Leveling(commands.Cog):
                 total_xp_required += level_up_required
             self.logger.debug("[Leveling updating_database_and_cache()] levels loaded into DB and cache")
         self.logger.debug("[Leveling updating_database_and_cache()] loading UserPoints into cache")
-        await UserPoint.reset_attempts_and_process_status()
+        await UserPoint.reset_attempts_and_process_status(self.logger)
         self.user_points = await UserPoint.load_to_cache()
         self.logger.debug("[Leveling updating_database_and_cache()] UserPoints loaded into cache")
         self.logger.debug("[Leveling updating_database_and_cache()] XP system ready")
