@@ -820,12 +820,15 @@ class Leveling(commands.Cog):
         user_updated = False
         user_processed = False
         try:
+            expiry_date = (
+                self.user_points[member.id].discord_avatar_link_expiry_date.pst
+                if self.user_points[member.id].discord_avatar_link_expiry_date else None
+            )
             logger.debug(
                 f"[Leveling _update_member_profile_data()] "
                 f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile "
                 f"data in the database for member {member} with id [{member.id}], "
-                f"updated_user_log_id = {updated_user_log_id}, expiry_date of "
-                f"[{self.user_points[member.id].discord_avatar_link_expiry_date.pst}] and a CDN link of "
+                f"updated_user_log_id = {updated_user_log_id}, expiry_date of [{expiry_date}] and a CDN link of "
                 f"<{self.user_points[member.id].leveling_message_avatar_url}> "
                 f"{index + 1}/{total_number_of_updates_needed}"
             )
