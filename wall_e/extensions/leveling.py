@@ -50,6 +50,7 @@ class Leveling(commands.Cog):
         self.levelling_website_avatar_channel = None
         self.bucket_update_in_progress = False
         self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER = 15
+        self.MAX_RETRIES = 5
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
         self.process_outdated_profile_pics.start()
@@ -411,8 +412,7 @@ class Leveling(commands.Cog):
                         f"following error when fixing the roles for member {member_with_point} on iteration "
                         f"{iteration}.\n{e}"
                     )
-                    random_number_milliseconds = random.randint(0, 1000) / 1000
-                    await asyncio.sleep(math.pow(2, iteration + random_number_milliseconds))
+                    await self.exponential_backoff_sleep(iteration)
                     latest_attempt_time = time.perf_counter()
                 iteration += 1
             if not successful:
@@ -693,17 +693,8 @@ class Leveling(commands.Cog):
                     self.user_points[user_id].leveling_update_attempt < self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER
             ):
                 self.user_points[user_id].leveling_update_attempt += 1
-                random_number_milliseconds = random.randint(0, 1000) / 1000
-                sleep_seconds = math.pow(
-                    2, self.user_points[user_id].leveling_update_attempt + random_number_milliseconds
-                )
-                logger.debug(
-                    f"[Leveling _update_users_with_given_ids()] Sleeping for {sleep_seconds} before attempt "
-                    f"{self.user_points[user_id].leveling_update_attempt} when trying to update user_point profile "
-                    f"data for member {user_id}."
-                )
-                await asyncio.sleep(sleep_seconds)
-                member = await self.get_user(logger, user_id)
+                await self.exponential_backoff_sleep(self.user_points[user_id].leveling_update_attempt)
+                member = await self.get_user_with_retry(logger, user_id)
                 if member:
                     user_updated, user_processed = await self._update_member_profile_data(
                         logger, member, user_id, index, total_number_of_updates_needed
@@ -740,17 +731,8 @@ class Leveling(commands.Cog):
                     f"UpdatedUser id [{updated_user_log_id}] with id {updated_user_id} "
                     f"{index + 1}/{total_number_of_updates_needed} "
                 )
-                random_number_milliseconds = random.randint(0, 1000) / 1000
-                sleep_seconds = math.pow(
-                    2, self.user_points[updated_user_id].leveling_update_attempt + random_number_milliseconds
-                )
-                self.logger.debug(
-                    f"[Leveling process_leveling_profile_data_for_active_users()] Sleeping for {sleep_seconds} before"
-                    f" attempt {self.user_points[updated_user_id].leveling_update_attempt} when trying to get data"
-                    f" for user with UpdatedUser id [{updated_user_log_id}] with id {updated_user_id}."
-                )
-                await asyncio.sleep(sleep_seconds)
-                member = await self.get_user(self.logger, updated_user_id)
+                await self.exponential_backoff_sleep(self.user_points[updated_user_id].leveling_update_attempt)
+                member = await self.get_user_with_retry(self.logger, updated_user_id)
                 if member:
                     # cannot call _update_users_with_given_ids like process_outdated_profile_pics and
                     # process_leveling_profile_data_for_lurkers because this task needs to be able to specify a
@@ -761,27 +743,36 @@ class Leveling(commands.Cog):
                     )
             self.user_points[updated_user_id].being_processed = False
 
-    async def get_user(self, logger, user_id):
+    async def get_user_with_retry(self, logger, user_id):
         user = None
-        try:
-            user = await self.guild.fetch_member(user_id)
-        except NotFound as e:
+        error = None
+        for attempt in range(self.MAX_RETRIES):
             try:
-                logger.info(
-                    f"[Leveling get_user()] unable to find guild member {user_id}\n{e}"
-                )
-                user = await bot.fetch_user(user_id)
+                user = await self.guild.fetch_member(user_id)
+            except NotFound as e:
+                error = e
+                try:
+                    user = await bot.fetch_user(user_id)
+                except DiscordException as e:
+                    error = e
+                    await self.exponential_backoff_sleep(attempt)
             except DiscordException as e:
-                logger.error(
-                    f"[Leveling get_user()] got the following error when fetching discord user "
-                    f"{user_id}\n{e}."
-                )
-        except DiscordException as e:
+                error = e
+                await self.exponential_backoff_sleep(attempt)
+        if user is None:
             logger.error(
-                f"[Leveling get_user()] got the following error when fetching guild member "
-                f"{user_id}\n{e}."
+                f"[Leveling get_user_with_retry()] got the following error when fetching discord user {user_id}"
+                f"\n{error}"
             )
+
         return user
+
+    async def exponential_backoff_sleep(self, attempt):
+        random_number_milliseconds = random.randint(0, 1000) / 1000
+        sleep_seconds = math.pow(
+            2, attempt + random_number_milliseconds
+        )
+        await asyncio.sleep(sleep_seconds)
 
     @tasks.loop(seconds=5)
     async def process_outdated_profile_pics(self):
