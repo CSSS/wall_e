@@ -184,7 +184,8 @@ class Reminders(commands.Cog):
         # reminder_obj.get_countdown(current_time)
         current_time = pstdatetime(
             year=current_time.year, month=current_time.month, day=current_time.day, hour=current_time.hour,
-            minute=current_time.minute, second=current_time.second, tzinfo=user_specified_timezone
+            minute=current_time.minute, second=current_time.second  # , tzinfo=user_specified_timezone commenting this
+            # out cause it seems to cause an issue when there is daylight savings?
         )
         reminder_date, parse_status = parsedatetime.Calendar().parseDT(
             datetimeString=parsed_time,

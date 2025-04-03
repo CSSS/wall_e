@@ -119,8 +119,10 @@ class Ban(commands.Cog):
             if e_obj:
                 try:
                     await member.send(embed=e_obj)
-                except (discord.HTTPException, discord.Forbidden, discord.InvalidArgument):
-                    self.logger.debug('[Ban watchdog()] DM not send due to banned user due to user dm settings.')
+                except (discord.HTTPException, discord.Forbidden):
+                    self.logger.debug(
+                        '[Ban watchdog()] unable to send warning dm to banned user due to user dm settings.'
+                    )
             await member.kick(reason="Not allowed back on server.")
 
     @commands.Cog.listener(name='on_member_ban')

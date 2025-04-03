@@ -25,7 +25,9 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, chan
     )
     f = open(file_path, 'r')
     f.seek(0)
-    channels_with_rate_limit = channel_name in ['leveling_debug', 'role_commands_debug', 'process_lurkers']
+    channels_with_rate_limit = channel_name in [
+        'leveling_debug', 'role_commands_debug', 'process_lurkers', "update_outdated_profile_pics"
+    ]
     incident_report_chanel_name = config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
     while not bot.is_closed():
         f.flush()
@@ -68,5 +70,5 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, chan
             if message_sent and channels_with_rate_limit:
                 # adding a sleep cause the amount of debug logs that I print due to the wall_e_models module can
                 # trigger a Rate Limit exception if done too fast
-                await asyncio.sleep(1)
+                await asyncio.sleep(3)
         await asyncio.sleep(1)

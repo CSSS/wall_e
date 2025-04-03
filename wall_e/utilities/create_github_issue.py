@@ -38,14 +38,20 @@ def create_github_issue(error_messages, config):
         )
         beginning_of_error_message = beginning_of_error_message.regs[0][1] if beginning_of_error_message else 0
         last_message = last_message[beginning_of_error_message:]
-        requests.post(
-            url="https://api.github.com/repos/csss/wall_e/issues",
-            headers={
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {config.get_config_value('github', 'TOKEN')}"
-            },
-            json={
-                "title": last_message,
-                "body": f"```\n{error_message_body}\n```"
-            }
-        )
+        discord_internet_issues = [
+            "503 Service Unavailable (error code: 0): upstream connect error or disconnect/reset before headers. "
+            "reset reason: remote connection failure, transport failure reason: immediate connect error: No such "
+            "file or directory"
+        ]
+        if last_message not in discord_internet_issues:
+            requests.post(
+                url="https://api.github.com/repos/csss/wall_e/issues",
+                headers={
+                    "Accept": "application/vnd.github+json",
+                    "Authorization": f"Bearer {config.get_config_value('github', 'TOKEN')}"
+                },
+                json={
+                    "title": last_message,
+                    "body": f"```\n{error_message_body}\n```"
+                }
+            )
