@@ -41,7 +41,9 @@ def create_github_issue(error_messages, config):
         discord_internet_issues = [
             "503 Service Unavailable (error code: 0): upstream connect error or disconnect/reset before headers. "
             "reset reason: remote connection failure, transport failure reason: immediate connect error: No such "
-            "file or directory"
+            "file or directory",
+            "503 Service Unavailable (error code: 0): upstream connect error or disconnect/reset before headers. "
+            "reset reason: connection termination"
         ]
         if last_message not in discord_internet_issues:
             requests.post(
