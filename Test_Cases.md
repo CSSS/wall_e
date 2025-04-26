@@ -182,33 +182,29 @@
   1. `/purgeroles`  
      ![](.documentation_pictures/test_cases/purgeroles.png)
 ## SFU
-   1. `.sfu cmpt 300`  
+   1. `/sfu course:cmpt 300`  
      ![](.documentation_pictures/test_cases/.sfu%20cmpt%20300.png)
-   1. `.sfu cmpt300`  
+   1. `/sfu course:cmpt300`  
      ![](.documentation_pictures/test_cases/.sfu%20cmpt300.png)
-   1. `.sfu cmpt666`  
+   1. `/sfu course:cmpt666`  
      ![](.documentation_pictures/test_cases/.sfu%20cmpt666.png)
-   1. `.sfu blah`  
+   1. `/sfu course:blah`  
      ![](.documentation_pictures/test_cases/.sfu%20blah.png)
-   1. `.sfu`  
-     ![](.documentation_pictures/test_cases/.sfu.png)
-   1. `.outline cmpt300`  
+   1. `/outline course:cmpt300`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt300.png)
-   1. `.outline cmpt 300`  
+   1. `/outline course:cmpt 300`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt%20300.png)
-   1. `.outline cmpt300 spring d200`  
+   1. `/outline course:cmpt300 term:spring section:d200`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt300%20spring%20d200.png)
-   1. `.outline cmpt 300 spring d200`  
+   1. `/outline course:cmpt 300 term:spring section:d200`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt%20300%20spring%20d200.png)
-   1. `.outline cmpt300 next`  
+   1. `/outline course:cmpt300 next_term:true`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt300%20next.png)
-   1. `.outline cmpt300 d200 next`  
+   1. `/outline course:cmpt300 section:d200 next_term:true`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt300%20d200%20next.png)
-   1. `.outline cmpt300 summer d200 next`  
+   1. `/outline course:cmpt300 term:summer section:d200 next_term:true`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt300%20summer%20d200%20next.png)
-   1. `.outline cmpt666`  
+   1. `/outline course:cmpt666`  
      ![](.documentation_pictures/test_cases/.outline%20cmpt666.png)
-   1. `.outline blah`  
+   1. `/outline course:blah`  
      ![](.documentation_pictures/test_cases/.outline%20blah.png)
-   1. `.outline`  
-     ![](.documentation_pictures/test_cases/.outline.png)
