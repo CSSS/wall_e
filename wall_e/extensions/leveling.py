@@ -682,23 +682,30 @@ class Leveling(commands.Cog):
             if self.user_points[user_id].being_processed:
                 continue
             self.user_points[user_id].being_processed = True
-            user_processed = False
-            logger.debug(
-                f"[Leveling _update_users_with_given_ids()] attempt "
-                f"{self.user_points[user_id].leveling_update_attempt} to get updated user_point profile data for "
-                f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
-            )
-            while (
-                    not user_processed and
-                    self.user_points[user_id].leveling_update_attempt < self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER
-            ):
-                self.user_points[user_id].leveling_update_attempt += 1
-                await self.exponential_backoff_sleep(self.user_points[user_id].leveling_update_attempt)
-                member = await self.get_user_with_retry(logger, user_id)
-                if member:
-                    user_updated, user_processed = await self._update_member_profile_data(
-                        logger, member, user_id, index, total_number_of_updates_needed
-                    )
+            try:
+                user_processed = False
+                logger.debug(
+                    f"[Leveling _update_users_with_given_ids()] attempt "
+                    f"{self.user_points[user_id].leveling_update_attempt} to get updated user_point profile data for "
+                    f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
+                )
+                while (
+                        not user_processed and
+                        self.user_points[user_id].leveling_update_attempt < self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER
+                ):
+                    self.user_points[user_id].leveling_update_attempt += 1
+                    await self.exponential_backoff_sleep(self.user_points[user_id].leveling_update_attempt)
+                    member = await self.get_user_with_retry(logger, user_id)
+                    if member:
+                        user_updated, user_processed = await self._update_member_profile_data(
+                            logger, member, user_id, index, total_number_of_updates_needed
+                        )
+            except Exception as e:
+                logger.error(
+                    f"[Leveling _update_users_with_given_ids()] experiencing error "
+                    f"{e} while trying to get updated user_point profile data for "
+                    f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
+                )
             self.user_points[user_id].being_processed = False
 
     @tasks.loop(seconds=2)
