@@ -104,7 +104,7 @@ class Ban(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 title='Ban Notification',
-                colour=discord.Color.red(),
+                colour=WallEColour.BAN,
                 content=[
                         ("Notice", f"**You are PERMANENTLY BANNED from\n{self.guild}\n\n"
                                    f"You may NOT rejoin the guild!**", False)
@@ -157,7 +157,7 @@ class Ban(commands.Cog):
                     e_obj = await embed(
                         self.logger,
                         title='Intercept Ban Error',
-                        colour=discord.Color.red(),
+                        colour=WallEColour.BAN,
                         description="Error while getting audit log data\n**Most likely need view audit log perms.**",
                         channels=self.guild.channels,
                         bot_management_channel=self.bot_management_channel,
@@ -173,7 +173,7 @@ class Ban(commands.Cog):
                 e_obj = await embed(
                     self.logger,
                     title='Intercept Ban Error',
-                    colour=discord.Color.red(),
+                    colour=WallEColour.BAN,
                     description=(
                         f"Unable to get guild ban for {member} to convert to wall_e ban. "
                         f"Please use `.convertbans` then `.purgebans` to try and manually convert ban."
@@ -204,7 +204,7 @@ class Ban(commands.Cog):
                 self.logger,
                 title='Duplicate Ban Error',
                 description=f"{banned_user} is already banned",
-                colour=discord.Color.red(),
+                colour=WallEColour.BAN,
                 channels=self.guild.channels,
                 bot_management_channel=self.bot_management_channel,
                 ban_related_message=True
@@ -239,7 +239,7 @@ class Ban(commands.Cog):
         e_obj = await embed(
             self.logger,
             title='Ban Hammer Deployed',
-            colour=discord.Color.red(),
+            colour=WallEColour.BAN,
             content=[
                 ("Banned User", f"**{ban.username}**"),
                 ("Moderator", f"**{ban.mod}**",),
@@ -288,7 +288,7 @@ class Ban(commands.Cog):
                 self.logger,
                 title='Ban Error',
                 description=f"{user}'s permissions are higher than WALL_E, so WALL-E cannot kick them.",
-                colour=discord.Color.red(),
+                colour=WallEColour.BAN,
                 channels=self.guild.channels,
                 bot_management_channel=self.bot_management_channel,
                 ban_related_message=True
@@ -308,7 +308,7 @@ class Ban(commands.Cog):
             self.logger,
             title='Ban Notification',
             description=f"You have been **PERMANENTLY BANNED** from **{self.guild.name.upper()}**",
-            colour=discord.Color.red(),
+            colour=WallEColour.BAN,
             content=[
                 ('Reason',
                  f"```{reason}```\n**Please refrain from this kind of behaviour in the future. Thank you.**")
@@ -356,7 +356,7 @@ class Ban(commands.Cog):
                 interaction=interaction,
                 title='Unban Error',
                 description="Invalid input detected. Please try again.",
-                colour=discord.Color.red()
+                colour=WallEColour.BAN
             )
             if e_obj:
                 await interaction.response.send_message(embed=e_obj, )
@@ -376,7 +376,7 @@ class Ban(commands.Cog):
             e_obj = await embed(
                 self.logger, interaction=interaction, title='Unban Error',
                 description=f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user",
-                colour=discord.Color.red()
+                colour=WallEColour.BAN
             )
             if e_obj:
                 await interaction.followup.send(embed=e_obj)
@@ -387,7 +387,7 @@ class Ban(commands.Cog):
         if name:
             self.logger.debug(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
             mod_channel_e_obj = await embed(
-                self.logger, interaction=interaction, title='User Unbanned', colour=discord.Color.red(),
+                self.logger, interaction=interaction, title='User Unbanned', colour=WallEColour.BAN,
                 content=[('Unbanned User', name), ("Moderator", interaction.user.name)]
             )
             if mod_channel_e_obj:
@@ -397,7 +397,7 @@ class Ban(commands.Cog):
             e_obj = await embed(
                 self.logger, interaction=interaction, title='Unban Error',
                 description=f"No user with id: **`{user_id}`** found.",
-                colour=discord.Color.red()
+                colour=WallEColour.BAN
             )
             if e_obj:
                 await interaction.followup.send(embed=e_obj)
@@ -451,7 +451,7 @@ class Ban(commands.Cog):
             e_obj = await embed(
                 self.logger, interaction=interaction, title=f'{Ban.embed_title} Error',
                 description=f"Could not find a banned user whose username contains `{search_query}`",
-                colour=WallEColour.ERROR
+                colour=WallEColour.BAN
             )
             if e_obj:
                 msg = await interaction.followup.send(embed=e_obj)
@@ -486,7 +486,7 @@ class Ban(commands.Cog):
                 self.logger,
                 author=bot.user,
                 title=f'{Ban.embed_title} convertbans',
-                colour=WallEColour.ERROR,
+                colour=WallEColour.BAN,
                 description=f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**",
                 interaction=interaction
             )
