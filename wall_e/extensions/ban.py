@@ -23,7 +23,6 @@ DEFAULT_REASON = "Broke the rules."
 class Ban(commands.Cog):
 
     ban_list = {}
-    embed_title = f'{bot.user.name} Ban System: '
 
     def __init__(self):
         log_info = Loggers.get_logger(logger_name="Ban")
@@ -449,7 +448,7 @@ class Ban(commands.Cog):
                 ban_dates = ""
         if len(content_to_embed) == 0:
             e_obj = await embed(
-                self.logger, interaction=interaction, title=f'{Ban.embed_title} Error',
+                self.logger, interaction=interaction, title='Bans Error',
                 description=f"Could not find a banned user whose username contains `{search_query}`",
                 colour=WallEColour.BAN
             )
@@ -460,7 +459,7 @@ class Ban(commands.Cog):
         else:
             await paginate_embed(
                 self.logger, bot, content_to_embed=content_to_embed,
-                title=f"{Ban.embed_title} {len(bans)} Banned members",
+                title=f"{len(bans)} Banned members",
                 interaction=interaction
             )
 
@@ -485,7 +484,6 @@ class Ban(commands.Cog):
             e_obj = await embed(
                 self.logger,
                 author=bot.user,
-                title=f'{Ban.embed_title} convertbans',
                 colour=WallEColour.BAN,
                 description=f"Encountered the following errors: {e}\n**Most likely need view audit log perms.**",
                 interaction=interaction
@@ -544,7 +542,6 @@ class Ban(commands.Cog):
         e_obj = await embed(
             self.logger,
             author=bot.user,
-            title=f'{Ban.embed_title} convertbans',
             description=f"Moved `{len(ban_records)}` active bans from guild bans to wall_e bans.",
             interaction=interaction
         )
@@ -578,7 +575,7 @@ class Ban(commands.Cog):
             await self.guild.unban(ban.user)
 
         e_obj = await embed(
-            self.logger, interaction=interaction, title=f'{Ban.embed_title} Ban',
+            self.logger, interaction=interaction,
             description=f"**GUILD BAN LIST PURGED**\nTotal # of users unbanned: {len(bans)}",
         )
         if e_obj:
