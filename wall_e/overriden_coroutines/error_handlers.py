@@ -18,7 +18,7 @@ async def report_text_command_error(ctx, error):
     from utilities.global_vars import logger
     handled_errors = (
         commands.errors.ArgumentParsingError, commands.errors.MemberNotFound, commands.MissingRequiredArgument,
-        commands.errors.BadArgument
+        commands.errors.BadArgument, discord.errors.HTTPException
     )
     if isinstance(error, handled_errors):
         message_footer = (
