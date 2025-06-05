@@ -14,13 +14,15 @@ class WallEColour(Enum):
     WARNING = 2,
     ERROR = 3,
     FROSH_2020_THEME = 4
+    BAN = 5
 
 
 COLOUR_MAPPING = {
     WallEColour.INFO: 0x00bfbd,
     WallEColour.WARNING: 0xffc61d,
     WallEColour.ERROR: 0xA6192E,
-    WallEColour.FROSH_2020_THEME: 0x00FF61
+    WallEColour.FROSH_2020_THEME: 0x00FF61,
+    WallEColour.BAN: discord.Color.red()
 }
 
 
