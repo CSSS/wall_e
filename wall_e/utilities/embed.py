@@ -35,7 +35,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
                 author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
                 footer_text: str = '', footer_icon=None, timestamp=None, channels=None, ban_related_message=False,
-                bot_management_channel=None):
+                bot_management_channel=None, validate=True):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -78,6 +78,8 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
      context or interaction object
     :param bot_management_channel: provides a way for the non-context and non-interaction classes in the ban class
      to send their error messages somewhere
+     :param validate: boolean to indicate whether or not input needs to be validated or the function should just
+     construct the embed object and therefore reduce run-time
     :return:
     """
     if content is None:
@@ -108,7 +110,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
     if channels is None and ctx is None and interaction is None:
         raise Exception("Unable to get the channels on this guild")
 
-    if len(title) > 256:
+    if validate and len(title) > 256:
         title = f"{title}"
         await send_func_helper(
             "Embed Error:\nlength of the title "
@@ -118,14 +120,14 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         )
         logger.debug(f"[embed.py embed()] length of title [{title}] being added to the field is too big")
         return False
-    if description is None and content is None:
+    if validate and description is None and content is None:
         await send_func_helper(
             "Embed Error:\nThere need to be either a description or fields specified",
             send_func, text_command, reference
         )
         logger.debug("[embed.py embed()] There need to be either a description or fields specified")
         return False
-    if description is not None and len(description) > 2048:
+    if validate and description is not None and len(description) > 2048:
         await send_func_helper(
             f"Embed Error:\nlength of description being added to the "
             f"description field is {len(description) - 2048} characters too big, please cut "
@@ -136,7 +138,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
                      "field is too big")
         return False
 
-    if content is not None and len(content) > 25:
+    if validate and content is not None and len(content) > 25:
         await send_func_helper(
             "Embed Error:\nlength of content being added to the content field "
             f"is {(len(content) - 25)} indices too big, please cut down to a size of 25",
@@ -144,7 +146,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
         )
         logger.debug("[embed.py embed()] length of content array will be added to the fields is too big")
         return False
-    if content is not None:
+    if validate and content is not None:
         for idx, record in enumerate(content):
             if len(record[0]) > 256:
                 await send_func_helper(
@@ -165,7 +167,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
                 logger.debug(f"[embed.py embed()] {record[1]}")
                 return False
 
-    if len(footer_text) > 2048:
+    if validate and len(footer_text) > 2048:
         await send_func_helper(
             f"Embed Error:\nlength of footer being added to the footer field is "
             f"{len(footer_text) - 2048} characters too big, please cut down to a size of 2048", send_func,
