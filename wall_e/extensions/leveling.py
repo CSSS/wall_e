@@ -700,7 +700,8 @@ class Leveling(commands.Cog):
                 except Exception as e:
                     logger.error(
                         f"[Leveling _update_users_with_given_ids()] experiencing error "
-                        f"{e} while trying to get member for {user_id} {index + 1}/{total_number_of_updates_needed} "
+                        f"{e} of type {type(e)} "
+                        f"while trying to get member for {user_id} {index + 1}/{total_number_of_updates_needed} "
                     )
                 if member:
                     try:
