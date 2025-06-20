@@ -6,18 +6,16 @@ import time
 
 import discord
 import pytz
-from discord import NotFound, app_commands
-from discord.errors import DiscordServerError
+from discord import NotFound, app_commands, Guild
+from discord.errors import DiscordException
 from discord.ext import commands, tasks
 
-from utilities.global_vars import bot, wall_e_config
-
-from wall_e_models.models import Level, UserPoint, UpdatedUser, ProfileBucketInProgress
-
-from utilities.embed import embed
+from utilities.embed import embed, COLOUR_MAPPING, WallEColour
 from utilities.file_uploading import start_file_uploading
+from utilities.global_vars import bot, wall_e_config
 from utilities.paginate import paginate_embed
 from utilities.setup_logger import Loggers
+from wall_e_models.models import Level, UserPoint, UpdatedUser, ProfileBucketInProgress
 
 
 class Leveling(commands.Cog):
@@ -29,16 +27,33 @@ class Leveling(commands.Cog):
         self.warn_log_file_absolute_path = log_info[2]
         self.error_log_file_absolute_path = log_info[3]
         self.logger.info("[Leveling __init__()] initializing Leveling")
+
+        process_lurkers_log_info = Loggers.get_logger(logger_name="Leveling_process_lurkers")
+        self.process_lurkers_logger = process_lurkers_log_info[0]
+        self.process_lurkers_debug_log_file_absolute_path = process_lurkers_log_info[1]
+
+        update_outdated_profile_pics_log_info = Loggers.get_logger(
+            logger_name="Leveling_update_outdated_profile_pics"
+        )
+        self.process_outdated_profile_pics_in_progress = False
+        self.update_outdated_profile_pics_logger = update_outdated_profile_pics_log_info[0]
+        self.update_outdated_profile_pics_debug_log_file_absolute_path = update_outdated_profile_pics_log_info[1]
+        self.update_outdated_profile_pics_warn_log_file_absolute_path = update_outdated_profile_pics_log_info[2]
+        self.update_outdated_profile_pics_error_log_file_absolute_path = update_outdated_profile_pics_log_info[3]
+
         self.levels_have_been_changed = False
-        self.guild = None
+        self.guild: Guild | None = None
         self.user_points = None
         self.levels = None
         self.xp_system_ready = False
         self.council_channel = None
         self.levelling_website_avatar_channel = None
         self.bucket_update_in_progress = False
+        self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER = 15
+        self.MAX_RETRIES = 5
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
+        self.process_outdated_profile_pics.start()
         self.process_leveling_profile_data_for_active_users.start()
 
     @commands.Cog.listener(name="on_ready")
@@ -50,7 +65,8 @@ class Leveling(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
         await start_file_uploading(
-            self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path, "leveling_debug"
+            self.logger, self.guild, bot, wall_e_config, self.debug_log_file_absolute_path,
+            "leveling_debug"
         )
 
     @commands.Cog.listener(name="on_ready")
@@ -67,7 +83,47 @@ class Leveling(commands.Cog):
         while self.guild is None:
             await asyncio.sleep(2)
         await start_file_uploading(
-            self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "leveling_error"
+            self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path,
+            "leveling_error"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_process_lurkers_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config, self.process_lurkers_debug_log_file_absolute_path,
+            "process_lurkers"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_outdated_profile_pics_debug_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config,
+            self.update_outdated_profile_pics_debug_log_file_absolute_path,
+            "update_outdated_profile_pics"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_outdated_profile_pics_warn_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config,
+            self.update_outdated_profile_pics_warn_log_file_absolute_path,
+            "update_outdated_profile_pics_warn"
+        )
+
+    @commands.Cog.listener(name="on_ready")
+    async def upload_outdated_profile_pics_error_logs(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        await start_file_uploading(
+            self.logger, self.guild, bot, wall_e_config,
+            self.update_outdated_profile_pics_error_log_file_absolute_path,
+            "update_outdated_profile_pics_error"
         )
 
     @commands.Cog.listener(name="on_ready")
@@ -118,6 +174,7 @@ class Leveling(commands.Cog):
                 total_xp_required += level_up_required
             self.logger.debug("[Leveling updating_database_and_cache()] levels loaded into DB and cache")
         self.logger.debug("[Leveling updating_database_and_cache()] loading UserPoints into cache")
+        await UserPoint.reset_attempts_and_process_status(self.logger)
         self.user_points = await UserPoint.load_to_cache()
         self.logger.debug("[Leveling updating_database_and_cache()] UserPoints loaded into cache")
         self.logger.debug("[Leveling updating_database_and_cache()] XP system ready")
@@ -137,7 +194,7 @@ class Leveling(commands.Cog):
             "leveling"
         )
         self.council_channel = discord.utils.get(
-            self.guild.channels, id=council_channel_id
+            self.guild.channels if self.guild else None, id=council_channel_id
         )
         self.logger.debug(
             f"[Leveling create_council_channel()] text channel {self.council_channel} acquired."
@@ -161,7 +218,7 @@ class Leveling(commands.Cog):
             'leveling_website_avatar_images'
         )
         self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
-            self.guild.channels, id=leveling_website_avatar_images_channel_id
+            self.guild.channels if self.guild else None, id=leveling_website_avatar_images_channel_id
         )
         self.logger.debug(
             f"[Leveling get_leveling_avatar_channel()] bot channel {self.levelling_website_avatar_channel} acquired."
@@ -355,8 +412,7 @@ class Leveling(commands.Cog):
                         f"following error when fixing the roles for member {member_with_point} on iteration "
                         f"{iteration}.\n{e}"
                     )
-                    random_number_milliseconds = random.randint(0, 1000) / 1000
-                    await asyncio.sleep(math.pow(2, iteration + random_number_milliseconds))
+                    await self.exponential_backoff_sleep(iteration)
                     latest_attempt_time = time.perf_counter()
                 iteration += 1
             if not successful:
@@ -469,18 +525,137 @@ class Leveling(commands.Cog):
                 f"[Leveling assign_roles_on_member_join()] could not fix the XP roles for user {member}"
             )
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=30)
     async def process_leveling_profile_data_for_lurkers(self):
         """
-        Goes through all the UserPoint objects that have been marked indicating their profile has been updated
-         and needs to have wall_e's database updated for the leveling website
+        Goes through all the UserPoint objects whose avatar CDN link has expired or who don't yet have a bucket number
+        and ensure their information has been updated for the leveling website
+        """
+        not_ready_to_process_lurkers = (
+                self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None or
+                self.bucket_update_in_progress
+        )
+        self.process_lurkers_logger.debug(
+            f"[Leveling process_leveling_profile_data_for_lurkers()] background task starting "
+            f"self.user_points is None = {self.user_points is None} | self.levelling_website_avatar_channel is None "
+            f"= {self.levelling_website_avatar_channel is None} | self.guild is None = {self.guild is None} | "
+            f"self.bucket_update_in_progress = {self.bucket_update_in_progress} | not_ready_to_process_lurkers = "
+            f"{not_ready_to_process_lurkers}"
+        )
+        if not_ready_to_process_lurkers:
+            return
+        self.process_lurkers_logger.debug(
+            "[Leveling process_leveling_profile_data_for_lurkers()] background task proceeding"
+        )
+
+        await self._set_bucket_numbers(self.process_lurkers_logger)
+
+        entry = await self._get_current_bucket_number()
+
+        user_ids_to_update = await UserPoint.get_users_with_current_bucket_number(entry.bucket_number_completed)
+
+        self.process_lurkers_logger.debug(
+            f"[Leveling process_leveling_profile_data_for_lurkers()] {user_ids_to_update} "
+            f"potential updates retrieved for bucket {entry.bucket_number_completed}"
+        )
+        await self._update_users_with_given_ids(self.process_lurkers_logger, user_ids_to_update)
+        await ProfileBucketInProgress.async_save(entry)
+
+    async def _set_bucket_numbers(self, logger):
+        """
+        Assigns a bucket_number to any new UserPoints that don't yet have one
+
+        The logic is implemented by creating a dictionary with a bucket for each hour of the month with the lowest
+         number of days so that this algorithm can also work on leap years.
+         The idea is that each user will be set a certain hour of the month when it should be updated. And it will
+          only be updated in that time ASSUMING that the user is a lurker who is not regularly sending messages.
+           Because if the user is regular sending messages, chances are any changes in their profile will be caught
+        by get_updated_user_logs
         :return:
         """
-        if self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None:
+        user_points = [user_point for user_point in self.user_points.values() if user_point.bucket_number is None]
+        if len(user_points) == 0:
             return
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] background task starting")
-        await self._set_bucket_numbers()
-        self.logger.debug("[Leveling process_leveling_profile_data_for_lurkers()] null bucket_number has been set")
+
+        if self.bucket_update_in_progress:
+            return
+        self.bucket_update_in_progress = True
+        users_to_update = self._setup_bucket_number_for_new_users()
+
+        logger.debug(
+            f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
+        )
+        await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
+        logger.debug(
+            "[Leveling _set_bucket_numbers()] null bucket_number has been updated"
+        )
+        self.bucket_update_in_progress = False
+        logger.debug(
+            f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
+        )
+
+    def _setup_bucket_number_for_new_users(self) -> list:
+        """
+        :return: the users who need to have their bucket_number updated
+        """
+        date_buckets = self._initialize_bucket_with_number_of_current_users()
+        users_to_update = []
+        for user_id in self.user_points.keys():
+            if self.user_points[user_id].bucket_number is None:
+                lowest_bucket_number = self._get_bucket_number_with_lowest_number_of_users(date_buckets)
+                date_buckets[lowest_bucket_number] += 1
+                self.user_points[user_id].bucket_number = lowest_bucket_number
+                users_to_update.append(self.user_points[user_id])
+        return users_to_update
+
+    def _initialize_bucket_with_number_of_current_users(self) -> dict:
+        """
+        :return: the bucket dict with the users that currently have a bucket_number attached
+         already reflected on it
+        """
+        date_buckets = Leveling._initialize_blank_bucket()
+
+        # populate the date_buckets values with the number of users that currently exist in those buckets
+        for user_id in self.user_points.keys():
+            if self.user_points[user_id].bucket_number is not None:
+                date_buckets[self.user_points[user_id].bucket_number] += 1
+        return date_buckets
+
+    @staticmethod
+    def _initialize_blank_bucket() -> dict:
+        """
+        :return: a blank bucket dict that has the slots necessary to determine when people should be divided into
+         slots/buckets within a 2-week period
+        """
+        date_buckets = {}
+        bucket_number = 1
+        for day in range(1, 24):  # discord CDN links apparently expire after 1 day and need to be re-retrieved
+            for minute in range(1, 2):  # decided to setup the buckets to be every half hour
+                date_buckets[bucket_number] = 0
+                bucket_number += 1
+        return date_buckets
+
+    @staticmethod
+    def _get_bucket_number_with_lowest_number_of_users(data_buckets):
+        """
+        :param data_buckets:
+        :return: the bucket_number which has the lowest number of users
+        """
+        low_load_bucket_number = None
+        min_value = None
+        for curr_bucket_number, number_of_user_to_checks in data_buckets.items():
+            if min_value is None:
+                low_load_bucket_number = curr_bucket_number
+                min_value = number_of_user_to_checks
+            elif min_value > number_of_user_to_checks:
+                low_load_bucket_number = curr_bucket_number
+                min_value = number_of_user_to_checks
+        return low_load_bucket_number
+
+    async def _get_current_bucket_number(self) -> ProfileBucketInProgress:
+        """
+        :return: the bucket_number to work on in the current iteration
+        """
         entry = await ProfileBucketInProgress.retrieve_entry()
         if entry is None:
             entry = await ProfileBucketInProgress.create_entry()
@@ -494,79 +669,52 @@ class Leveling(commands.Cog):
             entry.bucket_number_completed += 1
             if entry.bucket_number_completed > max_bucket_number:
                 entry.bucket_number_completed = 1
-        updated_user_ids = await UserPoint.get_users_that_need_leveling_info_updated(entry.bucket_number_completed)
-        total_number_of_updates_needed = len(updated_user_ids)
-        self.logger.debug(
-            f"[Leveling process_leveling_profile_data_for_lurkers()] {total_number_of_updates_needed} "
-            f"potential updates retrieved for bucket {entry.bucket_number_completed}"
-        )
-        for index, user_id in enumerate(updated_user_ids):
-            self.logger.debug(
-                f"[Leveling process_leveling_profile_data_for_lurkers()] attempting to get updated "
-                f"user_point profile data for member {user_id} "
-                f"{index + 1}/{total_number_of_updates_needed} "
-            )
-            try:
-                member = await self.guild.fetch_member(user_id)
-            except (NotFound, DiscordServerError):
-                member = await bot.fetch_user(user_id)
-            await self._update_member_profile_data(member, user_id, index, total_number_of_updates_needed)
-        await ProfileBucketInProgress.async_save(entry)
+        return entry
 
-    async def _set_bucket_numbers(self):
+    async def _update_users_with_given_ids(self, logger, updated_user_ids):
         """
-        Takes any [new] UserPoints that don't yet have a bucket_number set
-
-        The logic is implemented by creating a dictionary with a bucket for each hour of the month with the lowest
-         number of days so that this algorithm can also work on leap years.
-         The idea is that each user will be set a certain hour of the month when it should be updated. And it will
-          only be updated in that time ASSUMING that the user is a lurker who is not regularly sending messages.
-           Because if the user is regular sending messages, chances are any changes in their profile will be caught
-        by get_updated_user_logs
+        iterates through the given list of user_ids and updates them
+        :param updated_user_ids:
         :return:
         """
-        user_points = [user_point for user_point in self.user_points.values() if user_point.bucket_number is None]
-        if len(user_points) == 0:
-            return
-        if self.bucket_update_in_progress:
-            return
-        self.bucket_update_in_progress = True
-        date_buckets = {}
-        bucket_number = 1
-        for day in range(1, 14):  # discord CDN links apparently expire after 2 weeks and need to be re-retrieved
-            for hour in range(1, 24):
-                date_buckets[bucket_number] = 0
-                bucket_number += 1
-        for user_id in self.user_points.keys():
-            if self.user_points[user_id].bucket_number is not None:
-                date_buckets[self.user_points[user_id].bucket_number] += 1
-
-        def get_bucket_number_with_lowest_user_points(data_buckets_local):
-            low_load_bucket_number = None
-            min_value = None
-            for curr_bucket_number, number_of_user_to_checks in data_buckets_local.items():
-                if min_value is None:
-                    low_load_bucket_number = curr_bucket_number
-                    min_value = number_of_user_to_checks
-                elif min_value > number_of_user_to_checks:
-                    low_load_bucket_number = curr_bucket_number
-                    min_value = number_of_user_to_checks
-            return low_load_bucket_number
-        users_to_update = []
-        for user_id in self.user_points.keys():
-            if self.user_points[user_id].bucket_number is None:
-                lowest_bucket_number = get_bucket_number_with_lowest_user_points(date_buckets)
-                date_buckets[lowest_bucket_number] += 1
-                self.user_points[user_id].bucket_number = lowest_bucket_number
-                users_to_update.append(self.user_points[user_id])
-        self.logger.debug(
-            f"[Leveling _set_bucket_numbers()] updating {len(users_to_update)} user_point objects' bucket_number"
-        )
-        await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
-        self.bucket_update_in_progress = False
-        self.logger.debug(
-            f"[Leveling _set_bucket_numbers()] updated {len(users_to_update)} user_point objects' date_to_check"
-        )
+        total_number_of_updates_needed = len(updated_user_ids)
+        for index, user_id in enumerate(updated_user_ids):
+            if self.user_points[user_id].being_processed:
+                continue
+            self.user_points[user_id].being_processed = True
+            user_processed = False
+            logger.debug(
+                f"[Leveling _update_users_with_given_ids()] attempt "
+                f"{self.user_points[user_id].leveling_update_attempt} to get updated user_point profile data for "
+                f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
+            )
+            while (
+                    not user_processed and
+                    self.user_points[user_id].leveling_update_attempt < self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER
+            ):
+                self.user_points[user_id].leveling_update_attempt += 1
+                await self.exponential_backoff_sleep(self.user_points[user_id].leveling_update_attempt)
+                member = None
+                try:
+                    member = await self.get_user_with_retry(logger, user_id)
+                except Exception as e:
+                    logger.error(
+                        f"[Leveling _update_users_with_given_ids()] experiencing error "
+                        f"{e} of type {type(e)} "
+                        f"while trying to get member for {user_id} {index + 1}/{total_number_of_updates_needed} "
+                    )
+                if member:
+                    try:
+                        user_updated, user_processed = await self._update_member_profile_data(
+                            logger, member, user_id, index, total_number_of_updates_needed
+                        )
+                    except Exception as e:
+                        logger.error(
+                            f"[Leveling _update_users_with_given_ids()] experiencing error "
+                            f"{e} while trying to update user_point profile data for "
+                            f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
+                        )
+            self.user_points[user_id].being_processed = False
 
     @tasks.loop(seconds=2)
     async def process_leveling_profile_data_for_active_users(self):
@@ -580,24 +728,88 @@ class Leveling(commands.Cog):
         updated_user_logs = await UpdatedUser.get_updated_user_logs()
         total_number_of_updates_needed = len(updated_user_logs)
         for index, update_user in enumerate(updated_user_logs):
-            updated_user_log_id = update_user[0]
             updated_user_id = update_user[1]
-            self.logger.debug(
-                f"[Leveling process_leveling_profile_data_for_active_users()] attempting to get updated "
-                f"user_point profile data for member {updated_user_id} "
-                f"{index + 1}/{total_number_of_updates_needed} "
-            )
+            if self.user_points[updated_user_id].being_processed:
+                continue
+            self.user_points[updated_user_id].being_processed = True
+            updated_user_log_id = update_user[0]  # noqa: F841
+            user_processed = False
+            while (
+                    not user_processed and
+                    self.user_points[updated_user_id].leveling_update_attempt <
+                    self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER
+            ):
+                self.user_points[updated_user_id].leveling_update_attempt += 1
+                self.logger.debug(
+                    f"[Leveling process_leveling_profile_data_for_active_users()] attempt "
+                    f"{self.user_points[updated_user_id].leveling_update_attempt} to get data for user with "
+                    f"UpdatedUser id [{updated_user_log_id}] with id {updated_user_id} "
+                    f"{index + 1}/{total_number_of_updates_needed} "
+                )
+                await self.exponential_backoff_sleep(self.user_points[updated_user_id].leveling_update_attempt)
+                member = await self.get_user_with_retry(self.logger, updated_user_id)
+                if member:
+                    # cannot call _update_users_with_given_ids like process_outdated_profile_pics and
+                    # process_leveling_profile_data_for_lurkers because this task needs to be able to specify a
+                    # updated_user_log_id that will be deleted update_leveling_profile_info when the user is processed
+                    _, user_processed = await self._update_member_profile_data(
+                        self.logger, member, updated_user_id, index, total_number_of_updates_needed,
+                        updated_user_log_id=updated_user_log_id
+                    )
+            self.user_points[updated_user_id].being_processed = False
+
+    async def get_user_with_retry(self, logger, user_id):
+        user = None
+        error = None
+        for attempt in range(self.MAX_RETRIES):
             try:
-                member = await self.guild.fetch_member(updated_user_id)
-            except NotFound:
-                member = await bot.fetch_user(updated_user_id)
-            await self._update_member_profile_data(
-                member, updated_user_id, index, total_number_of_updates_needed,
-                updated_user_log_id=updated_user_log_id
+                user = await self.guild.fetch_member(user_id)
+            except NotFound as e:
+                error = e
+                try:
+                    user = await bot.fetch_user(user_id)
+                except DiscordException as e:
+                    error = e
+                    await self.exponential_backoff_sleep(attempt)
+            except DiscordException as e:
+                error = e
+                await self.exponential_backoff_sleep(attempt)
+        if user is None:
+            logger.error(
+                f"[Leveling get_user_with_retry()] got the following error when fetching discord user {user_id}"
+                f"\n{error}"
             )
 
-    async def _update_member_profile_data(self, member, updated_user_id, index, total_number_of_updates_needed,
-                                          updated_user_log_id=None):
+        return user
+
+    async def exponential_backoff_sleep(self, attempt):
+        random_number_milliseconds = random.randint(0, 1000) / 1000
+        sleep_seconds = math.pow(
+            2, attempt + random_number_milliseconds
+        )
+        await asyncio.sleep(sleep_seconds)
+
+    @tasks.loop(seconds=5)
+    async def process_outdated_profile_pics(self):
+        if self.guild is None or self.user_points is None:
+            return
+        if self.process_outdated_profile_pics_in_progress:
+            return
+        self.process_outdated_profile_pics_in_progress = True
+        user_ids_to_update = await UserPoint.get_users_with_expired_images()
+        number_of_users_to_update = len(user_ids_to_update)
+        if number_of_users_to_update == 0:
+            self.process_outdated_profile_pics_in_progress = False
+            return
+        self.update_outdated_profile_pics_logger.debug(
+            f"[Leveling process_outdated_profile_pics()] {number_of_users_to_update} users with outdated CDN links"
+            f" to update"
+        )
+        await self._update_users_with_given_ids(self.update_outdated_profile_pics_logger, user_ids_to_update)
+        self.process_outdated_profile_pics_in_progress = False
+
+    async def _update_member_profile_data(self, logger, member, updated_user_id, index,
+                                          total_number_of_updates_needed, updated_user_log_id=None):
         """
         Attempts to determine if the member's leveling data in the database can be updated and if not, record any of
          the errors detected as a result
@@ -609,43 +821,86 @@ class Leveling(commands.Cog):
          current loop
         :param updated_user_log_id: the ID of the UpdatedUser record to delete if this function was called as a
          result of member_update_listener's recording any detected changed in UpdatedUser
-        :return:
+        :return: True if member was successfully processed
         """
-        if member:
-            try:
-                if self.user_points[member.id].leveling_update_attempt >= 5:
-                    self.logger.warn(
-                        f"[Leveling _update_member_profile_data()] "
-                        f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile"
-                        f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
-                    )
-                user_updated = await self.user_points[member.id].update_leveling_profile_info(
-                    self.logger, member, self.levelling_website_avatar_channel,
-                    updated_user_log_id=updated_user_log_id
-                )
-                if user_updated:
-                    self.logger.debug(
-                        f"[Leveling _update_member_profile_data()] updated the member profile data"
-                        f" in the database for member {member} {index + 1}/{total_number_of_updates_needed}"
-                    )
-            except Exception as e:
-                self.logger.error(
-                    f"[Leveling _update_member_profile_data()] unable to update the member profile"
-                    f" data in the database for member {member} {index + 1}/{total_number_of_updates_needed} "
-                    f"due to error:\n{e}"
-                )
-        else:
-            self.user_points[member.id].leveling_update_attempt += 1
-            self.logger.warn(
-                f"[Leveling _update_member_profile_data()] attempt "
-                f"{self.user_points[member.id].leveling_update_attempt}: unable to update the member profile data"
-                f" in the database for member {updated_user_id} {index + 1}/{total_number_of_updates_needed}"
+        user_updated = False
+        user_processed = False
+        try:
+            expiry_date = (
+                self.user_points[member.id].discord_avatar_link_expiry_date.pst
+                if self.user_points[member.id].discord_avatar_link_expiry_date else None
             )
-            await self.user_points[member.id].async_save()
+            logger.debug(
+                f"[Leveling _update_member_profile_data()] "
+                f"attempt {self.user_points[member.id].leveling_update_attempt} to update the member profile "
+                f"data in the database for member {member} with id [{member.id}], "
+                f"updated_user_log_id = {updated_user_log_id}, expiry_date of [{expiry_date}] and a CDN link of "
+                f"<{self.user_points[member.id].leveling_message_avatar_url}> "
+                f"{index + 1}/{total_number_of_updates_needed}"
+            )
+            # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
+            # updated THIS time
+            user_updated, user_processed = await self.user_points[member.id].update_leveling_profile_info(
+                logger, self.guild.id, member, self.levelling_website_avatar_channel,
+                updated_user_log_id=updated_user_log_id
+            )
+            if user_updated:
+                logger.debug(
+                    f"[Leveling _update_member_profile_data()] updated the member profile data"
+                    f" in the database for member {member} with id [{updated_user_id}] "
+                    f"{index + 1}/{total_number_of_updates_needed}"
+                )
+            elif user_processed:
+                logger.debug(
+                    f"[Leveling _update_member_profile_data()] processed the member profile data"
+                    f" in the database for member {member} with id [{updated_user_id}] that had no updates "
+                    f"{index + 1}/{total_number_of_updates_needed}"
+                )
+        except Exception as e:
+            logger.error(
+                f"[Leveling _update_member_profile_data()] unable to update the member profile"
+                f" data in the database for member {member} with id [{updated_user_id}] and updated_user_log_id"
+                f" = {updated_user_log_id} {index + 1}/{total_number_of_updates_needed} due to error:\n{e}"
+            )
+        return user_updated, user_processed
 
-    @app_commands.command(name="reset_bucket_number")
+    @app_commands.command(name="reset_attempts")
     @app_commands.checks.has_any_role("Bot_manager")
-    async def reset_bucket_number(self, interaction: discord.Interaction):
+    async def reset_attempts(self, interaction: discord.Interaction, member_id: str):
+        self.update_outdated_profile_pics_logger.debug(
+            f"[Leveling reset_user_profiles()] resetting attempts for [{member_id}] to 0"
+        )
+        e_obj = None
+        if member_id.isdigit():
+            member_id = int(member_id)
+        else:
+            e_obj = await embed(
+                self.logger, interaction=interaction,
+                description=f'Invalid ID of {member_id} detected',
+                colour=COLOUR_MAPPING[WallEColour.ERROR]
+            )
+        if e_obj is None:
+            if member_id not in self.user_points:
+                e_obj = await embed(
+                    self.logger, interaction=interaction,
+                    description=f'No user with ID {member_id}',
+                    colour=COLOUR_MAPPING[WallEColour.ERROR]
+                )
+            else:
+                self.user_points[member_id].leveling_update_attempt = 0
+                await self.user_points[member_id].async_save()
+                e_obj = await embed(
+                    self.logger, interaction=interaction,
+                    description=f'<@{member_id}> attempts set to 0'
+                )
+        if e_obj:
+            await interaction.response.send_message(embed=e_obj)
+            await asyncio.sleep(5)
+            await interaction.delete_original_response()
+
+    @app_commands.command(name="reset_user_profiles")
+    @app_commands.checks.has_any_role("Bot_manager")
+    async def reset_user_profiles(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if self.bucket_update_in_progress:
             e_obj = await embed(
@@ -659,10 +914,34 @@ class Leveling(commands.Cog):
             return
         self.bucket_update_in_progress = True
         users_to_update = []
-        for user_id in self.user_points.keys():
+        number_of_user_points = len(self.user_points)
+        for indx, user_id in enumerate(self.user_points.keys()):
             self.user_points[user_id].bucket_number = None
+            self.user_points[user_id].leveling_update_attempt = 0
+            self.user_points[user_id].avatar_url = None
+            self.user_points[user_id].avatar_url_message_id = None
+            self.user_points[user_id].leveling_message_avatar_url = None
+            self.user_points[user_id].discord_avatar_link_expiry_date = None
             users_to_update.append(self.user_points[user_id])
-        await UserPoint.async_bulk_update(users_to_update, ["bucket_number"])
+            self.logger.debug(f"[Leveling reset_user_profiles()] {indx}/ {number_of_user_points} UserPoints reset")
+
+        user_lower_bound = 0
+        number_of_users_per_update = 50
+        user_upper_bound = number_of_users_per_update
+        number_of_users_to_update = len(users_to_update)
+        while user_lower_bound < number_of_users_to_update:
+            await UserPoint.async_bulk_update(
+                users_to_update[user_lower_bound:user_upper_bound],
+                ["bucket_number", "leveling_update_attempt", "avatar_url", "avatar_url_message_id",
+                 "leveling_message_avatar_url", "discord_avatar_link_expiry_date"
+                 ]
+            )
+            self.logger.debug(
+                f"[Leveling reset_user_profiles()] users between [{user_lower_bound},{user_upper_bound}) "
+                f"updated out of {number_of_users_to_update}"
+            )
+            user_lower_bound = user_upper_bound
+            user_upper_bound += number_of_users_per_update
         e_obj = await embed(
             self.logger, interaction=interaction,
             description=f'{len(users_to_update)} bucket_numbers reset to None'
@@ -671,6 +950,18 @@ class Leveling(commands.Cog):
             await interaction.followup.send(embed=e_obj)
             await asyncio.sleep(5)
             await interaction.delete_original_response()
+        if self.levelling_website_avatar_channel is not None:
+            await self.levelling_website_avatar_channel.delete()
+        leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+            'leveling_website_avatar_images'
+        )
+        self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
+            self.guild.channels, id=leveling_website_avatar_images_channel_id
+        )
+        self.logger.debug(
+            f"[Leveling reset_user_profiles()] bot channel {self.levelling_website_avatar_channel} acquired."
+        )
         self.bucket_update_in_progress = False
 
     @commands.command(

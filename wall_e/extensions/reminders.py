@@ -7,6 +7,7 @@ import pytz
 from discord.ext import commands, tasks
 
 from utilities.global_vars import bot, wall_e_config
+from wall_e_models.customFields import pstdatetime
 
 from wall_e_models.models import Reminder
 
@@ -176,6 +177,16 @@ class Reminders(commands.Cog):
         self.logger.debug(f"[Reminders remindmein()] extracted timezone is {user_specified_timezone}")
         self.logger.debug(f"[Reminders remindmein()] extracted message is {message}")
         current_time = datetime.datetime.now(tz=user_specified_timezone)
+
+        # wrapping current_time under a new pstdatetime to create a time with 0 milliseconds as the current_time
+        # object above can lead to a situation like if the user asks to be reminded in a minute and instead the string
+        # says they will re reminded in 59 seconds due to the string creation in
+        # reminder_obj.get_countdown(current_time)
+        current_time = pstdatetime(
+            year=current_time.year, month=current_time.month, day=current_time.day, hour=current_time.hour,
+            minute=current_time.minute, second=current_time.second  # , tzinfo=user_specified_timezone commenting this
+            # out cause it seems to cause an issue when there is daylight savings?
+        )
         reminder_date, parse_status = parsedatetime.Calendar().parseDT(
             datetimeString=parsed_time,
             sourceTime=current_time,

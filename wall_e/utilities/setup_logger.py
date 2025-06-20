@@ -53,6 +53,11 @@ date_formatting_in_filename = "%Y_%m_%d_%H_%M_%S"
 sys_stream_formatting = PSTFormatter(
     '%(asctime)s = %(levelname)s = %(name)s = %(message)s', date_formatting_in_log, tz=date_timezone
 )
+# creates an easy way for create_github_issue to tell when an issue that does not have a stacktrace still needs
+# to have  github issue created
+reportable_error_formatting = PSTFormatter(
+    '%(asctime)s = %(levelname)s = REPORTABLE = %(name)s = %(message)s', date_formatting_in_log, tz=date_timezone
+)
 
 
 class Loggers:
@@ -167,7 +172,7 @@ class Loggers:
         logger.addHandler(warn_filehandler)
 
         error_filehandler = logging.FileHandler(error_log_file_absolute_path)
-        error_filehandler.setFormatter(sys_stream_formatting)
+        error_filehandler.setFormatter(reportable_error_formatting)
         error_filehandler.setLevel(error_logging_level)
         logger.addHandler(error_filehandler)
 
@@ -182,7 +187,7 @@ class Loggers:
         logger.addHandler(sys_std_warn_stream_handler)
 
         sys_sterr_stream_handler = logging.StreamHandler()
-        sys_sterr_stream_handler.setFormatter(sys_stream_formatting)
+        sys_sterr_stream_handler.setFormatter(reportable_error_formatting)
         sys_sterr_stream_handler.setLevel(error_logging_level)
         logger.addHandler(sys_sterr_stream_handler)
 
