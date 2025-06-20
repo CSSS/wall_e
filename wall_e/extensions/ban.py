@@ -102,6 +102,7 @@ class Ban(commands.Cog):
 
             e_obj = await embed(
                 self.logger,
+                validate=False,
                 title='Ban Notification',
                 colour=WallEColour.BAN,
                 content=[
@@ -155,6 +156,7 @@ class Ban(commands.Cog):
                     self.logger.debug(f'[Ban intercept()] error encountered: {e}')
                     e_obj = await embed(
                         self.logger,
+                        validate=False,
                         title='Intercept Ban Error',
                         colour=WallEColour.BAN,
                         description="Error while getting audit log data\n**Most likely need view audit log perms.**",
@@ -171,6 +173,7 @@ class Ban(commands.Cog):
                 self.logger.debug("[Ban intercept()] No audit data, aborting and notifying mod channel")
                 e_obj = await embed(
                     self.logger,
+                    validate=False,
                     title='Intercept Ban Error',
                     colour=WallEColour.BAN,
                     description=(
@@ -201,6 +204,7 @@ class Ban(commands.Cog):
         if banned_user.id in Ban.ban_list:
             e_obj = await embed(
                 self.logger,
+                validate=False,
                 title='Duplicate Ban Error',
                 description=f"{banned_user} is already banned",
                 colour=WallEColour.BAN,
@@ -237,6 +241,7 @@ class Ban(commands.Cog):
 
         e_obj = await embed(
             self.logger,
+            validate=False,
             title='Ban Hammer Deployed',
             colour=WallEColour.BAN,
             content=[
@@ -285,6 +290,7 @@ class Ban(commands.Cog):
         if bot_member.top_role <= user.top_role:
             e_obj = await embed(
                 self.logger,
+                validate=False,
                 title='Ban Error',
                 description=f"{user}'s permissions are higher than WALL_E, so WALL-E cannot kick them.",
                 colour=WallEColour.BAN,
@@ -305,6 +311,7 @@ class Ban(commands.Cog):
         dm_sent = True
         e_obj = await embed(
             self.logger,
+            validate=False,
             title='Ban Notification',
             description=f"You have been **PERMANENTLY BANNED** from **{self.guild.name.upper()}**",
             colour=WallEColour.BAN,
@@ -352,6 +359,7 @@ class Ban(commands.Cog):
         if user_id == "-1" or not user_id.isdigit():
             e_obj = await embed(
                 self.logger,
+                validate=False,
                 interaction=interaction,
                 title='Unban Error',
                 description="Invalid input detected. Please try again.",
@@ -373,7 +381,7 @@ class Ban(commands.Cog):
         if user_id not in Ban.ban_list:
             self.logger.debug(f"[Ban unban()] Provided id: {user_id}, does not belong to a banned member.")
             e_obj = await embed(
-                self.logger, interaction=interaction, title='Unban Error',
+                self.logger, validate=False, interaction=interaction, title='Unban Error',
                 description=f"`{user_id}` is either not a valid Discord ID **OR** is not a banned user",
                 colour=WallEColour.BAN
             )
@@ -386,7 +394,7 @@ class Ban(commands.Cog):
         if name:
             self.logger.debug(f"[Ban unban()] User: {name} with id: {user_id} was unbanned.")
             mod_channel_e_obj = await embed(
-                self.logger, interaction=interaction, title='User Unbanned', colour=WallEColour.BAN,
+                self.logger, validate=False, interaction=interaction, title='User Unbanned', colour=WallEColour.BAN,
                 content=[('Unbanned User', name), ("Moderator", interaction.user.name)]
             )
             if mod_channel_e_obj:
@@ -394,7 +402,7 @@ class Ban(commands.Cog):
         else:
             self.logger.debug(f"[Ban unban()] No user with id: {user_id} found.")
             e_obj = await embed(
-                self.logger, interaction=interaction, title='Unban Error',
+                self.logger, validate=False, interaction=interaction, title='Unban Error',
                 description=f"No user with id: **`{user_id}`** found.",
                 colour=WallEColour.BAN
             )
