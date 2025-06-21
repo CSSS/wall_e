@@ -241,7 +241,6 @@ class Ban(commands.Cog):
 
         e_obj = await embed(
             self.logger,
-            validate=False,
             title='Ban Hammer Deployed',
             colour=WallEColour.BAN,
             content=[
@@ -311,7 +310,6 @@ class Ban(commands.Cog):
         dm_sent = True
         e_obj = await embed(
             self.logger,
-            validate=False,
             title='Ban Notification',
             description=f"You have been **PERMANENTLY BANNED** from **{self.guild.name.upper()}**",
             colour=WallEColour.BAN,
