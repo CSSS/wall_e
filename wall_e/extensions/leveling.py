@@ -6,7 +6,7 @@ import time
 
 import discord
 import pytz
-from aiohttp import ServerDisconnectedError
+from aiohttp import ServerDisconnectedError, ClientOSError
 from discord import NotFound, app_commands, Guild
 from discord.errors import DiscordException
 from discord.ext import commands, tasks
@@ -769,10 +769,10 @@ class Leveling(commands.Cog):
                 error = e
                 try:
                     user = await bot.fetch_user(user_id)
-                except (DiscordException, ServerDisconnectedError) as e:
+                except (DiscordException, ServerDisconnectedError, ClientOSError) as e:
                     error = e
                     await self.exponential_backoff_sleep(attempt)
-            except (DiscordException, ServerDisconnectedError) as e:
+            except (DiscordException, ServerDisconnectedError, ClientOSError) as e:
                 error = e
                 await self.exponential_backoff_sleep(attempt)
         if user is None:
