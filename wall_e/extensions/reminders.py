@@ -6,15 +6,13 @@ import parsedatetime
 import pytz
 from discord.ext import commands, tasks
 
-from utilities.global_vars import bot, wall_e_config
-from wall_e_models.customFields import pstdatetime
-
-from wall_e_models.models import Reminder
-
 import django_settings
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
-from utilities.setup_logger import Loggers, print_wall_e_exception
+from utilities.global_vars import bot, wall_e_config
+from utilities.setup_logger import Loggers, log_exception
+from wall_e_models.customFields import pstdatetime
+from wall_e_models.models import Reminder
 
 
 class Reminders(commands.Cog):
@@ -107,8 +105,11 @@ class Reminders(commands.Cog):
                                       f'reminder to {author_id} about \"{reminder_message}\"')
                 await Reminder.delete_reminder(reminder)
         except Exception as error:
-            self.logger.error('[Reminders get_messages()] Ignoring exception when generating reminder:')
-            print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
+            log_exception(
+                self.logger,
+                '[Reminders get_messages()] Ignoring exception when generating reminder',
+                error=error
+            )
 
     @commands.command(
         brief="create a reminder",
@@ -270,8 +271,11 @@ class Reminders(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj, reference=ctx.message)
-                self.logger.error('[Reminders showreminders()] Ignoring exception when generating reminder:')
-                print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
+                log_exception(
+                    self.logger,
+                    '[Reminders showreminders()] Ignoring exception when generating reminder.',
+                    error=error
+                )
 
     @commands.command(
         brief="deletes a reminder that has the specified ID",
@@ -328,9 +332,12 @@ class Reminders(commands.Cog):
                         member = self.guild.get_member(reminder.author_id)
                         self.logger.debug(f"[Reminders deletereminder()] It seems that {ctx.message.author} "
                                           f"was trying to delete {member}'s reminder.")
-        except Exception as error:
-            self.logger.error('[Reminders.py deletereminder()] Ignoring exception when generating reminder:')
-            print_wall_e_exception(error, error.__traceback__, error_logger=self.logger.error)
+        except Exception as exc:
+            log_exception(
+                self.logger,
+                '[Reminders.py deletereminder()] Ignoring exception when generating reminder',
+                error=exc
+            )
 
 
 async def setup(bot):

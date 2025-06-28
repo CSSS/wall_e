@@ -1,6 +1,8 @@
 import aiohttp
 import discord
 
+from utilities.setup_logger import log_exception
+
 
 def get_last_index(logger, content, index, reserved_space):
     """
@@ -110,5 +112,4 @@ async def helper_send(logger, ctx, content=None, tts=False, embed=None, file=Non
             if len(content[first_index:last_index]) == 0:
                 finished = True
     except Exception as exc:
-        exc_str = f'{type(exc).__name__}: {exc}'
-        logger.error(f'[send.py send()] write to channel failed\n{exc_str}')
+        log_exception(logger, '[send.py send()] write to channel failed', error=exc)

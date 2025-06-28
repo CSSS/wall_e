@@ -18,7 +18,7 @@ from utilities.bot_channel_manager import BotChannelManager
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.send import helper_send
-from utilities.setup_logger import Loggers
+from utilities.setup_logger import Loggers, log_exception
 from wall_e_models.models import CommandStat
 
 from utilities.wall_e_bot import extension_location_python_path
@@ -243,7 +243,9 @@ class Administration(commands.Cog):
             self.logger.debug(f"[Administration load()] {extension_to_load} has been successfully loaded")
         except(AttributeError, ImportError) as e:
             await interaction.followup.send(f"{extension_to_load}` extension load failed: {type(e)}, {e}")
-            self.logger.error(f"[Administration load()] loading {extension_to_load} failed :{type(e)}, {e}")
+            log_exception(
+                self.logger, f"[Administration load()] loading {extension_to_load} failed", error=e
+            )
 
     @app_commands.command(name="unload", description="unloads the specified extension")
     @app_commands.describe(extension_to_unload="extension to unload")

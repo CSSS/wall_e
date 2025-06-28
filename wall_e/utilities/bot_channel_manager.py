@@ -2,6 +2,8 @@ import asyncio
 
 import discord
 
+from utilities.setup_logger import log_exception
+
 wall_e_category_name = "WALL-E LOGS"
 
 
@@ -317,9 +319,10 @@ class BotChannelManager:
         ]
         if len(duplicate_channels) > 0:
             duplicate_channels = ", ".join(duplicate_channels)
-            logger.error(
-                f"[bot_channel_manager.py fix_text_channel_positioning()] following duplicate text log channels"
-                f" detected: {duplicate_channels}"
+            log_exception(
+                logger,
+                f"[bot_channel_manager.py fix_text_channel_positioning()] following duplicate"
+                f" text log channels detected: {duplicate_channels}"
             )
         number_of_clean_passes = 0
         while number_of_clean_passes < 3:

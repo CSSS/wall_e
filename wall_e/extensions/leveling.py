@@ -15,7 +15,7 @@ from utilities.embed import embed, COLOUR_MAPPING, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.global_vars import bot, wall_e_config
 from utilities.paginate import paginate_embed
-from utilities.setup_logger import Loggers
+from utilities.setup_logger import Loggers, log_exception
 from wall_e_models.models import Level, UserPoint, UpdatedUser, ProfileBucketInProgress
 
 
@@ -418,7 +418,8 @@ class Leveling(commands.Cog):
                 iteration += 1
             if not successful:
                 number_of_members_skipped += 1
-                self.logger.error(
+                log_exception(
+                    self.logger,
                     f"[Leveling _set_xp_roles_for_members_with_xp_points()] "
                     f"tried to fix the"
                     f" permissions for member {member_with_point} {iteration} times, moving onto "
@@ -456,9 +457,11 @@ class Leveling(commands.Cog):
             try:
                 await member_without_points.remove_roles(*guild_roles)
             except Exception as e:
-                self.logger.error(
-                    "[Leveling _set_xp_roles_for_members_with_no_xp_points()] encountered "
-                    f"following error when fixing the roles for member {member_without_points}, \n{e}"
+                log_exception(
+                    self.logger,
+                    "[Leveling _set_xp_roles_for_members_with_no_xp_points()] encountered following error when fixing"
+                    " the roles for member {member_without_points}",
+                    error=e
                 )
             await asyncio.sleep(1)
 
@@ -522,7 +525,8 @@ class Leveling(commands.Cog):
         if success:
             self.logger.debug(f"[Leveling assign_roles_on_member_join()] XP roles fixed for user {member}")
         else:
-            self.logger.error(
+            log_exception(
+                self.logger,
                 f"[Leveling assign_roles_on_member_join()] could not fix the XP roles for user {member}"
             )
 
@@ -699,10 +703,11 @@ class Leveling(commands.Cog):
                 try:
                     member = await self.get_user_with_retry(logger, user_id)
                 except Exception as e:
-                    logger.error(
-                        f"[Leveling _update_users_with_given_ids()] experiencing error "
-                        f"{e} of type {type(e)} "
-                        f"while trying to get member for {user_id} {index + 1}/{total_number_of_updates_needed} "
+                    log_exception(
+                        logger,
+                        f"[Leveling _update_users_with_given_ids()] experiencing while trying to get "
+                        f"member for {user_id} {index + 1}/{total_number_of_updates_needed} ",
+                        error=e
                     )
                 if member:
                     try:
@@ -710,10 +715,12 @@ class Leveling(commands.Cog):
                             logger, member, user_id, index, total_number_of_updates_needed
                         )
                     except Exception as e:
-                        logger.error(
-                            f"[Leveling _update_users_with_given_ids()] experiencing error "
-                            f"{e} while trying to update user_point profile data for "
-                            f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
+                        log_exception(
+                            logger,
+                            f"[Leveling _update_users_with_given_ids()] experiencing error while trying to"
+                            f" update user_point profile data for member {user_id} {index + 1}/"
+                            f"{total_number_of_updates_needed} ",
+                            error=e
                         )
             self.user_points[user_id].being_processed = False
 
@@ -776,11 +783,11 @@ class Leveling(commands.Cog):
                 error = e
                 await self.exponential_backoff_sleep(attempt)
         if user is None:
-            logger.error(
-                f"[Leveling get_user_with_retry()] got the following error when fetching discord user {user_id}"
-                f"\n{error}"
+            log_exception(
+                logger,
+                f"[Leveling get_user_with_retry()] got the following error when fetching discord user {user_id}",
+                error=error
             )
-
         return user
 
     async def exponential_backoff_sleep(self, attempt):
@@ -858,10 +865,12 @@ class Leveling(commands.Cog):
                     f"{index + 1}/{total_number_of_updates_needed}"
                 )
         except Exception as e:
-            logger.error(
-                f"[Leveling _update_member_profile_data()] unable to update the member profile"
-                f" data in the database for member {member} with id [{updated_user_id}] and updated_user_log_id"
-                f" = {updated_user_log_id} {index + 1}/{total_number_of_updates_needed} due to error:\n{e}"
+            log_exception(
+                logger,
+                f"[Leveling _update_member_profile_data()] unable to update the member profile data in"
+                f" the database for member {member} with id [{updated_user_id}] and updated_user_log_id = "
+                f"{updated_user_log_id} {index + 1}/{total_number_of_updates_needed}",
+                error=e
             )
         return user_updated, user_processed
 
