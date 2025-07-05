@@ -164,7 +164,7 @@ class ReactionRole(commands.Cog):
                 await ctx.send('You timed out. \N{WAVING HAND SIGN}')
             elif e_type is commands.CommandError:
                 pass
-            elif e.__str__ == 'exit':
+            elif str(e) == 'exit':
                 self.logger.info('[ReactionRole reactionrole()] User terminated command')
                 await ctx.send('Goodbye \N{WAVING HAND SIGN}')
                 return
