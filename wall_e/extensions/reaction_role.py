@@ -175,6 +175,11 @@ class ReactionRole(commands.Cog):
             await ctx.send('Redo command to try again.')
             return
 
+        # Check for empty reaction role
+        if len(emojis) == 0:
+            await ctx.send('Can\'t create empty reaction role.')
+            raise commands.CommandError('No emoji roles for the embed')
+
         # Construct reaction role
         em = await embed(
             self.logger,
