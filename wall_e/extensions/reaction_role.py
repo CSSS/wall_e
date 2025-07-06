@@ -153,7 +153,7 @@ class ReactionRole(commands.Cog):
                 try:
                     colour = await commands.ColorConverter().convert(ctx, f'#{colour[-6:]}')
                 except Exception:
-                    self.logger.info(f"[ReactionRole reactionrole()] Unrecognized user provided colour, using default value")
+                    self.logger.info(f"[ReactionRole reactionrole()] Colour not found, using default value")
                     colour = discord.Colour.darker_grey()
                     await ctx.send("Can't find that colour. Going with the default")
             await ctx.send(f"Colour set to: https://singlecolorimage.com/get/{colour.value:x}/50x50")
@@ -206,12 +206,11 @@ class ReactionRole(commands.Cog):
             if e_type is asyncio.TimeoutError:
                 self.logger.info("[ReactionRole reactionrole()] Command timed out")
                 await ctx.send('You timed out. \N{WAVING HAND SIGN}')
-            elif e_type is commands.CommandError:
-                pass
             elif str(e) == 'exit':
                 self.logger.info('[ReactionRole reactionrole()] User terminated command')
                 await ctx.send('Goodbye \N{WAVING HAND SIGN}')
                 return
+            elif e_type is commands.CommandError: pass
             else:
                 self.logger.info("[ReactionRole reactionrole()] Unknown exception encountered. Command terminated")
                 raise e
