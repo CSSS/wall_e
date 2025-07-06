@@ -140,7 +140,7 @@ class ReactionRole(commands.Cog):
                 # Permission check, can bot assign this role
                 if role > self.guild.me.top_role:
                     await msg.add_reaction('\N{CROSS MARK}')
-                    await ctx.send(f"I cannot assign {role} because it's higher than my highest role.")
+                    await ctx.send(f"The role {role} is higher than my highest role, so I cannot assign it")
                     continue
 
                 # Duplicate check
