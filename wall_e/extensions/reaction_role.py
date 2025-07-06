@@ -62,6 +62,19 @@ class ReactionRole(commands.Cog):
             self.logger, self.guild, bot, wall_e_config, self.error_log_file_absolute_path, "reaction_role_error"
         )
 
+    @commands.Cog.listener(name='on_ready')
+    async def load(self):
+        while self.guild is None:
+            await asyncio.sleep(2)
+        self.logger.info('[ReactionRole load()] loading mod channel')
+        mod_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+            self.logger,
+            self.guild,
+            wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+            'council'
+        )
+        self.mod_channel = discord.utils.get(self.guild.channels, id=mod_channel_id)
+
     async def request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
         """Sends an optional prompt and retrieves a response"""
         input_check = lambda msg: msg.channel == ctx.channel and msg.author == ctx.author
