@@ -172,7 +172,7 @@ class ReactionRole(commands.Cog):
                     role = await commands.RoleConverter().convert(ctx, role)
                     emoji = await commands.PartialEmojiConverter().convert(ctx, emoji)
                 except Exception as e:
-                    if isinstance(e, commands.PartialEmojiConversionFailure) and not emoji.isalnum():
+                    if isinstance(e, commands.PartialEmojiConversionFailure) and not emoji[1:-1].isalnum():
                         # Unicode emoji
                         emoji = discord.PartialEmoji(name=emoji)
                     else:
