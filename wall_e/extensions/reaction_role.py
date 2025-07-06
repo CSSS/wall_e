@@ -2,16 +2,18 @@ import asyncio
 import discord
 from discord.ext import commands
 
+
 from utilities.global_vars import bot, wall_e_config
 
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
-
+from typing import Union
 
 class ReactionRole(commands.Cog):
 
     l_reaction_roles = {} # message_id : { emoji_id : role_id, ... }
+    l_rrid_channelid = {}
 
     def __init__(self):
         log_info = Loggers.get_logger(logger_name='ReactionRole')
@@ -105,6 +107,25 @@ class ReactionRole(commands.Cog):
         except discord.Forbidden:
             await self.mod_channel.send('I can\'t give out roles. Someone look at my permissions.')
             self.logger.info('[ReactionRole load()] Permissions error. Mods notified')
+
+    @commands.Cog.listener('on_raw_reaction_clear')
+    @commands.Cog.listener('on_raw_reaction_clear_emoji')
+    async def keep_reactions(self, payload: Union[discord.RawReactionClearEvent, discord.RawReactionClearEmojiEvent]):
+        """Ensure react emojis from Wall-E are preserved on reaction role messages"""
+        if payload.message_id not in ReactionRole.l_reaction_roles: return
+
+        message_id = payload.message_id
+        channel_id = ReactionRole.l_rrid_channelid[message_id]
+        message = await self.guild.get_channel(channel_id).fetch_message(message_id)
+        if hasattr(payload, 'emoji'):
+            # clear_emoji event
+            await message.add_reaction(payload.emoji)
+        else:
+            # clear event
+            emojis = ReactionRole.l_reaction_roles[payload.message_id].keys()
+            emojis = [self.guild.get_emoji(int(em)) if em.isalnum() else em for em in emojis]
+            for em in emojis:
+                await message.add_reaction(em)
 
     async def request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
         """Sends an optional prompt and retrieves a response"""
@@ -243,6 +264,7 @@ class ReactionRole(commands.Cog):
 
         # Update local
         ReactionRole.l_reaction_roles.update({react_msg.id : emoji_role_ids})
+        ReactionRole.l_rrid_channelid.update({react_msg.id : channel.id})
 
         # Notify reaction role created
         await ctx.send(f'Here is your reaction role {react_msg.jump_url}')
