@@ -75,6 +75,37 @@ class ReactionRole(commands.Cog):
         )
         self.mod_channel = discord.utils.get(self.guild.channels, id=mod_channel_id)
 
+    @commands.Cog.listener('on_raw_reaction_add')
+    @commands.Cog.listener('on_raw_reaction_remove')
+    async def react(self, payload: discord.RawReactionActionEvent):
+        """Handles adding/removing a role from user that reacts to a reaction role message"""
+        if payload.user_id == bot.user.id: return
+        if payload.message_id not in ReactionRole.l_reaction_roles.keys(): return
+
+        emoji = payload.emoji
+        emoji = str(emoji.id) if emoji.id else emoji.name
+
+        if payload.event_type == 'REACTION_ADD':
+            user = payload.member
+            action = user.add_roles
+            action_str = 'given to'
+        else:
+            user = self.guild.get_member(payload.user_id)
+            action = user.remove_roles
+            action_str = 'removed from'
+
+        try:
+            role = discord.utils.get(
+                self.guild.roles,
+                id= ReactionRole.l_reaction_roles[payload.message_id][emoji]
+            )
+            await action(role)
+            self.logger.info(f'[ReactionRole react()] role @{role} was {action_str} {user}')
+        except KeyError: return
+        except discord.Forbidden:
+            await self.mod_channel.send('I can\'t give out roles. Someone look at my permissions.')
+            self.logger.info('[ReactionRole load()] Permissions error. Mods notified')
+
     async def request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
         """Sends an optional prompt and retrieves a response"""
         input_check = lambda msg: msg.channel == ctx.channel and msg.author == ctx.author
@@ -157,7 +188,7 @@ class ReactionRole(commands.Cog):
                     continue
 
                 # Duplicate check
-                emoji_id = emoji.id if emoji.is_custom_emoji() else emoji.name
+                emoji_id = str(emoji.id) if emoji.is_custom_emoji() else emoji.name
                 if emoji.id in emoji_role_ids.keys() or role.id in emoji_role_ids.values():
                     await msg.add_reaction('\N{BLACK QUESTION MARK ORNAMENT}')
                     await ctx.send(f'{emoji} and/or {role.mention} is already bound in this reaction role')
