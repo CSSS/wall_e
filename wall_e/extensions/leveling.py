@@ -685,6 +685,10 @@ class Leveling(commands.Cog):
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
             if self.user_points[user_id].being_processed:
+                logger.info(
+                    f"[Leveling _update_users_with_given_ids()] skipping user with ID {user_id} who is apparently"
+                    " already being processed"
+                )
                 continue
             self.user_points[user_id].being_processed = True
             user_processed = False
