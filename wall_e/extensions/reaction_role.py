@@ -152,6 +152,7 @@ class ReactionRole(commands.Cog):
 
         cmds = [
             ('Commands:', '', False),
+            ('help', 'Shows this help message', False),
             ('make', 'Creates new react message', False),
             ('list', 'List of all react messages', False)
         ]
@@ -344,13 +345,16 @@ class ReactionRole(commands.Cog):
 
         cmd = subcommands[0].lower()
         if cmd == 'make':
-            self.logger.info("[ReactionRole reactrole()] make")
+            self.logger.info("[ReactionRole reactionrole()] make")
             await self.make(ctx)
         elif cmd == 'list':
-            self.logger.info("[ReactionRole reactrole()] list")
+            self.logger.info("[ReactionRole reactionrole()] list")
             await self.list_reaction_roles(ctx)
+        elif cmd == 'help':
+            self.logger.info("[ReactionRole reactionrole()] help")
+            await self.rr_help(ctx)
         else:
-            self.logger.info(f"[ReactionRole reactrole()] Unknown subcommand {subcommands}")
+            self.logger.info(f"[ReactionRole reactionrole()] Unknown subcommand {subcommands}")
             await self.rr_help(ctx)
 
 
