@@ -4,16 +4,18 @@ from discord.ext import commands
 
 
 from utilities.global_vars import bot, wall_e_config
+from wall_e_models.models import ReactRole
 
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 from typing import Union
+import json
+
 
 class ReactionRole(commands.Cog):
 
-    l_reaction_roles = {} # message_id : { emoji_id : role_id, ... }
-    l_rrid_channelid = {}
+    l_reaction_roles = {} # message_id : { 'emoji_id' : role_id, ... }
 
     def __init__(self):
         log_info = Loggers.get_logger(logger_name='ReactionRole')
@@ -77,6 +79,14 @@ class ReactionRole(commands.Cog):
         )
         self.mod_channel = discord.utils.get(self.guild.channels, id=mod_channel_id)
 
+    @commands.Cog.listener('on_ready')
+    async def load_reaction_roles(self):
+        """Loads reaction roles from database"""
+        react_roles = await ReactRole.get_all_message_ids_emoji_roles()
+        for rr in react_roles:
+            ReactionRole.l_reaction_roles[rr['message_id']] = json.loads(rr['emoji_roles_json'])
+        self.logger.info(f'[ReactionRole load_reaction_roles()] Loaded {len(react_roles)} reaction role messages.')
+
     @commands.Cog.listener('on_raw_reaction_add')
     @commands.Cog.listener('on_raw_reaction_remove')
     async def react(self, payload: discord.RawReactionActionEvent):
@@ -115,7 +125,7 @@ class ReactionRole(commands.Cog):
         if payload.message_id not in ReactionRole.l_reaction_roles: return
 
         message_id = payload.message_id
-        channel_id = ReactionRole.l_rrid_channelid[message_id]
+        channel_id = await ReactRole.get_channel_id_by_message_id(message_id)
         message = await self.guild.get_channel(channel_id).fetch_message(message_id)
         if hasattr(payload, 'emoji'):
             # clear_emoji event
@@ -262,9 +272,17 @@ class ReactionRole(commands.Cog):
         for emoji in emojis:
             await react_msg.add_reaction(emoji)
 
+        # Update database
+        rr = ReactRole(
+            channel_id=ctx.channel.id,
+            message_id=react_msg.id,
+            emoji_roles_json=json.dumps(emoji_role_ids)
+        )
+        await ReactRole.insert_react_role(rr)
+        self.logger.info('[ReactionRole reactionrole()] created ReactRole')
+
         # Update local
         ReactionRole.l_reaction_roles.update({react_msg.id : emoji_role_ids})
-        ReactionRole.l_rrid_channelid.update({react_msg.id : channel.id})
 
         # Notify reaction role created
         await ctx.send(f'Here is your reaction role {react_msg.jump_url}')
