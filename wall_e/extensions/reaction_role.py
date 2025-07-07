@@ -6,7 +6,7 @@ from discord.ext import commands
 from utilities.global_vars import bot, wall_e_config
 from wall_e_models.models import ReactRole
 
-from utilities.embed import embed
+from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 from typing import Union
@@ -147,9 +147,29 @@ class ReactionRole(commands.Cog):
         if response.lower() == 'exit': raise Exception('exit')
         return response if case_sensitive else response.lower(), msg
 
-    @commands.command(aliases=['rr'])
-    async def reactionrole(self, ctx):
-        self.logger.info("[ReactionRole reactionrole()] starting interactive process to create a reaction role embed")
+    async def rr_help(self, ctx: commands.Context):
+        """Sends help message for react role command"""
+
+        cmds = [
+            ('Commands:', '', False),
+            ('make', 'Creates new react message', False),
+            ('list', 'List of all react messages', False)
+        ]
+        em = await embed(
+            logger=self.logger,
+            ctx=ctx,
+            title='Error',
+            description='Usage: .rr/reactionrole `cmd`',
+            content=cmds,
+            colour=WallEColour.ERROR
+        )
+        if not em: return
+
+        self.logger.info('[ReactionRole rr_help()] Sending user help message')
+        await ctx.send(embed=em)
+
+    async def make(self, ctx: commands.Context):
+        self.logger.info("[ReactionRole make()] starting interactive process to create a reaction role embed")
 
         try:
             await ctx.send("Let's get started. **Type `exit` anytime during the process to stop.**")
@@ -159,21 +179,21 @@ class ReactionRole(commands.Cog):
             try:
                 channel = await commands.TextChannelConverter().convert(ctx, channel)
             except Exception:
-                self.logger.info(f"[ReactionRole reactionrole()] channel {channel} not found")
+                self.logger.info(f"[ReactionRole make()] channel {channel} not found")
                 await ctx.send(f"Channel {channel} not found")
                 raise commands.CommandError("Channel not found")
 
             if not channel.permissions_for(self.guild.me).send_messages:
-                self.logger.info(f'[ReactionRole reactionrole()] Error: no send permission in {channel}')
+                self.logger.info(f'[ReactionRole make()] Error: no send permission in {channel}')
                 await ctx.send(f'I dont\'t have send permissions in {channel.mention}')
                 raise commands.CommandError('No channel send permission')
 
-            self.logger.info(f'[ReactionRole reactionrole()] channel for reaction role confirmed: {channel}')
+            self.logger.info(f'[ReactionRole make()] channel for reaction role confirmed: {channel}')
             await ctx.send(f'Alright, channel set to {channel.mention}')
 
             # Get title
             title, _ = await self.request(ctx, self.TITLE_PROMPT, case_sensitive=True)
-            self.logger.info(f'[ReactionRole reactionrole()] react role title set to: {title}')
+            self.logger.info(f'[ReactionRole make()] react role title set to: {title}')
 
             # Get colour
             colour, _ = await self.request(ctx, self.COLOUR_PROMPT)
@@ -184,7 +204,7 @@ class ReactionRole(commands.Cog):
                 try:
                     colour = await commands.ColorConverter().convert(ctx, f'#{colour[-6:]}')
                 except Exception:
-                    self.logger.info(f"[ReactionRole reactionrole()] Colour not found, using default value")
+                    self.logger.info(f"[ReactionRole make()] Colour not found, using default value")
                     colour = discord.Colour.darker_grey()
                     await ctx.send("Can't find that colour. Going with the default")
             await ctx.send(f"Colour set to: https://singlecolorimage.com/get/{colour.value:x}/50x50")
@@ -235,17 +255,17 @@ class ReactionRole(commands.Cog):
         except Exception as e:
             e_type = type(e)
             if e_type is asyncio.TimeoutError:
-                self.logger.info("[ReactionRole reactionrole()] Command timed out")
+                self.logger.info("[ReactionRole make()] Command timed out")
                 await ctx.send('You timed out. \N{WAVING HAND SIGN}')
             elif str(e) == 'exit':
-                self.logger.info('[ReactionRole reactionrole()] User terminated command')
+                self.logger.info('[ReactionRole make()] User terminated command')
                 await ctx.send('Goodbye \N{WAVING HAND SIGN}')
                 return
             elif e_type is commands.CommandError: pass
             else:
-                self.logger.info("[ReactionRole reactionrole()] Unknown exception encountered. Command terminated")
+                self.logger.info("[ReactionRole make()] Unknown exception encountered. Command terminated")
                 raise e
-            self.logger.info('[ReactionRole reactionrole()] Command terminated')
+            self.logger.info('[ReactionRole make()] Command terminated')
             await ctx.send('Redo command to try again.')
             return
 
@@ -279,13 +299,59 @@ class ReactionRole(commands.Cog):
             emoji_roles_json=json.dumps(emoji_role_ids)
         )
         await ReactRole.insert_react_role(rr)
-        self.logger.info('[ReactionRole reactionrole()] created ReactRole')
+        self.logger.info('[ReactionRole make()] created ReactRole')
 
         # Update local
         ReactionRole.l_reaction_roles.update({react_msg.id : emoji_role_ids})
 
         # Notify reaction role created
         await ctx.send(f'Here is your reaction role {react_msg.jump_url}')
+
+    async def list_reaction_roles(self, ctx: commands.Context):
+        """Lists all reaction roles in server"""
+        self.logger.info('[ReactionRole list_reaction_roles()] Generating list of reaction roles')
+        react_roles = await ReactRole.get_all_react_roles()
+        content = []
+        for rr in react_roles:
+            emoji_roles = json.loads(rr.emoji_roles_json)
+            message = await self.guild.get_channel(rr.channel_id).fetch_message(rr.message_id)
+            desc = []
+            for emoji, role in emoji_roles.items():
+                if emoji.isalnum():
+                    emoji = self.guild.get_emoji(int(emoji))
+                role = self.guild.get_role(role)
+                desc.append(f'{emoji} {role.mention}')
+            desc.append(message.jump_url)
+            content.append([str(message.id), '\n'.join(desc)])
+
+        em = await embed(
+            self.logger,
+            ctx,
+            title='Reaction Roles',
+            content=content,
+            colour=discord.Colour.brand_green()
+        )
+        if em:
+            await ctx.send(embed=em)
+        self.logger.info('[ReactionRole list_reaction_roles()] List sent')
+
+    @commands.command(aliases=['rr'])
+    async def reactionrole(self, ctx, *subcommands):
+        if not subcommands:
+            self.logger.info("[ReactionRole reactionrole()] No subcommand")
+            await self.rr_help(ctx)
+            return
+
+        cmd = subcommands[0].lower()
+        if cmd == 'make':
+            self.logger.info("[ReactionRole reactrole()] make")
+            await self.make(ctx)
+        elif cmd == 'list':
+            self.logger.info("[ReactionRole reactrole()] list")
+            await self.list_reaction_roles(ctx)
+        else:
+            self.logger.info(f"[ReactionRole reactrole()] Unknown subcommand {subcommands}")
+            await self.rr_help(ctx)
 
 
 async def setup(bot):
