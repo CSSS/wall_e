@@ -295,7 +295,7 @@ class ReactionRole(commands.Cog):
 
         # Update database
         rr = ReactRole(
-            channel_id=ctx.channel.id,
+            channel_id=channel.id,
             message_id=react_msg.id,
             emoji_roles_json=json.dumps(emoji_role_ids)
         )
