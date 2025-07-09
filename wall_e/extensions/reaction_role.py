@@ -278,7 +278,7 @@ class ReactionRole(commands.Cog):
                 # Update stuff
                 emojis.append(emoji)
                 rr_text.append(f'{emoji} {role.mention}')
-                emoji_role_ids.update({emoji_id:role.id})
+                emoji_role_ids.update({emoji_id: role.id})
         except Exception as e:
             e_type = type(e)
             if e_type is asyncio.TimeoutError:
@@ -330,7 +330,7 @@ class ReactionRole(commands.Cog):
         self.logger.info('[ReactionRole make()] created ReactRole')
 
         # Update local
-        ReactionRole.l_reaction_roles.update({react_msg.id:emoji_role_ids})
+        ReactionRole.l_reaction_roles.update({react_msg.id: emoji_role_ids})
 
         # Notify reaction role created
         await ctx.send(f'Here is your reaction role {react_msg.jump_url}')
