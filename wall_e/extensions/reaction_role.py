@@ -6,7 +6,7 @@ from discord.ext import commands
 from utilities.global_vars import bot, wall_e_config
 from wall_e_models.models import ReactRole
 
-from utilities.embed import embed, WallEColour
+from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
 from typing import Union
@@ -15,7 +15,7 @@ import json
 
 class ReactionRole(commands.Cog):
 
-    l_reaction_roles = {} # message_id : { 'emoji_id' : role_id, ... }
+    l_reaction_roles = {}
 
     def __init__(self):
         log_info = Loggers.get_logger(logger_name='ReactionRole')
@@ -91,8 +91,8 @@ class ReactionRole(commands.Cog):
     @commands.Cog.listener('on_raw_reaction_remove')
     async def react(self, payload: discord.RawReactionActionEvent):
         """Handles adding/removing a role from user that reacts to a reaction role message"""
-        if payload.user_id == bot.user.id: return
-        if payload.message_id not in ReactionRole.l_reaction_roles.keys(): return
+        if payload.user_id == bot.user.id or payload.message_id not in ReactionRole.l_reaction_roles.keys():
+            return
 
         emoji = payload.emoji
         emoji = str(emoji.id) if emoji.id else emoji.name
@@ -109,11 +109,12 @@ class ReactionRole(commands.Cog):
         try:
             role = discord.utils.get(
                 self.guild.roles,
-                id= ReactionRole.l_reaction_roles[payload.message_id][emoji]
+                id=ReactionRole.l_reaction_roles[payload.message_id][emoji]
             )
             await action(role)
             self.logger.info(f'[ReactionRole react()] role @{role} was {action_str} {user}')
-        except KeyError: return
+        except KeyError:
+            return
         except discord.Forbidden:
             await self.mod_channel.send('I can\'t give out roles. Someone look at my permissions.')
             self.logger.info('[ReactionRole load()] Permissions error. Mods notified')
@@ -122,7 +123,8 @@ class ReactionRole(commands.Cog):
     @commands.Cog.listener('on_raw_reaction_clear_emoji')
     async def keep_reactions(self, payload: Union[discord.RawReactionClearEvent, discord.RawReactionClearEmojiEvent]):
         """Ensure react emojis from Wall-E are preserved on reaction role messages"""
-        if payload.message_id not in ReactionRole.l_reaction_roles: return
+        if payload.message_id not in ReactionRole.l_reaction_roles:
+            return
 
         message_id = payload.message_id
         channel_id = await ReactRole.get_channel_id_by_message_id(message_id)
@@ -142,12 +144,15 @@ class ReactionRole(commands.Cog):
 
     async def request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
         """Sends an optional prompt and retrieves a response"""
-        input_check = lambda msg: msg.channel == ctx.channel and msg.author == ctx.author
+        def input_check(msg):
+            msg.channel == ctx.channel and msg.author == ctx.author
 
-        if prompt: await ctx.send(prompt)
+        if prompt:
+            await ctx.send(prompt)
         msg = await bot.wait_for('message', check=input_check, timeout=timeout)
         response = msg.content
-        if response.lower() == 'exit': raise Exception('exit')
+        if response.lower() == 'exit':
+            raise Exception('exit')
         return response if case_sensitive else response.lower(), msg
 
     async def get_emoji_role(self, ctx, emoji_role_ids, message=None, er_str=None):
@@ -159,7 +164,8 @@ class ReactionRole(commands.Cog):
             er = er_str
             msg = message
 
-        if er.lower() == 'done': return 'done'
+        if er.lower() == 'done':
+            return 'done'
         er = er.split(' ')
         emoji, role = er[0], er[-1]
 
@@ -209,7 +215,8 @@ class ReactionRole(commands.Cog):
             content=cmds,
             colour=discord.Colour.brand_green()
         )
-        if not em: return
+        if not em:
+            return
 
         self.logger.info('[ReactionRole rr_help()] Sending user help message')
         await ctx.send(embed=em)
@@ -243,16 +250,15 @@ class ReactionRole(commands.Cog):
 
             # Get colour
             colour, _ = await self.request(ctx, self.COLOUR_PROMPT)
-            colour = colour.lower();
             if colour == 'none':
                 colour = discord.Colour.darker_grey()
             else:
                 try:
                     colour = await commands.ColorConverter().convert(ctx, f'#{colour[-6:]}')
                 except Exception:
-                    self.logger.info(f"[ReactionRole make()] Colour not found, using default value")
+                    self.logger.info('[ReactionRole make()] Colour not found, using default value')
                     colour = discord.Colour.darker_grey()
-                    await ctx.send("Can't find that colour. Going with the default")
+                    await ctx.send('Can\'t find that colour. Going with the default')
             await ctx.send(f"Colour set to: https://singlecolorimage.com/get/{colour.value:x}/50x50")
 
             # Get emojis & roles
@@ -262,15 +268,17 @@ class ReactionRole(commands.Cog):
             emojis = []
             while True:
                 ret = await self.get_emoji_role(ctx, emoji_role_ids)
-                if ret == 'done': break
-                if ret is None: continue
+                if ret == 'done':
+                    break
+                if ret is None:
+                    continue
                 [emoji, role] = ret
                 emoji_id = str(emoji.id) if emoji.is_custom_emoji() else emoji.name
 
                 # Update stuff
                 emojis.append(emoji)
                 rr_text.append(f'{emoji} {role.mention}')
-                emoji_role_ids.update({emoji_id : role.id})
+                emoji_role_ids.update({emoji_id:role.id})
         except Exception as e:
             e_type = type(e)
             if e_type is asyncio.TimeoutError:
@@ -280,7 +288,8 @@ class ReactionRole(commands.Cog):
                 self.logger.info('[ReactionRole make()] User terminated command')
                 await ctx.send('Goodbye \N{WAVING HAND SIGN}')
                 return
-            elif e_type is commands.CommandError: pass
+            elif e_type is commands.CommandError:
+                pass
             else:
                 self.logger.info("[ReactionRole make()] Unknown exception encountered. Command terminated")
                 raise e
@@ -321,7 +330,7 @@ class ReactionRole(commands.Cog):
         self.logger.info('[ReactionRole make()] created ReactRole')
 
         # Update local
-        ReactionRole.l_reaction_roles.update({react_msg.id : emoji_role_ids})
+        ReactionRole.l_reaction_roles.update({react_msg.id:emoji_role_ids})
 
         # Notify reaction role created
         await ctx.send(f'Here is your reaction role {react_msg.jump_url}')
@@ -334,10 +343,12 @@ class ReactionRole(commands.Cog):
         for rr in react_roles:
             emoji_roles = json.loads(rr.emoji_roles_json)
             channel = self.guild.get_channel(rr.channel_id)
-            if channel is None: continue
+            if channel is None:
+                continue
             try:
                 message = await channel.fetch_message(rr.message_id)
-            except Exception: continue
+            except Exception:
+                continue
             desc = []
             for emoji, role in emoji_roles.items():
                 if emoji.isalnum():
@@ -374,7 +385,7 @@ class ReactionRole(commands.Cog):
             return
         try:
             message = await channel.fetch_message(message_id)
-        except discord.errors.NotFound as e:
+        except discord.errors.NotFound:
             await ctx.send(f'Message with id {message_id} not found. The message might have been deleted.')
             return
 
@@ -388,7 +399,7 @@ class ReactionRole(commands.Cog):
         em = await embed(
             self.logger,
             ctx,
-            title=f'Emoji role pairs',
+            title='Emoji role pairs',
             description='\n'.join([f'{emoji} {role.mention}' for emoji, role in zip(emojis, roles)]),
             colour=discord.Colour.brand_green(),
             footer_text=f'Message id: {message_id}'
@@ -407,20 +418,22 @@ class ReactionRole(commands.Cog):
         while True:
             try:
                 response, msg = await self.request(ctx, case_sensitive=True)
-                if response.lower() == 'done': break
+                if response.lower() == 'done':
+                    break
 
                 action, er_str = response.split(' ', 1)
                 action = action.lower()
                 if action == 'add':
                     self.logger.info('[ReactionRole edit()] Edit add action')
                     ret = await self.get_emoji_role(ctx, emoji_roles, msg, er_str)
-                    if ret is None: continue
+                    if ret is None:
+                        continue
                     [emoji, role] = ret
                     emoji_id = str(emoji.id) if emoji.is_custom_emoji() else emoji.name
 
                     # update stuff
                     self.logger.info(f'[ReactionRole edit()] Adding {emoji} - {role} pair')
-                    emoji_roles[emoji_id] = role.id # emoji_roles.update({emoji_id : role.id})
+                    emoji_roles[emoji_id] = role.id
                     emojis.append(emoji)
                     roles.append(role)
                     add_emojis.append(emoji)
@@ -442,7 +455,8 @@ class ReactionRole(commands.Cog):
                     # update stuff
                     self.logger.info(f'[ReactionRole edit()] Removing {emoji} - {role} pair')
                     ret = emoji_roles.pop(emoji_id, None)
-                    if ret is None: raise Exception('something fuked up')
+                    if ret is None:
+                        raise Exception('something is wrong')
                     emojis.remove(emoji)
                     roles.remove(role)
                     rm_emojis.append(emoji)
@@ -454,7 +468,8 @@ class ReactionRole(commands.Cog):
                 self.logger.info('[ReactionRole edit()] Command timed out')
                 await ctx.send('You timed out. \N{WAVING HAND SIGN}')
                 return
-            except commands.CommandError: pass
+            except commands.CommandError:
+                pass
             except ValueError:
                 self.logger.info('[ReactionRole edit()] Bad user input, we continue on')
                 await msg.add_reaction('\N{BLACK QUESTION MARK ORNAMENT}')
@@ -463,7 +478,8 @@ class ReactionRole(commands.Cog):
                 if str(e) == 'exit':
                     self.logger.info('[ReactionRole edit()] User exit')
                     return
-                if type(e) is ValueError: pass
+                if type(e) is ValueError:
+                    pass
                 raise e
 
         if len(add_emojis) <= 0 and len(rm_emojis) <= 0:
