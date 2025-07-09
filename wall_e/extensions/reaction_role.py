@@ -207,7 +207,7 @@ class ReactionRole(commands.Cog):
             title='Error',
             description='Usage: .rr/reactionrole `cmd`',
             content=cmds,
-            colour=WallEColour.ERROR
+            colour=discord.Colour.brand_green()
         )
         if not em: return
 
