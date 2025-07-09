@@ -129,6 +129,7 @@ class ReactionRole(commands.Cog):
         message = await self.guild.get_channel(channel_id).fetch_message(message_id)
         if hasattr(payload, 'emoji'):
             # clear_emoji event
+            emoji = payload.emoji
             emoji = str(emoji.id) if emoji.is_custom_emoji() else emoji.name
             if emoji in ReactionRole.l_reaction_roles[message.id].keys():
                 await message.add_reaction(payload.emoji)
