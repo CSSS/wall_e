@@ -36,9 +36,9 @@ async def send_func_helper(message, send_func, text_command, reference):
 
 async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
-                author_icon_url: str = '', colour:Union[WallEColour, discord.Colour] = WallEColour.INFO, thumbnail: str = '',
-                footer_text: str = '', footer_icon=None, timestamp=None, channels=None, ban_related_message=False,
-                bot_management_channel=None, validate=True):
+                author_icon_url: str = '', colour: Union[WallEColour, discord.Colour] = WallEColour.INFO,
+                thumbnail: str = '', footer_text: str = '', footer_icon=None, timestamp=None, channels=None,
+                ban_related_message=False, bot_management_channel=None, validate=True):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
