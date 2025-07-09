@@ -333,7 +333,11 @@ class ReactionRole(commands.Cog):
         content = []
         for rr in react_roles:
             emoji_roles = json.loads(rr.emoji_roles_json)
-            message = await self.guild.get_channel(rr.channel_id).fetch_message(rr.message_id)
+            channel = self.guild.get_channel(rr.channel_id)
+            if channel is None: continue
+            try:
+                message = await channel.fetch_message(rr.message_id)
+            except Exception: continue
             desc = []
             for emoji, role in emoji_roles.items():
                 if emoji.isalnum():
