@@ -150,6 +150,48 @@ class ReactionRole(commands.Cog):
         if response.lower() == 'exit': raise Exception('exit')
         return response if case_sensitive else response.lower(), msg
 
+    async def get_emoji_role(self, ctx, emoji_role_ids, message=None, er_str=None):
+        """Takes care of processing emoji role pair request and validation.
+        If message and er_str are provided request is skip and validation begins."""
+        if message is None:
+            er, msg = await self.request(ctx, case_sensitive=True)
+        else:
+            er = er_str
+            msg = message
+
+        if er.lower() == 'done': return 'done'
+        er = er.split(' ')
+        emoji, role = er[0], er[-1]
+
+        try:
+            role = await commands.RoleConverter().convert(ctx, role)
+            emoji = await commands.PartialEmojiConverter().convert(ctx, emoji)
+        except Exception as e:
+            if isinstance(e, commands.PartialEmojiConversionFailure) and not emoji[1:-1].isalnum():
+                # Unicode emoji
+                emoji = discord.PartialEmoji(name=emoji)
+            else:
+                await msg.add_reaction('\N{CROSS MARK}')
+                error = f'Role {role}' if isinstance(e, commands.RoleNotFound) else f'Emoji {emoji}'
+                await ctx.send(f'{error} not found.')
+                return None
+
+        # Permission check, can bot assign this role
+        if role > self.guild.me.top_role:
+            await msg.add_reaction('\N{CROSS MARK}')
+            await ctx.send(f"The role {role} is higher than my highest role, so I cannot assign it")
+            return None
+
+        # Duplicate check
+        if emoji.id in emoji_role_ids.keys() or role.id in emoji_role_ids.values():
+            await msg.add_reaction('\N{BLACK QUESTION MARK ORNAMENT}')
+            await ctx.send(f'{emoji} and/or {role.mention} is already bound in this reaction role')
+            return None
+
+        # Feedback for emoji - role added
+        await msg.add_reaction('\N{WHITE HEAVY CHECK MARK}')
+        return [emoji, role]
+
     async def rr_help(self, ctx: commands.Context):
         """Sends help message for react role command"""
 
@@ -219,38 +261,11 @@ class ReactionRole(commands.Cog):
             rr_text = []
             emojis = []
             while True:
-                er, msg = await self.request(ctx, case_sensitive=True)
-                if er.lower() == 'done': break
-                er = er.split(' ')
-                [emoji, role] = er[0], er[-1]
-                try:
-                    role = await commands.RoleConverter().convert(ctx, role)
-                    emoji = await commands.PartialEmojiConverter().convert(ctx, emoji)
-                except Exception as e:
-                    if isinstance(e, commands.PartialEmojiConversionFailure) and not emoji[1:-1].isalnum():
-                        # Unicode emoji
-                        emoji = discord.PartialEmoji(name=emoji)
-                    else:
-                        await msg.add_reaction('\N{CROSS MARK}')
-                        error = f'Role {role}' if isinstance(e, commands.RoleNotFound) else f'Emoji {emoji}'
-                        await ctx.send(f'{error} not found.')
-                        continue
-
-                # Permission check, can bot assign this role
-                if role > self.guild.me.top_role:
-                    await msg.add_reaction('\N{CROSS MARK}')
-                    await ctx.send(f"The role {role} is higher than my highest role, so I cannot assign it")
-                    continue
-
-                # Duplicate check
+                ret = await self.get_emoji_role(ctx, emoji_role_ids)
+                if ret == 'done': break
+                if ret is None: continue
+                [emoji, role] = ret
                 emoji_id = str(emoji.id) if emoji.is_custom_emoji() else emoji.name
-                if emoji.id in emoji_role_ids.keys() or role.id in emoji_role_ids.values():
-                    await msg.add_reaction('\N{BLACK QUESTION MARK ORNAMENT}')
-                    await ctx.send(f'{emoji} and/or {role.mention} is already bound in this reaction role')
-                    continue
-
-                # Feedback for emoji - role added
-                await msg.add_reaction('\N{WHITE HEAVY CHECK MARK}')
 
                 # Update stuff
                 emojis.append(emoji)
