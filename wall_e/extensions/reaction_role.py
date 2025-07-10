@@ -205,7 +205,8 @@ class ReactionRole(commands.Cog):
             ('Commands:', '', False),
             ('help', 'Shows this help message', False),
             ('make', 'Creates new react message', False),
-            ('list', 'List of all react messages', False)
+            ('list', 'List of all react messages', False),
+            ('edit <message_id> ', 'Add/remove an emoji role pair from an existing reaction role message', False)
         ]
         em = await embed(
             logger=self.logger,
