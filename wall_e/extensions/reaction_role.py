@@ -33,7 +33,8 @@ class ReactionRole(commands.Cog):
             )
         self.ROLE_PROMPT = (
             "Time to add roles"
-            "The format to enter roles is emoji then the name of the role or its @. When you're done, type `done`\n"
+            "The format to enter roles is emoji then the name of the role or its @, **space delimited**. "
+            "When you're done, type `done`\n"
             "**Example**\n```:snake: python-gang\n:stallman: @FOSS```"
             "Custom server emoji's are supported. "
         )
@@ -409,7 +410,8 @@ class ReactionRole(commands.Cog):
             await ctx.send(embed=em)
 
         instructions = (
-            'To add an emoji role pair put `add` followed by an emoji then the name of the role or its @.\n'
+            'To add an emoji role pair put `add` followed by an emoji then the name of the role or its @, '
+            '**space delimited**.\n'
             'To remove an emoji role pair put `rm` followed by the emoji from the pair.\n'
             '**Example**```Adding:\nadd :emoji: role\nadd :sfu: @role\nRemoving:\nrm :emoji:```'
             'Enter `done` when you\'re finished'
