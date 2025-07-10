@@ -146,7 +146,7 @@ class ReactionRole(commands.Cog):
     async def request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
         """Sends an optional prompt and retrieves a response"""
         def input_check(msg):
-            msg.channel == ctx.channel and msg.author == ctx.author
+            return msg.channel == ctx.channel and msg.author == ctx.author
 
         if prompt:
             await ctx.send(prompt)
