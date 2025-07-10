@@ -198,7 +198,7 @@ class ReactionRole(commands.Cog):
         await msg.add_reaction('\N{WHITE HEAVY CHECK MARK}')
         return [emoji, role]
 
-    async def rr_help(self, ctx: commands.Context):
+    async def rr_help(self, ctx: commands.Context, help_message=False):
         """Sends help message for react role command"""
 
         cmds = [
@@ -206,12 +206,12 @@ class ReactionRole(commands.Cog):
             ('help', 'Shows this help message', False),
             ('make', 'Creates new react message', False),
             ('list', 'List of all react messages', False),
-            ('edit <message_id> ', 'Add/remove an emoji role pair from an existing reaction role message', False)
+            ('edit <message_id> ', 'Add/remove an emoji role pair from an existing react message', False)
         ]
         em = await embed(
             logger=self.logger,
             ctx=ctx,
-            title='Error',
+            title='Usage' if help_message else 'Error',
             description='Usage: .rr/reactionrole `cmd`',
             content=cmds,
             colour=discord.Colour.brand_green()
@@ -547,7 +547,7 @@ class ReactionRole(commands.Cog):
                 await self.rr_help(ctx)
         elif cmd == 'help':
             self.logger.info("[ReactionRole reactionrole()] help")
-            await self.rr_help(ctx)
+            await self.rr_help(ctx, True)
         else:
             self.logger.info(f"[ReactionRole reactionrole()] Unknown subcommand {subcommands}")
             await self.rr_help(ctx)
