@@ -133,11 +133,19 @@ class ReactionRole(commands.Cog):
         if hasattr(payload, 'emoji'):
             # clear_emoji event
             emoji = payload.emoji
-            emoji = str(emoji.id) if emoji.is_custom_emoji() else emoji.name
-            if emoji in ReactionRole.l_reaction_roles[message.id].keys():
+            emoji_id = str(emoji.id) if emoji.is_custom_emoji() else emoji.name
+            rr_emojis = ReactionRole.l_reaction_roles[message.id].keys()
+            if emoji_id in rr_emojis:
+                self.logger.info(f'[ReactionRole keep_reactions] Restoring {emoji} on message with id {message_id}')
+                emojis = set(self.guild.get_emoji(int(e)) if e.isalnum() else e for e in rr_emojis)
+                current_emojis = set(r.emoji for r in message.reactions)
+                diff = current_emojis - emojis
+                for emoji in diff:
+                    await message.clear_reaction(emoji)
                 await message.add_reaction(payload.emoji)
         else:
             # clear event
+            self.logger.info(f'[ReactionRole keep_reactions] Putting reactions back on message with id {message_id}')
             emojis = ReactionRole.l_reaction_roles[payload.message_id].keys()
             emojis = [self.guild.get_emoji(int(em)) if em.isalnum() else em for em in emojis]
             for em in emojis:
