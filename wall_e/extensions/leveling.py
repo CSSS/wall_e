@@ -52,6 +52,7 @@ class Leveling(commands.Cog):
         self.bucket_update_in_progress = False
         self.NUMBER_OF_UPDATE_ATTEMPTS_PER_USER = 15
         self.MAX_RETRIES_FOR_FETCHING_USER = 5
+        self.MAX_USER_UPDATE_CONCURRENT_ATTEMPTS = 30
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
         self.process_outdated_profile_pics.start()
@@ -685,11 +686,15 @@ class Leveling(commands.Cog):
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
             if self.user_points[user_id].being_processed:
-                logger.info(
-                    f"[Leveling _update_users_with_given_ids()] skipping user with ID {user_id} who is apparently"
-                    " already being processed"
-                )
-                continue
+                if self.user_points[user_id].concurrent_attempts > self.MAX_USER_UPDATE_CONCURRENT_ATTEMPTS:
+                    self.user_points[user_id].concurrent_attempts = 0
+                else:
+                    self.user_points[user_id].concurrent_attempts += 1
+                    logger.info(
+                        f"[Leveling _update_users_with_given_ids()] skipping user with ID {user_id} who is apparently"
+                        " already being processed"
+                    )
+                    continue
             self.user_points[user_id].being_processed = True
             user_processed = False
             logger.debug(
@@ -740,7 +745,15 @@ class Leveling(commands.Cog):
         for index, update_user in enumerate(updated_user_logs):
             updated_user_id = update_user[1]
             if self.user_points[updated_user_id].being_processed:
-                continue
+                if self.user_points[updated_user_id].concurrent_attempts > self.MAX_USER_UPDATE_CONCURRENT_ATTEMPTS:
+                    self.user_points[updated_user_id].concurrent_attempts = 0
+                else:
+                    self.user_points[updated_user_id].concurrent_attempts += 1
+                    self.logger.info(
+                        f"[Leveling process_leveling_profile_data_for_active_users()] skipping user with ID"
+                        f" {updated_user_id} who is apparently already being processed"
+                    )
+                    continue
             self.user_points[updated_user_id].being_processed = True
             updated_user_log_id = update_user[0]  # noqa: F841
             user_processed = False
