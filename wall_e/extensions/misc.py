@@ -203,7 +203,7 @@ class Misc(commands.Cog):
                     title="Urban Results",
                     author=ctx.me,
                     colour=WallEColour.ERROR,
-                    description=":thonk:404:thonk:You searched something dumb didn't you?"
+                    description="Whatever you searched returned a whole lotta nothing!!"
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj, reference=ctx.message)
