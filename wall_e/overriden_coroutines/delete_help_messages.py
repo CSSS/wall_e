@@ -2,7 +2,7 @@ import discord
 from discord.ext import tasks
 
 from wall_e_models.models import HelpMessage
-from utilities.setup_logger import print_wall_e_exception
+from utilities.setup_logger import print_wall_e_exception, log_exception
 
 
 @tasks.loop(seconds=1)
@@ -25,15 +25,16 @@ async def delete_help_command_messages():
                     await message.delete()
                     successful = True
                 except discord.NotFound:
-                    logger.error(
-                        "[delete_help_messages.py delete_help_command_messages()] "
-                        f"could not find the message that contains the help command with obj "
-                        f"{help_message}"
+                    log_exception(
+                        logger,
+                        f"[delete_help_messages.py delete_help_command_messages()] could not find the "
+                        f"message that contains the help command with obj {help_message}"
                     )
                     # setting successful True since the message seems to already be deleted
                     successful = True
                 except discord.Forbidden:
-                    logger.error(
+                    log_exception(
+                        logger,
                         "[delete_help_messages.py delete_help_command_messages()] "
                         f"wall_e does not seem to have permissions to view/delete the message that "
                         f"contains the help command with obj {help_message}"
@@ -42,7 +43,8 @@ async def delete_help_command_messages():
                     # a retry would not fix that anyways
                     successful = True
                 except discord.HTTPException:
-                    logger.error(
+                    log_exception(
+                        logger,
                         "[delete_help_messages.py delete_help_command_messages()] "
                         f"some sort of HTTP prevented wall_e from deleting the message that "
                         f"contains the help command with obj {help_message}"

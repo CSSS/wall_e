@@ -1,5 +1,7 @@
 import asyncio
+
 from utilities.embed import embed as imported_embed
+from utilities.setup_logger import log_exception
 
 
 async def send_func_helper(embed_obj, send_func, text_command, reference):
@@ -37,8 +39,7 @@ async def paginate_embed(logger, bot, description_to_embed=None, content_to_embe
         else:
             send_func = interaction.response.send_message
     else:
-        logger.error("did not detect a ctx or interaction method")
-        return
+        log_exception(logger, "did not detect a ctx or interaction method")
     num_of_pages = len(description_to_embed) if description_to_embed is not None else len(content_to_embed)
     logger.debug(
         "[paginate.py paginate_embed()] called with following argument: "

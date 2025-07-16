@@ -6,7 +6,7 @@ import time
 
 import discord
 import pytz
-from aiohttp import ServerDisconnectedError, ClientOSError
+from aiohttp import ServerDisconnectedError, ClientOSError, ClientPayloadError
 from discord import NotFound, app_commands, Guild
 from discord.errors import DiscordException
 from discord.ext import commands, tasks
@@ -15,7 +15,7 @@ from utilities.embed import embed, COLOUR_MAPPING, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.global_vars import bot, wall_e_config
 from utilities.paginate import paginate_embed
-from utilities.setup_logger import Loggers
+from utilities.setup_logger import Loggers, log_exception
 from wall_e_models.models import Level, UserPoint, UpdatedUser, ProfileBucketInProgress
 
 
@@ -50,8 +50,9 @@ class Leveling(commands.Cog):
         self.council_channel = None
         self.levelling_website_avatar_channel = None
         self.bucket_update_in_progress = False
-        self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER = 15
-        self.MAX_RETRIES = 5
+        self.NUMBER_OF_UPDATE_ATTEMPTS_PER_USER = 15
+        self.MAX_RETRIES_FOR_FETCHING_USER = 5
+        self.MAX_USER_UPDATE_CONCURRENT_ATTEMPTS = 30
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
         self.process_outdated_profile_pics.start()
@@ -418,7 +419,8 @@ class Leveling(commands.Cog):
                 iteration += 1
             if not successful:
                 number_of_members_skipped += 1
-                self.logger.error(
+                log_exception(
+                    self.logger,
                     f"[Leveling _set_xp_roles_for_members_with_xp_points()] "
                     f"tried to fix the"
                     f" permissions for member {member_with_point} {iteration} times, moving onto "
@@ -456,9 +458,11 @@ class Leveling(commands.Cog):
             try:
                 await member_without_points.remove_roles(*guild_roles)
             except Exception as e:
-                self.logger.error(
-                    "[Leveling _set_xp_roles_for_members_with_no_xp_points()] encountered "
-                    f"following error when fixing the roles for member {member_without_points}, \n{e}"
+                log_exception(
+                    self.logger,
+                    "[Leveling _set_xp_roles_for_members_with_no_xp_points()] encountered following error when fixing"
+                    " the roles for member {member_without_points}",
+                    error=e
                 )
             await asyncio.sleep(1)
 
@@ -522,7 +526,8 @@ class Leveling(commands.Cog):
         if success:
             self.logger.debug(f"[Leveling assign_roles_on_member_join()] XP roles fixed for user {member}")
         else:
-            self.logger.error(
+            log_exception(
+                self.logger,
                 f"[Leveling assign_roles_on_member_join()] could not fix the XP roles for user {member}"
             )
 
@@ -681,7 +686,15 @@ class Leveling(commands.Cog):
         total_number_of_updates_needed = len(updated_user_ids)
         for index, user_id in enumerate(updated_user_ids):
             if self.user_points[user_id].being_processed:
-                continue
+                if self.user_points[user_id].concurrent_attempts > self.MAX_USER_UPDATE_CONCURRENT_ATTEMPTS:
+                    self.user_points[user_id].concurrent_attempts = 0
+                else:
+                    self.user_points[user_id].concurrent_attempts += 1
+                    logger.info(
+                        f"[Leveling _update_users_with_given_ids()] skipping user with ID {user_id} who is apparently"
+                        " already being processed"
+                    )
+                    continue
             self.user_points[user_id].being_processed = True
             user_processed = False
             logger.debug(
@@ -689,32 +702,33 @@ class Leveling(commands.Cog):
                 f"{self.user_points[user_id].leveling_update_attempt} to get updated user_point profile data for "
                 f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
             )
-            while (
-                    not user_processed and
-                    self.user_points[user_id].leveling_update_attempt < self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER
-            ):
-                self.user_points[user_id].leveling_update_attempt += 1
-                await self.exponential_backoff_sleep(self.user_points[user_id].leveling_update_attempt)
-                member = None
-                try:
-                    member = await self.get_user_with_retry(logger, user_id)
-                except Exception as e:
-                    logger.error(
-                        f"[Leveling _update_users_with_given_ids()] experiencing error "
-                        f"{e} of type {type(e)} "
-                        f"while trying to get member for {user_id} {index + 1}/{total_number_of_updates_needed} "
-                    )
-                if member:
+            member = await self.get_user_with_retry(logger, user_id)
+            error = None
+            if member:
+                while (
+                        not user_processed and
+                        self.user_points[user_id].leveling_update_attempt < self.NUMBER_OF_UPDATE_ATTEMPTS_PER_USER
+                ):
+                    self.user_points[user_id].leveling_update_attempt += 1
+                    await self.exponential_backoff_sleep(self.user_points[user_id].leveling_update_attempt)
                     try:
                         user_updated, user_processed = await self._update_member_profile_data(
                             logger, member, user_id, index, total_number_of_updates_needed
                         )
                     except Exception as e:
-                        logger.error(
-                            f"[Leveling _update_users_with_given_ids()] experiencing error "
-                            f"{e} while trying to update user_point profile data for "
-                            f"member {user_id} {index + 1}/{total_number_of_updates_needed} "
+                        error = e
+                        logger.warning(
+                            "[Leveling _update_users_with_given_ids()] experiencing error while trying to"
+                            f" update user_point profile data for member {user_id} {index + 1}/"
+                            f"{total_number_of_updates_needed} "
                         )
+                if not user_processed:
+                    log_exception(
+                        logger,
+                        f"[Leveling _update_users_with_given_ids()] got the following error when updating a"
+                        f" discord user {user_id}",
+                        error=error
+                    )
             self.user_points[user_id].being_processed = False
 
     @tasks.loop(seconds=2)
@@ -731,56 +745,81 @@ class Leveling(commands.Cog):
         for index, update_user in enumerate(updated_user_logs):
             updated_user_id = update_user[1]
             if self.user_points[updated_user_id].being_processed:
-                continue
+                if self.user_points[updated_user_id].concurrent_attempts > self.MAX_USER_UPDATE_CONCURRENT_ATTEMPTS:
+                    self.user_points[updated_user_id].concurrent_attempts = 0
+                else:
+                    self.user_points[updated_user_id].concurrent_attempts += 1
+                    self.logger.info(
+                        f"[Leveling process_leveling_profile_data_for_active_users()] skipping user with ID"
+                        f" {updated_user_id} who is apparently already being processed"
+                    )
+                    continue
             self.user_points[updated_user_id].being_processed = True
             updated_user_log_id = update_user[0]  # noqa: F841
             user_processed = False
-            while (
-                    not user_processed and
-                    self.user_points[updated_user_id].leveling_update_attempt <
-                    self.NUMBER_OF_RETRIEVAL_ATTEMPTS_PER_USER
-            ):
-                self.user_points[updated_user_id].leveling_update_attempt += 1
-                self.logger.debug(
-                    f"[Leveling process_leveling_profile_data_for_active_users()] attempt "
-                    f"{self.user_points[updated_user_id].leveling_update_attempt} to get data for user with "
-                    f"UpdatedUser id [{updated_user_log_id}] with id {updated_user_id} "
-                    f"{index + 1}/{total_number_of_updates_needed} "
-                )
-                await self.exponential_backoff_sleep(self.user_points[updated_user_id].leveling_update_attempt)
-                member = await self.get_user_with_retry(self.logger, updated_user_id)
-                if member:
-                    # cannot call _update_users_with_given_ids like process_outdated_profile_pics and
-                    # process_leveling_profile_data_for_lurkers because this task needs to be able to specify a
-                    # updated_user_log_id that will be deleted update_leveling_profile_info when the user is processed
-                    _, user_processed = await self._update_member_profile_data(
-                        self.logger, member, updated_user_id, index, total_number_of_updates_needed,
-                        updated_user_log_id=updated_user_log_id
+            member = await self.get_user_with_retry(self.logger, updated_user_id)
+            error = None
+            if member:
+                while (
+                        not user_processed and
+                        self.user_points[updated_user_id].leveling_update_attempt <
+                        self.NUMBER_OF_UPDATE_ATTEMPTS_PER_USER
+                ):
+                    self.user_points[updated_user_id].leveling_update_attempt += 1
+                    self.logger.debug(
+                        f"[Leveling process_leveling_profile_data_for_active_users()] attempt "
+                        f"{self.user_points[updated_user_id].leveling_update_attempt} to get data for user with "
+                        f"UpdatedUser id [{updated_user_log_id}] with id {updated_user_id} "
+                        f"{index + 1}/{total_number_of_updates_needed} "
+                    )
+                    await self.exponential_backoff_sleep(self.user_points[updated_user_id].leveling_update_attempt)
+                    try:
+                        # cannot call _update_users_with_given_ids like process_outdated_profile_pics and
+                        # process_leveling_profile_data_for_lurkers because this task needs to be able to specify a
+                        # updated_user_log_id that will be deleted update_leveling_profile_info when the user is
+                        # processed
+                        _, user_processed = await self._update_member_profile_data(
+                            self.logger, member, updated_user_id, index, total_number_of_updates_needed,
+                            updated_user_log_id=updated_user_log_id
+                        )
+                    except Exception as e:
+                        error = e
+                        self.logger.warning(
+                            "[Leveling process_leveling_profile_data_for_active_users()] experiencing error while"
+                            f" trying to update user_point profile data for member {member} {index + 1}/"
+                            f"{total_number_of_updates_needed} "
+                        )
+                if not user_processed:
+                    log_exception(
+                        self.logger,
+                        f"[Leveling process_leveling_profile_data_for_active_users()] got the following"
+                        f" error when updating a discord user {updated_user_id}",
+                        error=error
                     )
             self.user_points[updated_user_id].being_processed = False
 
     async def get_user_with_retry(self, logger, user_id):
         user = None
         error = None
-        for attempt in range(self.MAX_RETRIES):
+        for attempt in range(self.MAX_RETRIES_FOR_FETCHING_USER):
             try:
                 user = await self.guild.fetch_member(user_id)
             except NotFound as e:
                 error = e
                 try:
                     user = await bot.fetch_user(user_id)
-                except (DiscordException, ServerDisconnectedError, ClientOSError) as e:
+                except (DiscordException, ServerDisconnectedError, ClientOSError, ClientPayloadError) as e:
                     error = e
                     await self.exponential_backoff_sleep(attempt)
-            except (DiscordException, ServerDisconnectedError, ClientOSError) as e:
+            except (DiscordException, ServerDisconnectedError, ClientOSError, ClientPayloadError) as e:
                 error = e
                 await self.exponential_backoff_sleep(attempt)
         if user is None:
-            logger.error(
-                f"[Leveling get_user_with_retry()] got the following error when fetching discord user {user_id}"
-                f"\n{error}"
+            log_exception(
+                logger,
+                f"[Leveling get_user_with_retry()] got the following error when fetching discord user {user_id}",
+                error=error
             )
-
         return user
 
     async def exponential_backoff_sleep(self, attempt):
@@ -858,10 +897,12 @@ class Leveling(commands.Cog):
                     f"{index + 1}/{total_number_of_updates_needed}"
                 )
         except Exception as e:
-            logger.error(
-                f"[Leveling _update_member_profile_data()] unable to update the member profile"
-                f" data in the database for member {member} with id [{updated_user_id}] and updated_user_log_id"
-                f" = {updated_user_log_id} {index + 1}/{total_number_of_updates_needed} due to error:\n{e}"
+            log_exception(
+                logger,
+                f"[Leveling _update_member_profile_data()] unable to update the member profile data in"
+                f" the database for member {member} with id [{updated_user_id}] and updated_user_log_id = "
+                f"{updated_user_log_id} {index + 1}/{total_number_of_updates_needed}",
+                error=e
             )
         return user_updated, user_processed
 

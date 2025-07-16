@@ -18,7 +18,7 @@ from utilities.global_vars import bot, wall_e_config
 from utilities.embed import embed, WallEColour
 from utilities.file_uploading import start_file_uploading
 from utilities.send import helper_send
-from utilities.setup_logger import Loggers
+from utilities.setup_logger import Loggers, log_exception
 
 
 def render_latex(formula, fontsize=12, dpi=300, format_='svg'):
@@ -203,7 +203,7 @@ class Misc(commands.Cog):
                     title="Urban Results",
                     author=ctx.me,
                     colour=WallEColour.ERROR,
-                    description=":thonk:404:thonk:You searched something dumb didn't you?"
+                    description="Whatever you searched returned a whole lotta nothing!!"
                 )
                 if e_obj is not False:
                     await ctx.send(embed=e_obj, reference=ctx.message)
@@ -279,7 +279,7 @@ class Misc(commands.Cog):
             )
             if e_obj is not False:
                 await ctx.send(embed=e_obj, reference=ctx.message)
-                self.logger.error(f"[Misc wolfram()] result NOT found for {arg}")
+                log_exception(self.logger, f"[Misc wolfram()] result NOT found for {arg}")
 
     @commands.command(
         brief="returns the user's input in emoji format",

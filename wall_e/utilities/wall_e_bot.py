@@ -23,6 +23,7 @@ from utilities.bot_channel_manager import BotChannelManager
 from utilities.discordpy_stream_handler import DiscordPyDebugStreamHandler
 from utilities.embed import embed as imported_embed
 from utilities.file_uploading import start_file_uploading
+from utilities.setup_logger import log_exception
 
 intents = Intents.all()
 
@@ -75,8 +76,7 @@ class WalleBot(commands.Bot):
                     extension_unloaded = True
                     break
             except Exception as err:
-                exception = f'{type(err).__name__}: {err}'
-                logger.error(f'[wall_e_bot.py] Failed to load extension {extension}\n{exception}')
+                log_exception(logger, f'[wall_e_bot.py] Failed to load extension {extension}', error=err)
                 if adding_all_extensions:
                     time.sleep(20)
                     exit(1)
