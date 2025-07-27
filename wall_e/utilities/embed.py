@@ -1,6 +1,7 @@
 import os
 import time
 from enum import Enum
+from typing import Union
 
 import discord
 import requests
@@ -35,9 +36,9 @@ async def send_func_helper(message, send_func, text_command, reference):
 
 async def embed(logger, ctx: commands.context = None, interaction: discord.Interaction = None, title: str = '',
                 content: list = None, description: str = '', author: discord.Member = None, author_name: str = '',
-                author_icon_url: str = '', colour: WallEColour = WallEColour.INFO, thumbnail: str = '',
-                footer_text: str = '', footer_icon=None, timestamp=None, channels=None, ban_related_message=False,
-                bot_management_channel=None, validate=True):
+                author_icon_url: str = '', colour: Union[WallEColour, discord.Colour] = WallEColour.INFO,
+                thumbnail: str = '', footer_text: str = '', footer_icon=None, timestamp=None, channels=None,
+                ban_related_message=False, bot_management_channel=None, validate=True):
     """
     Embed creation helper function that validates the input to ensure it does not exceed the discord limits
     :param logger: the logger instance from the service
@@ -206,7 +207,7 @@ async def embed(logger, ctx: commands.context = None, interaction: discord.Inter
             await EmbedAvatar.insert_record(avatar_obj)
         author_icon_url = avatar_obj.avatar_discord_permanent_url
     emb_obj.set_author(name=author_name, icon_url=author_icon_url)
-    emb_obj.colour = COLOUR_MAPPING[colour]
+    emb_obj.colour = COLOUR_MAPPING[colour] if not isinstance(colour, discord.Colour) else colour
     emb_obj.set_thumbnail(url=thumbnail)
     if footer_text or footer_icon:
         if footer_icon is None:
