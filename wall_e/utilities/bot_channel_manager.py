@@ -145,7 +145,6 @@ class BotChannelManager:
         service = service.lower()
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
         text_channel_position_info = BotChannelManager.log_positioning[service]
-        category_name = text_channel_position_info['category']
         text_channel_position = text_channel_position_info['index']
         logger.debug(
             f"[BotChannelManager create_or_get_channel_id_for_service_logs()] getting channel {service} for"
@@ -156,20 +155,6 @@ class BotChannelManager:
             f" for {environment} "
         )
         bot_chan: discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=service)
-        if category_name not in self.channel_obtained:
-            self.channel_obtained[category_name] = None
-            logs_category = discord.utils.get(guild.channels, name=category_name)
-            if logs_category is None:
-                logs_category = await guild.create_category(name=category_name)
-            self.channel_obtained[category_name] = logs_category.id
-        else:
-            while self.channel_obtained[category_name] is None:
-                logger.debug(
-                    f"[BotChannelManager create_or_get_channel_id_for_service_logs()] waiting to get category "
-                    f"WALL-E Logs for in {environment}."
-                )
-                await asyncio.sleep(8)
-        logs_category = discord.utils.get(guild.channels, id=int(self.channel_obtained[category_name]))
         if bot_chan is None:
             logger.debug(
                 f"[BotChannelManager create_or_get_channel_id_for_service_logs()] channel \"{service}\" for "
@@ -179,7 +164,7 @@ class BotChannelManager:
         number_of_retries = 0
         while bot_chan is None and number_of_retries < number_of_retries_to_attempt:
             bot_chan = await guild.create_text_channel(
-                service, category=logs_category, position=text_channel_position
+                service, position=text_channel_position
             )
             logger.debug(
                 f"[BotChannelManager create_or_get_channel_id_for_service_logs()] got channel \"{bot_chan}\" for "
@@ -312,13 +297,22 @@ class BotChannelManager:
     async def fix_text_channel_positioning(cls, logger, guild):
         duplicate_channels = {}  # used to find and report text log channels that share the same name
 
-        category_names = [wall_e_category_name, wall_e_category_name_contd]
+        category_names = [wall_e_category_name_contd, wall_e_category_name]
+        category_channels = {
+        }
         for category_name in category_names:
+            if category_name not in category_channels:
+                category_channels[category_name] = None
+                logs_category = discord.utils.get(guild.channels, name=category_name)
+                if logs_category is None:
+                    logs_category = await guild.create_category(name=category_name)
+                category_channels[category_name] = logs_category.id
+            else:
+                logs_category = discord.utils.get(guild.channels, id=int(category_channels[category_name]))
             logger.debug(
                 "[BotChannelManager fix_text_channel_positioning()] going through any logs under channel "
                 f"{category_name}"
             )
-            logs_category = discord.utils.get(guild.channels, name=category_name)
             logger.debug(f"[BotChannelManager fix_text_channel_positioning()] got category {logs_category}")
             channels_under_category = [
                 channel for channel in guild.channels
