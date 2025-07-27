@@ -534,6 +534,7 @@ class ReactionRole(commands.Cog):
             await message.add_reaction(emoji)
 
     @commands.command(aliases=['rr'])
+    @commands.has_any_role("Minions", "Moderator")
     async def reactionrole(self, ctx, *subcommands):
         if not subcommands:
             self.logger.info("[ReactionRole reactionrole()] No subcommand")
