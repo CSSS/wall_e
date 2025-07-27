@@ -5,6 +5,7 @@ import discord
 from utilities.setup_logger import log_exception
 
 wall_e_category_name = "WALL-E LOGS"
+wall_e_category_name_contd = "WALL-E LOGS Contd"
 
 
 class BotChannelManager:
@@ -116,8 +117,17 @@ class BotChannelManager:
             "member_update_listener_discordpy_warn",
             "member_update_listener_discordpy_error",
         ]
-        for index, channel_name in enumerate(log_names):
-            BotChannelManager.log_positioning[channel_name] = index
+        index = 0
+        category = wall_e_category_name
+        for channel_name in log_names:
+            BotChannelManager.log_positioning[channel_name] = {
+                "category": category,
+                "index": index
+            }
+            index += 1
+            if index == 50:
+                index = 0
+                category = wall_e_category_name_contd
 
     async def create_or_get_channel_id_for_service_logs(self, logger, guild, config, service):
         """
@@ -131,7 +141,9 @@ class BotChannelManager:
         await self.bot.wait_until_ready()
         service = service.lower()
         environment = config.get_config_value("basic_config", "ENVIRONMENT")
-        text_channel_position = BotChannelManager.log_positioning[service]
+        text_channel_position_info = BotChannelManager.log_positioning[service]
+        category_name = text_channel_position_info['category']
+        text_channel_position = text_channel_position_info['index']
         logger.debug(
             f"[BotChannelManager create_or_get_channel_id_for_service_logs()] getting channel {service} for"
             f" {environment}"
@@ -141,20 +153,20 @@ class BotChannelManager:
             f" for {environment} "
         )
         bot_chan: discord.channel.CategoryChannel = discord.utils.get(guild.channels, name=service)
-        if wall_e_category_name not in self.channel_obtained:
-            self.channel_obtained[wall_e_category_name] = None
-            logs_category = discord.utils.get(guild.channels, name=wall_e_category_name)
+        if category_name not in self.channel_obtained:
+            self.channel_obtained[category_name] = None
+            logs_category = discord.utils.get(guild.channels, name=category_name)
             if logs_category is None:
-                logs_category = await guild.create_category(name=wall_e_category_name)
-            self.channel_obtained[wall_e_category_name] = logs_category.id
+                logs_category = await guild.create_category(name=category_name)
+            self.channel_obtained[category_name] = logs_category.id
         else:
-            while self.channel_obtained[wall_e_category_name] is None:
+            while self.channel_obtained[category_name] is None:
                 logger.debug(
                     f"[BotChannelManager create_or_get_channel_id_for_service_logs()] waiting to get category "
                     f"WALL-E Logs for in {environment}."
                 )
                 await asyncio.sleep(8)
-        logs_category = discord.utils.get(guild.channels, id=int(self.channel_obtained[wall_e_category_name]))
+        logs_category = discord.utils.get(guild.channels, id=int(self.channel_obtained[category_name]))
         if bot_chan is None:
             logger.debug(
                 f"[BotChannelManager create_or_get_channel_id_for_service_logs()] channel \"{service}\" for "
@@ -283,7 +295,7 @@ class BotChannelManager:
 
         def log_category(channel): return (
             type(channel) == discord.channel.CategoryChannel and
-            channel.name == wall_e_category_name
+            channel.name in [wall_e_category_name, wall_e_category_name_contd]
         )
 
         log_channels = [
@@ -297,21 +309,68 @@ class BotChannelManager:
     async def fix_text_channel_positioning(cls, logger, guild):
         duplicate_channels = {}  # used to find and report text log channels that share the same name
 
-        logs_category = discord.utils.get(guild.channels, name=wall_e_category_name)
-        channels_under_category = [
-            channel for channel in guild.channels
-            if type(channel) == discord.channel.TextChannel and channel.category == logs_category
-        ]
+        category_names = [wall_e_category_name, wall_e_category_name_contd]
+        for category_name in category_names:
+            logger.debug(
+                "[BotChannelManager fix_text_channel_positioning()] going through any logs under channel "
+                f"{category_name}"
+            )
+            logs_category = discord.utils.get(guild.channels, name=category_name)
+            logger.debug(f"[BotChannelManager fix_text_channel_positioning()] got category {logs_category}")
+            channels_under_category = [
+                channel for channel in guild.channels
+                if type(channel) == discord.channel.TextChannel and channel.category == logs_category
+            ]
+            for channel_under_category in channels_under_category:
+                if channel_under_category.name not in duplicate_channels:
+                    duplicate_channels[channel_under_category.name] = 1
+                else:
+                    duplicate_channels[channel_under_category.name] += 1
 
-        for channel_under_category in channels_under_category:
-            if channel_under_category.name not in duplicate_channels:
-                duplicate_channels[channel_under_category.name] = 1
-            else:
-                duplicate_channels[channel_under_category.name] += 1
-
-            # ensure that there are no channels that should not exist
-            if channel_under_category.name not in BotChannelManager.log_positioning:
-                await channel_under_category.delete()
+                # ensure that there are no channels that should not exist
+                if channel_under_category.name not in BotChannelManager.log_positioning:
+                    await channel_under_category.delete()
+            number_of_clean_passes = 0
+            while number_of_clean_passes < 3:
+                # encapsulating the whole thing in a while loop cause sometimes a channel might erroneously get pushed
+                # to the bottom while the repositioning is happening, which necessitates another sweep-through
+                # as such, I am going to make the code keep going over the channels until all the positions are
+                # verified as what they should be
+                position_edited = False
+                for text_channel_name, text_channel_position_info in BotChannelManager.log_positioning.items():
+                    if text_channel_position_info['category'] != category_name:
+                        continue
+                    index = text_channel_position_info['index']
+                    text_channel = discord.utils.get(guild.channels, name=text_channel_name)
+                    while text_channel is None:
+                        logger.warn(
+                            f"[BotChannelManager fix_text_channel_positioning()] unable to get channel "
+                            f"[{text_channel_name}], retrying in 5 seconds"
+                        )
+                        await asyncio.sleep(5)
+                        text_channel = discord.utils.get(guild.channels, name=text_channel_name)
+                    if text_channel.category != logs_category:
+                        logger.debug(
+                            f"[BotChannelManager fix_text_channel_positioning()] fixing the category for "
+                            f"{text_channel_name} {logs_category}"
+                        )
+                        position_edited = True
+                        await text_channel.edit(category=logs_category)
+                    if text_channel.position != index:
+                        logger.debug(
+                            f"[BotChannelManager fix_text_channel_positioning()] changing the position for "
+                            f"{text_channel_name} from {text_channel.position} to {index}"
+                        )
+                        position_edited = True
+                        await text_channel.edit(position=index)
+                if position_edited:
+                    number_of_clean_passes = 0
+                    logger.warn(
+                        "[BotChannelManager fix_text_channel_positioning()] doing another sweep of the log text "
+                        "channels positioning"
+                    )
+                else:
+                    number_of_clean_passes += 1
         duplicate_channels = [
             channel_name
             for channel_name, number_of_occurrences in duplicate_channels.items()
@@ -321,48 +380,10 @@ class BotChannelManager:
             duplicate_channels = ", ".join(duplicate_channels)
             log_exception(
                 logger,
-                f"[bot_channel_manager.py fix_text_channel_positioning()] following duplicate"
+                f"[BotChannelManager fix_text_channel_positioning()] following duplicate"
                 f" text log channels detected: {duplicate_channels}"
             )
-        number_of_clean_passes = 0
-        while number_of_clean_passes < 3:
-            # encapsulating the whole thing in a while loop cause sometimes a channel might erroneously get pushed to
-            # the bottom while the repositioning is happening, which necessitates another sweep-through
-            # as such, I am going to make the code keep going over the channels until all the positions are verified
-            # as what they should be
-            position_edited = False
-            for text_channel_name, index in BotChannelManager.log_positioning.items():
-                text_channel = discord.utils.get(guild.channels, name=text_channel_name)
-                while text_channel is None:
-                    logger.warn(
-                        f"[bot_channel_manager.py fix_text_channel_positioning()] unable to get channel "
-                        f"[{text_channel_name}], retrying in 5 seconds"
-                    )
-                    await asyncio.sleep(5)
-                    text_channel = discord.utils.get(guild.channels, name=text_channel_name)
-                if text_channel.category != logs_category:
-                    logger.debug(
-                        f"[bot_channel_manager.py fix_text_channel_positioning()] fixing the category for "
-                        f"{text_channel_name} {logs_category}"
-                    )
-                    position_edited = True
-                    await text_channel.edit(category=logs_category)
-                if text_channel.position != index:
-                    logger.debug(
-                        f"[bot_channel_manager.py fix_text_channel_positioning()] changing the position for "
-                        f"{text_channel_name} from {text_channel.position} to {index}"
-                    )
-                    position_edited = True
-                    await text_channel.edit(position=index)
-            if position_edited:
-                number_of_clean_passes = 0
-                logger.warn(
-                    "[bot_channel_manager.py fix_text_channel_positioning()] doing another sweep of the log text "
-                    "channels positioning"
-                )
-            else:
-                number_of_clean_passes += 1
         logger.debug(
-            "[bot_channel_manager.py fix_text_channel_positioning()] done with sweep of the log text channels "
+            "[BotChannelManager fix_text_channel_positioning()] done with sweep of the log text channels "
             "positioning"
         )

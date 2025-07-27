@@ -2,7 +2,7 @@ import asyncio
 
 import discord
 
-from utilities.bot_channel_manager import wall_e_category_name
+from utilities.bot_channel_manager import wall_e_category_name, wall_e_category_name_contd
 from utilities.embed import embed
 from wall_e_models.customFields import pstdatetime
 
@@ -85,7 +85,9 @@ async def reaction_detected(reaction):
     channel_category = channel_with_reaction.category
     if channel_category is None:
         return
-    text_channel_is_in_log_channel_category = channel_category.name == wall_e_category_name
+    text_channel_is_in_log_channel_category = channel_category.name in [
+        wall_e_category_name, wall_e_category_name_contd
+    ]
 
     error_log_channel = channel_with_reaction.name[-6:] == '_error'
     warn_log_channel = channel_with_reaction.name[-5:] == '_warn'
