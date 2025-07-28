@@ -569,12 +569,14 @@ class ReactionRole(commands.Cog):
         if channel is None:
             await ctx.send(f'Channel with id {channel_id} not found. Channel might have been deleted.')
             self.logger.info('[ReactionRole delete()] channel not found')
+            await ctx.message.add_reaction('\N{CROSS MARK}')
             return
         try:
             message = await channel.fetch_message(message_id)
         except discord.errors.NotFound:
             await ctx.send(f'Message with id {message_id} not found. The message might have been deleted.')
             self.logger.info('[ReactionRole delete()] message not found')
+            await ctx.message.add_reaction('\N{CROSS MARK}')
             return
 
         # update local
@@ -586,6 +588,7 @@ class ReactionRole(commands.Cog):
         # delete message
         await message.delete()
         self.logger.info('[ReactionRole delete()] message deleted')
+        await ctx.message.add_reaction('\N{WHITE HEAVY CHECK MARK}')
 
     @commands.command(aliases=['rr'])
     @commands.has_any_role("Minions", "Moderator")
