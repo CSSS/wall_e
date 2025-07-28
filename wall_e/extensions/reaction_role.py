@@ -33,7 +33,8 @@ class ReactionRole(commands.Cog):
             )
         self.ROLE_PROMPT = (
             "Time to add roles"
-            "The format to enter roles is emoji then the name of the role or its @, **space delimited**. "
+            "The format to enter roles is emoji then the name of the role or its @, **space delimited**.\n"
+            "Enter one emoji role pair per message you send. "
             "When you're done, type `done`\n"
             "**Example**\n```:snake: python-gang\n:stallman: @FOSS```"
             "Custom server emoji's are supported. "
