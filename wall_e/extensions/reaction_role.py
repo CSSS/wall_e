@@ -151,6 +151,27 @@ class ReactionRole(commands.Cog):
             for em in emojis:
                 await message.add_reaction(em)
 
+    @commands.Cog.listener('on_raw_message_delete')
+    @commands.Cog.listener('on_raw_bulk_message_delete')
+    async def rr_deleted(self, payload: Union[discord.RawMessageDeleteEvent, discord.RawBulkMessageDeleteEvent]):
+        """Detects deleted message(s) and if it's a reaction role removes from the database"""
+
+        if hasattr(payload, 'message_id'):
+            # message delete event
+            if payload.message_id not in ReactionRole.l_reaction_roles.keys():
+                return
+            self.logger.info("[ReactionRole rr_deleted()] reaction role message deleted, updating database")
+            del ReactionRole.l_reaction_roles[payload.message_id]
+            await ReactRole.delete_react_role_by_message_id(payload.message_id)
+        else:
+            # bulk message delete event
+            for message_id in payload.message_ids:
+                if message_id in ReactionRole.l_reaction_roles.keys():
+                    self.logger.info("[ReactionRole rr_deleted()] reaction role message deleted, updating database")
+                    del ReactionRole.l_reaction_roles[message_id]
+                    await ReactRole.delete_react_role_by_message_id(message_id)
+                    return
+
     async def request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
         """Sends an optional prompt and retrieves a response"""
         def input_check(msg):
