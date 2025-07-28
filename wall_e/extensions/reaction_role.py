@@ -215,7 +215,8 @@ class ReactionRole(commands.Cog):
             ('help', 'Shows this help message', False),
             ('make', 'Creates new react message', False),
             ('list', 'List of all react messages', False),
-            ('edit <message_id> ', 'Add/remove an emoji role pair from an existing react message', False)
+            ('edit <message_id> ', 'Add/remove an emoji role pair from an existing react message', False),
+            ('delete <message_id>', 'Deletes the reaction role for the given message_id', False)
         ]
         em = await embed(
             logger=self.logger,
@@ -533,6 +534,38 @@ class ReactionRole(commands.Cog):
         for emoji in add_emojis:
             await message.add_reaction(emoji)
 
+    async def delete(self, ctx: commands.Context, message_id):
+        """Deletes a reaction role"""
+        self.logger.info('[ReactionRole delete()] Deleting reaction role')
+
+        if int(message_id) not in ReactionRole.l_reaction_roles.keys():
+            self.logger.info('[ReactionRole delete()] reaction role not found')
+            await ctx.send('Can\'t find that reaction role. Make sure you have the correct message id')
+            return
+
+        channel_id = await ReactRole.get_channel_id_by_message_id(message_id)
+        channel = self.guild.get_channel(channel_id)
+        if channel is None:
+            await ctx.send(f'Channel with id {channel_id} not found. Channel might have been deleted.')
+            self.logger.info('[ReactionRole delete()] channel not found')
+            return
+        try:
+            message = await channel.fetch_message(message_id)
+        except discord.errors.NotFound:
+            await ctx.send(f'Message with id {message_id} not found. The message might have been deleted.')
+            self.logger.info('[ReactionRole delete()] message not found')
+            return
+
+        # update local
+        del ReactionRole.l_reaction_roles[int(message_id)]
+
+        # update db
+        await ReactRole.delete_react_role_by_message_id(message_id)
+
+        # delete message
+        await message.delete()
+        self.logger.info('[ReactionRole delete()] message deleted')
+
     @commands.command(aliases=['rr'])
     @commands.has_any_role("Minions", "Moderator")
     async def reactionrole(self, ctx, *subcommands):
@@ -552,6 +585,14 @@ class ReactionRole(commands.Cog):
             self.logger.info('[ReactionRole] edit')
             if len(subcommands) > 1:
                 await self.edit(ctx, subcommands[1])
+            else:
+                self.logger.info('[ReactionRole] missing message id')
+                await ctx.send('Missing message id')
+                await self.rr_help(ctx)
+        elif cmd == 'delete':
+            self.logger.info('[ReactionRole reactionrole()] delete')
+            if len(subcommands) > 1:
+                await self.delete(ctx, subcommands[1])
             else:
                 self.logger.info('[ReactionRole] missing message id')
                 await ctx.send('Missing message id')
