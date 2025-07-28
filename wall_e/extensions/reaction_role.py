@@ -622,7 +622,7 @@ class ReactionRole(commands.Cog):
         elif cmd == 'help':
             await self.rr_help(ctx, True)
         else:
-            self.logger.info(f"[ReactionRole reactionrole()] Subcommand unknown")
+            self.logger.info("[ReactionRole reactionrole()] Subcommand unknown")
             await self.rr_help(ctx)
 
 
