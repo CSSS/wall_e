@@ -599,14 +599,12 @@ class ReactionRole(commands.Cog):
             return
 
         cmd = subcommands[0].lower()
+        self.logger.info(f"[ReactionRole reactionrole()] subcommand {cmd}")
         if cmd == 'make':
-            self.logger.info("[ReactionRole reactionrole()] make")
             await self.make(ctx)
         elif cmd == 'list':
-            self.logger.info("[ReactionRole reactionrole()] list")
             await self.list_reaction_roles(ctx)
         elif cmd == 'edit':
-            self.logger.info('[ReactionRole] edit')
             if len(subcommands) > 1:
                 await self.edit(ctx, subcommands[1])
             else:
@@ -614,7 +612,6 @@ class ReactionRole(commands.Cog):
                 await ctx.send('Missing message id')
                 await self.rr_help(ctx)
         elif cmd == 'delete':
-            self.logger.info('[ReactionRole reactionrole()] delete')
             if len(subcommands) > 1:
                 await self.delete(ctx, subcommands[1])
             else:
@@ -622,10 +619,9 @@ class ReactionRole(commands.Cog):
                 await ctx.send('Missing message id')
                 await self.rr_help(ctx)
         elif cmd == 'help':
-            self.logger.info("[ReactionRole reactionrole()] help")
             await self.rr_help(ctx, True)
         else:
-            self.logger.info(f"[ReactionRole reactionrole()] Unknown subcommand {subcommands}")
+            self.logger.info(f"[ReactionRole reactionrole()] Subcommand unknown")
             await self.rr_help(ctx)
 
 
