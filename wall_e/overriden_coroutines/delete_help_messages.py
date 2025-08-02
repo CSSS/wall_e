@@ -13,7 +13,8 @@ async def delete_help_command_messages():
         for help_message in help_messages:
             channel = bot.get_channel(int(help_message.channel_id))
             if channel is not None:
-                successful = False
+                help_message_fetched = False
+                help_message_already_deleted = False
                 try:
                     message = await channel.fetch_message(int(help_message.message_id))
                     try:
@@ -23,15 +24,14 @@ async def delete_help_command_messages():
                         # means the original invocating message has since been deleted so the code can move on
                         pass
                     await message.delete()
-                    successful = True
+                    help_message_fetched = True
                 except discord.NotFound:
-                    log_exception(
-                        logger,
+                    logger.info(
                         f"[delete_help_messages.py delete_help_command_messages()] could not find the "
                         f"message that contains the help command with obj {help_message}"
                     )
-                    # setting successful True since the message seems to already be deleted
-                    successful = True
+                    # seems the message is already deleted
+                    help_message_already_deleted = True
                 except discord.Forbidden:
                     log_exception(
                         logger,
@@ -41,7 +41,7 @@ async def delete_help_command_messages():
                     )
                     # if wall_e does not have the permission to delete the message,
                     # a retry would not fix that anyways
-                    successful = True
+                    help_message_fetched = True
                 except discord.HTTPException:
                     log_exception(
                         logger,
@@ -50,7 +50,7 @@ async def delete_help_command_messages():
                         f"contains the help command with obj {help_message}"
                     )
                     # there might be a momentary network glitch, best to try again
-                if successful:
+                if help_message_fetched or help_message_already_deleted:
                     await HelpMessage.delete_message(help_message)
     except Exception as error:
         print_wall_e_exception(error, error.__traceback__, error_logger=logger.error)
