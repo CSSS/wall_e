@@ -34,7 +34,7 @@ class ReactionRole(commands.Cog):
             )
         self.ROLE_PROMPT = (
             "Time to add roles"
-            "The format to enter roles is emoji then the name of the role or its @, **space delimited**.\n"
+            "The format to enter roles is emoji then the name of the role or its @, keep them space separated.\n"
             "Enter one emoji role pair per message you send. "
             "When you're done, type `done`\n"
             "**Example**\n```:snake: python-gang\n:stallman: @FOSS```"
@@ -174,7 +174,7 @@ class ReactionRole(commands.Cog):
                     await ReactRole.delete_react_role_by_message_id(message_id)
                     return
 
-    async def request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
+    async def _request(self, ctx, prompt='', case_sensitive=False, timeout=60.0):
         """Sends an optional prompt and retrieves a response"""
         def input_check(msg):
             return msg.channel == ctx.channel and msg.author == ctx.author
@@ -187,18 +187,18 @@ class ReactionRole(commands.Cog):
             raise Exception('exit')
         return response if case_sensitive else response.lower(), msg
 
-    async def get_emoji_role(self, ctx, emoji_role_ids, message=None, er_str=None):
+    async def _get_emoji_role(self, ctx, emoji_role_ids, message=None, er_str=None):
         """Takes care of processing emoji role pair request and validation.
         If message and er_str are provided request is skip and validation begins."""
         if message is None:
-            er, msg = await self.request(ctx, case_sensitive=True)
+            er, msg = await self._request(ctx, case_sensitive=True)
         else:
             er = er_str
             msg = message
 
         if er.lower() == 'done':
             return 'done'
-        er = er.split(' ')
+        er = er.strip().split(' ')
         emoji, role = er[0], er[-1]
 
         try:
@@ -244,7 +244,7 @@ class ReactionRole(commands.Cog):
             await ctx.send("**Type `exit` anytime during the process to stop.**")
 
             # Get channel
-            channel, _ = await self.request(ctx, self.CHANNEL_PROMPT)
+            channel, _ = await self._request(ctx, self.CHANNEL_PROMPT)
             try:
                 channel = await commands.TextChannelConverter().convert(ctx, channel)
             except Exception:
@@ -261,11 +261,11 @@ class ReactionRole(commands.Cog):
             await ctx.send(f'Alright, channel set to {channel.mention}')
 
             # Get title
-            title, _ = await self.request(ctx, self.TITLE_PROMPT, case_sensitive=True)
+            title, _ = await self._request(ctx, self.TITLE_PROMPT, case_sensitive=True)
             self.logger.info(f'[ReactionRole make()] react role title set to: {title}')
 
             # Get colour
-            colour, _ = await self.request(ctx, self.COLOUR_PROMPT)
+            colour, _ = await self._request(ctx, self.COLOUR_PROMPT)
             if colour == 'none':
                 colour = discord.Colour.darker_grey()
             else:
@@ -283,7 +283,7 @@ class ReactionRole(commands.Cog):
             rr_text = []
             emojis = []
             while True:
-                ret = await self.get_emoji_role(ctx, emoji_role_ids)
+                ret = await self._get_emoji_role(ctx, emoji_role_ids)
                 if ret == 'done':
                     break
                 if ret is None:
@@ -440,8 +440,9 @@ class ReactionRole(commands.Cog):
 
         instructions = (
             'To add an emoji role pair put `add` followed by an emoji then the name of the role or its @, '
-            '**space delimited**.\n'
+            'all space separated.\n'
             'To remove an emoji role pair put `rm` followed by the emoji from the pair.\n'
+            'Only one action per message.'
             '**Example**```Adding:\nadd :emoji: role\nadd :sfu: @role\nRemoving:\nrm :emoji:```'
             'Enter `done` when you\'re finished'
         )
@@ -449,7 +450,7 @@ class ReactionRole(commands.Cog):
         self.logger.info('[ReactionRole edit()] Current emoji role pairs and instructions sent')
         while True:
             try:
-                response, msg = await self.request(ctx, case_sensitive=True)
+                response, msg = await self._request(ctx, case_sensitive=True)
                 if response.lower() == 'done':
                     break
 
@@ -458,7 +459,7 @@ class ReactionRole(commands.Cog):
                 er_str = er_str.strip()
                 if action == 'add':
                     self.logger.info('[ReactionRole edit()] Edit add action')
-                    ret = await self.get_emoji_role(ctx, emoji_roles, msg, er_str)
+                    ret = await self._get_emoji_role(ctx, emoji_roles, msg, er_str)
                     if ret is None:
                         continue
                     [emoji, role] = ret
@@ -600,7 +601,7 @@ class ReactionRole(commands.Cog):
     @edit.autocomplete('message_id')
     @delete.autocomplete('message_id')
     @app_commands.checks.has_any_role("Minions", "Moderator")
-    async def get_react_messages(self, itx: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+    async def _get_react_messages(self, itx: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
         current = current.lower()
         message_ids = [
             app_commands.Choice(name=str(msg_id), value=str(msg_id))
