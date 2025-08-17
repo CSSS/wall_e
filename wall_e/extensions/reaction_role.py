@@ -1,7 +1,7 @@
 import asyncio
 import discord
+from discord import app_commands
 from discord.ext import commands
-
 
 from utilities.global_vars import bot, wall_e_config
 from wall_e_models.models import ReactRole
@@ -9,13 +9,14 @@ from wall_e_models.models import ReactRole
 from utilities.embed import embed
 from utilities.file_uploading import start_file_uploading
 from utilities.setup_logger import Loggers
-from typing import Union
+from typing import Union, List
 import json
 
 
 class ReactionRole(commands.Cog):
 
     l_reaction_roles = {}
+    rr = app_commands.Group(name="rr", description="Reaction role commands")
 
     def __init__(self):
         log_info = Loggers.get_logger(logger_name='ReactionRole')
@@ -229,36 +230,18 @@ class ReactionRole(commands.Cog):
         await msg.add_reaction('\N{WHITE HEAVY CHECK MARK}')
         return [emoji, role]
 
-    async def rr_help(self, ctx: commands.Context, help_message=False):
-        """Sends help message for react role command"""
-
-        cmds = [
-            ('Commands:', '', False),
-            ('help', 'Shows this help message', False),
-            ('make', 'Creates new react message', False),
-            ('list', 'List of all react messages', False),
-            ('edit <message_id> ', 'Add/remove an emoji role pair from an existing react message', False),
-            ('delete <message_id>', 'Deletes the reaction role for the given message_id', False)
-        ]
-        em = await embed(
-            logger=self.logger,
-            ctx=ctx,
-            title='Usage' if help_message else 'Error',
-            description='Usage: .rr/reactionrole `cmd`',
-            content=cmds,
-            colour=discord.Colour.brand_green()
-        )
-        if not em:
-            return
-
-        self.logger.info('[ReactionRole rr_help()] Sending user help message')
-        await ctx.send(embed=em)
-
-    async def make(self, ctx: commands.Context):
+    @rr.command(name="make", description="Creates a new react message")
+    @app_commands.checks.has_any_role("Minions", "Moderator")
+    async def make(self, itx: discord.Interaction):
         self.logger.info("[ReactionRole make()] starting interactive process to create a reaction role embed")
 
+        # context required for converters
+        # ctx.send sends all messages as replies to the command invoke and creates clutter
+        ctx = await commands.Context.from_interaction(itx)
+        ctx.send = ctx.channel.send
         try:
-            await ctx.send("Let's get started. **Type `exit` anytime during the process to stop.**")
+            await itx.response.send_message("Let's get started.")
+            await ctx.send("**Type `exit` anytime during the process to stop.**")
 
             # Get channel
             channel, _ = await self.request(ctx, self.CHANNEL_PROMPT)
@@ -324,7 +307,7 @@ class ReactionRole(commands.Cog):
             elif e_type is commands.CommandError:
                 pass
             else:
-                self.logger.info("[ReactionRole make()] Unknown exception encountered. Command terminated")
+                self.logger.info("[ReactionRole make()] Unknown exception encountered")
                 raise e
             self.logger.info('[ReactionRole make()] Command terminated')
             await ctx.send('Redo command to try again.')
@@ -338,7 +321,7 @@ class ReactionRole(commands.Cog):
         # Construct reaction role
         em = await embed(
             self.logger,
-            ctx,
+            interaction=itx,
             title=title,
             description='\n'.join(rr_text),
             colour=colour,
@@ -368,10 +351,18 @@ class ReactionRole(commands.Cog):
         # Notify reaction role created
         await ctx.send(f'Here is your reaction role {react_msg.jump_url}')
 
-    async def list_reaction_roles(self, ctx: commands.Context):
+    @rr.command(name="list", description="Lists all react messages")
+    @app_commands.checks.has_any_role("Minions", "Moderator")
+    async def list_reaction_roles(self, itx: discord.Interaction):
         """Lists all reaction roles in server"""
         self.logger.info('[ReactionRole list_reaction_roles()] Generating list of reaction roles')
+        await itx.response.defer()
         react_roles = await ReactRole.get_all_react_roles()
+        print(react_roles)
+        if len(react_roles) == 0:
+            await itx.followup.send('There are no react messages to list')
+            return
+
         content = []
         for rr in react_roles:
             emoji_roles = json.loads(rr.emoji_roles_json)
@@ -393,35 +384,42 @@ class ReactionRole(commands.Cog):
 
         em = await embed(
             self.logger,
-            ctx,
+            interaction=itx,
             title='Reaction Roles',
             content=content,
             colour=discord.Colour.brand_green()
         )
         if em:
-            await ctx.send(embed=em)
+            await itx.followup.send(embed=em)
         self.logger.info('[ReactionRole list_reaction_roles()] List sent')
 
-    async def edit(self, ctx: commands.Context, message_id):
+    @rr.command(name="edit", description="Add/remove an emoji role pair from an existing react message")
+    @app_commands.describe(message_id="ID of the react message to be edited")
+    @app_commands.checks.has_any_role("Minions", "Moderator")
+    async def edit(self, itx: discord.Interaction, message_id: str):
         """Allows add/removing an emoji role pair to an existing reaction role message """
         self.logger.info('[ReactionRole edit()] Reaction role editing......')
 
+        await itx.response.defer()
+        ctx = await commands.Context.from_interaction(itx)
+        ctx.send = ctx.channel.send
         if int(message_id) not in ReactionRole.l_reaction_roles.keys():
             self.logger.info('[ReactionRole edit()] reaction role not found')
-            await ctx.send('Can\'t find that reaction role. Make sure you have the correct message id')
+            await itx.followup.send('Can\'t find that reaction role. Make sure you have the correct message id')
             return
 
         rr = await ReactRole.get_react_role_by_message_id(message_id)
         channel = self.guild.get_channel(rr.channel_id)
         if channel is None:
-            await ctx.send(f'Channel with id {rr.channel_id} not found. Channel might have been deleted.')
+            await itx.followup.send(f'Channel with id {rr.channel_id} not found. Channel might have been deleted.')
             return
         try:
             message = await channel.fetch_message(message_id)
         except discord.errors.NotFound:
-            await ctx.send(f'Message with id {message_id} not found. The message might have been deleted.')
+            await itx.followup.send(f'Message with id {message_id} not found. The message might have been deleted.')
             return
 
+        await itx.followup.send("Let's begin")
         rr_embed = message.embeds[0]
         emoji_roles = json.loads(rr.emoji_roles_json)
         emojis = [self.guild.get_emoji(int(emoji)) if emoji.isalnum() else emoji for emoji in emoji_roles.keys()]
@@ -431,7 +429,7 @@ class ReactionRole(commands.Cog):
 
         em = await embed(
             self.logger,
-            ctx,
+            interaction=itx,
             title='Emoji role pairs',
             description='\n'.join([f'{emoji} {role.mention}' for emoji, role in zip(emojis, roles)]),
             colour=discord.Colour.brand_green(),
@@ -473,6 +471,7 @@ class ReactionRole(commands.Cog):
                     add_emojis.append(emoji)
 
                 elif action == 'rm':
+                    # TODO: fix removing custom emojis
                     self.logger.info('[ReactionRole edit()] Edit remove action')
                     if er_str not in emoji_roles.keys():
                         await msg.add_reaction('\N{CROSS MARK}')
@@ -530,7 +529,7 @@ class ReactionRole(commands.Cog):
         # Update embed
         new_em = await embed(
             self.logger,
-            ctx,
+            interaction=itx,
             title=rr_embed.title,
             description='\n'.join([f'{emoji} {role.mention}' for emoji, role in zip(emojis, roles)]),
             colour=rr_embed.colour,
@@ -556,28 +555,34 @@ class ReactionRole(commands.Cog):
         for emoji in add_emojis:
             await message.add_reaction(emoji)
 
-    async def delete(self, ctx: commands.Context, message_id):
+        await ctx.send(f"React message update {message.jump_url}")
+
+    @rr.command(name="delete", description="Delete a react message")
+    @app_commands.describe(message_id="ID of the react message to be deleted")
+    @app_commands.checks.has_any_role("Minions", "Moderator")
+    async def delete(self, itx: discord.Interaction, message_id: str):
         """Deletes a reaction role"""
         self.logger.info('[ReactionRole delete()] Deleting reaction role')
+        await itx.response.defer()
 
+        ctx = await commands.Context.from_interaction(itx)
+        ctx.send = ctx.channel.send
         if int(message_id) not in ReactionRole.l_reaction_roles.keys():
             self.logger.info('[ReactionRole delete()] reaction role not found')
-            await ctx.send('Can\'t find that reaction role. Make sure you have the correct message id')
+            await itx.followup.send('Can\'t find that reaction role. Make sure you have the correct message id')
             return
 
         channel_id = await ReactRole.get_channel_id_by_message_id(message_id)
         channel = self.guild.get_channel(channel_id)
         if channel is None:
-            await ctx.send(f'Channel with id {channel_id} not found. Channel might have been deleted.')
             self.logger.info('[ReactionRole delete()] channel not found')
-            await ctx.message.add_reaction('\N{CROSS MARK}')
+            await itx.followup.send(f'Channel with id {channel_id} not found. Channel could be deleted.')
             return
         try:
             message = await channel.fetch_message(message_id)
         except discord.errors.NotFound:
-            await ctx.send(f'Message with id {message_id} not found. The message might have been deleted.')
             self.logger.info('[ReactionRole delete()] message not found')
-            await ctx.message.add_reaction('\N{CROSS MARK}')
+            await itx.followup.send(f'Message with id {message_id} not found. Message could\'ve been deleted.')
             return
 
         # update local
@@ -588,42 +593,27 @@ class ReactionRole(commands.Cog):
 
         # delete message
         await message.delete()
+        await itx.followup.send("Message deleted")
         self.logger.info('[ReactionRole delete()] message deleted')
-        await ctx.message.add_reaction('\N{WHITE HEAVY CHECK MARK}')
 
-    @commands.command(aliases=['rr'])
-    @commands.has_any_role("Minions", "Moderator")
-    async def reactionrole(self, ctx, *subcommands):
-        if not subcommands:
-            self.logger.info("[ReactionRole reactionrole()] No subcommand")
-            await self.rr_help(ctx)
-            return
+    @edit.autocomplete('message_id')
+    @delete.autocomplete('message_id')
+    @app_commands.checks.has_any_role("Minions", "Moderator")
+    async def get_react_messages(self, itx: discord.Interaction, current: str) -> List[app_commands.Choice[str]]:
+        current = current.lower()
+        message_ids = [
+            app_commands.Choice(name=str(msg_id), value=str(msg_id))
+            for msg_id in ReactionRole.l_reaction_roles
+            if current in str(msg_id)
+        ]
+        if len(message_ids) == 0:
+            msg = f"No reaction roles found{f' that contain {current}' if len(current) > 0 else ''}"
+            message_ids = [app_commands.Choice(name=msg, value='-1')]
 
-        cmd = subcommands[0].lower()
-        self.logger.info(f"[ReactionRole reactionrole()] subcommand {cmd}")
-        if cmd == 'make':
-            await self.make(ctx)
-        elif cmd == 'list':
-            await self.list_reaction_roles(ctx)
-        elif cmd == 'edit':
-            if len(subcommands) > 1:
-                await self.edit(ctx, subcommands[1])
-            else:
-                self.logger.info('[ReactionRole] missing message id')
-                await ctx.send('Missing message id')
-                await self.rr_help(ctx)
-        elif cmd == 'delete':
-            if len(subcommands) > 1:
-                await self.delete(ctx, subcommands[1])
-            else:
-                self.logger.info('[ReactionRole] missing message id')
-                await ctx.send('Missing message id')
-                await self.rr_help(ctx)
-        elif cmd == 'help':
-            await self.rr_help(ctx, True)
-        else:
-            self.logger.info("[ReactionRole reactionrole()] Subcommand unknown")
-            await self.rr_help(ctx)
+        if len(message_ids) > 25:
+            message_ids = message_ids[:24]
+            message_ids.append(app_commands.Choice(name='Type for better results', value='-1'))
+        return message_ids
 
 
 async def setup(bot):
