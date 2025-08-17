@@ -454,7 +454,8 @@ class ReactionRole(commands.Cog):
                     break
 
                 action, er_str = response.split(' ', 1)
-                action = action.lower()
+                action = action.strip().lower()
+                er_str = er_str.strip()
                 if action == 'add':
                     self.logger.info('[ReactionRole edit()] Edit add action')
                     ret = await self.get_emoji_role(ctx, emoji_roles, msg, er_str)
@@ -471,18 +472,18 @@ class ReactionRole(commands.Cog):
                     add_emojis.append(emoji)
 
                 elif action == 'rm':
-                    # TODO: fix removing custom emojis
                     self.logger.info('[ReactionRole edit()] Edit remove action')
-                    if er_str not in emoji_roles.keys():
-                        await msg.add_reaction('\N{CROSS MARK}')
-                        await ctx.send('Emoji not part of reaction role')
-                        continue
-                    if er_str[1:-1].isalnum():
+                    if len(er_str.split(':')) > 1:
                         emoji = await commands.PartialEmojiConverter().convert(ctx, er_str)
-                        emoji_id = emoji.id
+                        emoji_id = str(emoji.id)
                     else:
                         emoji = er_str
                         emoji_id = emoji
+
+                    if emoji_id not in emoji_roles.keys():
+                        await msg.add_reaction('\N{CROSS MARK}')
+                        await ctx.send('Emoji not part of reaction role')
+                        continue
                     role = self.guild.get_role(emoji_roles[emoji_id])
 
                     # update stuff
