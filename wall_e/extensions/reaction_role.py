@@ -325,7 +325,7 @@ class ReactionRole(commands.Cog):
             title=title,
             description='\n'.join(rr_text),
             colour=colour,
-            footer_text='Self Assignable Roles'
+            footer_text='React for a role'
         )
         if not em:
             await ctx.send('Embed creation failed. Might have too many emoji roles or the title is too long')
