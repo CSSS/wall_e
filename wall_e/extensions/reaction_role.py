@@ -26,20 +26,6 @@ class ReactionRole(commands.Cog):
         self.error_log_file_absolute_path = log_info[3]
         self.logger.info("[ReactionRole __init__()] initializing ReactionRole")
         self.guild: discord.Guild | None = None
-        self.CHANNEL_PROMPT = "Hi \N{WAVING HAND SIGN}! Which channel would you like the message to be in?"
-        self.TITLE_PROMPT = "What would you like the message title to say?"
-        self.COLOUR_PROMPT = (
-            "Would you like a custom colour for the message? Respond with a hex code or `none` to skip.\n"
-            "**Need helping picking a color?** Check out: <https://htmlcolorcodes.com/>"
-            )
-        self.ROLE_PROMPT = (
-            "Time to add roles"
-            "The format to enter roles is emoji then the name of the role or its @, keep them space separated.\n"
-            "Enter one emoji role pair per message you send. "
-            "When you're done, type `done`\n"
-            "**Example**\n```:snake: python-gang\n:stallman: @FOSS```"
-            "Custom server emoji's are supported. "
-        )
 
     @commands.Cog.listener(name="on_ready")
     async def get_guild(self):
@@ -233,6 +219,20 @@ class ReactionRole(commands.Cog):
     @rr.command(name="make", description="Creates a new react message")
     @app_commands.checks.has_any_role("Minions", "Moderator")
     async def make(self, itx: discord.Interaction):
+        channel_prompt = "Hi \N{WAVING HAND SIGN}! Which channel would you like the message to be in?"
+        title_prompt = "What would you like the message title to say?"
+        colour_prompt = (
+            "Would you like a custom colour for the message? Respond with a hex code or `none` to skip.\n"
+            "**Need helping picking a color?** Check out: <https://htmlcolorcodes.com/>"
+            )
+        role_prompt = (
+            "Time to add roles"
+            "The format to enter roles is emoji then the name of the role or its @, keep them space separated.\n"
+            "Enter one emoji role pair per message you send. "
+            "When you're done, type `done`\n"
+            "**Example**\n```:snake: python-gang\n:stallman: @FOSS```"
+            "Custom server emoji's are supported. "
+        )
         self.logger.info("[ReactionRole make()] starting interactive process to create a reaction role embed")
 
         # context required for converters
@@ -244,7 +244,7 @@ class ReactionRole(commands.Cog):
             await ctx.send("**Type `exit` anytime during the process to stop.**")
 
             # Get channel
-            channel, _ = await self._request(ctx, self.CHANNEL_PROMPT)
+            channel, _ = await self._request(ctx, channel_prompt)
             try:
                 channel = await commands.TextChannelConverter().convert(ctx, channel)
             except Exception:
@@ -261,11 +261,11 @@ class ReactionRole(commands.Cog):
             await ctx.send(f'Alright, channel set to {channel.mention}')
 
             # Get title
-            title, _ = await self._request(ctx, self.TITLE_PROMPT, case_sensitive=True)
+            title, _ = await self._request(ctx, title_prompt, case_sensitive=True)
             self.logger.info(f'[ReactionRole make()] react role title set to: {title}')
 
             # Get colour
-            colour, _ = await self._request(ctx, self.COLOUR_PROMPT)
+            colour, _ = await self._request(ctx, colour_prompt)
             if colour == 'none':
                 colour = discord.Colour.darker_grey()
             else:
@@ -278,7 +278,7 @@ class ReactionRole(commands.Cog):
             await ctx.send(f"Colour set to: https://singlecolorimage.com/get/{colour.value:x}/50x50")
 
             # Get emojis & roles
-            await ctx.send(self.ROLE_PROMPT)
+            await ctx.send(role_prompt)
             emoji_role_ids = {}
             rr_text = []
             emojis = []
