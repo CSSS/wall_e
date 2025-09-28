@@ -27,12 +27,12 @@ if [[ "${basic_config__ENVIRONMENT}" == "TEST" ]]; then
 	--set=WALL_E_DB_DBNAME="${database_config__WALL_E_DB_DBNAME}" \
 	-h "$host" -U "postgres" -f "${HOME_DIR}"/create-database.ddl
 	python3 django_manage.py migrate
- 	wget https://dev.sfucsss.org/wall_e/fixtures/banrecords.json
-  	wget https://dev.sfucsss.org/wall_e/fixtures/commandstats.json
-   	wget https://dev.sfucsss.org/wall_e/fixtures/levels.json
-    	wget https://dev.sfucsss.org/wall_e/fixtures/profilebucketsinprogress.json
-     	wget https://dev.sfucsss.org/wall_e/fixtures/reminders.json
-      	wget https://dev.sfucsss.org/wall_e/fixtures/userpoints.json
+ 	wget https://backups.sfucsss.org/latest/banrecords.json
+  wget https://backups.sfucsss.org/latest/commandstats.json
+  wget https://backups.sfucsss.org/latest/levels.json
+  wget https://backups.sfucsss.org/latest/profilebucketsinprogress.json
+  wget https://backups.sfucsss.org/latest/reminders.json
+  wget https://backups.sfucsss.org/latest/userpoints.json
 	python3 django_manage.py loaddata banrecords.json
 	python3 django_manage.py loaddata commandstats.json
 	python3 django_manage.py loaddata levels.json

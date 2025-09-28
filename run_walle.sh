@@ -70,7 +70,7 @@ else
 		fi
 		python3 django_manage.py migrate
 		rm banrecords.json commandstats.json levels.json profilebucketsinprogress.json reminders.json userpoints.json || true
-  		wget -r --no-parent -nd https://dev.sfucsss.org/wall_e/fixtures/ -A 'json'
+  		wget -r --no-parent -nd https://backups.sfucsss.org/latest/ -A 'json'
 		python3 django_manage.py loaddata banrecords.json
 		python3 django_manage.py loaddata commandstats.json
 		python3 django_manage.py loaddata levels.json
