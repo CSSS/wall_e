@@ -33,14 +33,14 @@ class Leveling(commands.Cog):
         self.process_lurkers_logger = process_lurkers_log_info[0]
         self.process_lurkers_debug_log_file_absolute_path = process_lurkers_log_info[1]
 
-        update_outdated_profile_pics_log_info = Loggers.get_logger(
-            logger_name="Leveling_update_outdated_profile_pics"
-        )
-        self.process_outdated_profile_pics_in_progress = False
-        self.update_outdated_profile_pics_logger = update_outdated_profile_pics_log_info[0]
-        self.update_outdated_profile_pics_debug_log_file_absolute_path = update_outdated_profile_pics_log_info[1]
-        self.update_outdated_profile_pics_warn_log_file_absolute_path = update_outdated_profile_pics_log_info[2]
-        self.update_outdated_profile_pics_error_log_file_absolute_path = update_outdated_profile_pics_log_info[3]
+        # update_outdated_profile_pics_log_info = Loggers.get_logger(
+        #     logger_name="Leveling_update_outdated_profile_pics"
+        # )
+        # self.process_outdated_profile_pics_in_progress = False
+        # self.update_outdated_profile_pics_logger = update_outdated_profile_pics_log_info[0]
+        # self.update_outdated_profile_pics_debug_log_file_absolute_path = update_outdated_profile_pics_log_info[1]
+        # self.update_outdated_profile_pics_warn_log_file_absolute_path = update_outdated_profile_pics_log_info[2]
+        # self.update_outdated_profile_pics_error_log_file_absolute_path = update_outdated_profile_pics_log_info[3]
 
         self.levels_have_been_changed = False
         self.guild: Guild | None = None
@@ -48,14 +48,14 @@ class Leveling(commands.Cog):
         self.levels = None
         self.xp_system_ready = False
         self.council_channel = None
-        self.levelling_website_avatar_channel = None
+        # self.levelling_website_avatar_channel = None
         self.bucket_update_in_progress = False
         self.NUMBER_OF_UPDATE_ATTEMPTS_PER_USER = 15
         self.MAX_RETRIES_FOR_FETCHING_USER = 5
         self.MAX_USER_UPDATE_CONCURRENT_ATTEMPTS = 30
         self.ensure_xp_roles_exist_and_have_right_users.start()
         self.process_leveling_profile_data_for_lurkers.start()
-        self.process_outdated_profile_pics.start()
+        # self.process_outdated_profile_pics.start()
         self.process_leveling_profile_data_for_active_users.start()
 
     @commands.Cog.listener(name="on_ready")
@@ -98,35 +98,35 @@ class Leveling(commands.Cog):
             "process_lurkers"
         )
 
-    @commands.Cog.listener(name="on_ready")
-    async def upload_outdated_profile_pics_debug_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(2)
-        await start_file_uploading(
-            self.logger, self.guild, bot, wall_e_config,
-            self.update_outdated_profile_pics_debug_log_file_absolute_path,
-            "update_outdated_profile_pics"
-        )
+    # @commands.Cog.listener(name="on_ready")
+    # async def upload_outdated_profile_pics_debug_logs(self):
+    #     while self.guild is None:
+    #         await asyncio.sleep(2)
+    #     await start_file_uploading(
+    #         self.logger, self.guild, bot, wall_e_config,
+    #         self.update_outdated_profile_pics_debug_log_file_absolute_path,
+    #         "update_outdated_profile_pics"
+    #     )
 
-    @commands.Cog.listener(name="on_ready")
-    async def upload_outdated_profile_pics_warn_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(2)
-        await start_file_uploading(
-            self.logger, self.guild, bot, wall_e_config,
-            self.update_outdated_profile_pics_warn_log_file_absolute_path,
-            "update_outdated_profile_pics_warn"
-        )
+    # @commands.Cog.listener(name="on_ready")
+    # async def upload_outdated_profile_pics_warn_logs(self):
+    #     while self.guild is None:
+    #         await asyncio.sleep(2)
+    #     await start_file_uploading(
+    #         self.logger, self.guild, bot, wall_e_config,
+    #         self.update_outdated_profile_pics_warn_log_file_absolute_path,
+    #         "update_outdated_profile_pics_warn"
+    #     )
 
-    @commands.Cog.listener(name="on_ready")
-    async def upload_outdated_profile_pics_error_logs(self):
-        while self.guild is None:
-            await asyncio.sleep(2)
-        await start_file_uploading(
-            self.logger, self.guild, bot, wall_e_config,
-            self.update_outdated_profile_pics_error_log_file_absolute_path,
-            "update_outdated_profile_pics_error"
-        )
+    # @commands.Cog.listener(name="on_ready")
+    # async def upload_outdated_profile_pics_error_logs(self):
+    #     while self.guild is None:
+    #         await asyncio.sleep(2)
+    #     await start_file_uploading(
+    #         self.logger, self.guild, bot, wall_e_config,
+    #         self.update_outdated_profile_pics_error_log_file_absolute_path,
+    #         "update_outdated_profile_pics_error"
+    #     )
 
     @commands.Cog.listener(name="on_ready")
     async def updating_database_and_cache(self):
@@ -202,29 +202,30 @@ class Leveling(commands.Cog):
             f"[Leveling create_council_channel()] text channel {self.council_channel} acquired."
         )
 
-    @commands.Cog.listener(name="on_ready")
-    async def get_leveling_avatar_channel(self):
-        """
-        Gets the leveling_avatar_images_channel that will be used to store the user profile pics used by the
-        leveling website
-        :return:
-        """
-        while self.guild is None:
-            await asyncio.sleep(2)
-        self.logger.info(
-            "[Leveling get_leveling_avatar_channel()] acquiring text channel for the avatars used on the leveling"
-            " website."
-        )
-        leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
-            'leveling_website_avatar_images'
-        )
-        self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
-            self.guild.channels if self.guild else None, id=leveling_website_avatar_images_channel_id
-        )
-        self.logger.debug(
-            f"[Leveling get_leveling_avatar_channel()] bot channel {self.levelling_website_avatar_channel} acquired."
-        )
+    # @commands.Cog.listener(name="on_ready")
+    # async def get_leveling_avatar_channel(self):
+    #     """
+    #     Gets the leveling_avatar_images_channel that will be used to store the user profile pics used by the
+    #     leveling website
+    #     :return:
+    #     """
+    #     while self.guild is None:
+    #         await asyncio.sleep(2)
+    #     self.logger.info(
+    #         "[Leveling get_leveling_avatar_channel()] acquiring text channel for the avatars used on the leveling"
+    #         " website."
+    #     )
+    #     leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+    #         self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+    #         'leveling_website_avatar_images'
+    #     )
+    #     self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
+    #         self.guild.channels if self.guild else None, id=leveling_website_avatar_images_channel_id
+    #     )
+    #     self.logger.debug(
+    #         f"[Leveling get_leveling_avatar_channel()] bot channel {self.levelling_website_avatar_channel}
+    #         acquired."
+    #     )
 
     @commands.Cog.listener(name='on_message')
     async def on_message(self, message):
@@ -234,7 +235,7 @@ class Leveling(commands.Cog):
         :param message: the message that was sent that tripped the function call
         :return:
         """
-        while self.guild is None or self.levelling_website_avatar_channel is None:
+        while self.guild is None:
             await asyncio.sleep(2)
         if not message.author.bot:
             if not self.xp_system_ready:
@@ -538,13 +539,11 @@ class Leveling(commands.Cog):
         and ensure their information has been updated for the leveling website
         """
         not_ready_to_process_lurkers = (
-                self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None or
-                self.bucket_update_in_progress
+                self.user_points is None or self.guild is None or self.bucket_update_in_progress
         )
         self.process_lurkers_logger.debug(
             f"[Leveling process_leveling_profile_data_for_lurkers()] background task starting "
-            f"self.user_points is None = {self.user_points is None} | self.levelling_website_avatar_channel is None "
-            f"= {self.levelling_website_avatar_channel is None} | self.guild is None = {self.guild is None} | "
+            f"self.user_points is None = {self.user_points is None} | self.guild is None = {self.guild is None} | "
             f"self.bucket_update_in_progress = {self.bucket_update_in_progress} | not_ready_to_process_lurkers = "
             f"{not_ready_to_process_lurkers}"
         )
@@ -738,7 +737,7 @@ class Leveling(commands.Cog):
          and needs to have wall_e's database updated for the leveling website
         :return:
         """
-        if self.user_points is None or self.levelling_website_avatar_channel is None or self.guild is None:
+        if self.user_points is None or self.guild is None:
             return
         updated_user_logs = await UpdatedUser.get_updated_user_logs()
         total_number_of_updates_needed = len(updated_user_logs)
@@ -829,24 +828,24 @@ class Leveling(commands.Cog):
         )
         await asyncio.sleep(sleep_seconds)
 
-    @tasks.loop(seconds=5)
-    async def process_outdated_profile_pics(self):
-        if self.guild is None or self.user_points is None:
-            return
-        if self.process_outdated_profile_pics_in_progress:
-            return
-        self.process_outdated_profile_pics_in_progress = True
-        user_ids_to_update = await UserPoint.get_users_with_expired_images()
-        number_of_users_to_update = len(user_ids_to_update)
-        if number_of_users_to_update == 0:
-            self.process_outdated_profile_pics_in_progress = False
-            return
-        self.update_outdated_profile_pics_logger.debug(
-            f"[Leveling process_outdated_profile_pics()] {number_of_users_to_update} users with outdated CDN links"
-            f" to update"
-        )
-        await self._update_users_with_given_ids(self.update_outdated_profile_pics_logger, user_ids_to_update)
-        self.process_outdated_profile_pics_in_progress = False
+    # @tasks.loop(seconds=5)
+    # async def process_outdated_profile_pics(self):
+    #     if self.guild is None or self.user_points is None:
+    #         return
+    #     if self.process_outdated_profile_pics_in_progress:
+    #         return
+    #     self.process_outdated_profile_pics_in_progress = True
+    #     user_ids_to_update = await UserPoint.get_users_with_expired_images()
+    #     number_of_users_to_update = len(user_ids_to_update)
+    #     if number_of_users_to_update == 0:
+    #         self.process_outdated_profile_pics_in_progress = False
+    #         return
+    #     self.update_outdated_profile_pics_logger.debug(
+    #         f"[Leveling process_outdated_profile_pics()] {number_of_users_to_update} users with outdated CDN links"
+    #         f" to update"
+    #     )
+    #     await self._update_users_with_given_ids(self.update_outdated_profile_pics_logger, user_ids_to_update)
+    #     self.process_outdated_profile_pics_in_progress = False
 
     async def _update_member_profile_data(self, logger, member, updated_user_id, index,
                                           total_number_of_updates_needed, updated_user_log_id=None):
@@ -881,7 +880,7 @@ class Leveling(commands.Cog):
             # leveling_update_attempt is reset to 0 in update_leveling_profile_info if member is successfully
             # updated THIS time
             user_updated, user_processed = await self.user_points[member.id].update_leveling_profile_info(
-                logger, self.guild.id, member, self.levelling_website_avatar_channel,
+                logger, self.guild.id, member, None,
                 updated_user_log_id=updated_user_log_id
             )
             if user_updated:
@@ -909,7 +908,7 @@ class Leveling(commands.Cog):
     @app_commands.command(name="reset_attempts")
     @app_commands.checks.has_any_role("Bot_manager")
     async def reset_attempts(self, interaction: discord.Interaction, member_id: str):
-        self.update_outdated_profile_pics_logger.debug(
+        self.logger.debug(
             f"[Leveling reset_user_profiles()] resetting attempts for [{member_id}] to 0"
         )
         e_obj = None
@@ -992,18 +991,18 @@ class Leveling(commands.Cog):
             await interaction.followup.send(embed=e_obj)
             await asyncio.sleep(5)
             await interaction.delete_original_response()
-        if self.levelling_website_avatar_channel is not None:
-            await self.levelling_website_avatar_channel.delete()
-        leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
-            self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
-            'leveling_website_avatar_images'
-        )
-        self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
-            self.guild.channels, id=leveling_website_avatar_images_channel_id
-        )
-        self.logger.debug(
-            f"[Leveling reset_user_profiles()] bot channel {self.levelling_website_avatar_channel} acquired."
-        )
+        # if self.levelling_website_avatar_channel is not None:
+        #     await self.levelling_website_avatar_channel.delete()
+        # leveling_website_avatar_images_channel_id = await bot.bot_channel_manager.create_or_get_channel_id(
+        #     self.logger, self.guild, wall_e_config.get_config_value('basic_config', 'ENVIRONMENT'),
+        #     'leveling_website_avatar_images'
+        # )
+        # self.levelling_website_avatar_channel: discord.TextChannel = discord.utils.get(
+        #     self.guild.channels, id=leveling_website_avatar_images_channel_id
+        # )
+        # self.logger.debug(
+        #     f"[Leveling reset_user_profiles()] bot channel {self.levelling_website_avatar_channel} acquired."
+        # )
         self.bucket_update_in_progress = False
 
     @commands.command(
@@ -1248,39 +1247,39 @@ class Leveling(commands.Cog):
 
         await paginate_embed(self.logger, bot, descriptions_to_embed, title="Levels", ctx=ctx)
 
-    @commands.command(brief="shows the current leaderboards")
-    async def ranks(self, ctx):
-        if not self.xp_system_ready:
-            await ctx.send("level command is not yet ready...", reference=ctx.message)
-            return
-        self.logger.info(f"[Leveling ranks()] ranks command detected from {ctx.author}")
-        user_points = self.user_points.copy()
-        user_points = [
-            user_point for user_point in list(user_points.values())
-            if (
-                (user_point.user_id == ctx.author.id and user_point.hidden) or
-                (user_point.user_id != ctx.author.id and not user_point.hidden)
-            )
-        ]
-        user_points.sort(key=lambda x: x.points, reverse=True)
-        descriptions_to_embed = []
-        description_to_embed = "\nUser - Messages - Experience - Level\n"
-        rank = 1
-        for (index, user_point) in enumerate(user_points):
-            if index % 10 == 0 and index > 0:
-                descriptions_to_embed.append(description_to_embed)
-                description_to_embed = "\nRank - User - Messages - Experience - Level\n"
-            description_to_embed += (
-                f"{rank} - <@{user_point.user_id}> - {user_point.message_count} - {user_point.points}"
-                f" - {user_point.level_number}\n"
-            )
-            rank += 1
-        if description_to_embed != "\nUser - Messages - Experience - Level\n":
-            descriptions_to_embed.append(description_to_embed)
-        if len(descriptions_to_embed) == 0:
-            await ctx.send("No users currently being tracked", reference=ctx.message)
-        else:
-            await paginate_embed(self.logger, bot, descriptions_to_embed, ctx=ctx)
+    # @commands.command(brief="shows the current leaderboards")
+    # async def ranks(self, ctx):
+    #     if not self.xp_system_ready:
+    #         await ctx.send("level command is not yet ready...", reference=ctx.message)
+    #         return
+    #     self.logger.info(f"[Leveling ranks()] ranks command detected from {ctx.author}")
+    #     user_points = self.user_points.copy()
+    #     user_points = [
+    #         user_point for user_point in list(user_points.values())
+    #         if (
+    #             (user_point.user_id == ctx.author.id and user_point.hidden) or
+    #             (user_point.user_id != ctx.author.id and not user_point.hidden)
+    #         )
+    #     ]
+    #     user_points.sort(key=lambda x: x.points, reverse=True)
+    #     descriptions_to_embed = []
+    #     description_to_embed = "\nUser - Messages - Experience - Level\n"
+    #     rank = 1
+    #     for (index, user_point) in enumerate(user_points):
+    #         if index % 10 == 0 and index > 0:
+    #             descriptions_to_embed.append(description_to_embed)
+    #             description_to_embed = "\nRank - User - Messages - Experience - Level\n"
+    #         description_to_embed += (
+    #             f"{rank} - <@{user_point.user_id}> - {user_point.message_count} - {user_point.points}"
+    #             f" - {user_point.level_number}\n"
+    #         )
+    #         rank += 1
+    #     if description_to_embed != "\nUser - Messages - Experience - Level\n":
+    #         descriptions_to_embed.append(description_to_embed)
+    #     if len(descriptions_to_embed) == 0:
+    #         await ctx.send("No users currently being tracked", reference=ctx.message)
+    #     else:
+    #         await paginate_embed(self.logger, bot, descriptions_to_embed, ctx=ctx)
 
     @commands.command(
         brief="Hide a user's ranking from .rank @user and .ranks",
