@@ -516,6 +516,12 @@ class Leveling(commands.Cog):
                 number_of_retries += 1
                 await member.add_roles(*guild_roles)
                 success = True
+            except NotFound:
+                self.logger.debug(
+                    f"[Leveling assign_roles_on_member_join()] seems the user {member} left before WALL_E had a "
+                    f"chance to re-assign their roles back to them?"
+                )
+                return
             except Exception as e:
                 self.logger.debug(
                     f"[Leveling assign_roles_on_member_join()] encountered following error when fixing the roles for "
