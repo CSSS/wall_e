@@ -26,7 +26,7 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, chan
     f = open(file_path, 'r')
     f.seek(0)
     channels_with_rate_limit = channel_name in [
-        'leveling_debug', 'role_commands_debug', 'process_lurkers', "update_outdated_profile_pics"
+        'member_update_listener_debug'
     ]
     incident_report_chanel_name = config.get_config_value('channel_names', 'INCIDENT_REPORT_CHANNEL')
     while not bot.is_closed():
