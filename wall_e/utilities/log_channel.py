@@ -71,5 +71,5 @@ async def write_to_bot_log_channel(logger, config, bot, file_path, chan_id, chan
             if message_sent and channels_with_rate_limit:
                 # adding a sleep cause the amount of debug logs that I print due to the wall_e_models module can
                 # trigger a Rate Limit exception if done too fast
-                await asyncio.sleep(5)
+                await asyncio.sleep(7)
         await asyncio.sleep(1)
